@@ -25,7 +25,12 @@ const ATLAS_AI_SUBJECT_ID_HEADER =
 const ATLAS_ANONYMOUS_SUGGESTION_WINDOW_MS =
     10 * 60 * 1000;
 const ATLAS_ANONYMOUS_SUGGESTION_LIMIT = 10;
+const ATLAS_ANONYMOUS_OPENING_WINDOW_MS =
+    10 * 60 * 1000;
+const ATLAS_ANONYMOUS_OPENING_LIMIT = 5;
 const atlasAnonymousSuggestionBuckets =
+    new Map();
+const atlasAnonymousOpeningBuckets =
     new Map();
 
 async function allowAtlasAnonymousSuggestion(
@@ -94,6 +99,75 @@ async function allowAtlasAnonymousSuggestion(
     return (
         current.count <=
         ATLAS_ANONYMOUS_SUGGESTION_LIMIT
+    );
+}
+
+async function allowAtlasAnonymousOpening(
+    request,
+    env
+) {
+    const address =
+        String(
+            request.headers.get(
+                'CF-Connecting-IP'
+            ) || 'unknown'
+        )
+            .trim()
+            .slice(0, 120);
+
+    const key =
+        `compass-opening:${address}`;
+
+    const configuredLimiter =
+        env.ATLAS_ANONYMOUS_SUGGESTION_RATE_LIMITER;
+
+    if (
+        configuredLimiter &&
+        typeof configuredLimiter.limit === 'function'
+    ) {
+        try {
+            const decision =
+                await configuredLimiter.limit({
+                    key
+                });
+
+            return decision?.success === true;
+        } catch (error) {
+            console.error(
+                '[Atlas AI] Anonymous opening limiter failed:',
+                error
+            );
+
+            return false;
+        }
+    }
+
+    const now = Date.now();
+    const current =
+        atlasAnonymousOpeningBuckets.get(
+            key
+        );
+
+    if (
+        !current ||
+        now - current.startedAt >=
+            ATLAS_ANONYMOUS_OPENING_WINDOW_MS
+    ) {
+        atlasAnonymousOpeningBuckets.set(
+            key,
+            {
+                startedAt: now,
+                count: 1
+            }
+        );
+        return true;
+    }
+
+    current.count += 1;
+
+    return (
+        current.count <=
+        ATLAS_ANONYMOUS_OPENING_LIMIT
     );
 }
 
@@ -3068,6 +3142,7 @@ export default {
                 '/generate-discussion-set',
                 '/generate-subject-framing',
                 '/generate-overview',
+                '/create-subject-opening',
                 '/generate-discussion-framing',
                 '/generate-cultural-lens-framing',
                 '/generate-reflection',
@@ -3212,21 +3287,35 @@ export default {
                     '/suggest-subject-ideas' &&
                 !bearerAuthorization;
 
+            const publicOpeningPreview =
+                url.pathname ===
+                    '/create-subject-opening';
+
             let authenticated = null;
 
-            if (anonymousSuggestion) {
+            if (
+                anonymousSuggestion ||
+                publicOpeningPreview
+            ) {
                 const allowed =
-                    await allowAtlasAnonymousSuggestion(
-                        request,
-                        env
-                    );
+                    publicOpeningPreview
+                        ? await allowAtlasAnonymousOpening(
+                            request,
+                            env
+                        )
+                        : await allowAtlasAnonymousSuggestion(
+                            request,
+                            env
+                        );
 
                 if (!allowed) {
                     return json(
                         {
                             ok: false,
                             error:
-                                'Compass suggestions are temporarily limited. Try again shortly.'
+                                publicOpeningPreview
+                                    ? 'Atlas openings are temporarily limited. Try again shortly.'
+                                    : 'Compass suggestions are temporarily limited. Try again shortly.'
                         },
                         429
                     );
@@ -5305,6 +5394,8 @@ export default {
                                     'Titles should be concise, natural, intriguing, and directly usable as Atlas subject titles.',
                                     'Reasons should be one concise natural sentence, ideally around 24–32 words. Give enough context to understand the conversational promise and choose between the three ideas, without trying to preview the whole subject. Do not prescribe a classroom exercise.',
                                     'Reasons are descriptions of why the subject is interesting, not instructions to the learner. Prefer natural declarative framing and vary the sentence construction across the three ideas. Do not default to formulaic openings such as “Explore…” or “Discover…”.',
+                                    'For each idea, brief should be one concise tutor-facing instruction describing the teaching direction Atlas should build around.',
+                                    'For each idea, intro should be one learner-facing paragraph of two or three clear sentences that can serve as the subject opening. Keep it consistent with the title and brief, specific rather than generic, and easy to enter in conversation.',
                                     'message should be one short natural invitation to the tutor.',
                                     '',
                                     ...(mode === 'current-affairs'
@@ -5390,6 +5481,16 @@ export default {
                                                                     'string'
                                                             },
 
+                                                            brief: {
+                                                                type:
+                                                                    'string'
+                                                            },
+
+                                                            intro: {
+                                                                type:
+                                                                    'string'
+                                                            },
+
                                                             ...(mode === 'current-affairs'
                                                                 ? {
                                                                     source: {
@@ -5460,11 +5561,15 @@ export default {
                                                                 ? [
                                                                     'title',
                                                                     'reason',
+                                                                    'brief',
+                                                                    'intro',
                                                                     'source'
                                                                 ]
                                                                 : [
                                                                     'title',
-                                                                    'reason'
+                                                                    'reason',
+                                                                    'brief',
+                                                                    'intro'
                                                                 ],
 
                                                         additionalProperties:
@@ -5599,6 +5704,16 @@ export default {
                                         idea?.reason || ''
                                     ).trim(),
 
+                                brief:
+                                    String(
+                                        idea?.brief || ''
+                                    ).trim(),
+
+                                intro:
+                                    String(
+                                        idea?.intro || ''
+                                    ).trim(),
+
                                 source:
                                     idea?.source &&
                                     typeof idea.source === 'object' &&
@@ -5652,7 +5767,9 @@ export default {
                     ideas.length !== 3 ||
                     ideas.some(idea =>
                         !idea.title ||
-                        !idea.reason
+                        !idea.reason ||
+                        !idea.brief ||
+                        !idea.intro
                     ) ||
                     (
                         mode === 'current-affairs' &&
@@ -9463,6 +9580,239 @@ export default {
                         heading,
                         intro,
                         pathDescription
+                    }
+                });
+            }
+
+            if (
+                url.pathname ===
+                '/create-subject-opening'
+            ) {
+                const title =
+                    String(
+                        body?.title || ''
+                    )
+                        .trim()
+                        .slice(0, 120);
+
+                const brief =
+                    String(
+                        body?.brief || ''
+                    )
+                        .trim()
+                        .slice(0, 2400);
+
+                if (!title || !brief) {
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                'A subject title and brief are required.'
+                        },
+                        400
+                    );
+                }
+
+                const openaiResponse =
+                    await fetch(
+                        'https://api.openai.com/v1/responses',
+                        {
+                            method: 'POST',
+
+                            headers: {
+                                'Authorization':
+                                    `Bearer ${env.OPENAI_API_KEY}`,
+
+                                'Content-Type':
+                                    'application/json'
+                            },
+
+                            body: JSON.stringify({
+                                model:
+                                    env.ATLAS_AI_MODEL ||
+                                    'gpt-5.6-luna',
+
+                                reasoning: {
+                                    effort: 'low'
+                                },
+
+                                instructions: [
+                                    'You write the opening introduction for one Atlas Compass subject.',
+                                    'Atlas is a tutor-led adult English speaking product.',
+                                    '',
+                                    'Use the tutor\'s title and brief as the chosen subject direction.',
+                                    'Write one concise learner-facing paragraph of two or three clear sentences.',
+                                    'The opening should make the subject feel immediately interesting and easy to enter in conversation.',
+                                    'Respect the specificity of the brief. Do not broaden it into a generic topic.',
+                                    'Do not invent facts, statistics, research, events, laws, or named examples that are not supplied.',
+                                    'Use natural accessible English suitable for approximately B1+ to B2 learners.',
+                                    'Do not sound like course copy or explain what Atlas will do.',
+                                    'Avoid formulaic openings such as “Explore…” or “Discover…” unless genuinely unavoidable.',
+                                    'Do not include a heading or question.',
+                                    'All text must be plain text with no Markdown.',
+                                    'Return only the requested structured payload.'
+                                ].join('\n'),
+
+                                input:
+                                    JSON.stringify(
+                                        {
+                                            title,
+                                            brief
+                                        },
+                                        null,
+                                        2
+                                    ),
+
+                                max_output_tokens:
+                                    220,
+
+                                text: {
+                                    format: {
+                                        type:
+                                            'json_schema',
+
+                                        name:
+                                            'atlas_subject_opening',
+
+                                        strict: true,
+
+                                        schema: {
+                                            type:
+                                                'object',
+
+                                            properties: {
+                                                opening: {
+                                                    type:
+                                                        'string'
+                                                }
+                                            },
+
+                                            required: [
+                                                'opening'
+                                            ],
+
+                                            additionalProperties:
+                                                false
+                                        }
+                                    }
+                                }
+                            })
+                        }
+                    );
+
+                const result =
+                    await openaiResponse.json();
+
+                if (!openaiResponse.ok) {
+                    console.error(
+                        '[Atlas AI] OpenAI opening error:',
+                        result
+                    );
+
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                String(
+                                    result?.error?.message ||
+                                    'Atlas opening creation failed.'
+                                ).trim(),
+                            providerStatus:
+                                openaiResponse.status
+                        },
+                        502
+                    );
+                }
+
+                let outputText = '';
+                let refusal = '';
+
+                for (
+                    const item of
+                    result.output || []
+                ) {
+                    if (
+                        item?.type !== 'message'
+                    ) {
+                        continue;
+                    }
+
+                    for (
+                        const content of
+                        item.content || []
+                    ) {
+                        if (
+                            content?.type ===
+                            'output_text'
+                        ) {
+                            outputText =
+                                String(
+                                    content.text || ''
+                                ).trim();
+                        }
+
+                        if (
+                            content?.type ===
+                            'refusal'
+                        ) {
+                            refusal =
+                                String(
+                                    content.refusal || ''
+                                ).trim();
+                        }
+                    }
+                }
+
+                if (refusal) {
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                'Opening creation was refused.'
+                        },
+                        400
+                    );
+                }
+
+                if (!outputText) {
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                'No opening was returned.'
+                        },
+                        502
+                    );
+                }
+
+                const generated =
+                    JSON.parse(outputText);
+
+                const opening =
+                    String(
+                        generated.opening || ''
+                    ).trim();
+
+                if (!opening) {
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                'Atlas returned an invalid opening.'
+                        },
+                        502
+                    );
+                }
+
+                return json({
+                    ok: true,
+
+                    model:
+                        env.ATLAS_AI_MODEL ||
+                        'gpt-5.6-luna',
+
+                    payload: {
+                        opening
                     }
                 });
             }
