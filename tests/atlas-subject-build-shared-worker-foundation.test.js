@@ -410,6 +410,16 @@ async function testSharedWorkerRuntime() {
             ) + 30
     });
 
+    assert.equal(
+        first
+            .latest(
+                'auth-accepted'
+            )
+            ?.workerInstanceId,
+        firstWorkerInstanceId,
+        'Every worker message must carry the runtime instance identity so a trace remains diagnostic even if its earliest worker-ready entry rolls out.'
+    );
+
     first.send({
         type:
             'request-checkpoint',
