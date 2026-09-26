@@ -1034,6 +1034,80 @@
         document.head.appendChild(script);
     }
 
+    function writeAtlasSubjectBuildWorkerClientScript() {
+        if (
+            window.AtlasSubjectBuildWorkerClient ||
+            document.querySelector(
+                'script[data-atlas-subject-build-worker-client]'
+            )
+        ) {
+            return;
+        }
+
+        const src =
+            '/shared/atlas-subject-build-worker-client.js?v=20260926-buildworker16-integration1';
+
+        if (document.readyState === 'loading') {
+            document.write(
+                `<script data-atlas-subject-build-worker-client="true" src="${src}"><\/script>`
+            );
+            return;
+        }
+
+        const script =
+            document.createElement(
+                'script'
+            );
+
+        script.src = src;
+        script.async = false;
+        script.setAttribute(
+            'data-atlas-subject-build-worker-client',
+            'true'
+        );
+
+        document.head.appendChild(
+            script
+        );
+    }
+
+    function writeAtlasSubjectBuildResurrectionScript() {
+        if (
+            window.AtlasSubjectBuildResurrection ||
+            document.querySelector(
+                'script[data-atlas-subject-build-resurrection]'
+            )
+        ) {
+            return;
+        }
+
+        const src =
+            '/shared/atlas-subject-build-resurrection.js?v=20260926-sharedworkerintegration1';
+
+        if (document.readyState === 'loading') {
+            document.write(
+                `<script data-atlas-subject-build-resurrection="true" src="${src}"><\/script>`
+            );
+            return;
+        }
+
+        const script =
+            document.createElement(
+                'script'
+            );
+
+        script.src = src;
+        script.async = false;
+        script.setAttribute(
+            'data-atlas-subject-build-resurrection',
+            'true'
+        );
+
+        document.head.appendChild(
+            script
+        );
+    }
+
     function shouldLoadAtlasAccountChrome() {
         const surface = String(
             document.body?.dataset?.atlasSurface || ''
@@ -1241,7 +1315,7 @@
                 !window.AtlasTutorSubjectsCloudAuthority
             ) {
                 await loadRuntimeScript(
-                    '/shared/atlas-tutor-subjects-cloud-authority.js?v=20260922-delete1',
+                    '/shared/atlas-tutor-subjects-cloud-authority.js?v=20260926-sharedworkerintegration1',
                     'AtlasTutorSubjectsCloudAuthority'
                 );
             }
@@ -1414,7 +1488,7 @@
 
         if (needsSubjects) {
             scripts.push(
-                '<script src="/shared/atlas-tutor-subjects-cloud-authority.js?v=20260922-delete1"><\/script>'
+                '<script src="/shared/atlas-tutor-subjects-cloud-authority.js?v=20260926-sharedworkerintegration1"><\/script>'
             );
         }
 
@@ -1454,6 +1528,10 @@
         requestCompassHubRefresh,
         ensureCompassCloudAuthority:
             loadCompassCloudAuthorityScripts,
+        ensureSubjectBuildWorkerClient:
+            writeAtlasSubjectBuildWorkerClientScript,
+        ensureSubjectBuildResurrection:
+            writeAtlasSubjectBuildResurrectionScript,
         prewarmCompassCoverImages
     };
 
@@ -1462,6 +1540,8 @@
     installCompassLiveAccountBootstrap();
     writeCloudAuthorityScripts();
     writeAtlasAccessBootstrapScript();
+    writeAtlasSubjectBuildWorkerClientScript();
+    writeAtlasSubjectBuildResurrectionScript();
     writeAtlasAccountChromeScript();
     installTutorCreateHandoff();
     registerAll();
