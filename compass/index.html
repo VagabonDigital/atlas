@@ -19303,8 +19303,16 @@
           {
             initialDraft:
               createEntryDraft,
-            anonymousPreview:
-              !getStoredCompassAccountUserId()
+
+            /*
+             * The Inside Atlas handoff is still a preview/shaping step.
+             * Do not capability-gate the modal during Compass startup:
+             * the shared access bootstrap intentionally waits for first
+             * paint, so gating here can deadlock first paint against itself.
+             * Creation capability is enforced when the tutor commits via
+             * "Create this subject".
+             */
+            anonymousPreview: true
           }
         );
       }
