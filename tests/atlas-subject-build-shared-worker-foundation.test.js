@@ -938,6 +938,15 @@ async function testWorkerClient() {
         'atlas-subject-builds'
     );
 
+    assert.equal(
+        supported
+            .workerCalls[0]
+            .options
+            .extendedLifetime,
+        true,
+        'Atlas must request extended SharedWorker lifetime so normal same-origin page navigation does not needlessly restart an in-flight subject build.'
+    );
+
     const firstAuth =
         supported
             .posted
