@@ -991,7 +991,7 @@ async function testWorkerClient() {
             .workerCalls[0]
             .options
             .name,
-        'atlas-subject-builds'
+        'atlas-subject-builds-buildworker15'
     );
 
     assert.equal(
@@ -1142,7 +1142,7 @@ function testBootstrapContract() {
 
     assert.match(
         registrySource,
-        /atlas-subject-build-worker-client\.js\?v=20260925-workerinstance2/
+        /atlas-subject-build-worker-client\.js\?v=20260925-workerinstance3/
     );
 
     assert.match(
@@ -1170,7 +1170,7 @@ function testBootstrapContract() {
 
             assert.match(
                 source,
-                /atlas-content-registry\.js\?v=20260925-workerinstance2/,
+                /atlas-content-registry\.js\?v=20260925-workerinstance3/,
                 `${path} must load the shared SharedWorker bootstrap.`
             );
         }
