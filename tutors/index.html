@@ -416,8 +416,9 @@
     html.theme-changing .power span,
     html.theme-changing .overview-video-copy p:not(.kicker),
     html.theme-changing .why-column-label,
-    html.theme-changing .problem-line,
-    html.theme-changing .quiet-thesis,
+    html.theme-changing .why-problem,
+    html.theme-changing .why-fix,
+    html.theme-changing .why-fix strong,
     html.theme-changing .create-label,
     html.theme-changing .create-prompt,
     html.theme-changing .create-input,
@@ -886,16 +887,24 @@
       font-size: clamp(32px, 3.7vw, 41px);
     }
 
-    .why-grid {
+    .why-pairs {
       margin-top: 34px;
+      border-top: 1px solid var(--border-faint);
+    }
+
+    .why-pair-head,
+    .why-pair {
       display: grid;
-      grid-template-columns: .9fr 1.1fr;
-      gap: 46px;
-      align-items: start;
+      grid-template-columns: .95fr 1.05fr;
+      column-gap: 46px;
+    }
+
+    .why-pair-head {
+      padding: 0 0 10px;
+      border-bottom: 1px solid var(--border-faint);
     }
 
     .why-column-label {
-      margin-bottom: 8px;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: .1em;
@@ -903,35 +912,29 @@
       font-weight: 700;
     }
 
-    .problem-line {
-      padding: 14px 0;
-      border-top: 1px solid var(--border-faint);
-      color: var(--text-heading);
-      font-size: 16px;
-    }
-
-    .problem-line:last-child {
+    .why-pair {
+      padding: 22px 0;
       border-bottom: 1px solid var(--border-faint);
+      align-items: start;
     }
 
-    .why-copy p+p {
-      margin-top: 16px;
-    }
-
-    .why-copy p {
-      max-width: 590px;
-      font-size: 17px;
-    }
-
-    .quiet-thesis {
-      max-width: 1040px;
-      margin-top: 38px;
-      padding-left: 24px;
-      border-left: 2px solid var(--accent);
+    .why-problem {
+      max-width: 520px;
       color: var(--text-heading);
-      font-family: var(--font-display);
-      font-size: 23px;
-      line-height: 1.35;
+      font-size: 17px;
+      line-height: 1.55;
+    }
+
+    .why-fix {
+      max-width: 560px;
+      color: var(--text-body);
+      font-size: 17px;
+      line-height: 1.55;
+    }
+
+    .why-fix strong {
+      color: var(--text-heading);
+      font-weight: 600;
     }
 
     .create-layout {
@@ -2819,7 +2822,6 @@
 
     @media (max-width: 940px) {
 
-      .why-grid,
       .create-layout,
       .ownership-layout {
         grid-template-columns: 1fr;
@@ -2980,11 +2982,30 @@
         gap: 28px;
       }
 
-      .quiet-thesis {
-        margin-top: 30px;
+      .why-pair-head {
+        display: block;
+        padding-bottom: 12px;
+      }
+
+      .why-pair-head .why-column-label:last-child {
+        display: none;
+      }
+
+      .why-pair {
+        grid-template-columns: 1fr;
+        gap: 9px;
+        padding: 18px 0;
+      }
+
+      .why-problem,
+      .why-fix {
+        max-width: none;
+        font-size: 16px;
+      }
+
+      .why-fix {
         padding-left: 16px;
-        font-size: 18px;
-        line-height: 1.42;
+        border-left: 2px solid var(--accent);
       }
     }
 
@@ -3149,26 +3170,27 @@
       <div class="frame">
         <p class="kicker">Why Atlas exists</p>
         <h2 class="why-title">The lesson is live. Most of what surrounds it isn’t.</h2>
-        <div class="why-grid">
-          <div>
-            <p class="why-column-label">What gets lost</p>
-            <div class="problem-line">Material gets scattered across documents, websites and notes.</div>
-            <div class="problem-line">Learner context lives mostly in the tutor’s memory.</div>
-            <div class="problem-line">Good language appears in conversation, then disappears.</div>
-            <div class="problem-line">Preparation time disappears into searching, adapting and rebuilding material.</div>
+        <div class="why-pairs">
+          <div class="why-pair-head" aria-hidden="true">
+            <span class="why-column-label">What gets lost</span>
+            <span class="why-column-label">What Atlas changes</span>
           </div>
-          <div class="why-copy">
-            <p class="why-column-label">What Atlas changes</p>
-            <p>Atlas brings the material, the learner and the teaching history into one workspace.</p>
-            <p>Instead of searching and rebuilding before each lesson, tutors can create or adapt what they need in
-              seconds, then carry material, adaptations and learner context forward. Less of the tutor’s work disappears
-              when the lesson ends.</p>
+
+          <div class="why-pair">
+            <div class="why-problem">Prep time spent searching for something that’s only close enough.</div>
+            <div class="why-fix"><strong>Structured subjects and conversation games, ready to teach.</strong></div>
+          </div>
+
+          <div class="why-pair">
+            <div class="why-problem">More time adapting material to fit the person in front of you.</div>
+            <div class="why-fix"><strong>Create material around that person in minutes.</strong></div>
+          </div>
+
+          <div class="why-pair">
+            <div class="why-problem">What you learn about a learner — and the language that comes up — can be easy to lose between lessons.</div>
+            <div class="why-fix"><strong>Atlas carries both forward, so the next lesson starts with more already there.</strong></div>
           </div>
         </div>
-
-        <div class="quiet-thesis">Preparation should compound, not reset. Atlas keeps the material you create, the changes you
-          make and the context you learn about each student connected, so every lesson gives you more to work with
-          and less to rebuild next time.</div>
       </div>
     </section>
 
