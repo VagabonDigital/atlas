@@ -7003,6 +7003,91 @@ export default {
                         item => item.id
                     );
 
+                const fallbackIds =
+                    targetCount >=
+                        candidateIds.length
+                        ? candidateIds.slice()
+                        : Array.from(
+                            {
+                                length:
+                                    targetCount
+                            },
+                            (_, index) => {
+                                const position =
+                                    Math.floor(
+                                        (
+                                            index +
+                                            0.5
+                                        ) *
+                                        candidateIds.length /
+                                        targetCount
+                                    );
+
+                                return candidateIds[
+                                    Math.min(
+                                        candidateIds.length -
+                                            1,
+                                        position
+                                    )
+                                ];
+                            }
+                        );
+
+                const plannerFallback = (
+                    reason,
+                    providerStatus = null
+                ) => {
+                    const normalizedReason =
+                        String(
+                            reason ||
+                            'planner-unavailable'
+                        )
+                            .trim()
+                            .slice(0, 120);
+
+                    const normalizedProviderStatus =
+                        Number(
+                            providerStatus
+                        ) || null;
+
+                    console.warn(
+                        '[Atlas AI] Key Language planner fallback:',
+                        {
+                            reason:
+                                normalizedReason,
+                            providerStatus:
+                                normalizedProviderStatus
+                        }
+                    );
+
+                    return json({
+                        ok: true,
+
+                        model:
+                            env.ATLAS_AI_MODEL ||
+                            'gpt-5.6-luna',
+
+                        ...(normalizedProviderStatus
+                            ? {
+                                providerStatus:
+                                    normalizedProviderStatus
+                            }
+                            : {}),
+
+                        planner: {
+                            source:
+                                'deterministic-fallback',
+                            reason:
+                                normalizedReason
+                        },
+
+                        payload: {
+                            ids:
+                                fallbackIds
+                        }
+                    });
+                };
+
                 const context = {
                     section,
                     targetCount,
@@ -7015,105 +7100,136 @@ export default {
                         ).trim()
                 };
 
-                const openaiResponse =
-                    await fetch(
-                        'https://api.openai.com/v1/responses',
-                        {
-                            method: 'POST',
+                let openaiResponse = null;
 
-                            headers: {
-                                'Authorization':
-                                    `Bearer ${env.OPENAI_API_KEY}`,
+                try {
+                    openaiResponse =
+                        await fetch(
+                            'https://api.openai.com/v1/responses',
+                            {
+                                method: 'POST',
 
-                                'Content-Type':
-                                    'application/json'
-                            },
+                                headers: {
+                                    'Authorization':
+                                        `Bearer ${env.OPENAI_API_KEY}`,
 
-                            body: JSON.stringify({
-                                model:
-                                    env.ATLAS_AI_MODEL ||
-                                    'gpt-5.6-luna',
-
-                                reasoning: {
-                                    effort: 'low'
+                                    'Content-Type':
+                                        'application/json'
                                 },
 
-                                instructions: [
-                                    'You select the strongest opportunities for Key Language support in one existing Atlas Compass section.',
-                                    'Atlas is a tutor-led adult English speaking product.',
-                                    '',
-                                    'Do not invent vocabulary and do not write Language Upgrades. Only choose which authored items deserve foregrounded Key Language support.',
-                                    'Key means deliberately selective: the items most worth interrupting the conversation to teach because they offer especially reusable, natural spoken English at a useful stretch for the learner.',
-                                    'Prefer opportunities that can support transferable language rather than narrow factual terminology, specialist labels, or vocabulary that is only useful for this topic.',
-                                    'Compare the candidates against each other. Do not treat every useful item as Key.',
-                                    'Spread the selection across the section when quality allows instead of clustering everything in one Discussion set or one narrow idea.',
-                                    '',
-                                    'Return exactly targetCount existing candidate IDs. Never invent an ID.',
-                                    'Use the learner-level and tutor-intent guidance in brief when supplied.',
-                                    '',
-                                    'Return only the requested structured payload.'
-                                ].join('\n'),
+                                body: JSON.stringify({
+                                    model:
+                                        env.ATLAS_AI_MODEL ||
+                                        'gpt-5.6-luna',
 
-                                input:
-                                    JSON.stringify(
-                                        context,
-                                        null,
-                                        2
-                                    ),
+                                    reasoning: {
+                                        effort:
+                                            'low'
+                                    },
 
-                                max_output_tokens:
-                                    240,
+                                    instructions: [
+                                        'You select the strongest opportunities for Key Language support in one existing Atlas Compass section.',
+                                        'Atlas is a tutor-led adult English speaking product.',
+                                        '',
+                                        'Do not invent vocabulary and do not write Language Upgrades. Only choose which authored items deserve foregrounded Key Language support.',
+                                        'Key means deliberately selective: the items most worth interrupting the conversation to teach because they offer especially reusable, natural spoken English at a useful stretch for the learner.',
+                                        'Prefer opportunities that can support transferable language rather than narrow factual terminology, specialist labels, or vocabulary that is only useful for this topic.',
+                                        'Compare the candidates against each other. Do not treat every useful item as Key.',
+                                        'Spread the selection across the section when quality allows instead of clustering everything in one Discussion set or one narrow idea.',
+                                        '',
+                                        'Return exactly targetCount existing candidate IDs. Never invent an ID.',
+                                        'Use the learner-level and tutor-intent guidance in brief when supplied.',
+                                        '',
+                                        'Return only the requested structured payload.'
+                                    ].join('\n'),
 
-                                text: {
-                                    format: {
-                                        type:
-                                            'json_schema',
+                                    input:
+                                        JSON.stringify(
+                                            context,
+                                            null,
+                                            2
+                                        ),
 
-                                        name:
-                                            'atlas_key_language_selection',
+                                    max_output_tokens:
+                                        512,
 
-                                        strict: true,
-
-                                        schema: {
+                                    text: {
+                                        format: {
                                             type:
-                                                'object',
+                                                'json_schema',
 
-                                            properties: {
-                                                ids: {
-                                                    type:
-                                                        'array',
+                                            name:
+                                                'atlas_key_language_selection',
 
-                                                    minItems:
-                                                        targetCount,
+                                            strict: true,
 
-                                                    maxItems:
-                                                        targetCount,
+                                            schema: {
+                                                type:
+                                                    'object',
 
-                                                    items: {
+                                                properties: {
+                                                    ids: {
                                                         type:
-                                                            'string',
+                                                            'array',
 
-                                                        enum:
-                                                            candidateIds
+                                                        minItems:
+                                                            targetCount,
+
+                                                        maxItems:
+                                                            targetCount,
+
+                                                        items: {
+                                                            type:
+                                                                'string',
+
+                                                            enum:
+                                                                candidateIds
+                                                        }
                                                     }
-                                                }
-                                            },
+                                                },
 
-                                            required: [
-                                                'ids'
-                                            ],
+                                                required: [
+                                                    'ids'
+                                                ],
 
-                                            additionalProperties:
-                                                false
+                                                additionalProperties:
+                                                    false
+                                            }
                                         }
                                     }
-                                }
-                            })
-                        }
+                                })
+                            }
+                        );
+                } catch (error) {
+                    console.error(
+                        '[Atlas AI] Key Language provider request failed:',
+                        error
                     );
 
-                const result =
-                    await openaiResponse.json();
+                    return plannerFallback(
+                        'provider-network-failure',
+                        503
+                    );
+                }
+
+                let result = null;
+
+                try {
+                    result =
+                        await openaiResponse.json();
+                } catch (error) {
+                    console.error(
+                        '[Atlas AI] Key Language provider response was not JSON:',
+                        error
+                    );
+
+                    return plannerFallback(
+                        openaiResponse.ok
+                            ? 'provider-response-not-json'
+                            : 'provider-error-response-not-json',
+                        openaiResponse.status
+                    );
+                }
 
                 if (!openaiResponse.ok) {
                     console.error(
@@ -7121,21 +7237,31 @@ export default {
                         result
                     );
 
-                    const providerMessage =
-                        String(
-                            result?.error?.message ||
-                            'OpenAI generation failed.'
-                        ).trim();
+                    return plannerFallback(
+                        `provider-http-${openaiResponse.status}`,
+                        openaiResponse.status
+                    );
+                }
 
-                    return json(
-                        {
-                            ok: false,
-                            error:
-                                providerMessage,
-                            providerStatus:
-                                openaiResponse.status
-                        },
-                        502
+                if (
+                    result?.status ===
+                    'incomplete'
+                ) {
+                    const incompleteReason =
+                        String(
+                            result?.incomplete_details?.reason ||
+                            'unknown'
+                        )
+                            .trim()
+                            .replace(
+                                /[^a-z0-9_-]+/gi,
+                                '-'
+                            )
+                            .slice(0, 60);
+
+                    return plannerFallback(
+                        `provider-incomplete-${incompleteReason}`,
+                        openaiResponse.status
                     );
                 }
 
@@ -7144,7 +7270,7 @@ export default {
 
                 for (
                     const item of
-                    result.output || []
+                    result?.output || []
                 ) {
                     if (
                         item?.type !== 'message'
@@ -7179,33 +7305,41 @@ export default {
                 }
 
                 if (refusal) {
-                    return json(
-                        {
-                            ok: false,
-                            error:
-                                'Generation was refused.'
-                        },
-                        400
+                    return plannerFallback(
+                        'provider-refusal',
+                        openaiResponse.status
                     );
                 }
 
                 if (!outputText) {
-                    return json(
-                        {
-                            ok: false,
-                            error:
-                                'No generated content was returned.'
-                        },
-                        502
+                    return plannerFallback(
+                        'provider-empty-output',
+                        openaiResponse.status
                     );
                 }
 
-                const generated =
-                    JSON.parse(outputText);
+                let generated = null;
+
+                try {
+                    generated =
+                        JSON.parse(
+                            outputText
+                        );
+                } catch (error) {
+                    console.error(
+                        '[Atlas AI] Key Language structured output was invalid JSON:',
+                        error
+                    );
+
+                    return plannerFallback(
+                        'invalid-structured-output',
+                        openaiResponse.status
+                    );
+                }
 
                 const ids =
                     Array.isArray(
-                        generated.ids
+                        generated?.ids
                     )
                         ? generated.ids
                             .map(id =>
@@ -7227,13 +7361,9 @@ export default {
                         !seenIds.has(id)
                     )
                 ) {
-                    return json(
-                        {
-                            ok: false,
-                            error:
-                                'Key Language selection is incomplete.'
-                        },
-                        502
+                    return plannerFallback(
+                        'invalid-selection',
+                        openaiResponse.status
                     );
                 }
 
@@ -7243,6 +7373,11 @@ export default {
                     model:
                         env.ATLAS_AI_MODEL ||
                         'gpt-5.6-luna',
+
+                    planner: {
+                        source:
+                            'model'
+                    },
 
                     payload: {
                         ids: uniqueIds
