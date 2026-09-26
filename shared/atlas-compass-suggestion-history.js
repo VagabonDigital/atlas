@@ -914,8 +914,9 @@
                 );
 
                 if (
+                    remoteRecord &&
                     readDirtyOwner() ===
-                    liveUserId
+                        liveUserId
                 ) {
                     writeDirtyOwner('');
                 }
