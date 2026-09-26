@@ -26,7 +26,7 @@
         '/shared/atlas-subject-build-shared-worker.js?v=20260925-buildworker15';
 
     const WORKER_NAME =
-        'atlas-subject-builds';
+        'atlas-subject-builds-buildworker15';
 
     const AUTH_STORAGE_KEY =
         'sb-jnhjfpagectprceswvqn-auth-token';
