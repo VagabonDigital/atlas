@@ -9,6 +9,16 @@ const authoritySource = fs.readFileSync(
     'utf8'
 );
 
+const cloudCacheSource = fs.readFileSync(
+    'shared/atlas-cloud-cache.js',
+    'utf8'
+);
+
+const sharedWorkerSource = fs.readFileSync(
+    'shared/atlas-subject-build-shared-worker.js',
+    'utf8'
+);
+
 const engineSource = fs.readFileSync(
     'compass/shared/compass-engine.js',
     'utf8'
@@ -75,19 +85,51 @@ function createFakeIndexedDB() {
     const records =
         new Map();
 
+    let version = 1;
+    let hasBrowserStateStore = false;
+
     const db = {
+        get version() {
+            return version;
+        },
+
         objectStoreNames: {
             contains(name) {
                 return (
                     name ===
-                    'browser-state'
+                        'browser-state' &&
+                    hasBrowserStateStore
                 );
             }
         },
 
-        createObjectStore() {},
+        createObjectStore(name) {
+            if (name === 'browser-state') {
+                hasBrowserStateStore = true;
+            }
 
-        transaction() {
+            return {};
+        },
+
+        close() {},
+
+        transaction(storeName) {
+            if (
+                storeName !==
+                    'browser-state' ||
+                !hasBrowserStateStore
+            ) {
+                const error =
+                    new Error(
+                        'One of the specified object stores was not found.'
+                    );
+
+                error.name =
+                    'NotFoundError';
+
+                throw error;
+            }
+
             const transaction = {
                 error: null,
                 oncomplete: null,
@@ -157,7 +199,22 @@ function createFakeIndexedDB() {
     return {
         records,
 
-        open() {
+        get version() {
+            return version;
+        },
+
+        hasStore(name) {
+            return (
+                name ===
+                    'browser-state' &&
+                hasBrowserStateStore
+            );
+        },
+
+        open(
+            _name,
+            requestedVersion
+        ) {
             const request = {
                 result: db,
                 error: null,
@@ -168,7 +225,29 @@ function createFakeIndexedDB() {
             };
 
             setTimeout(
-                () => request.onsuccess?.(),
+                () => {
+                    const targetVersion =
+                        Math.max(
+                            version,
+                            Number(
+                                requestedVersion
+                            ) ||
+                            version
+                        );
+
+                    if (
+                        targetVersion >
+                        version
+                    ) {
+                        version =
+                            targetVersion;
+
+                        request
+                            .onupgradeneeded?.();
+                    }
+
+                    request.onsuccess?.();
+                },
                 0
             );
 
@@ -221,6 +300,12 @@ function buildCheckpoint(
             completedStep,
             autoSaveOnComplete:
                 true,
+            generationContext: {
+                version:
+                    1,
+                premise:
+                    'Legacy context'
+            },
             startedAt:
                 updatedAt,
             updatedAt
@@ -263,6 +348,8 @@ async function loadAuthority({
         }
     };
 
+    const updateCalls = [];
+
     const cloud = {
         async getOwnedSubject(id) {
             return id === subject.id
@@ -282,6 +369,69 @@ async function loadAuthority({
                     )
                 )
             ];
+        },
+
+        async updateOwnedSubject(
+            record,
+            expectedRevision
+        ) {
+            if (
+                subject.revision !==
+                    expectedRevision
+            ) {
+                const error =
+                    new Error(
+                        'Revision conflict'
+                    );
+
+                error.code =
+                    'ATLAS_REVISION_CONFLICT';
+
+                throw error;
+            }
+
+            updateCalls.push({
+                record:
+                    JSON.parse(
+                        JSON.stringify(
+                            record
+                        )
+                    ),
+                expectedRevision
+            });
+
+            subject.metadata =
+                JSON.parse(
+                    JSON.stringify(
+                        record.metadata ||
+                        {}
+                    )
+                );
+
+            subject.document =
+                JSON.parse(
+                    JSON.stringify(
+                        record.document
+                    )
+                );
+
+            subject.provenance =
+                record.provenance
+                    ? JSON.parse(
+                        JSON.stringify(
+                            record.provenance
+                        )
+                    )
+                    : null;
+
+            subject.revision =
+                expectedRevision + 1;
+
+            return JSON.parse(
+                JSON.stringify(
+                    subject
+                )
+            );
         }
     };
 
@@ -341,7 +491,8 @@ async function loadAuthority({
     return {
         Subjects:
             window.AtlasTutorSubjects,
-        subject
+        subject,
+        updateCalls
     };
 }
 
@@ -396,6 +547,20 @@ async function verifyFullLocalStorageDoesNotBlockGeneration() {
             indexedDB
         });
 
+    assert.equal(
+        indexedDB.version,
+        2,
+        'An existing v1 subject database must upgrade to the Batch 5 browser-state schema.'
+    );
+
+    assert.equal(
+        indexedDB.hasStore(
+            'browser-state'
+        ),
+        true,
+        'The v2 upgrade must create the browser-state object store before checkpoint access.'
+    );
+
     const migrated =
         await Subjects
             .getBuildState(
@@ -434,7 +599,17 @@ async function verifyFullLocalStorageDoesNotBlockGeneration() {
                             'full-subject',
                         completedStep: 3,
                         autoSaveOnComplete:
-                            true
+                            true,
+                        generationContext: {
+                            version:
+                                1,
+                            premise:
+                                'Current Affairs context',
+                            source: {
+                                readMore:
+                                    'Persist this across all pages closing.'
+                            }
+                        }
                     }
                 }
             );
@@ -444,6 +619,29 @@ async function verifyFullLocalStorageDoesNotBlockGeneration() {
             ?.completedStep,
         3,
         'Generation checkpoint must save even when every localStorage write is rejected.'
+    );
+
+    assert.equal(
+        saved?.buildState
+            ?.generationContext
+            ?.source
+            ?.readMore,
+        'Persist this across all pages closing.',
+        'Generation context must remain inside the canonical build checkpoint.'
+    );
+
+    const persistedBuildState =
+        await Subjects
+            .getBuildState(
+                'subject-active'
+            );
+
+    assert.equal(
+        persistedBuildState
+            ?.generationContext
+            ?.premise,
+        'Current Affairs context',
+        'Checkpoint reads must restore the latest generation context after browser resurrection.'
     );
 
     const draft =
@@ -499,9 +697,156 @@ async function verifyFullLocalStorageDoesNotBlockGeneration() {
     );
 }
 
+async function verifyCheckpointBeatsNewerStaleProjection() {
+    const storage =
+        new FullLocalStorage();
+
+    const indexedDB =
+        createFakeIndexedDB();
+
+    const {
+        Subjects
+    } =
+        await loadAuthority({
+            storage,
+            indexedDB
+        });
+
+    const checkpoint =
+        await Subjects
+            .saveBuildCheckpoint(
+                'subject-active',
+                {
+                    workingDraft: {
+                        baseRevision: 3,
+
+                        document: {
+                            schemaVersion: 1,
+
+                            module: {
+                                title:
+                                    'Checkpoint Authoritative'
+                            }
+                        },
+
+                        activeViewId:
+                            'view-discussion'
+                    },
+
+                    buildState: {
+                        kind:
+                            'full-subject',
+                        completedStep: 16,
+                        autoSaveOnComplete:
+                            true
+                    }
+                }
+            );
+
+    assert.ok(
+        checkpoint,
+        'Test setup must create the atomic build checkpoint.'
+    );
+
+    const staleUpdatedAt =
+        checkpoint.updatedAt +
+        1000;
+
+    indexedDB.records.set(
+        'working-draft::subject-active',
+        {
+            ...JSON.parse(
+                JSON.stringify(
+                    checkpoint.workingDraft
+                )
+            ),
+
+            document: {
+                schemaVersion: 1,
+
+                module: {
+                    title:
+                        'Newer Timestamp, Stale Document'
+                }
+            },
+
+            updatedAt:
+                staleUpdatedAt
+        }
+    );
+
+    indexedDB.records.set(
+        'build-state::subject-active',
+        {
+            ...JSON.parse(
+                JSON.stringify(
+                    checkpoint.buildState
+                )
+            ),
+
+            completedStep: 7,
+            updatedAt:
+                staleUpdatedAt
+        }
+    );
+
+    const draft =
+        await Subjects
+            .getWorkingDraft(
+                'subject-active'
+            );
+
+    const buildState =
+        await Subjects
+            .getBuildState(
+                'subject-active'
+            );
+
+    assert.equal(
+        draft
+            ?.document
+            ?.module
+            ?.title,
+        'Checkpoint Authoritative',
+        'A later-timestamp ordinary working draft must not replace the atomic build checkpoint document.'
+    );
+
+    assert.equal(
+        buildState
+            ?.completedStep,
+        16,
+        'A later-timestamp build-state projection must not replace the atomic checkpoint step.'
+    );
+}
+
 assert.match(
     authoritySource,
     /BROWSER_STATE_DB_NAME = 'atlas-tutor-subjects'/
+);
+
+assert.match(
+    authoritySource,
+    /BROWSER_STATE_DB_VERSION = 2/
+);
+
+assert.match(
+    cloudCacheSource,
+    /SUBJECT_BROWSER_STATE_DB_VERSION = 2/
+);
+
+assert.match(
+    cloudCacheSource,
+    /request\.onupgradeneeded[\s\S]*?createObjectStore\([\s\S]*?SUBJECT_BROWSER_STATE_STORE/
+);
+
+assert.match(
+    sharedWorkerSource,
+    /BROWSER_STATE_DB_VERSION = 2/
+);
+
+assert.match(
+    sharedWorkerSource,
+    /indexedDB\.open\([\s\S]*?BROWSER_STATE_DB_NAME,[\s\S]*?BROWSER_STATE_DB_VERSION/
 );
 
 assert.match(
@@ -540,10 +885,13 @@ assert.match(
     /isCheckpointStorageFailure[\s\S]*?showRetryButton\(true\)[\s\S]*?return;/
 );
 
-verifyFullLocalStorageDoesNotBlockGeneration()
+Promise.all([
+    verifyFullLocalStorageDoesNotBlockGeneration(),
+    verifyCheckpointBeatsNewerStaleProjection()
+])
     .then(() => {
         console.log(
-            'Atlas subject persistence contract passed: full localStorage no longer blocks signed-in subject generation, legacy full-document state migrates to IndexedDB, cloud-backed legacy subject copies are reclaimed, and checkpoint recovery remains explicit.'
+            'Atlas subject persistence contract passed: existing v1 browser databases upgrade to the v2 browser-state store, full localStorage no longer blocks signed-in subject generation, generation context survives the canonical IndexedDB checkpoint, the atomic checkpoint stays authoritative over newer-timestamp stale draft/state projections, legacy full-document state migrates safely, and cloud-backed legacy subject copies are reclaimed.'
         );
     })
     .catch(error => {
