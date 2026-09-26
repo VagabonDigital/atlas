@@ -1015,7 +1015,7 @@
         }
 
         const src =
-            '/shared/atlas-access-bootstrap.js?v=20260920-accountstable6';
+            '/shared/atlas-access-bootstrap.js?v=20260926-capabilityorder1';
 
         if (document.readyState === 'loading') {
             document.write(
