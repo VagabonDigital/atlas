@@ -23,7 +23,7 @@
     }
 
     const WORKER_URL =
-        '/shared/atlas-subject-build-shared-worker.js?v=20260925-buildworker13';
+        '/shared/atlas-subject-build-shared-worker.js?v=20260925-buildworker14';
 
     const WORKER_NAME =
         'atlas-subject-builds';
@@ -689,6 +689,9 @@
             traceDebug(
                 'worker:' + type,
                 {
+                    workerInstanceId:
+                        message.workerInstanceId ||
+                        null,
                     subjectId:
                         message.subjectId ||
                         message
