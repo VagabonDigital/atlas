@@ -260,15 +260,39 @@ assert.match(
 );
 
 assert.match(
+    source,
+    /saveHubCoverPickerSearchImage\(photo\)/,
+    'Hub search results must validate the selected cover before saving it.'
+);
+
+assert.match(
+    source,
+    /resolveHubCoverPickerSearchImageUrl\([\s\S]*?photo\?\.imageUrl[\s\S]*?photo\?\.previewUrl/,
+    'Hub cover search must fall back from the original image URL to the loadable preview URL.'
+);
+
+assert.match(
+    engine,
+    /applyMyVersionCoverPickerSearchPhoto\([\s\S]*?resolveMyVersionCoverPickerSearchImageUrl/,
+    'In-subject cover results must validate the selected image before applying it.'
+);
+
+assert.match(
+    engine,
+    /resolveMyVersionCoverPickerSearchImageUrl\([\s\S]*?photo\?\.imageUrl[\s\S]*?photo\?\.previewUrl/,
+    'In-subject cover search must fall back from the original image URL to the loadable preview URL.'
+);
+
+assert.match(
     originalEntry,
-    /compass-engine\.js\?v=20260923-currentcoverurl1/,
-    'Atlas Original subjects must load the current-cover URL picker engine revision.'
+    /compass-engine\.js\?v=20260926-coverfallback1/,
+    'Atlas Original subjects must load the cover-fallback engine revision.'
 );
 
 assert.match(
     subjectLoader,
-    /compass-engine\.js\?v=20260923-currentcoverurl1/,
-    'Owned subjects must load the current-cover URL picker engine revision.'
+    /compass-engine\.js\?v=20260926-coverfallback1/,
+    'Owned subjects must load the cover-fallback engine revision.'
 );
 
 console.log(
