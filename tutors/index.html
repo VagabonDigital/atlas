@@ -938,8 +938,8 @@
     }
 
     .why-label--usual {
-      color: var(--text-muted);
-      font-weight: 500;
+      color: var(--text-heading);
+      font-weight: 700;
     }
 
     .why-label--atlas {
@@ -955,14 +955,17 @@
     }
 
     .why-pair {
-      align-items: start;
+      align-items: stretch;
     }
 
     .why-problem {
+      display: flex;
+      align-items: center;
       max-width: 30em;
       padding: 30px 0 34px;
-      color: color-mix(in srgb, var(--text-body) 72%, var(--text-muted));
+      color: var(--text-body);
       font-size: 17px;
+      font-weight: 500;
       line-height: 1.6;
     }
 
