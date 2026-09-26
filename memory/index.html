@@ -1176,8 +1176,18 @@
             notesTextarea.value =
                 memory.notes || '';
 
+            content.hidden = false;
+
             suggestionTextareas.forEach(
                 resizeSuggestionTextarea
+            );
+
+            window.requestAnimationFrame(
+                () => {
+                    suggestionTextareas.forEach(
+                        resizeSuggestionTextarea
+                    );
+                }
             );
 
             lastSavedValue =
@@ -1222,8 +1232,18 @@
                 );
             });
 
-            content.hidden = false;
         }
+
+        window.addEventListener(
+            'resize',
+            () => {
+                if (content.hidden) return;
+
+                suggestionTextareas.forEach(
+                    resizeSuggestionTextarea
+                );
+            }
+        );
 
         document.addEventListener(
             'visibilitychange',
