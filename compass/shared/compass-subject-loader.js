@@ -509,7 +509,7 @@
     async function loadCompassEngine() {
         try {
             await loadScript(
-                '../shared/compass-engine.js?v=20260926-coverfallback2',
+                '../shared/compass-engine.js?v=20260926-seedopening1',
                 'Compass engine could not be loaded.'
             );
 
