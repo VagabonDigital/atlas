@@ -46,7 +46,7 @@
     const PENDING_DELETE_PREFIX = 'atlas::tutorSubjects::pendingDelete::';
 
     const BROWSER_STATE_DB_NAME = 'atlas-tutor-subjects';
-    const BROWSER_STATE_DB_VERSION = 1;
+    const BROWSER_STATE_DB_VERSION = 2;
     const BROWSER_STATE_STORE = 'browser-state';
 
     const pendingDeleteTimers = new Map();
@@ -245,7 +245,17 @@
                 };
 
                 request.onsuccess = () => {
-                    resolve(request.result);
+                    const db = request.result;
+
+                    db.onversionchange = () => {
+                        try {
+                            db.close();
+                        } catch { }
+
+                        browserStateDbPromise = null;
+                    };
+
+                    resolve(db);
                 };
 
                 request.onerror = () => {
@@ -1673,6 +1683,12 @@
             kind: 'full-subject',
             completedStep: Math.max(0, Math.floor(Number(record.completedStep) || 0)),
             autoSaveOnComplete: record.autoSaveOnComplete !== false,
+            generationContext:
+                record.generationContext &&
+                typeof record.generationContext === 'object' &&
+                !Array.isArray(record.generationContext)
+                    ? cloneJson(record.generationContext)
+                    : null,
             startedAt: Math.max(0, Number(record.startedAt) || Number(record.updatedAt) || Date.now()),
             updatedAt: Math.max(0, Number(record.updatedAt) || 0)
         };
@@ -1723,16 +1739,14 @@
             subject.id
         );
 
-        if (
-            checkpoint &&
-            (
-                !storedDraft ||
-                checkpoint
-                    .workingDraft
-                    .updatedAt >
-                    storedDraft.updatedAt
-            )
-        ) {
+        /*
+         * During a full-subject build, the atomic checkpoint is the
+         * authoritative document + progress journal. A separately persisted
+         * working draft can have a later timestamp while still containing an
+         * older document (for example, when a page is crossing an ownership
+         * handoff). Never let that timestamp overwrite checkpoint coherence.
+         */
+        if (checkpoint) {
             return cloneJson(
                 checkpoint.workingDraft
             );
@@ -1827,16 +1841,13 @@
             subject.id
         );
 
-        if (
-            checkpoint &&
-            (
-                !storedState ||
-                checkpoint
-                    .buildState
-                    .updatedAt >
-                    storedState.updatedAt
-            )
-        ) {
+        /*
+         * Build progress must come from the same atomic checkpoint as the
+         * document above. Timestamp arbitration against a separate build-state
+         * projection can otherwise pair a newer step with an older document,
+         * or vice versa.
+         */
+        if (checkpoint) {
             return cloneJson(
                 checkpoint.buildState
             );
