@@ -1735,6 +1735,47 @@
         );
     }
 
+    function trackCommercialEvent(
+        name,
+        {
+            source = '',
+            phase = '',
+            reason = ''
+        } = {}
+    ) {
+        const checkoutSource =
+            clean(
+                source ||
+                activeCheckout?.source
+            ) ||
+            'contextual-upgrade';
+
+        const params = {
+            checkout_source:
+                checkoutSource
+        };
+
+        if (phase) {
+            params.commercial_phase =
+                clean(phase);
+        }
+
+        if (reason) {
+            params.reason =
+                clean(reason);
+        }
+
+        try {
+            return window.AtlasAnalytics
+                ?.send?.(
+                    name,
+                    params
+                ) === true;
+        } catch {
+            return false;
+        }
+    }
+
     async function waitForActivation() {
         if (activationPromise) {
             return activationPromise;
@@ -1803,6 +1844,10 @@
                                 action: true
                             });
 
+                            trackCommercialEvent(
+                                'atlas_pro_activated'
+                            );
+
                             window.dispatchEvent(
                                 new CustomEvent(
                                     'atlas:pro-checkout-activated',
@@ -1860,6 +1905,14 @@
                     action: true
                 });
 
+                trackCommercialEvent(
+                    'atlas_commercial_failure',
+                    {
+                        phase: 'activation',
+                        reason: 'timeout'
+                    }
+                );
+
                 return false;
             })()
                 .finally(() => {
@@ -1876,6 +1929,16 @@
         if (
             name === 'checkout.loaded'
         ) {
+            if (
+                activeCheckout &&
+                !activeCheckout.analyticsOpened
+            ) {
+                activeCheckout.analyticsOpened = true;
+                trackCommercialEvent(
+                    'atlas_checkout_opened'
+                );
+            }
+
             void revealCheckoutWhenReady();
             return;
         }
@@ -1884,6 +1947,10 @@
             name ===
             'checkout.completed'
         ) {
+            trackCommercialEvent(
+                'atlas_checkout_completed'
+            );
+
             settleCheckoutPresentation(
                 true
             );
@@ -1923,6 +1990,10 @@
                 activeCheckout &&
                 !activeCheckout.completed
             ) {
+                trackCommercialEvent(
+                    'atlas_checkout_abandoned'
+                );
+
                 const trigger =
                     activeCheckout.trigger;
 
@@ -1940,6 +2011,14 @@
         if (
             name === 'checkout.error'
         ) {
+            trackCommercialEvent(
+                'atlas_commercial_failure',
+                {
+                    phase: 'checkout',
+                    reason: 'paddle_error'
+                }
+            );
+
             const presentationPending =
                 Boolean(
                     activeCheckout &&
@@ -2017,7 +2096,8 @@
         onStatus = null,
         onActivated = null,
         continueLabel = 'Continue',
-        onContinue = null
+        onContinue = null,
+        recovered = false
     } = {}) {
         activeCheckout = {
             source:
@@ -2031,6 +2111,7 @@
                 'Continue',
             onContinue,
             completed: false,
+            analyticsOpened: false,
             presentationSettled: false,
             resolvePresentation: null,
             inlineMobile:
@@ -2084,6 +2165,14 @@
                 error
             );
 
+            trackCommercialEvent(
+                'atlas_commercial_failure',
+                {
+                    phase: 'eligibility',
+                    reason: 'plan_check_failed'
+                }
+            );
+
             clearRecoverableCheckoutIntent();
             notifyStatus(
                 'Atlas could not confirm your current plan. Please try again.',
@@ -2096,6 +2185,14 @@
             !access?.ready ||
             !access?.authenticated
         ) {
+            trackCommercialEvent(
+                'atlas_commercial_failure',
+                {
+                    phase: 'eligibility',
+                    reason: 'plan_state_unavailable'
+                }
+            );
+
             clearRecoverableCheckoutIntent();
             notifyStatus(
                 'Atlas could not confirm your current plan. Please try again.',
@@ -2112,6 +2209,12 @@
                 '/account/subscription/'
             );
             return true;
+        }
+
+        if (!recovered) {
+            trackCommercialEvent(
+                'atlas_upgrade_intent'
+            );
         }
 
         setRecoverableCheckoutIntent(
@@ -2209,6 +2312,14 @@
                 error
             );
 
+            trackCommercialEvent(
+                'atlas_commercial_failure',
+                {
+                    phase: 'open',
+                    reason: 'checkout_open_failed'
+                }
+            );
+
             notifyStatus(
                 'Checkout could not open. Please try again.',
                 'error'
@@ -2276,7 +2387,8 @@
                 }
 
                 return open({
-                    source: intent.source
+                    source: intent.source,
+                    recovered: true
                 });
             })()
                 .finally(() => {
