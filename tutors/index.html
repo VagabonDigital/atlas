@@ -2950,7 +2950,7 @@
     <div class="frame header-inner">
       <a class="brand" href="../index.html" aria-label="Atlas home">Atlas<span>.</span></a>
       <nav class="nav" aria-label="Tutor Layer chapters">
-        <a href="#top">Overview</a><a href="#why">Why</a><a href="#teach">Teach</a><a href="#create">Create</a><a href="#own">Yours</a><a
+        <a href="#top">Overview</a><a href="#why">Why</a><a href="#teach">Teach</a><a href="#create">Create</a><a
           href="#keep">Continuity</a>
       </nav>
       <div class="atlas-inside-account-entry" data-atlas-account-entry data-account-state="pending"
@@ -3199,46 +3199,6 @@
             </div>
           </div>
         </div>
-      </div>
-    </section>
-
-    <section class="section" id="own">
-      <div class="frame">
-        <p class="kicker">Make it yours</p>
-        <h2>Create it. Change it. Keep it. Build your library.</h2>
-        <p class="lede">Start with an Atlas Original, save your own version of it, create a subject yourself, or build a
-          custom Session Subject for one learner.</p>
-
-        <div class="ownership-layout">
-          <div class="ownership-copy">
-            <h3>The material answers to the tutor.</h3>
-            <p>Make the material sound, feel and work like you. Rewrite the questions. Change the framing. Choose the cover.
-              Add artwork if you want it.</p>
-            <p>Save your own version of an Atlas Original, create material for your teaching library, or build a custom
-              Session Subject for a learner.</p>
-            <div class="library-line">Atlas is your personal teaching library to create, shape and teach from.</div>
-          </div>
-
-          <div>
-            <div class="stage-tabs" aria-label="Material state"><button type="button" aria-pressed="true"
-                data-stage="original">Atlas Original</button><button type="button" aria-pressed="false"
-                data-stage="version">My Version</button><button type="button" aria-pressed="false"
-                data-stage="subject">My Subject</button><button type="button" aria-pressed="false"
-                data-stage="session">Session Subject</button></div>
-
-            <div class="material-sheet" id="materialSheet" data-stage="original" aria-live="polite">
-              <div class="material-head"><span id="materialState">Atlas Original</span><span
-                  id="materialMeta">created by Atlas</span></div>
-              <div class="material-body">
-                <h3 id="materialTitle">Why We Love Tiny Things</h3>
-                <div class="material-question" id="materialQuestion">Why do miniature versions of ordinary things feel so
-                  charming?</div>
-                <div class="material-note" id="materialNote">A question from the Atlas Original.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
       </div>
     </section>
 
@@ -3934,38 +3894,6 @@
           window.location.href = destination.href;
         });
       }
-
-      var ownershipStages = {
-        original: { state: "Atlas Original", meta: "created by Atlas", title: "Why We Love Tiny Things", question: "Why do miniature versions of ordinary things feel so charming?", note: "A question from the Atlas Original." },
-        version: { state: "My Version", meta: "your saved version", title: "Why We Love Tiny Things", question: "Why can miniature things feel even more charming than the real thing?", note: "Your edited version of this question." },
-        subject: { state: "My Subject", meta: "created by you", title: "Small Talk That Actually Goes Somewhere", question: "What do you say after someone answers, “Yeah, not bad”?", note: "A subject you created yourself for your teaching library." },
-        session: { state: "Session Subject", meta: "made for one learner", title: "Your Interview for a Product Designer Role at LEGO", question: "If a six-year-old hates your idea but your manager loves it, who do you listen to?", note: "A custom subject made for one learner." }
-      };
-      var stageButtons = Array.prototype.slice.call(document.querySelectorAll(".stage-tabs button"));
-      var materialSheet = document.getElementById("materialSheet");
-      var materialState = document.getElementById("materialState"), materialMeta = document.getElementById("materialMeta"), materialTitle = document.getElementById("materialTitle"), materialQuestion = document.getElementById("materialQuestion"), materialNote = document.getElementById("materialNote");
-
-      function renderOwnershipStage(stageName) {
-        var stage = ownershipStages[stageName];
-        if (!stage) return;
-        materialSheet.dataset.stage = stageName;
-        materialState.textContent = stage.state;
-        materialMeta.textContent = stage.meta;
-        materialTitle.textContent = stage.title;
-        materialQuestion.textContent = stage.question;
-        materialNote.textContent = stage.note;
-      }
-
-      stageButtons.forEach(function (button) {
-        button.addEventListener("click", function () {
-          stageButtons.forEach(function (item) {
-            item.setAttribute("aria-pressed", String(item === button));
-          });
-          renderOwnershipStage(button.getAttribute("data-stage"));
-        });
-      });
-
-      renderOwnershipStage("original");
 
       var teachCompassSubjects = [
         {
