@@ -5145,6 +5145,7 @@
   <script src="../shared/atlas-subject-artwork.js?v=20260921-artworkauth1"></script>
   <script src="../shared/atlas-original-curation.js?v=20260918-menufix1"></script>
   <script src="../shared/atlas-ai.js?v=20260921-artworkauth1"></script>
+  <script src="../shared/atlas-compass-suggestion-history.js?v=20260926-suggestionmemory1"></script>
   <script src="../shared/compass-catalog-data.js?v=5"></script>
   <script src="../shared/atlas-content-registry.js?v=20260925-paymentcream1"></script>
   <script src="/shared/atlas-pro-checkout.js?v=20260925-paymentcream1"></script>
@@ -16130,7 +16131,6 @@
 
     let compassRecommendationContext = null;
     let compassRecommendationRequestId = 0;
-    const compassSuggestionHistory = new Map();
 
     const COMPASS_IDEA_MODES = [
       {
@@ -16317,22 +16317,6 @@
       } catch {
         return '';
       }
-    }
-
-    function getCompassSuggestionHistoryKey(
-      sessionId,
-      modeId,
-      topicFocus = ''
-    ) {
-      return (
-        String(sessionId || '') +
-        '::' +
-        String(modeId || '') +
-        '::' +
-        String(topicFocus || '')
-          .trim()
-          .toLowerCase()
-      );
     }
 
     function getCompassIdeaContextSubject(
@@ -16873,17 +16857,25 @@
         '</div>' +
         '</div>';
 
-      const historyKey =
-        getCompassSuggestionHistoryKey(
-          context.sessionId,
-          selectedMode.id,
-          topicFocus
-        );
+      const SuggestionHistory =
+        window.AtlasCompassSuggestionHistory;
+
+      if (
+        SuggestionHistory &&
+        typeof SuggestionHistory.initialize ===
+          'function'
+      ) {
+        await SuggestionHistory.initialize();
+      }
 
       const recentSuggestions =
-        compassSuggestionHistory.get(
-          historyKey
-        ) || [];
+        SuggestionHistory &&
+        typeof SuggestionHistory.getTitles ===
+          'function'
+          ? SuggestionHistory.getTitles(
+              selectedMode.id
+            )
+          : [];
 
       const interests =
         selectedMode.id ===
@@ -16932,26 +16924,20 @@
           return;
         }
 
-        const nextSuggestionHistory = [
-          ...recentSuggestions,
-
-          ...result.ideas.map(idea => ({
-            title:
+        if (
+          SuggestionHistory &&
+          typeof SuggestionHistory.remember ===
+            'function'
+        ) {
+          void SuggestionHistory.remember(
+            selectedMode.id,
+            result.ideas.map(idea =>
               String(
                 idea?.title || ''
-              ).trim(),
-
-            reason:
-              String(
-                idea?.reason || ''
               ).trim()
-          }))
-        ].slice(-18);
-
-        compassSuggestionHistory.set(
-          historyKey,
-          nextSuggestionHistory
-        );
+            )
+          );
+        }
 
         region.innerHTML =
           renderCompassRecommendationResult(
