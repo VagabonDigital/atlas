@@ -16869,6 +16869,55 @@
       input.focus();
     }
 
+    function reframeCompassSuggestionResults(
+      dialog,
+      region
+    ) {
+      const panel =
+        dialog?.closest(
+          '.owned-subject-dialog-panel'
+        ) ||
+        dialog;
+
+      if (!panel || !region) {
+        return;
+      }
+
+      window.requestAnimationFrame(() => {
+        if (
+          !document.contains(panel) ||
+          !document.contains(region)
+        ) {
+          return;
+        }
+
+        const panelRect =
+          panel.getBoundingClientRect();
+
+        const regionRect =
+          region.getBoundingClientRect();
+
+        const top =
+          Math.max(
+            0,
+            panel.scrollTop +
+              regionRect.top -
+              panelRect.top -
+              20
+          );
+
+        panel.scrollTo({
+          top,
+          behavior:
+            window.matchMedia?.(
+              '(prefers-reduced-motion: reduce)'
+            )?.matches
+              ? 'auto'
+              : 'smooth'
+        });
+      });
+    }
+
     async function askCompassForSubjects(
       button,
       requestedModeId = ''
@@ -17100,6 +17149,11 @@
             result,
             topicFocus
           );
+
+        reframeCompassSuggestionResults(
+          dialog,
+          region
+        );
 
         if (label) {
           label.textContent =
