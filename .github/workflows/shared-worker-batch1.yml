@@ -1,0 +1,23 @@
+name: SharedWorker Integration Batch 1
+
+on:
+  push:
+    branches:
+      - integration/shared-worker-subject-builds
+
+jobs:
+  batch1-foundation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run Batch 1 foundation regressions
+        run: |
+          set -euo pipefail
+          node tests/atlas-subject-build-worker-neutral.test.js
+          node tests/atlas-subject-build-runner-foundation.test.js
+          node tests/atlas-subject-checkpoint-persistence.test.js
+          node tests/atlas-subject-build-shared-worker-foundation.test.js
