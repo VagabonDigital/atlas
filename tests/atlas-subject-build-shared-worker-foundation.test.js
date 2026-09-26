@@ -1057,7 +1057,7 @@ function testBootstrapContract() {
 
     assert.match(
         registrySource,
-        /atlas-subject-build-worker-client\.js\?v=20260925-coldreopen1/
+        /atlas-subject-build-worker-client\.js\?v=20260925-navlifetime1/
     );
 
     assert.match(
