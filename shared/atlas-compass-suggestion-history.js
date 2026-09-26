@@ -168,6 +168,25 @@
         return normalizeState(null);
     }
 
+    function hasMeaningfulState(value) {
+        const state = normalizeState(value);
+
+        return Object.values(
+            state.historyByMode
+        ).some(titles =>
+            Array.isArray(titles) &&
+            titles.length > 0
+        );
+    }
+
+    function statesEqual(left, right) {
+        return JSON.stringify(
+            normalizeState(left)
+        ) === JSON.stringify(
+            normalizeState(right)
+        );
+    }
+
     function readCacheOwner() {
         try {
             return String(
@@ -739,14 +758,89 @@
                 currentUserId =
                     liveUserId;
 
+                const localBefore =
+                    readCacheOwner() ===
+                        liveUserId
+                        ? readLocalState()
+                        : emptyState();
+
                 remoteRecord =
                     await fetchRemote(
                         liveUserId
                     );
 
                 if (remoteRecord) {
+                    const merged =
+                        mergeStates(
+                            remoteRecord.state,
+                            localBefore
+                        );
+
+                    if (
+                        hasMeaningfulState(
+                            localBefore
+                        ) &&
+                        !statesEqual(
+                            merged,
+                            remoteRecord.state
+                        )
+                    ) {
+                        try {
+                            remoteRecord =
+                                await updateRemote(
+                                    liveUserId,
+                                    merged,
+                                    remoteRecord.revision
+                                );
+                        } catch (error) {
+                            if (
+                                error?.code !==
+                                'ATLAS_REVISION_CONFLICT'
+                            ) {
+                                throw error;
+                            }
+
+                            remoteRecord =
+                                await mergeAndRetry(
+                                    liveUserId,
+                                    merged
+                                );
+                        }
+                    }
+
                     writeLocalState(
-                        remoteRecord.state
+                        remoteRecord?.state ||
+                        merged
+                    );
+                } else if (
+                    hasMeaningfulState(
+                        localBefore
+                    )
+                ) {
+                    try {
+                        remoteRecord =
+                            await createRemote(
+                                liveUserId,
+                                localBefore
+                            );
+                    } catch (error) {
+                        if (
+                            error?.code !==
+                            '23505'
+                        ) {
+                            throw error;
+                        }
+
+                        remoteRecord =
+                            await mergeAndRetry(
+                                liveUserId,
+                                localBefore
+                            );
+                    }
+
+                    writeLocalState(
+                        remoteRecord?.state ||
+                        localBefore
                     );
                 } else {
                     writeLocalState(
