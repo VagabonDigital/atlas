@@ -7770,6 +7770,72 @@ async function generateMyVersionFullSubject({
                 );
             }
 
+            const seedIntroduction =
+                String(
+                    window.AtlasGenerationContext
+                        ?.seedIntroduction || ''
+                ).trim();
+
+            if (seedIntroduction) {
+                const seededOverview =
+                    commitMyVersionDocumentMutation(
+                        (document, overrides) => {
+                            if (
+                                !document.subjectCopy ||
+                                typeof document.subjectCopy !==
+                                    'object' ||
+                                Array.isArray(
+                                    document.subjectCopy
+                                )
+                            ) {
+                                return null;
+                            }
+
+                            document.subjectCopy.overview =
+                                document.subjectCopy.overview &&
+                                typeof document.subjectCopy
+                                    .overview === 'object' &&
+                                !Array.isArray(
+                                    document.subjectCopy
+                                        .overview
+                                )
+                                    ? document.subjectCopy
+                                        .overview
+                                    : {};
+
+                            document.subjectCopy.overview
+                                .intro = [
+                                    seedIntroduction
+                                ];
+
+                            Object.keys(
+                                overrides
+                            ).forEach(fieldKey => {
+                                if (
+                                    fieldKey.startsWith(
+                                        'overview.intro.'
+                                    )
+                                ) {
+                                    delete overrides[
+                                        fieldKey
+                                    ];
+                                }
+                            });
+
+                            return {
+                                intro:
+                                    seedIntroduction
+                            };
+                        }
+                    );
+
+                if (!seededOverview) {
+                    throw new Error(
+                        'Seed introduction could not be preserved.'
+                    );
+                }
+            }
+
             completedStep = 2;
 
             await checkpointMyVersionFullSubjectGeneration(
