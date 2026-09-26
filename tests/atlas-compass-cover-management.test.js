@@ -19,6 +19,10 @@ const subjectLoader = fs.readFileSync(
     'compass/shared/compass-subject-loader.js',
     'utf8'
 );
+const ownedSubjectEntry = fs.readFileSync(
+    'compass/subject/index.html',
+    'utf8'
+);
 
 const renderStart =
     source.indexOf(
@@ -293,6 +297,12 @@ assert.match(
     subjectLoader,
     /compass-engine\.js\?v=20260926-coverfallback2/,
     'Owned subjects must load the cover-fallback engine revision.'
+);
+
+assert.match(
+    ownedSubjectEntry,
+    /compass-subject-loader\.js\?v=20260926-coverfallback2/,
+    'Owned-subject entry must refresh the loader that requests the cover-fallback engine.'
 );
 
 console.log(
