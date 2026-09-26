@@ -12304,8 +12304,14 @@
           '';
 
         button.append(image, meta);
+        button.disabled =
+          Boolean(
+            hubCoverPickerState?.saving ||
+            hubCoverPickerState?.resolvingImage
+          );
+
         button.addEventListener('click', () => {
-          saveHubCoverPickerImage(photo.imageUrl);
+          void saveHubCoverPickerSearchImage(photo);
         });
 
         results.appendChild(button);
@@ -12314,7 +12320,10 @@
       moreButton.hidden = !state.photos.length || !state.hasMore;
       moreButton.disabled =
         hubCoverPickerLoading ||
-        Boolean(hubCoverPickerState?.saving);
+        Boolean(
+          hubCoverPickerState?.saving ||
+          hubCoverPickerState?.resolvingImage
+        );
     }
 
     async function performHubCoverPickerSearch({ append = false } = {}) {
@@ -12658,6 +12667,105 @@
       );
     }
 
+    async function resolveHubCoverPickerSearchImageUrl(
+      photo
+    ) {
+      const candidates =
+        Array.from(
+          new Set(
+            [
+              String(
+                photo?.imageUrl || ''
+              ).trim(),
+              String(
+                photo?.previewUrl || ''
+              ).trim()
+            ].filter(Boolean)
+          )
+        );
+
+      for (const candidate of candidates) {
+        try {
+          await loadHubCoverPreviewImage(
+            candidate
+          );
+
+          return candidate;
+        } catch { }
+      }
+
+      throw new Error(
+        'That image could not be loaded.'
+      );
+    }
+
+    async function saveHubCoverPickerSearchImage(
+      photo
+    ) {
+      const state = hubCoverPickerState;
+
+      if (
+        !state ||
+        state.saving ||
+        state.resolvingImage
+      ) {
+        return;
+      }
+
+      state.resolvingImage = true;
+      setHubCoverPickerError('');
+
+      const status =
+        document.getElementById(
+          'hub-cover-picker-status'
+        );
+
+      if (status) {
+        status.textContent =
+          'Checking cover…';
+      }
+
+      renderHubCoverPickerResults();
+
+      try {
+        const imageUrl =
+          await resolveHubCoverPickerSearchImageUrl(
+            photo
+          );
+
+        if (
+          hubCoverPickerState !== state
+        ) {
+          return;
+        }
+
+        state.resolvingImage = false;
+
+        await saveHubCoverPickerImage(
+          imageUrl
+        );
+      } catch (error) {
+        console.error(
+          '[Compass] Hub cover image could not be loaded:',
+          error
+        );
+
+        if (
+          hubCoverPickerState !== state
+        ) {
+          return;
+        }
+
+        state.resolvingImage = false;
+
+        setHubCoverPickerError(
+          'That image could not be loaded. Try another one.'
+        );
+
+        renderHubCoverPickerResults();
+      }
+    }
+
     async function saveHubCoverPickerImage(imageUrl) {
       const state = hubCoverPickerState;
       const normalizedUrl = String(imageUrl || '').trim();
@@ -12782,7 +12890,8 @@
       hubCoverPickerState = {
         subjectId: record.id,
         record,
-        saving: false
+        saving: false,
+        resolvingImage: false
       };
 
       resetHubCoverPickerProviders(
