@@ -70,6 +70,103 @@
         );
     }
 
+    function hasLiveBackgroundBuild() {
+        const subjectId = getSubjectId();
+
+        if (!subjectId) {
+            return false;
+        }
+
+        /*
+         * Worker → foreground ownership transfer is itself live build
+         * activity. During that transfer the SharedWorker intentionally
+         * releases its Web Lock and can briefly report activeBuild = null.
+         * Legacy recovery must not treat that handoff gap as an interrupted
+         * build and race the loader for the same subject lock.
+         */
+        const pendingHandoff =
+            window
+                .AtlasForegroundSubjectBuildHandoffPromise;
+
+        if (
+            pendingHandoff &&
+            typeof pendingHandoff.then ===
+                'function'
+        ) {
+            return true;
+        }
+
+        const installedHandoff =
+            window
+                .AtlasForegroundSubjectBuildHandoff;
+
+        if (
+            installedHandoff &&
+            typeof installedHandoff ===
+                'object' &&
+            !Array.isArray(
+                installedHandoff
+            ) &&
+            String(
+                installedHandoff
+                    .subjectId ||
+                ''
+            ).trim() ===
+                subjectId
+        ) {
+            return true;
+        }
+
+        const Client =
+            window.AtlasSubjectBuildWorkerClient;
+
+        const clientState =
+            Client?.getState?.() ||
+            null;
+
+        if (
+            String(
+                clientState
+                    ?.activeBuild
+                    ?.subjectId ||
+                ''
+            ).trim() === subjectId
+        ) {
+            return true;
+        }
+
+        const Runtime =
+            window.AtlasSubjectRuntimeChannel;
+
+        return Boolean(
+            Runtime &&
+            typeof Runtime.isBuildActive ===
+                'function' &&
+            Runtime.isBuildActive(
+                subjectId
+            )
+        );
+    }
+
+    function showLiveContinuation() {
+        recoveryPending = true;
+        setRecoveryPresentationActive(true);
+        showRetryButton(false);
+
+        myVersionFullSubjectGenerationError = '';
+        myVersionFullSubjectGenerationNotice =
+            'Continuing generation…';
+
+        if (
+            typeof originalUpdateMyVersionAuthorBar ===
+                'function'
+        ) {
+            originalUpdateMyVersionAuthorBar();
+        }
+
+        scheduleRetry(2000);
+    }
+
     function clearRecoveryTimer() {
         if (recoveryTimer === null) return;
 
@@ -212,6 +309,88 @@
         }
     }
 
+    async function refreshCompletedSubjectIfNeeded() {
+        const Subjects = getSubjectsStore();
+        const subjectId = getSubjectId();
+
+        if (
+            !Subjects ||
+            !subjectId ||
+            typeof Subjects.getSubject !== 'function'
+        ) {
+            return false;
+        }
+
+        let subject = null;
+
+        try {
+            subject =
+                await Subjects.getSubject(
+                    subjectId
+                );
+        } catch {
+            return false;
+        }
+
+        if (
+            String(
+                subject
+                    ?.metadata
+                    ?.aiBuildStatus ||
+                ''
+            ).trim() !== 'complete'
+        ) {
+            return false;
+        }
+
+        resetRecoveryState();
+
+        myVersionFullSubjectGenerationError = '';
+        myVersionFullSubjectGenerationNotice = '';
+
+        if (
+            window.AtlasCompassSubjectRuntime
+                ?.aiBuildIncomplete !== true
+        ) {
+            originalUpdateMyVersionAuthorBar?.();
+            return true;
+        }
+
+        const revision = Math.max(
+            0,
+            Math.floor(
+                Number(
+                    subject?.revision
+                ) || 0
+            )
+        );
+
+        const refreshKey =
+            'atlas::completedSubjectRefresh::' +
+            subjectId +
+            '::' +
+            revision;
+
+        try {
+            if (
+                sessionStorage.getItem(
+                    refreshKey
+                ) === '1'
+            ) {
+                originalUpdateMyVersionAuthorBar?.();
+                return true;
+            }
+
+            sessionStorage.setItem(
+                refreshKey,
+                '1'
+            );
+        } catch { }
+
+        window.location.reload();
+        return true;
+    }
+
     /*
      * A generated mutation can land in memory immediately before a storage
      * failure. Retry that exact checkpoint before regenerating the step so
@@ -329,6 +508,12 @@
         state = await repairLatestCheckpoint(state);
 
         if (!state) {
+            if (
+                await refreshCompletedSubjectIfNeeded()
+            ) {
+                return;
+            }
+
             resetRecoveryState();
             return;
         }
@@ -356,6 +541,11 @@
         }
 
         if (recoveryTimer !== null) return;
+
+        if (hasLiveBackgroundBuild()) {
+            showLiveContinuation();
+            return;
+        }
 
         const failedAt =
             getFailedStageLabel() ||
@@ -397,6 +587,11 @@
             setRecoveryStatus(
                 'Connection lost · generation will continue when you reconnect.'
             );
+            return false;
+        }
+
+        if (hasLiveBackgroundBuild()) {
+            showLiveContinuation();
             return false;
         }
 
@@ -446,8 +641,15 @@
 
         if (!state || !isRecoveryEligible()) {
             if (!state) {
+                if (
+                    await refreshCompletedSubjectIfNeeded()
+                ) {
+                    return true;
+                }
+
                 resetRecoveryState();
             }
+
             return false;
         }
 

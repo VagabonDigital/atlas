@@ -439,12 +439,18 @@ const FULL_SUBJECT_COMPLETION_HOLD_MS = 900;
 
 let myVersionGeneratingFullSubject = false;
 let myVersionFullSubjectBuildLease = null;
+let myVersionFullSubjectLeasePreacquired = false;
 let stopMyVersionFullSubjectBuildHeartbeat = null;
 let myVersionAutoSavingFullSubject = false;
 let myVersionFullSubjectGenerationError = '';
 let myVersionFullSubjectGenerationProgress = null;
 let myVersionFullSubjectGenerationNotice = '';
 let myVersionFullSubjectReadyForCommit = false;
+let myVersionFullSubjectWorkerRegistered = false;
+let myVersionFullSubjectPageExiting = false;
+let myVersionFullSubjectAutoSaveOnComplete = false;
+
+let myVersionBuildDocumentOperations = null;
 
 let currentAffairsReadMoreEnrichmentPromise = null;
 let currentAffairsPreviousBodyOverflow = '';
@@ -533,6 +539,62 @@ function getCompassSubjectRuntime() {
 
 function isOwnedSubjectRuntime() {
     return getCompassSubjectRuntime().source === 'owned';
+}
+
+function requireOwnedSubjectRuntimeRevision() {
+    const revision =
+        Math.floor(
+            Number(
+                getCompassSubjectRuntime()
+                    ?.revision
+            ) || 0
+        );
+
+    if (revision < 1) {
+        const error = new Error(
+            'Atlas owned subject is missing its revision boundary.'
+        );
+
+        error.code =
+            'ATLAS_REVISION_REQUIRED';
+
+        throw error;
+    }
+
+    return revision;
+}
+
+async function updateOwnedSubjectAtRuntimeRevision(
+    patch = {}
+) {
+    if (!isOwnedSubjectRuntime()) {
+        return null;
+    }
+
+    const Subjects =
+        requireAtlasTutorSubjects();
+
+    if (
+        typeof Subjects
+            .updateSubjectAtRevision !==
+            'function'
+    ) {
+        const error = new Error(
+            'Atlas owned-subject revision guard is unavailable.'
+        );
+
+        error.code =
+            'ATLAS_REVISION_GUARD_UNAVAILABLE';
+
+        throw error;
+    }
+
+    return Subjects
+        .updateSubjectAtRevision(
+            MODULE.id,
+            patch,
+            requireOwnedSubjectRuntimeRevision()
+        );
 }
 
 function getCompassSubjectPublicAccess() {
@@ -1112,27 +1174,97 @@ function resolveTutorContentValue(originalValue, fieldKey) {
     return value;
 }
 
-async function loadTutorContentState() {
+async function loadTutorContentState({ forceOwnedWorkingDraft = false } = {}) {
     const Store = requireAtlasTutorContent();
     const contentId = getTutorContentId();
 
     if (isOwnedSubjectRuntime()) {
         const Subjects = requireAtlasTutorSubjects();
 
-        const [workingDraft, liveDraft] = await Promise.all([
+        const [
+            storedWorkingDraft,
+            buildState,
+            liveDraft
+        ] = await Promise.all([
             Subjects.getWorkingDraft(MODULE.id),
+            typeof Subjects.getBuildState === 'function'
+                ? Subjects.getBuildState(MODULE.id)
+                : Promise.resolve(null),
             Store.getLiveDraft(
                 currentSessionId,
                 contentId
             )
         ]);
 
+        const runtime =
+            getCompassSubjectRuntime();
+
+        const completedAiSubject =
+            runtime?.aiBuildIncomplete !== true &&
+            String(
+                runtime?.aiBuildStatus || ''
+            ).trim() === 'complete';
+
+        const staleCompletedBuildDraft =
+            completedAiSubject &&
+            buildState?.kind ===
+                'full-subject';
+
+        let workingDraft =
+            storedWorkingDraft;
+
+        if (staleCompletedBuildDraft) {
+            /*
+             * A second tab can open in the narrow window where a completed
+             * AI build has already reached cloud authority but this browser
+             * still has the old full-subject checkpoint. That checkpoint is
+             * recovery state for the now-finished build, not a tutor edit.
+             * Never resurrect it over the completed cloud document.
+             */
+            workingDraft = null;
+
+            traceMyVersionBuild(
+                'stale-completed-build-draft-discarded',
+                {
+                    runtimeRevision:
+                        runtime?.revision ??
+                        null,
+                    draftBaseRevision:
+                        storedWorkingDraft
+                            ?.baseRevision ??
+                        null,
+                    completedStep:
+                        buildState
+                            ?.completedStep ??
+                        null
+                }
+            );
+
+            try {
+                await Subjects
+                    .clearWorkingDraft(
+                        MODULE.id
+                    );
+            } catch (error) {
+                console.warn(
+                    '[Compass] Stale completed build checkpoint cleanup failed:',
+                    error
+                );
+            }
+        }
+
         tutorContentVersion = null;
         tutorContentWorkingDraft = workingDraft;
         tutorContentLiveDraft = liveDraft;
         liveTutorMutationRevision += 1;
 
-        if (!myVersionEditing && workingDraft) {
+        if (
+            workingDraft &&
+            (
+                !myVersionEditing ||
+                forceOwnedWorkingDraft === true
+            )
+        ) {
             resumeMyVersionWorkingDraft(workingDraft);
         } else if (myVersionEditing) {
             applyTutorSubjectDocument(
@@ -1507,7 +1639,22 @@ async function checkpointMyVersionFullSubjectGeneration(
                                 buildState: {
                                     kind: 'full-subject',
                                     completedStep,
-                                    autoSaveOnComplete
+                                    autoSaveOnComplete,
+                                    ...(
+                                        window.AtlasGenerationContext &&
+                                        typeof window.AtlasGenerationContext ===
+                                            'object' &&
+                                        !Array.isArray(
+                                            window.AtlasGenerationContext
+                                        )
+                                            ? {
+                                                generationContext:
+                                                    cloneTutorSubjectDocument(
+                                                        window.AtlasGenerationContext
+                                                    )
+                                            }
+                                            : {}
+                                    )
                                 }
                             }
                         );
@@ -1541,6 +1688,10 @@ async function checkpointMyVersionFullSubjectGeneration(
         );
     }
 
+    registerMyVersionFullSubjectWithWorker(
+        autoSaveOnComplete
+    );
+
     return savedState;
 }
 
@@ -1571,11 +1722,92 @@ function saveMyVersionWorkingDraftNow(
     const patch = getMyVersionWorkingDraftPatch(overrides);
 
     return queueTutorContentWrite(async () => {
-        const saved = isOwnedSubjectRuntime()
-            ? await requireAtlasTutorSubjects()
-                .saveWorkingDraft(MODULE.id, patch)
-            : await requireAtlasTutorContent()
-                .saveWorkingDraft(contentId, patch);
+        let saved = null;
+
+        if (isOwnedSubjectRuntime()) {
+            const Subjects =
+                requireAtlasTutorSubjects();
+
+            const buildState =
+                typeof Subjects.getBuildState ===
+                    'function'
+                    ? await Subjects
+                        .getBuildState(
+                            MODULE.id
+                        )
+                    : null;
+
+            if (
+                buildState
+                    ?.kind ===
+                    'full-subject' &&
+                typeof Subjects
+                    .saveBuildCheckpoint ===
+                    'function'
+            ) {
+                const checkpoint =
+                    await Subjects
+                        .saveBuildCheckpoint(
+                            MODULE.id,
+                            {
+                                workingDraft:
+                                    patch,
+                                buildState: {
+                                    kind:
+                                        'full-subject',
+                                    completedStep:
+                                        Math.max(
+                                            0,
+                                            Math.floor(
+                                                Number(
+                                                    buildState
+                                                        .completedStep
+                                                ) || 0
+                                            )
+                                        ),
+                                    autoSaveOnComplete:
+                                        buildState
+                                            .autoSaveOnComplete !==
+                                        false,
+                                    ...(
+                                        window.AtlasGenerationContext &&
+                                        typeof window.AtlasGenerationContext ===
+                                            'object' &&
+                                        !Array.isArray(
+                                            window.AtlasGenerationContext
+                                        )
+                                            ? {
+                                                generationContext:
+                                                    cloneTutorSubjectDocument(
+                                                        window.AtlasGenerationContext
+                                                    )
+                                            }
+                                            : {}
+                                    )
+                                }
+                            }
+                        );
+
+                saved =
+                    checkpoint
+                        ?.workingDraft ||
+                    null;
+            } else {
+                saved =
+                    await Subjects
+                        .saveWorkingDraft(
+                            MODULE.id,
+                            patch
+                        );
+            }
+        } else {
+            saved =
+                await requireAtlasTutorContent()
+                    .saveWorkingDraft(
+                        contentId,
+                        patch
+                    );
+        }
 
         if (saved && myVersionEditing) {
             tutorContentWorkingDraft = saved;
@@ -2974,9 +3206,7 @@ async function saveMyVersion(options = {}) {
             'My Subject'
         );
 
-        saved = await requireAtlasTutorSubjects()
-            .updateSubject(
-                MODULE.id,
+        saved = await updateOwnedSubjectAtRuntimeRevision(
                 {
                     metadata: {
                         title:
@@ -3003,7 +3233,18 @@ async function saveMyVersion(options = {}) {
                         ...(completesAiSubjectBuild
                             ? {
                                 aiBuildStatus:
-                                    'complete'
+                                    'complete',
+                                generationContext:
+                                    window.AtlasGenerationContext &&
+                                    typeof window.AtlasGenerationContext ===
+                                        'object' &&
+                                    !Array.isArray(
+                                        window.AtlasGenerationContext
+                                    )
+                                        ? cloneTutorSubjectDocument(
+                                            window.AtlasGenerationContext
+                                        )
+                                        : {}
                             }
                             : {})
                     },
@@ -6191,6 +6432,174 @@ function addMyVersionCulturalLensCard() {
     );
 }
 
+function getMyVersionBuildDocumentOperations() {
+    if (myVersionBuildDocumentOperations) {
+        return myVersionBuildDocumentOperations;
+    }
+
+    const Factory =
+        window.AtlasSubjectBuildDocumentOperations;
+
+    if (
+        !Factory ||
+        typeof Factory.create !== 'function'
+    ) {
+        throw new Error(
+            'Atlas subject build document operations are unavailable.'
+        );
+    }
+
+    const hasOwn = (object, key) =>
+        Object.prototype.hasOwnProperty.call(
+            object || {},
+            key
+        );
+
+    myVersionBuildDocumentOperations =
+        Factory.create({
+            ai:
+                requireAtlasAI(),
+
+            structured:
+                requireAtlasStructuredSubject(),
+
+            getDocument() {
+                return materializeTutorSubjectDocument(
+                    myVersionDraftDocument ||
+                        getPublishedTutorSubjectDocument(),
+                    myVersionDraftOverrides,
+                    'My Subject generation context'
+                );
+            },
+
+            snapshotEditState() {
+                return cloneTutorContentOverrides(
+                    myVersionDraftOverrides
+                );
+            },
+
+            hasEditStateChanged(
+                snapshot,
+                fieldKey
+            ) {
+                const before =
+                    snapshot &&
+                    typeof snapshot === 'object'
+                        ? snapshot
+                        : {};
+
+                const existedAtStart =
+                    hasOwn(
+                        before,
+                        fieldKey
+                    );
+
+                const existsNow =
+                    hasOwn(
+                        myVersionDraftOverrides,
+                        fieldKey
+                    );
+
+                if (
+                    existedAtStart !==
+                    existsNow
+                ) {
+                    return true;
+                }
+
+                return (
+                    existsNow &&
+                    myVersionDraftOverrides[
+                        fieldKey
+                    ] !== before[fieldKey]
+                );
+            },
+
+            commit(mutator) {
+                return commitMyVersionDocumentMutation(
+                    (document, overrides) =>
+                        mutator(
+                            document,
+                            {
+                                deleteOverride(
+                                    fieldKey
+                                ) {
+                                    delete overrides[
+                                        fieldKey
+                                    ];
+                                },
+
+                                deleteOverridesWithPrefix(
+                                    prefix
+                                ) {
+                                    Object.keys(
+                                        overrides
+                                    ).forEach(
+                                        fieldKey => {
+                                            if (
+                                                fieldKey
+                                                    .startsWith(
+                                                        prefix
+                                                    )
+                                            ) {
+                                                delete overrides[
+                                                    fieldKey
+                                                ];
+                                            }
+                                        }
+                                    );
+                                },
+
+                                deleteDiscussionSetOverrides(
+                                    set
+                                ) {
+                                    removeMyVersionDiscussionSetOverrides(
+                                        overrides,
+                                        set
+                                    );
+                                },
+
+                                deleteCulturalLensCardOverrides(
+                                    card
+                                ) {
+                                    removeMyVersionCulturalLensCardOverrides(
+                                        overrides,
+                                        card
+                                    );
+                                },
+
+                                deleteUpgradeOverrides(
+                                    contextId
+                                ) {
+                                    removeMyVersionUpgradeOverrides(
+                                        overrides,
+                                        contextId
+                                    );
+                                },
+
+                                deleteSetActivityOverrides(
+                                    setId
+                                ) {
+                                    removeMyVersionSetActivityOverrides(
+                                        overrides,
+                                        setId
+                                    );
+                                },
+
+                                deleteReflectionQuestionOverrides() {
+                                    removeMyVersionReflectionQuestionOverrides(
+                                        overrides
+                                    );
+                                }
+                            }
+                        )
+                );
+            }
+        });
+
+    return myVersionBuildDocumentOperations;
+}
+
 async function generateMyVersionSubjectFraming(
     brief = ''
 ) {
@@ -6202,112 +6611,10 @@ async function generateMyVersionSubjectFraming(
         return null;
     }
 
-    /*
-     * Generation may still be in flight while the tutor edits the
-     * subject. Snapshot the relevant overrides now so a later AI
-     * response can never erase a newer human edit.
-     */
-    const startingOverrides =
-        cloneTutorContentOverrides(
-            myVersionDraftOverrides
-        );
-
-    const generated =
-        await requireAtlasAI()
-            .generateSubjectFraming({
-                subject: {
-                    title:
-                        getEffectiveSubjectTitle()
-                },
-
-                brief:
-                    String(
-                        brief || ''
-                    ).trim()
-            });
-
-    return commitMyVersionDocumentMutation(
-        (document, overrides) => {
-            if (
-                !document.module ||
-                typeof document.module !== 'object' ||
-                Array.isArray(document.module) ||
-                !document.subjectCopy ||
-                typeof document.subjectCopy !== 'object' ||
-                Array.isArray(document.subjectCopy)
-            ) {
-                return null;
-            }
-
-            const wasEditedWhileGenerating =
-                fieldKey => {
-                    const existedAtStart =
-                        Object.prototype.hasOwnProperty.call(
-                            startingOverrides,
-                            fieldKey
-                        );
-
-                    const existsNow =
-                        Object.prototype.hasOwnProperty.call(
-                            overrides,
-                            fieldKey
-                        );
-
-                    if (existedAtStart !== existsNow) {
-                        return true;
-                    }
-
-                    return (
-                        existsNow &&
-                        overrides[fieldKey] !==
-                            startingOverrides[fieldKey]
-                    );
-                };
-
-            document.subjectCopy.cover =
-                document.subjectCopy.cover &&
-                typeof document.subjectCopy.cover === 'object' &&
-                !Array.isArray(
-                    document.subjectCopy.cover
-                )
-                    ? document.subjectCopy.cover
-                    : {};
-
-            document.module.catalogDescription =
-                generated.catalogDescription;
-
-            document.subjectCopy.cover.hook =
-                generated.hook;
-
-            if (
-                !wasEditedWhileGenerating(
-                    'module.catalogDescription'
-                )
-            ) {
-                delete overrides[
-                    'module.catalogDescription'
-                ];
-            }
-
-            if (
-                !wasEditedWhileGenerating(
-                    'cover.hook'
-                )
-            ) {
-                delete overrides[
-                    'cover.hook'
-                ];
-            }
-
-            return {
-                catalogDescription:
-                    generated.catalogDescription,
-
-                hook:
-                    generated.hook
-            };
-        }
-    );
+    return getMyVersionBuildDocumentOperations()
+        .generateSubjectFraming({
+            brief
+        });
 }
 
 async function generateMyVersionSubjectFramingFromUI() {
@@ -6368,89 +6675,10 @@ async function generateMyVersionOverview(
         return null;
     }
 
-    const generated =
-        await requireAtlasAI()
-            .generateOverview({
-                subject: {
-                    title:
-                        getEffectiveSubjectTitle(),
-
-                    description:
-                        getEffectiveSubjectCatalogDescription(),
-
-                    hook:
-                        resolveTutorContentValue(
-                            subjectCopy.cover?.hook || '',
-                            'cover.hook'
-                        ).trim()
-                },
-
-                brief:
-                    String(
-                        brief || ''
-                    ).trim()
-            });
-
-    return commitMyVersionDocumentMutation(
-        (document, overrides) => {
-            if (
-                !document.subjectCopy ||
-                typeof document.subjectCopy !== 'object' ||
-                Array.isArray(document.subjectCopy)
-            ) {
-                return null;
-            }
-
-            document.subjectCopy.overview =
-                document.subjectCopy.overview &&
-                typeof document.subjectCopy.overview === 'object' &&
-                !Array.isArray(
-                    document.subjectCopy.overview
-                )
-                    ? document.subjectCopy.overview
-                    : {};
-
-            document.subjectCopy.overview.heading =
-                generated.heading;
-
-            document.subjectCopy.overview.intro = [
-                generated.intro
-            ];
-
-            document.subjectCopy.overview.question =
-                generated.question;
-
-            delete overrides[
-                'overview.heading'
-            ];
-
-            delete overrides[
-                'overview.question'
-            ];
-
-            Object.keys(overrides)
-                .forEach(fieldKey => {
-                    if (
-                        fieldKey.startsWith(
-                            'overview.intro.'
-                        )
-                    ) {
-                        delete overrides[fieldKey];
-                    }
-                });
-
-            return {
-                heading:
-                    generated.heading,
-
-                intro:
-                    generated.intro,
-
-                question:
-                    generated.question
-            };
-        }
-    );
+    return getMyVersionBuildDocumentOperations()
+        .generateOverview({
+            brief
+        });
 }
 
 async function generateMyVersionOverviewFromUI() {
@@ -6511,123 +6739,10 @@ async function generateMyVersionDiscussionFraming(
         return null;
     }
 
-    const overview =
-        subjectCopy.overview || {};
-
-    const overviewIntro =
-        Array.isArray(overview.intro)
-            ? overview.intro
-                .map((paragraph, index) =>
-                    resolveTutorContentValue(
-                        paragraph,
-                        `overview.intro.${index}`
-                    ).trim()
-                )
-                .filter(Boolean)
-                .join('\n\n')
-            : '';
-
-    const generated =
-        await requireAtlasAI()
-            .generateDiscussionFraming({
-                subject: {
-                    title:
-                        getEffectiveSubjectTitle(),
-
-                    description:
-                        getEffectiveSubjectCatalogDescription(),
-
-                    hook:
-                        resolveTutorContentValue(
-                            subjectCopy.cover?.hook || '',
-                            'cover.hook'
-                        ).trim()
-                },
-
-                overview: {
-                    heading:
-                        resolveTutorContentValue(
-                            overview.heading || '',
-                            'overview.heading'
-                        ).trim(),
-
-                    intro:
-                        overviewIntro,
-
-                    question:
-                        resolveTutorContentValue(
-                            overview.question || '',
-                            'overview.question'
-                        ).trim()
-                },
-
-                brief:
-                    String(
-                        brief || ''
-                    ).trim()
-            });
-
-    return commitMyVersionDocumentMutation(
-        (document, overrides) => {
-            if (
-                !document.subjectCopy ||
-                typeof document.subjectCopy !== 'object' ||
-                Array.isArray(document.subjectCopy)
-            ) {
-                return null;
-            }
-
-            document.subjectCopy.discussion =
-                document.subjectCopy.discussion &&
-                typeof document.subjectCopy.discussion === 'object' &&
-                !Array.isArray(
-                    document.subjectCopy.discussion
-                )
-                    ? document.subjectCopy.discussion
-                    : {};
-
-            document.subjectCopy.discussion.heading =
-                generated.heading;
-
-            document.subjectCopy.discussion.intro =
-                generated.intro;
-
-            document.subjectCopy.paths =
-                document.subjectCopy.paths &&
-                typeof document.subjectCopy.paths === 'object' &&
-                !Array.isArray(
-                    document.subjectCopy.paths
-                )
-                    ? document.subjectCopy.paths
-                    : {};
-
-            document.subjectCopy.paths.discussionDescription =
-                generated.pathDescription;
-
-            delete overrides[
-                'discussion.heading'
-            ];
-
-            delete overrides[
-                'discussion.intro'
-            ];
-
-            delete overrides[
-                'paths.discussionDescription'
-            ];
-
-            return {
-                heading:
-                    generated.heading,
-
-                intro:
-                    generated.intro,
-
-                pathDescription:
-                    generated.pathDescription
-            };
-        }
-    );
+    return getMyVersionBuildDocumentOperations()
+        .generateDiscussionFraming({
+            brief
+        });
 }
 
 async function generateMyVersionDiscussionFramingFromUI() {
@@ -6688,123 +6803,10 @@ async function generateMyVersionCulturalLensFraming(
         return null;
     }
 
-    const overview =
-        subjectCopy.overview || {};
-
-    const overviewIntro =
-        Array.isArray(overview.intro)
-            ? overview.intro
-                .map((paragraph, index) =>
-                    resolveTutorContentValue(
-                        paragraph,
-                        `overview.intro.${index}`
-                    ).trim()
-                )
-                .filter(Boolean)
-                .join('\n\n')
-            : '';
-
-    const generated =
-        await requireAtlasAI()
-            .generateCulturalLensFraming({
-                subject: {
-                    title:
-                        getEffectiveSubjectTitle(),
-
-                    description:
-                        getEffectiveSubjectCatalogDescription(),
-
-                    hook:
-                        resolveTutorContentValue(
-                            subjectCopy.cover?.hook || '',
-                            'cover.hook'
-                        ).trim()
-                },
-
-                overview: {
-                    heading:
-                        resolveTutorContentValue(
-                            overview.heading || '',
-                            'overview.heading'
-                        ).trim(),
-
-                    intro:
-                        overviewIntro,
-
-                    question:
-                        resolveTutorContentValue(
-                            overview.question || '',
-                            'overview.question'
-                        ).trim()
-                },
-
-                brief:
-                    String(
-                        brief || ''
-                    ).trim()
-            });
-
-    return commitMyVersionDocumentMutation(
-        (document, overrides) => {
-            if (
-                !document.subjectCopy ||
-                typeof document.subjectCopy !== 'object' ||
-                Array.isArray(document.subjectCopy)
-            ) {
-                return null;
-            }
-
-            document.subjectCopy.culturalLens =
-                document.subjectCopy.culturalLens &&
-                typeof document.subjectCopy.culturalLens === 'object' &&
-                !Array.isArray(
-                    document.subjectCopy.culturalLens
-                )
-                    ? document.subjectCopy.culturalLens
-                    : {};
-
-            document.subjectCopy.culturalLens.heading =
-                generated.heading;
-
-            document.subjectCopy.culturalLens.intro =
-                generated.intro;
-
-            document.subjectCopy.paths =
-                document.subjectCopy.paths &&
-                typeof document.subjectCopy.paths === 'object' &&
-                !Array.isArray(
-                    document.subjectCopy.paths
-                )
-                    ? document.subjectCopy.paths
-                    : {};
-
-            document.subjectCopy.paths.culturalLensDescription =
-                generated.pathDescription;
-
-            delete overrides[
-                'culturalLens.heading'
-            ];
-
-            delete overrides[
-                'culturalLens.intro'
-            ];
-
-            delete overrides[
-                'paths.culturalLensDescription'
-            ];
-
-            return {
-                heading:
-                    generated.heading,
-
-                intro:
-                    generated.intro,
-
-                pathDescription:
-                    generated.pathDescription
-            };
-        }
-    );
+    return getMyVersionBuildDocumentOperations()
+        .generateCulturalLensFraming({
+            brief
+        });
 }
 
 async function generateMyVersionCulturalLensFramingFromUI() {
@@ -6865,263 +6867,10 @@ async function generateMyVersionReflection(
         return null;
     }
 
-    const overview =
-        subjectCopy.overview || {};
-
-    const discussion =
-        subjectCopy.discussion || {};
-
-    const culturalLens =
-        subjectCopy.culturalLens || {};
-
-    const overviewIntro =
-        Array.isArray(overview.intro)
-            ? overview.intro
-                .map((paragraph, index) =>
-                    resolveTutorContentValue(
-                        paragraph,
-                        `overview.intro.${index}`
-                    ).trim()
-                )
-                .filter(Boolean)
-                .join('\n\n')
-            : '';
-
-    const starterSet =
-        getPristineMyVersionDiscussionStarter();
-
-    const existingSets =
-        discussionSets
-            .map(set =>
-                materializeMyVersionDiscussionSet(
-                    set
-                )
-            )
-            .filter(Boolean)
-            .filter(set =>
-                !starterSet ||
-                set.id !== starterSet.id
-            )
-            .map(set => ({
-                title:
-                    String(
-                        set.title || ''
-                    ).trim(),
-
-                stage:
-                    String(
-                        set.stage || ''
-                    ).trim(),
-
-                description:
-                    String(
-                        set.description || ''
-                    ).trim(),
-
-                moments:
-                    Array.isArray(set.moments)
-                        ? set.moments.map(moment => ({
-                            preview:
-                                String(
-                                    moment.preview || ''
-                                ).trim(),
-
-                            question:
-                                String(
-                                    moment.question || ''
-                                ).trim()
-                        }))
-                        : []
-            }));
-
-    const starterCard =
-        getPristineMyVersionCulturalLensStarter();
-
-    const existingCards =
-        clCards
-            .map(card =>
-                materializeMyVersionCulturalLensCard(
-                    card
-                )
-            )
-            .filter(Boolean)
-            .filter(card =>
-                !starterCard ||
-                card.id !== starterCard.id
-            )
-            .map(card => ({
-                title:
-                    String(
-                        card.title || ''
-                    ).trim(),
-
-                contextLine:
-                    String(
-                        card.contextLine || ''
-                    ).trim(),
-
-                teaser:
-                    String(
-                        card.teaser || ''
-                    ).trim(),
-
-                questions:
-                    Array.isArray(card.questions)
-                        ? card.questions
-                            .map(question =>
-                                String(
-                                    question || ''
-                                ).trim()
-                            )
-                            .filter(Boolean)
-                        : []
-            }));
-
-    const generated =
-        await requireAtlasAI()
-            .generateReflection({
-                subject: {
-                    title:
-                        getEffectiveSubjectTitle(),
-
-                    description:
-                        getEffectiveSubjectCatalogDescription(),
-
-                    hook:
-                        resolveTutorContentValue(
-                            subjectCopy.cover?.hook || '',
-                            'cover.hook'
-                        ).trim()
-                },
-
-                overview: {
-                    heading:
-                        resolveTutorContentValue(
-                            overview.heading || '',
-                            'overview.heading'
-                        ).trim(),
-
-                    intro:
-                        overviewIntro,
-
-                    question:
-                        resolveTutorContentValue(
-                            overview.question || '',
-                            'overview.question'
-                        ).trim()
-                },
-
-                discussion: {
-                    heading:
-                        resolveTutorContentValue(
-                            discussion.heading || '',
-                            'discussion.heading'
-                        ).trim(),
-
-                    intro:
-                        resolveTutorContentValue(
-                            discussion.intro || '',
-                            'discussion.intro'
-                        ).trim(),
-
-                    sets:
-                        existingSets
-                },
-
-                culturalLens: {
-                    heading:
-                        resolveTutorContentValue(
-                            culturalLens.heading || '',
-                            'culturalLens.heading'
-                        ).trim(),
-
-                    intro:
-                        resolveTutorContentValue(
-                            culturalLens.intro || '',
-                            'culturalLens.intro'
-                        ).trim(),
-
-                    cards:
-                        existingCards
-                },
-
-                brief:
-                    String(
-                        brief || ''
-                    ).trim()
-            });
-
-    return commitMyVersionDocumentMutation(
-        (document, overrides) => {
-            if (
-                !document.subjectCopy ||
-                typeof document.subjectCopy !== 'object' ||
-                Array.isArray(document.subjectCopy)
-            ) {
-                return null;
-            }
-
-            document.subjectCopy.reflection =
-                document.subjectCopy.reflection &&
-                typeof document.subjectCopy.reflection === 'object' &&
-                !Array.isArray(
-                    document.subjectCopy.reflection
-                )
-                    ? document.subjectCopy.reflection
-                    : {};
-
-            document.subjectCopy.reflection.title =
-                generated.title;
-
-            document.subjectCopy.reflection.summary =
-                generated.summary;
-
-            document.subjectCopy.reflection.questions =
-                generated.questions.slice();
-
-            document.subjectCopy.paths =
-                document.subjectCopy.paths &&
-                typeof document.subjectCopy.paths === 'object' &&
-                !Array.isArray(
-                    document.subjectCopy.paths
-                )
-                    ? document.subjectCopy.paths
-                    : {};
-
-            document.subjectCopy.paths.reflectionDescription =
-                generated.pathDescription;
-
-            delete overrides[
-                'reflection.title'
-            ];
-
-            delete overrides[
-                'reflection.summary'
-            ];
-
-            removeMyVersionReflectionQuestionOverrides(
-                overrides
-            );
-
-            delete overrides[
-                'paths.reflectionDescription'
-            ];
-
-            return {
-                title:
-                    generated.title,
-
-                summary:
-                    generated.summary,
-
-                questions:
-                    generated.questions.slice(),
-
-                pathDescription:
-                    generated.pathDescription
-            };
-        }
-    );
+    return getMyVersionBuildDocumentOperations()
+        .generateReflection({
+            brief
+        });
 }
 
 async function generateMyVersionReflectionFromUI() {
@@ -7182,143 +6931,10 @@ async function generateMyVersionCulturalLensCard(
         return null;
     }
 
-    const culturalLens =
-        subjectCopy.culturalLens || {};
-
-    const starterCard =
-        getPristineMyVersionCulturalLensStarter();
-
-    const existingCards =
-        clCards
-            .map(card =>
-                materializeMyVersionCulturalLensCard(
-                    card
-                )
-            )
-            .filter(Boolean)
-            .filter(card =>
-                !starterCard ||
-                card.id !== starterCard.id
-            )
-            .map(card => ({
-                title:
-                    String(
-                        card.title || ''
-                    ).trim(),
-
-                contextLine:
-                    String(
-                        card.contextLine || ''
-                    ).trim(),
-
-                teaser:
-                    String(
-                        card.teaser || ''
-                    ).trim()
-            }));
-
-    const baseBrief =
-        String(
-            brief || ''
-        ).trim();
-
-    const existingTitles =
-        new Set(
-            existingCards
-                .map(card =>
-                    String(
-                        card.title || ''
-                    )
-                        .trim()
-                        .toLowerCase()
-                )
-                .filter(Boolean)
-        );
-
-    const generateCard =
-        retryBrief =>
-            requireAtlasAI()
-                .generateCulturalLensCard({
-                    subject: {
-                        title:
-                            getEffectiveSubjectTitle(),
-
-                        description:
-                            getEffectiveSubjectCatalogDescription()
-                    },
-
-                    culturalLens: {
-                        heading:
-                            resolveTutorContentValue(
-                                culturalLens.heading ||
-                                    'Cultural Lens',
-                                'culturalLens.heading'
-                            ).trim(),
-
-                        intro:
-                            resolveTutorContentValue(
-                                culturalLens.intro || '',
-                                'culturalLens.intro'
-                            ).trim(),
-
-                        cards:
-                            existingCards
-                    },
-
-                    brief:
-                        retryBrief
-                });
-
-    let generated =
-        await generateCard(
-            baseBrief
-        );
-
-    if (
-        existingTitles.has(
-            String(
-                generated?.title || ''
-            )
-                .trim()
-                .toLowerCase()
-        )
-    ) {
-        generated =
-            await generateCard(
-                [
-                    baseBrief,
-                    `Do not reuse the existing Cultural Lens card title "${generated.title}". Choose a genuinely different angle and title.`
-                ]
-                    .filter(Boolean)
-                    .join('\n')
-            );
-    }
-
-    if (
-        existingTitles.has(
-            String(
-                generated?.title || ''
-            )
-                .trim()
-                .toLowerCase()
-        )
-    ) {
-        return null;
-    }
-
-    const nativeCard =
-        requireAtlasStructuredSubject()
-            .createCulturalLensCard(
-                generated
-            );
-
-    return insertMyVersionCulturalLensCard(
-        nativeCard,
-        {
-            replaceStarter:
-                Boolean(starterCard)
-        }
-    );
+    return getMyVersionBuildDocumentOperations()
+        .generateCulturalLensCard({
+            brief
+        });
 }
 
 async function generateMyVersionCulturalLensCardFromUI() {
@@ -7555,6 +7171,373 @@ function getMyVersionKeyLanguageLimit(section) {
         : limits.discussion;
 }
 
+function traceMyVersionBuild(
+    stage,
+    detail = {}
+) {
+    window
+        .AtlasSubjectBuildWorkerClient
+        ?.traceDebug?.(
+            'engine:' + stage,
+            {
+                subjectId:
+                    String(
+                        window.MODULE?.id ||
+                        ''
+                    ).trim() ||
+                    null,
+                ...detail
+            }
+        );
+}
+
+function getMyVersionForegroundBuildHandoff() {
+    const handoff =
+        window
+            .AtlasForegroundSubjectBuildHandoff;
+
+    if (
+        !handoff ||
+        typeof handoff !==
+            'object' ||
+        Array.isArray(handoff) ||
+        String(
+            handoff.subjectId ||
+            ''
+        ).trim() !==
+            String(
+                MODULE.id ||
+                ''
+            ).trim()
+    ) {
+        return null;
+    }
+
+    return handoff;
+}
+
+async function awaitMyVersionForegroundBuildHandoff() {
+    const pending =
+        window
+            .AtlasForegroundSubjectBuildHandoffPromise;
+
+    if (
+        !pending ||
+        typeof pending.then !==
+            'function'
+    ) {
+        return getMyVersionForegroundBuildHandoff();
+    }
+
+    traceMyVersionBuild(
+        'handoff-await-start',
+        {}
+    );
+
+    try {
+        await pending;
+    } catch (error) {
+        console.warn(
+            '[Compass] Foreground build handoff promise failed:',
+            error
+        );
+    } finally {
+        if (
+            window
+                .AtlasForegroundSubjectBuildHandoffPromise ===
+            pending
+        ) {
+            delete window
+                .AtlasForegroundSubjectBuildHandoffPromise;
+        }
+    }
+
+    const handoff =
+        getMyVersionForegroundBuildHandoff();
+
+    traceMyVersionBuild(
+        'handoff-await-result',
+        {
+            granted:
+                Boolean(handoff),
+            completedStep:
+                handoff
+                    ?.completedStep ??
+                null
+        }
+    );
+
+    return handoff;
+}
+
+function releaseMyVersionForegroundBuildHandoff(
+    reason =
+        'foreground-handoff-ended'
+) {
+    traceMyVersionBuild(
+        'handoff-release',
+        {
+            reason
+        }
+    );
+
+    if (
+        myVersionFullSubjectLeasePreacquired
+    ) {
+        myVersionFullSubjectBuildLease
+            ?.release?.();
+
+        myVersionFullSubjectBuildLease =
+            null;
+
+        myVersionFullSubjectLeasePreacquired =
+            false;
+    }
+
+    const handoff =
+        getMyVersionForegroundBuildHandoff();
+
+    if (handoff) {
+        window
+            .AtlasSubjectBuildWorkerClient
+            ?.releaseForegroundOwnership
+            ?.(
+                MODULE.id,
+                reason
+            );
+    }
+
+    delete window
+        .AtlasForegroundSubjectBuildHandoff;
+}
+
+async function acquireMyVersionForegroundBuildHandoffLease() {
+    const handoff =
+        getMyVersionForegroundBuildHandoff();
+
+    if (!handoff) {
+        traceMyVersionBuild(
+            'handoff-lease-skipped',
+            {
+                reason:
+                    'no-handoff'
+            }
+        );
+
+        return false;
+    }
+
+    traceMyVersionBuild(
+        'handoff-lease-request',
+        {
+            completedStep:
+                handoff
+                    ?.completedStep ??
+                null,
+            readyToCommit:
+                handoff
+                    ?.readyToCommit ===
+                true
+        }
+    );
+
+    if (
+        myVersionFullSubjectBuildLease
+            ?.acquired ===
+            true
+    ) {
+        myVersionFullSubjectLeasePreacquired =
+            true;
+
+        return true;
+    }
+
+    const RuntimeChannel =
+        window
+            .AtlasSubjectRuntimeChannel;
+
+    if (
+        !RuntimeChannel ||
+        typeof RuntimeChannel
+            .acquireBuildLease !==
+            'function'
+    ) {
+        releaseMyVersionForegroundBuildHandoff(
+            'foreground-lock-unavailable'
+        );
+
+        return false;
+    }
+
+    let lease = null;
+
+    try {
+        lease =
+            await RuntimeChannel
+                .acquireBuildLease(
+                    MODULE.id
+                );
+    } catch (error) {
+        console.warn(
+            '[Compass] Foreground subject build lock was unavailable:',
+            error
+        );
+    }
+
+    if (
+        !lease ||
+        lease.acquired !==
+            true
+    ) {
+        lease?.release?.();
+
+        window
+            .AtlasSubjectBuildWorkerClient
+            ?.releaseForegroundOwnership
+            ?.(
+                MODULE.id,
+                'foreground-lock-not-acquired'
+            );
+
+        delete window
+            .AtlasForegroundSubjectBuildHandoff;
+
+        traceMyVersionBuild(
+            'handoff-lease-result',
+            {
+                acquired:
+                    false
+            }
+        );
+
+        return false;
+    }
+
+    myVersionFullSubjectBuildLease =
+        lease;
+
+    myVersionFullSubjectLeasePreacquired =
+        true;
+
+    traceMyVersionBuild(
+        'handoff-lease-result',
+        {
+            acquired:
+                true
+        }
+    );
+
+    return true;
+}
+
+function registerMyVersionFullSubjectWithWorker(
+    autoSaveOnComplete =
+        myVersionFullSubjectAutoSaveOnComplete
+) {
+    if (!isOwnedSubjectRuntime()) {
+        return false;
+    }
+
+    const Client =
+        window
+            .AtlasSubjectBuildWorkerClient;
+
+    if (
+        !Client ||
+        typeof Client.enqueueSubject !==
+            'function'
+    ) {
+        return false;
+    }
+
+    const generationContext =
+        window.AtlasGenerationContext &&
+        typeof window.AtlasGenerationContext ===
+            'object' &&
+        !Array.isArray(
+            window.AtlasGenerationContext
+        )
+            ? cloneTutorSubjectDocument(
+                window.AtlasGenerationContext
+            )
+            : null;
+
+    if (!generationContext) {
+        return false;
+    }
+
+    const registered =
+        Client.enqueueSubject(
+            MODULE.id,
+            {
+                generationContext,
+                autoSaveOnComplete:
+                    Boolean(
+                        autoSaveOnComplete
+                    ),
+                revision:
+                    requireOwnedSubjectRuntimeRevision()
+            }
+        ) === true;
+
+    if (registered) {
+        myVersionFullSubjectWorkerRegistered =
+            true;
+    }
+
+    return registered;
+}
+
+function cancelMyVersionFullSubjectWorkerRegistration(
+    reason = 'foreground-ended'
+) {
+    const Client =
+        window
+            .AtlasSubjectBuildWorkerClient;
+
+    if (
+        Client &&
+        typeof Client.cancelSubject ===
+            'function'
+    ) {
+        Client.cancelSubject(
+            MODULE.id,
+            reason
+        );
+    }
+
+    myVersionFullSubjectWorkerRegistered =
+        false;
+}
+
+function noteMyVersionFullSubjectPageExit() {
+    if (
+        myVersionGeneratingFullSubject &&
+        myVersionFullSubjectWorkerRegistered
+    ) {
+        myVersionFullSubjectPageExiting =
+            true;
+    }
+}
+
+window.addEventListener(
+    'pagehide',
+    noteMyVersionFullSubjectPageExit
+);
+
+window.addEventListener(
+    'beforeunload',
+    noteMyVersionFullSubjectPageExit
+);
+
+window.addEventListener(
+    'pageshow',
+    () => {
+        myVersionFullSubjectPageExiting =
+            false;
+    }
+);
+
 async function setMyVersionAiBuildStatus(status) {
     if (!isOwnedSubjectRuntime()) {
         return null;
@@ -7575,16 +7558,14 @@ async function setMyVersionAiBuildStatus(status) {
     const saved =
         await queueTutorContentWrite(
             async () =>
-                requireAtlasTutorSubjects()
-                    .updateSubject(
-                        MODULE.id,
-                        {
-                            metadata: {
-                                aiBuildStatus:
-                                    nextStatus
-                            }
+                updateOwnedSubjectAtRuntimeRevision(
+                    {
+                        metadata: {
+                            aiBuildStatus:
+                                nextStatus
                         }
-                    )
+                    }
+                )
         );
 
     if (!saved) {
@@ -7618,13 +7599,61 @@ async function generateMyVersionFullSubject({
         !isOwnedSubjectRuntime() ||
         myVersionGeneratingFullSubject
     ) {
+        traceMyVersionBuild(
+            'generator-blocked',
+            {
+                resumeFromStep:
+                    Number(
+                        resumeFromStep
+                    ) || 0,
+                myVersionEditing:
+                    Boolean(
+                        myVersionEditing
+                    ),
+                myVersionSaving:
+                    Boolean(
+                        myVersionSaving
+                    ),
+                ownedSubject:
+                    isOwnedSubjectRuntime(),
+                alreadyGenerating:
+                    Boolean(
+                        myVersionGeneratingFullSubject
+                    )
+            }
+        );
+
         return null;
     }
+
+    traceMyVersionBuild(
+        'generator-enter',
+        {
+            resumeFromStep:
+                Number(
+                    resumeFromStep
+                ) || 0,
+            autoSaveOnComplete:
+                Boolean(
+                    autoSaveOnComplete
+                ),
+            handoff:
+                Boolean(
+                    getMyVersionForegroundBuildHandoff()
+                )
+        }
+    );
 
     const RuntimeChannel =
         window.AtlasSubjectRuntimeChannel;
 
     if (
+        !(
+            myVersionFullSubjectBuildLease
+                ?.acquired ===
+                true &&
+            myVersionFullSubjectLeasePreacquired
+        ) &&
         RuntimeChannel &&
         typeof RuntimeChannel.acquireBuildLease ===
             'function'
@@ -7655,10 +7684,42 @@ async function generateMyVersionFullSubject({
             releaseCompassSubjectBuildHandoff();
             updateMyVersionAuthorBar();
 
+            traceMyVersionBuild(
+                'generator-lock-result',
+                {
+                    acquired:
+                        false
+                }
+            );
+
             myVersionFullSubjectBuildLease = null;
             return null;
         }
     }
+
+    if (
+        myVersionFullSubjectBuildLease
+            ?.acquired ===
+            true
+    ) {
+        traceMyVersionBuild(
+            'generator-lock-result',
+            {
+                acquired:
+                    true,
+                preacquired:
+                    Boolean(
+                        myVersionFullSubjectLeasePreacquired
+                    )
+            }
+        );
+    }
+
+    myVersionFullSubjectLeasePreacquired =
+        false;
+
+    delete window
+        .AtlasForegroundSubjectBuildHandoff;
 
     const subjectSize = String(
         window.AtlasGenerationContext?.subjectSize || 'standard'
@@ -7667,27 +7728,43 @@ async function generateMyVersionFullSubject({
     const languageSupport =
         getMyVersionLanguageSupportMode();
 
-    const discussionStages =
-        subjectSize === 'compact'
-            ? FULL_SUBJECT_DISCUSSION_STAGES.slice(0, 2)
-            : FULL_SUBJECT_DISCUSSION_STAGES;
+    const BuildRunner =
+        window.AtlasSubjectBuildRunner;
 
-    const culturalLensCardCount =
-        subjectSize === 'compact'
-            ? 3
-            : FULL_SUBJECT_CULTURAL_LENS_CARD_COUNT;
+    if (
+        !BuildRunner ||
+        typeof BuildRunner.run !== 'function'
+    ) {
+        throw new Error(
+            'Atlas subject build runner is unavailable.'
+        );
+    }
 
-    let completedStep = Math.min(
-        18,
-        Math.max(
-            0,
-            Math.floor(
-                Number(resumeFromStep) || 0
-            )
-        )
-    );
+    let completedStep =
+        BuildRunner.normalizeStep(
+            resumeFromStep
+        );
 
     myVersionGeneratingFullSubject = true;
+
+    traceMyVersionBuild(
+        'generator-started',
+        {
+            completedStep,
+            autoSaveOnComplete:
+                Boolean(
+                    autoSaveOnComplete
+                )
+        }
+    );
+
+    myVersionFullSubjectPageExiting = false;
+    myVersionFullSubjectAutoSaveOnComplete =
+        Boolean(autoSaveOnComplete);
+
+    registerMyVersionFullSubjectWithWorker(
+        autoSaveOnComplete
+    );
 
     if (
         RuntimeChannel &&
@@ -7726,337 +7803,104 @@ async function generateMyVersionFullSubject({
             'building'
         );
 
-        await checkpointMyVersionFullSubjectGeneration(
-            completedStep,
+        registerMyVersionFullSubjectWithWorker(
             autoSaveOnComplete
         );
 
-        if (completedStep < 1) {
-            setMyVersionFullSubjectGenerationProgress(
-                1,
-                'Hook and introduction'
-            );
+        const buildResult =
+            await BuildRunner.run({
+                resumeFromStep:
+                    completedStep,
+                subjectSize,
+                languageSupport,
 
-            const framing =
-                await generateMyVersionSubjectFraming();
+                operations: {
+                    generateSubjectFraming:
+                        () =>
+                            generateMyVersionSubjectFraming(),
 
-            if (!framing) {
-                throw new Error(
-                    'Subject framing generation failed.'
-                );
-            }
+                    generateOverview:
+                        () =>
+                            generateMyVersionOverview(),
 
-            const seedCatalogDescription =
-                String(
-                    window.AtlasGenerationContext
-                        ?.seedCatalogDescription ||
-                    window.AtlasGenerationContext
-                        ?.seedIntroduction ||
-                    ''
-                ).trim().slice(0, 300);
+                    enrichCurrentAffairs:
+                        async () => {
+                            await startCurrentAffairsReadMoreEnrichment();
+                            return true;
+                        },
 
-            if (seedCatalogDescription) {
-                const seededFraming =
-                    commitMyVersionDocumentMutation(
-                        (document, overrides) => {
-                            if (
-                                !document.module ||
-                                typeof document.module !==
-                                    'object' ||
-                                Array.isArray(document.module)
-                            ) {
-                                return null;
-                            }
+                    generateDiscussionFraming:
+                        () =>
+                            generateMyVersionDiscussionFraming(),
 
-                            document.module
-                                .catalogDescription =
-                                    seedCatalogDescription;
+                    generateDiscussionSet:
+                        ({ brief }) =>
+                            generateMyVersionDiscussionSet(
+                                brief,
+                                {
+                                    reveal: false
+                                }
+                            ),
 
-                            delete overrides[
-                                'module.catalogDescription'
-                            ];
+                    generateCulturalLensFraming:
+                        () =>
+                            generateMyVersionCulturalLensFraming(),
 
-                            return {
-                                catalogDescription:
-                                    seedCatalogDescription
-                            };
+                    generateCulturalLensCard:
+                        () =>
+                            generateMyVersionCulturalLensCard(),
+
+                    generateReflection:
+                        () =>
+                            generateMyVersionReflection(),
+
+                    enrichDiscussion:
+                        async ({ languageSupport }) => {
+                            const result =
+                                await enrichMyVersionDiscussionFromUI({
+                                    languageMode:
+                                        languageSupport
+                                });
+
+                            return (
+                                result?.complete ===
+                                true
+                            );
+                        },
+
+                    enrichCulturalLens:
+                        async ({ languageSupport }) => {
+                            const result =
+                                await enrichMyVersionCulturalLensFromUI({
+                                    languageMode:
+                                        languageSupport
+                                });
+
+                            return (
+                                result?.complete ===
+                                true
+                            );
                         }
-                    );
+                },
 
-                if (!seededFraming) {
-                    throw new Error(
-                        'Seed card introduction could not be preserved.'
-                    );
-                }
-            }
+                onProgress:
+                    ({ current, label }) => {
+                        setMyVersionFullSubjectGenerationProgress(
+                            current,
+                            label
+                        );
+                    },
 
-            completedStep = 1;
-
-            await checkpointMyVersionFullSubjectGeneration(
-                completedStep,
-                autoSaveOnComplete
-            );
-
-        }
-
-        if (completedStep < 2) {
-            setMyVersionFullSubjectGenerationProgress(
-                2,
-                'Overview'
-            );
-
-            const overview =
-                await generateMyVersionOverview();
-
-            if (!overview) {
-                throw new Error(
-                    'Overview generation failed.'
-                );
-            }
-
-            completedStep = 2;
-
-            await checkpointMyVersionFullSubjectGeneration(
-                completedStep,
-                autoSaveOnComplete
-            );
-        }
-
-        if (completedStep >= 2) {
-            setMyVersionFullSubjectGenerationProgress(
-                3,
-                'Adding source context'
-            );
-
-            await startCurrentAffairsReadMoreEnrichment();
-        }
-
-        if (completedStep < 3) {
-            setMyVersionFullSubjectGenerationProgress(
-                3,
-                'Discussion framing'
-            );
-
-            const discussionFraming =
-                await generateMyVersionDiscussionFraming();
-
-            if (!discussionFraming) {
-                throw new Error(
-                    'Discussion framing generation failed.'
-                );
-            }
-
-            completedStep = 3;
-
-            await checkpointMyVersionFullSubjectGeneration(
-                completedStep,
-                autoSaveOnComplete
-            );
-        }
-
-        for (
-            let index = 0;
-            index < discussionStages.length;
-            index += 1
-        ) {
-            const step = 4 + index;
-
-            if (completedStep >= step) {
-                continue;
-            }
-
-            const stage =
-                discussionStages[index];
-
-            setMyVersionFullSubjectGenerationProgress(
-                4,
-                `${stage} · ${index + 1} of ${discussionStages.length}`
-            );
-
-            const set =
-                await generateMyVersionDiscussionSet(
-                    `Create the ${stage} discussion set.`,
-                    {
-                        reveal: false
-                    }
-                );
-
-            if (!set) {
-                throw new Error(
-                    `${stage} generation failed.`
-                );
-            }
-
-            completedStep = step;
-
-            await checkpointMyVersionFullSubjectGeneration(
-                completedStep,
-                autoSaveOnComplete
-            );
-        }
-
-        if (completedStep < 7) {
-            setMyVersionFullSubjectGenerationProgress(
-                5,
-                'Cultural Lens framing'
-            );
-
-            const culturalLensFraming =
-                await generateMyVersionCulturalLensFraming();
-
-            if (!culturalLensFraming) {
-                throw new Error(
-                    'Cultural Lens framing generation failed.'
-                );
-            }
-
-            completedStep = 7;
-
-            await checkpointMyVersionFullSubjectGeneration(
-                completedStep,
-                autoSaveOnComplete
-            );
-        }
-
-        for (
-            let index = 0;
-            index < culturalLensCardCount;
-            index += 1
-        ) {
-            const step = 8 + index;
-
-            if (completedStep >= step) {
-                continue;
-            }
-
-            setMyVersionFullSubjectGenerationProgress(
-                6,
-                `Cultural Lens card ${index + 1} of ${culturalLensCardCount}`
-            );
-
-            const card =
-                await generateMyVersionCulturalLensCard();
-
-            if (!card) {
-                throw new Error(
-                    `Cultural Lens card ${index + 1} generation failed.`
-                );
-            }
-
-            completedStep = step;
-
-            await checkpointMyVersionFullSubjectGeneration(
-                completedStep,
-                autoSaveOnComplete
-            );
-        }
-
-        if (completedStep < 16) {
-            setMyVersionFullSubjectGenerationProgress(
-                7,
-                'Reflection'
-            );
-
-            const reflection =
-                await generateMyVersionReflection();
-
-            if (!reflection) {
-                throw new Error(
-                    'Reflection generation failed.'
-                );
-            }
-
-            completedStep = 16;
-
-            await checkpointMyVersionFullSubjectGeneration(
-                completedStep,
-                autoSaveOnComplete
-            );
-        }
-
-        /*
-         * The complete teaching environment now exists.
-         * Activities remain part of the core subject. Language depth follows
-         * the tutor's creation preference: none, curated Key, or full.
-         */
-
-        if (completedStep < 17) {
-            const discussionLabel =
-                languageSupport === 'off'
-                    ? 'Adding Discussion activities'
-                    : languageSupport === 'key'
-                        ? 'Adding key Discussion language + activities'
-                        : 'Adding Discussion language + activities';
-
-            setMyVersionFullSubjectGenerationProgress(
-                8,
-                discussionLabel
-            );
-
-            await enrichMyVersionDiscussionFromUI({
-                languageMode:
-                    languageSupport
+                onCheckpoint:
+                    step =>
+                        checkpointMyVersionFullSubjectGeneration(
+                            step,
+                            autoSaveOnComplete
+                        )
             });
 
-            const remainingDiscussionEnrichment =
-                getMyVersionRemainingLanguageCount(
-                    'discussion',
-                    languageSupport
-                ) +
-                getMyVersionDiscussionMakeItRealCandidateSetIds()
-                    .length;
-
-            if (remainingDiscussionEnrichment > 0) {
-                throw new Error(
-                    'Discussion enrichment did not finish.'
-                );
-            }
-
-            completedStep = 17;
-
-            await checkpointMyVersionFullSubjectGeneration(
-                completedStep,
-                autoSaveOnComplete
-            );
-        }
-
-        if (completedStep < 18) {
-            const culturalLensLabel =
-                languageSupport === 'off'
-                    ? 'Finishing Cultural Lens'
-                    : languageSupport === 'key'
-                        ? 'Adding key Cultural Lens language'
-                        : 'Adding Cultural Lens language';
-
-            setMyVersionFullSubjectGenerationProgress(
-                9,
-                culturalLensLabel
-            );
-
-            await enrichMyVersionCulturalLensFromUI({
-                languageMode:
-                    languageSupport
-            });
-
-            const remainingCulturalLensEnrichment =
-                getMyVersionRemainingLanguageCount(
-                    'cultural-lens',
-                    languageSupport
-                );
-
-            if (remainingCulturalLensEnrichment > 0) {
-                throw new Error(
-                    'Cultural Lens enrichment did not finish.'
-                );
-            }
-
-            completedStep = 18;
-
-            await checkpointMyVersionFullSubjectGeneration(
-                completedStep,
-                autoSaveOnComplete
-            );
-        }
+        completedStep =
+            buildResult.completedStep;
 
         myVersionFullSubjectReadyForCommit = true;
 
@@ -8107,6 +7951,10 @@ async function generateMyVersionFullSubject({
                 myVersionFullSubjectGenerationError =
                     'Subject complete, but automatic save failed. Save manually.';
 
+                cancelMyVersionFullSubjectWorkerRegistration(
+                    'foreground-save-failed'
+                );
+
                 updateMyVersionAuthorBar();
 
                 return null;
@@ -8115,6 +7963,10 @@ async function generateMyVersionFullSubject({
             await clearMyVersionFullSubjectBuildState();
         }
 
+        cancelMyVersionFullSubjectWorkerRegistration(
+            'foreground-complete'
+        );
+
         return true;
     } catch (error) {
         console.error(
@@ -8122,12 +7974,20 @@ async function generateMyVersionFullSubject({
             error
         );
 
+        const handingOffToWorker =
+            !myVersionFullSubjectReadyForCommit &&
+            myVersionFullSubjectPageExiting &&
+            myVersionFullSubjectWorkerRegistered;
+
         /*
-         * A failed or incomplete build must not consume creation capacity.
-         * Pause releases the server reservation while the local checkpoint
-         * remains available for a later resume.
+         * Ordinary failures still release creation capacity. A real page-exit
+         * handoff deliberately keeps the durable status at building because
+         * the SharedWorker is about to continue under the same subject lock.
          */
-        if (!myVersionFullSubjectReadyForCommit) {
+        if (
+            !myVersionFullSubjectReadyForCommit &&
+            !handingOffToWorker
+        ) {
             try {
                 await setMyVersionAiBuildStatus(
                     'paused'
@@ -8138,6 +7998,10 @@ async function generateMyVersionFullSubject({
                     pauseError
                 );
             }
+
+            cancelMyVersionFullSubjectWorkerRegistration(
+                'foreground-generation-failed'
+            );
         }
 
         /*
@@ -9107,126 +8971,22 @@ async function generateMyVersionDiscussionSet(
         return null;
     }
 
-    const discussion =
-        subjectCopy.discussion || {};
-
-    const starterSet =
-        getPristineMyVersionDiscussionStarter();
-
-    const existingSets =
-        discussionSets
-            .map(set =>
-                materializeMyVersionDiscussionSet(
-                    set
-                )
-            )
-            .filter(Boolean)
-            .filter(set =>
-                !starterSet ||
-                set.id !== starterSet.id
-            )
-            .map(set => ({
-                title:
-                    String(
-                        set.title || ''
-                    ).trim(),
-
-                stage:
-                    String(
-                        set.stage || ''
-                    ).trim(),
-
-                description:
-                    String(
-                        set.description || ''
-                    ).trim(),
-
-                moments:
-                    set.moments.map(
-                        ({
-                            preview,
-                            question
-                        }) => ({
-                            preview:
-                                String(
-                                    preview || ''
-                                ).trim(),
-
-                            question:
-                                String(
-                                    question || ''
-                                ).trim()
-                        })
-                    )
-            }));
-
-    const generated =
-        await requireAtlasAI()
+    const set =
+        await getMyVersionBuildDocumentOperations()
             .generateDiscussionSet({
-                subject: {
-                    title:
-                        getEffectiveSubjectTitle(),
-
-                    description:
-                        getEffectiveSubjectCatalogDescription()
-                },
-
-                discussion: {
-                    heading:
-                        resolveTutorContentValue(
-                            discussion.heading ||
-                                'Discussion',
-                            'discussion.heading'
-                        ).trim(),
-
-                    intro:
-                        resolveTutorContentValue(
-                            discussion.intro || '',
-                            'discussion.intro'
-                        ).trim(),
-
-                    sets:
-                        existingSets
-                },
-
-                brief:
-                    String(
-                        brief || ''
-                    ).trim()
+                brief
             });
 
-    const iconByStage = {
-        'First Look':
-            'first-look',
+    if (
+        set &&
+        options?.reveal !== false
+    ) {
+        window.setTimeout(() => {
+            openSet(set.id);
+        }, 0);
+    }
 
-        'Look Closer':
-            'closer-look',
-
-        'Wider View':
-            'wider-view'
-    };
-
-    const nativeSet =
-        requireAtlasStructuredSubject()
-            .createDiscussionSet({
-                ...generated,
-
-                icon:
-                    iconByStage[
-                        generated.stage
-                    ] || 'first-look'
-            });
-
-    return insertMyVersionDiscussionSet(
-        nativeSet,
-        {
-            replaceStarter:
-                Boolean(starterSet),
-
-            reveal:
-                options?.reveal !== false
-        }
-    );
+    return set;
 }
 
 async function generateMyVersionDiscussionSetFromUI() {
@@ -9722,157 +9482,28 @@ async function generateMyVersionMomentUpgrade(
         return null;
     }
 
-    const sourceSet = discussionSets.find(
-        set =>
-            Array.isArray(set.moments) &&
-            set.moments.some(
-                moment => moment.id === momentId
-            )
-    );
-
-    const contextSet =
-        materializeMyVersionDiscussionSet(
-            sourceSet
-        );
-
-    const contextMoment =
-        contextSet?.moments.find(
-            moment => moment.id === momentId
-        );
-
-    if (
-        !contextSet ||
-        !contextMoment ||
-        (contextMoment.upgrade && options?.replace !== true)
-    ) {
-        return null;
-    }
-
-    const existingLanguage =
-        getMyVersionExistingLanguage(
-            `moment-${momentId}`
-        );
-
-    const generated =
-        await requireAtlasAI()
+    const upgrade =
+        await getMyVersionBuildDocumentOperations()
             .generateMomentUpgrade({
-                subject: {
-                    title:
-                        getEffectiveSubjectTitle(),
-
-                    description:
-                        getEffectiveSubjectCatalogDescription()
-                },
-
-                set: {
-                    title:
-                        String(
-                            contextSet.title || ''
-                        ).trim(),
-
-                    stage:
-                        String(
-                            contextSet.stage || ''
-                        ).trim(),
-
-                    description:
-                        String(
-                            contextSet.description || ''
-                        ).trim()
-                },
-
-                moment: {
-                    preview:
-                        String(
-                            contextMoment.preview || ''
-                        ).trim(),
-
-                    question:
-                        String(
-                            contextMoment.question || ''
-                        ).trim()
-                },
-
-                existingLanguage,
-
-                brief:
-                    String(
-                        brief || ''
-                    ).trim()
+                momentId,
+                brief,
+                replace:
+                    options?.replace === true,
+                priority:
+                    options?.priority || ''
             });
 
-    const contextId =
-        `moment-${momentId}`;
-
-    const committed =
-        commitMyVersionDocumentMutation(
-            (document, overrides) => {
-                const target =
-                    getMyVersionUpgradeTarget(
-                        document,
-                        contextId
-                    );
-
-                if (
-                    !target ||
-                    (target.upgrade && options?.replace !== true)
-                ) {
-                    return null;
-                }
-
-                removeMyVersionUpgradeOverrides(
-                    overrides,
-                    contextId
-                );
-
-                target.upgrade = {
-                    term:
-                        generated.term,
-
-                    type:
-                        generated.type,
-
-                    definition:
-                        generated.definition,
-
-                    ordinary:
-                        generated.ordinary,
-
-                    upgraded:
-                        generated.upgraded,
-
-                    priority:
-                        (
-                            options?.priority === 'key' ||
-                            options?.priority === 'standard'
-                        )
-                            ? options.priority
-                            : generated.priority,
-
-                    atlasPrompt:
-                        generated.atlasPrompt
-                };
-
-                return {
-                    contextId,
-                    upgrade:
-                        cloneTutorSubjectDocument(
-                            target.upgrade
-                        )
-                };
-            }
-        );
-
-    if (!committed) return null;
-
-    if (options?.reveal !== false) {
+    if (
+        upgrade &&
+        options?.reveal !== false
+    ) {
         refreshMyVersionUpgradeFocus(
-            contextId,
+            'moment-' + momentId,
             true
         );
     }
 
-    return committed.upgrade;
+    return upgrade;
 }
 
 function getMyVersionDiscussionLanguageOpportunityIds() {
@@ -10051,191 +9682,11 @@ async function generateMyVersionMakeItReal(
         return null;
     }
 
-    const sourceSet = discussionSets.find(
-        set => set.id === setId
-    );
-
-    const contextSet =
-        materializeMyVersionDiscussionSet(
-            sourceSet
-        );
-
-    if (
-        !contextSet ||
-        contextSet.makeItReal
-    ) {
-        return null;
-    }
-
-    const existingActivities =
-        discussionSets
-            .filter(set =>
-                set.id !== setId
-            )
-            .map(set =>
-                materializeMyVersionDiscussionSet(
-                    set
-                )
-            )
-            .filter(set =>
-                set?.makeItReal
-            )
-            .map(set => ({
-                setTitle:
-                    String(
-                        set.title || ''
-                    ).trim(),
-
-                title:
-                    String(
-                        set.makeItReal.title || ''
-                    ).trim(),
-
-                prompt:
-                    String(
-                        set.makeItReal.prompt || ''
-                    ).trim()
-            }));
-
-    const generated =
-        await requireAtlasAI()
-            .generateMakeItReal({
-                subject: {
-                    title:
-                        getEffectiveSubjectTitle(),
-
-                    description:
-                        getEffectiveSubjectCatalogDescription()
-                },
-
-                set: {
-                    title:
-                        String(
-                            contextSet.title || ''
-                        ).trim(),
-
-                    stage:
-                        String(
-                            contextSet.stage || ''
-                        ).trim(),
-
-                    description:
-                        String(
-                            contextSet.description || ''
-                        ).trim(),
-
-                    moments:
-                        Array.isArray(
-                            contextSet.moments
-                        )
-                            ? contextSet.moments
-                                .map(moment => ({
-                                    preview:
-                                        String(
-                                            moment.preview || ''
-                                        ).trim(),
-
-                                    question:
-                                        String(
-                                            moment.question || ''
-                                        ).trim()
-                                }))
-                            : []
-                },
-
-                existingActivities,
-
-                brief:
-                    String(
-                        brief || ''
-                    ).trim()
-            });
-
-    const committed =
-        commitMyVersionDocumentMutation(
-            (document, overrides) => {
-                const set =
-                    getMyVersionDocumentSet(
-                        document,
-                        setId
-                    );
-
-                if (
-                    !set ||
-                    set.makeItReal
-                ) {
-                    return null;
-                }
-
-                removeMyVersionSetActivityOverrides(
-                    overrides,
-                    setId
-                );
-
-                set.makeItReal = {
-                    label: 'Make It Real',
-                    title:
-                        generated.title,
-                    prompt:
-                        generated.prompt
-                };
-
-                return {
-                    setId,
-                    makeItReal:
-                        cloneTutorSubjectDocument(
-                            set.makeItReal
-                        )
-                };
-            }
-        );
-
-    return committed?.makeItReal || null;
-}
-
-async function runMyVersionEnrichmentOperationWithRetry(
-    operation,
-    label
-) {
-    let lastError = null;
-
-    for (
-        let attempt = 1;
-        attempt <= 2;
-        attempt += 1
-    ) {
-        try {
-            const result = await operation();
-
-            if (result) {
-                return result;
-            }
-
-            lastError = new Error(
-                `${label} returned no result.`
-            );
-        } catch (error) {
-            lastError = error;
-        }
-
-        if (attempt === 1) {
-            console.warn(
-                `[Compass] ${label} failed. Retrying once.`,
-                lastError
-            );
-
-            await new Promise(resolve => {
-                window.setTimeout(resolve, 600);
-            });
-        }
-    }
-
-    console.error(
-        `[Compass] ${label} failed after retry:`,
-        lastError
-    );
-
-    return null;
+    return getMyVersionBuildDocumentOperations()
+        .generateMakeItReal({
+            setId,
+            brief
+        });
 }
 
 function getMyVersionRemainingEnrichmentCount(
@@ -10299,187 +9750,91 @@ async function enrichMyVersionDiscussionFromUI({
             ? languageMode
             : 'all';
 
-    const languageCandidateIds =
-        getMyVersionDiscussionLanguageUpgradeCandidateIds();
-
-    const remainingKeySlots =
-        Math.max(
-            0,
-            getMyVersionKeyLanguageLimit(
-                'discussion'
-            ) -
-                getMyVersionDiscussionKeyUpgradeCount()
-        );
-
-    const keySelectionTarget =
-        mode === 'off'
-            ? 0
-            : Math.min(
-                remainingKeySlots,
-                languageCandidateIds.length
-            );
-
-    let selectedKeyIds = [];
-
-    if (keySelectionTarget > 0) {
-        myVersionDiscussionEnrichmentError = '';
-        myVersionEnrichingDiscussion = true;
-        myVersionDiscussionEnrichmentProgress = {
-            phase: 'selecting-key',
-            mode
-        };
-
-        updateMyVersionAuthorBar();
-
-        try {
-            selectedKeyIds =
-                await selectMyVersionKeyLanguageOpportunityIds(
-                    'discussion',
-                    getMyVersionDiscussionKeyLanguageCandidates(
-                        languageCandidateIds
-                    ),
-                    keySelectionTarget
-                );
-        } catch (error) {
-            myVersionEnrichingDiscussion = false;
-            myVersionDiscussionEnrichmentProgress = null;
-            updateMyVersionAuthorBar();
-            throw error;
-        }
-    }
-
-    const selectedKeySet =
-        new Set(selectedKeyIds);
-
-    const languageIds =
-        mode === 'off'
-            ? []
-            : mode === 'key'
-                ? selectedKeyIds
-                : languageCandidateIds;
-
-    const operations = [
-        ...languageIds
-            .map(momentId => ({
-                kind: 'upgrade',
-                id: momentId,
-                priority:
-                    selectedKeySet.has(
-                        momentId
-                    )
-                        ? 'key'
-                        : 'standard'
-            })),
-
-        ...getMyVersionDiscussionMakeItRealCandidateSetIds()
-            .map(setId => ({
-                kind: 'make-it-real',
-                id: setId
-            }))
-    ];
-
-    if (!operations.length) {
-        refreshMyVersionFullSubjectReadyNotice(
-            false,
-            mode
-        );
-        return [];
-    }
-
-    const completedOperations = [];
-    const failedOperations = [];
-
-    const operationTotals = operations.reduce(
-        (totals, operation) => {
-            totals[operation.kind] =
-                (totals[operation.kind] || 0) + 1;
-
-            return totals;
-        },
-        {}
-    );
-
-    const completedByKind = {};
-
     myVersionDiscussionEnrichmentError = '';
-    myVersionEnrichingDiscussion = true;
-    myVersionDiscussionEnrichmentProgress = {
-        current: 0,
-        total:
-            operationTotals.upgrade || 0,
-        kind: 'upgrade',
-        mode
-    };
-
-    updateMyVersionAuthorBar();
 
     try {
-        for (
-            let index = 0;
-            index < operations.length;
-            index += 1
-        ) {
-            const operation = operations[index];
+        const result =
+            await getMyVersionBuildDocumentOperations()
+                .enrichDiscussion({
+                    languageMode:
+                        mode,
+                    subjectSize:
+                        String(
+                            window.AtlasGenerationContext
+                                ?.subjectSize ||
+                            'standard'
+                        ).trim(),
 
-            completedByKind[operation.kind] =
-                (completedByKind[operation.kind] || 0) + 1;
+                    onEvent(event) {
+                        if (
+                            event?.type ===
+                                'selection-start'
+                        ) {
+                            myVersionEnrichingDiscussion = true;
+                            myVersionDiscussionEnrichmentProgress = {
+                                phase: 'selecting-key',
+                                mode
+                            };
 
-            myVersionDiscussionEnrichmentProgress = {
-                current:
-                    completedByKind[
-                        operation.kind
-                    ],
-                total:
-                    operationTotals[
-                        operation.kind
-                    ] || 0,
-                kind: operation.kind,
-                mode
-            };
+                            updateMyVersionAuthorBar();
+                            return;
+                        }
 
-            updateMyVersionAuthorBar();
+                        if (
+                            event?.type ===
+                                'operations-start'
+                        ) {
+                            myVersionEnrichingDiscussion = true;
+                            myVersionDiscussionEnrichmentProgress = {
+                                current: 0,
+                                total:
+                                    event
+                                        .operationTotals
+                                        ?.upgrade ||
+                                    0,
+                                kind:
+                                    'upgrade',
+                                mode
+                            };
 
-            const label =
-                operation.kind === 'upgrade'
-                    ? `Discussion language upgrade ${index + 1}`
-                    : `Discussion activity ${index + 1}`;
+                            updateMyVersionAuthorBar();
+                            return;
+                        }
 
-            const result =
-                await runMyVersionEnrichmentOperationWithRetry(
-                    () =>
-                        operation.kind === 'upgrade'
-                            ? generateMyVersionMomentUpgrade(
-                                operation.id,
-                                '',
-                                {
-                                    reveal: false,
-                                    priority:
-                                        operation.priority
-                                }
-                            )
-                            : generateMyVersionMakeItReal(
-                                operation.id
-                            ),
-                    label
-                );
+                        if (
+                            event?.type ===
+                                'operation-start'
+                        ) {
+                            myVersionEnrichingDiscussion = true;
+                            myVersionDiscussionEnrichmentProgress = {
+                                current:
+                                    event.current,
+                                total:
+                                    event.total,
+                                kind:
+                                    event.kind,
+                                mode
+                            };
 
-            if (result) {
-                completedOperations.push(
-                    operation
-                );
-            } else {
-                failedOperations.push(
-                    operation
-                );
-            }
-        }
+                            updateMyVersionAuthorBar();
+                        }
+                    }
+                });
 
-        if (failedOperations.length) {
+        const failedCount =
+            Array.isArray(
+                result?.failedOperations
+            )
+                ? result.failedOperations
+                    .length
+                : 0;
+
+        if (failedCount) {
             myVersionDiscussionEnrichmentError =
-                `${failedOperations.length} finishing touch${failedOperations.length === 1 ? '' : 'es'} still remaining.`;
+                `${failedCount} finishing touch${failedCount === 1 ? '' : 'es'} still remaining.`;
         }
 
-        return completedOperations;
+        return result;
     } finally {
         myVersionEnrichingDiscussion = false;
         myVersionDiscussionEnrichmentProgress = null;
@@ -10490,11 +9845,6 @@ async function enrichMyVersionDiscussionFromUI({
                 mode
             );
 
-            /*
-             * Full enrichment changes whether the teaching-time
-             * Off / Key / All control is meaningful. Re-evaluate it
-             * immediately rather than waiting for a view change.
-             */
             applyUpgradeVisibilityPreference();
             updateMyVersionAuthorBar();
         }
@@ -10514,172 +9864,28 @@ async function generateMyVersionCulturalLensUpgrade(
         return null;
     }
 
-    const sourceCard = clCards.find(
-        card => card.id === cardId
-    );
-
-    const contextCard =
-        materializeMyVersionCulturalLensCard(
-            sourceCard
-        );
-
-    if (
-        !contextCard ||
-        (contextCard.upgrade && options?.replace !== true)
-    ) {
-        return null;
-    }
-
-    const culturalLens =
-        subjectCopy.culturalLens || {};
-
-    const existingLanguage =
-        getMyVersionExistingLanguage(
-            `cl-${cardId}`
-        );
-
-    const generated =
-        await requireAtlasAI()
+    const upgrade =
+        await getMyVersionBuildDocumentOperations()
             .generateCulturalLensUpgrade({
-                subject: {
-                    title:
-                        getEffectiveSubjectTitle(),
-
-                    description:
-                        getEffectiveSubjectCatalogDescription()
-                },
-
-                culturalLens: {
-                    heading:
-                        resolveTutorContentValue(
-                            culturalLens.heading ||
-                                'Cultural Lens',
-                            'culturalLens.heading'
-                        ).trim(),
-
-                    intro:
-                        resolveTutorContentValue(
-                            culturalLens.intro || '',
-                            'culturalLens.intro'
-                        ).trim()
-                },
-
-                card: {
-                    title:
-                        String(
-                            contextCard.title || ''
-                        ).trim(),
-
-                    contextLine:
-                        String(
-                            contextCard.contextLine || ''
-                        ).trim(),
-
-                    teaser:
-                        String(
-                            contextCard.teaser || ''
-                        ).trim(),
-
-                    context:
-                        String(
-                            contextCard.context || ''
-                        ).trim(),
-
-                    questions:
-                        Array.isArray(
-                            contextCard.questions
-                        )
-                            ? contextCard.questions.slice()
-                            : [],
-
-                    followTheThread:
-                        Array.isArray(
-                            contextCard.followTheThread
-                        )
-                            ? contextCard.followTheThread.slice()
-                            : []
-                },
-
-                existingLanguage,
-
-                brief:
-                    String(
-                        brief || ''
-                    ).trim()
+                cardId,
+                brief,
+                replace:
+                    options?.replace === true,
+                priority:
+                    options?.priority || ''
             });
 
-    const contextId =
-        `cl-${cardId}`;
-
-    const committed =
-        commitMyVersionDocumentMutation(
-            (document, overrides) => {
-                const target =
-                    getMyVersionUpgradeTarget(
-                        document,
-                        contextId
-                    );
-
-                if (
-                    !target ||
-                    (target.upgrade && options?.replace !== true)
-                ) {
-                    return null;
-                }
-
-                removeMyVersionUpgradeOverrides(
-                    overrides,
-                    contextId
-                );
-
-                target.upgrade = {
-                    term:
-                        generated.term,
-
-                    type:
-                        generated.type,
-
-                    definition:
-                        generated.definition,
-
-                    ordinary:
-                        generated.ordinary,
-
-                    upgraded:
-                        generated.upgraded,
-
-                    priority:
-                        (
-                            options?.priority === 'key' ||
-                            options?.priority === 'standard'
-                        )
-                            ? options.priority
-                            : generated.priority,
-
-                    atlasPrompt:
-                        generated.atlasPrompt
-                };
-
-                return {
-                    contextId,
-                    upgrade:
-                        cloneTutorSubjectDocument(
-                            target.upgrade
-                        )
-                };
-            }
-        );
-
-    if (!committed) return null;
-
-    if (options?.reveal !== false) {
+    if (
+        upgrade &&
+        options?.reveal !== false
+    ) {
         refreshMyVersionUpgradeFocus(
-            contextId,
+            'cl-' + cardId,
             true
         );
     }
 
-    return committed.upgrade;
+    return upgrade;
 }
 
 function getMyVersionCulturalLensLanguageOpportunityIds() {
@@ -10841,135 +10047,83 @@ async function enrichMyVersionCulturalLensFromUI({
             ? languageMode
             : 'all';
 
-    const candidateIds =
-        getMyVersionCulturalLensLanguageUpgradeCandidateIds();
-
-    const remainingKeySlots =
-        Math.max(
-            0,
-            getMyVersionKeyLanguageLimit(
-                'cultural-lens'
-            ) -
-                getMyVersionCulturalLensKeyUpgradeCount()
-        );
-
-    const keySelectionTarget =
-        mode === 'off'
-            ? 0
-            : Math.min(
-                remainingKeySlots,
-                candidateIds.length
-            );
-
-    let selectedKeyIds = [];
-
-    if (keySelectionTarget > 0) {
-        myVersionCulturalLensEnrichmentError = '';
-        myVersionEnrichingCulturalLens = true;
-        myVersionCulturalLensEnrichmentProgress = {
-            phase: 'selecting-key',
-            mode
-        };
-
-        updateMyVersionAuthorBar();
-
-        try {
-            selectedKeyIds =
-                await selectMyVersionKeyLanguageOpportunityIds(
-                    'cultural-lens',
-                    getMyVersionCulturalLensKeyLanguageCandidates(
-                        candidateIds
-                    ),
-                    keySelectionTarget
-                );
-        } catch (error) {
-            myVersionEnrichingCulturalLens = false;
-            myVersionCulturalLensEnrichmentProgress = null;
-            updateMyVersionAuthorBar();
-            throw error;
-        }
-    }
-
-    const selectedKeySet =
-        new Set(selectedKeyIds);
-
-    const idsToGenerate =
-        mode === 'off'
-            ? []
-            : mode === 'key'
-                ? selectedKeyIds
-                : candidateIds;
-
-    if (!idsToGenerate.length) {
-        refreshMyVersionFullSubjectReadyNotice(
-            false,
-            mode
-        );
-        return [];
-    }
-
-    const completedIds = [];
-    const failedIds = [];
-
     myVersionCulturalLensEnrichmentError = '';
-    myVersionEnrichingCulturalLens = true;
-    myVersionCulturalLensEnrichmentProgress = {
-        current: 0,
-        total: idsToGenerate.length,
-        mode
-    };
-
-    updateMyVersionAuthorBar();
 
     try {
-        for (
-            let index = 0;
-            index < idsToGenerate.length;
-            index += 1
-        ) {
-            const cardId =
-                idsToGenerate[index];
+        const result =
+            await getMyVersionBuildDocumentOperations()
+                .enrichCulturalLens({
+                    languageMode:
+                        mode,
+                    subjectSize:
+                        String(
+                            window.AtlasGenerationContext
+                                ?.subjectSize ||
+                            'standard'
+                        ).trim(),
 
-            myVersionCulturalLensEnrichmentProgress = {
-                current: index + 1,
-                total: idsToGenerate.length,
-                mode
-            };
+                    onEvent(event) {
+                        if (
+                            event?.type ===
+                                'selection-start'
+                        ) {
+                            myVersionEnrichingCulturalLens = true;
+                            myVersionCulturalLensEnrichmentProgress = {
+                                phase: 'selecting-key',
+                                mode
+                            };
 
-            updateMyVersionAuthorBar();
+                            updateMyVersionAuthorBar();
+                            return;
+                        }
 
-            const upgrade =
-                await runMyVersionEnrichmentOperationWithRetry(
-                    () =>
-                        generateMyVersionCulturalLensUpgrade(
-                            cardId,
-                            '',
-                            {
-                                reveal: false,
-                                priority:
-                                    selectedKeySet.has(
-                                        cardId
-                                    )
-                                        ? 'key'
-                                        : 'standard'
-                            }
-                        ),
-                    `Cultural Lens language upgrade ${index + 1}`
-                );
+                        if (
+                            event?.type ===
+                                'operations-start'
+                        ) {
+                            myVersionEnrichingCulturalLens = true;
+                            myVersionCulturalLensEnrichmentProgress = {
+                                current: 0,
+                                total:
+                                    event.total || 0,
+                                mode
+                            };
 
-            if (upgrade) {
-                completedIds.push(cardId);
-            } else {
-                failedIds.push(cardId);
-            }
-        }
+                            updateMyVersionAuthorBar();
+                            return;
+                        }
 
-        if (failedIds.length) {
+                        if (
+                            event?.type ===
+                                'operation-start'
+                        ) {
+                            myVersionEnrichingCulturalLens = true;
+                            myVersionCulturalLensEnrichmentProgress = {
+                                current:
+                                    event.current,
+                                total:
+                                    event.total,
+                                mode
+                            };
+
+                            updateMyVersionAuthorBar();
+                        }
+                    }
+                });
+
+        const failedCount =
+            Array.isArray(
+                result?.failedIds
+            )
+                ? result.failedIds.length
+                : 0;
+
+        if (failedCount) {
             myVersionCulturalLensEnrichmentError =
-                `${failedIds.length} finishing touch${failedIds.length === 1 ? '' : 'es'} still remaining.`;
+                `${failedCount} finishing touch${failedCount === 1 ? '' : 'es'} still remaining.`;
         }
 
-        return completedIds;
+        return result;
     } finally {
         myVersionEnrichingCulturalLens = false;
         myVersionCulturalLensEnrichmentProgress = null;
@@ -10980,10 +10134,6 @@ async function enrichMyVersionCulturalLensFromUI({
                 mode
             );
 
-            /*
-             * When the final missing Cultural Lens upgrade lands,
-             * expose the teaching-time visibility control immediately.
-             */
             applyUpgradeVisibilityPreference();
             updateMyVersionAuthorBar();
         }
@@ -14163,149 +13313,57 @@ function startCurrentAffairsReadMoreEnrichment() {
 
     const context =
         window.AtlasGenerationContext &&
-        typeof window.AtlasGenerationContext === 'object' &&
+        typeof window.AtlasGenerationContext ===
+            'object' &&
         !Array.isArray(
             window.AtlasGenerationContext
         )
             ? window.AtlasGenerationContext
             : {};
 
-    const ideaMode =
-        String(
-            context.ideaMode || ''
-        ).trim();
-
-    const source =
-        context.source &&
-        typeof context.source === 'object' &&
-        !Array.isArray(context.source)
-            ? context.source
-            : null;
-
-    if (
-        !source ||
-        (
-            ideaMode &&
-            ideaMode !== 'current-affairs'
-        )
-    ) {
-        return null;
-    }
-
-    const existingQuestions =
-        Array.isArray(
-            source.readMoreQuestions
-        )
-            ? source.readMoreQuestions
-                .map(question =>
-                    String(
-                        question || ''
-                    ).trim()
-                )
-                .filter(Boolean)
-                .slice(0, 2)
-            : [];
-
-    if (
-        String(
-            source.readMore || ''
-        ).trim() &&
-        existingQuestions.length === 2
-    ) {
-        renderCurrentAffairsReadMore();
-        return null;
-    }
-
-    const keyFacts =
-        Array.isArray(source.keyFacts)
-            ? source.keyFacts
-                .map(fact =>
-                    String(
-                        fact || ''
-                    ).trim()
-                )
-                .filter(Boolean)
-                .slice(0, 4)
-            : [];
-
-    if (
-        !String(
-            source.publisher || ''
-        ).trim() ||
-        !String(
-            source.title || ''
-        ).trim() ||
-        !String(
-            source.url || ''
-        ).trim() ||
-        !String(
-            source.summary || ''
-        ).trim() ||
-        keyFacts.length < 2
-    ) {
-        return null;
-    }
-
-    const AI =
-        window.AtlasAI;
-
-    if (
-        !AI ||
-        typeof AI.generateCurrentAffairsReading !==
-            'function'
-    ) {
-        return null;
-    }
-
     currentAffairsReadMoreEnrichmentPromise =
         (async () => {
             try {
-                const reading =
-                    await AI
+                const result =
+                    await getMyVersionBuildDocumentOperations()
                         .generateCurrentAffairsReading({
-                            source: {
-                                ...source,
-                                keyFacts
-                            },
-
-                            languageLevel:
-                                String(
-                                    context.languageLevel ||
-                                    'b2'
-                                ).trim() || 'b2'
+                            generationContext:
+                                context
                         });
 
-                const readMore =
-                    String(
-                        reading?.readMore || ''
-                    ).trim();
-
-                const readMoreQuestions =
-                    Array.isArray(
-                        reading?.readMoreQuestions
-                    )
-                        ? reading.readMoreQuestions
-                            .map(question =>
-                                String(
-                                    question || ''
-                                ).trim()
-                            )
-                            .filter(Boolean)
-                            .slice(0, 2)
-                        : [];
-
-                const imageUrl =
-                    String(
-                        reading?.imageUrl || ''
-                    ).trim();
+                if (!result) {
+                    return null;
+                }
 
                 if (
-                    !readMore ||
-                    readMoreQuestions.length !== 2
+                    result.alreadyComplete === true
                 ) {
-                    throw new Error(
-                        'Atlas returned an incomplete Current Affairs reading.'
-                    );
+                    renderCurrentAffairsReadMore();
+                    return result.reading;
+                }
+
+                const generatedContext =
+                    result.generationContext &&
+                    typeof result.generationContext ===
+                        'object' &&
+                    !Array.isArray(
+                        result.generationContext
+                    )
+                        ? result.generationContext
+                        : {};
+
+                const generatedSource =
+                    generatedContext.source &&
+                    typeof generatedContext.source ===
+                        'object' &&
+                    !Array.isArray(
+                        generatedContext.source
+                    )
+                        ? generatedContext.source
+                        : null;
+
+                if (!generatedSource) {
+                    return null;
                 }
 
                 const latestContext =
@@ -14326,32 +13384,54 @@ function startCurrentAffairsReadMoreEnrichment() {
                         latestContext.source
                     )
                         ? latestContext.source
-                        : source;
+                        : {};
 
                 const nextGenerationContext = {
                     ...latestContext,
 
                     source: {
                         ...latestSource,
-                        readMore,
-                        readMoreQuestions,
-                        imageUrl
+
+                        readMore:
+                            String(
+                                generatedSource
+                                    .readMore ||
+                                ''
+                            ).trim(),
+
+                        readMoreQuestions:
+                            Array.isArray(
+                                generatedSource
+                                    .readMoreQuestions
+                            )
+                                ? generatedSource
+                                    .readMoreQuestions
+                                    .slice(
+                                        0,
+                                        2
+                                    )
+                                : [],
+
+                        imageUrl:
+                            String(
+                                generatedSource
+                                    .imageUrl ||
+                                ''
+                            ).trim()
                     }
                 };
 
                 const saved =
                     await queueTutorContentWrite(
                         async () =>
-                            requireAtlasTutorSubjects()
-                                .updateSubject(
-                                    MODULE.id,
-                                    {
-                                        metadata: {
-                                            generationContext:
-                                                nextGenerationContext
-                                        }
+                            updateOwnedSubjectAtRuntimeRevision(
+                                {
+                                    metadata: {
+                                        generationContext:
+                                            nextGenerationContext
                                     }
-                                )
+                                }
+                            )
                     );
 
                 if (!saved) {
@@ -14385,7 +13465,7 @@ function startCurrentAffairsReadMoreEnrichment() {
 
                 renderCurrentAffairsReadMore();
 
-                return reading;
+                return result.reading;
             } catch (error) {
                 console.warn(
                     '[Compass] Current Affairs Read more enrichment failed:',
@@ -23353,22 +22433,58 @@ async function init() {
     loadSessions();
     loadProgress();
 
-    const pendingOwnedSubjectAuthoringIntent =
+    let pendingOwnedSubjectAuthoringIntent =
         getOwnedSubjectAuthoringIntent();
-
-    const freshOwnedSubjectBuild =
-        isOwnedSubjectRuntime() &&
-        pendingOwnedSubjectAuthoringIntent ===
-            'generate';
 
     const incompleteOwnedSubjectBuild =
         isOwnedSubjectRuntime() &&
         getCompassSubjectRuntime()
             .aiBuildIncomplete === true;
 
+    /*
+     * A completed owned subject can retain ?author=generate after a build
+     * finishes in another Atlas surface. That URL hint is not durable build
+     * authority. Once the canonical subject is complete, discard the stale
+     * generation intent before authoring state is derived so the subject
+     * opens as an ordinary completed My Subject.
+     */
+    if (
+        pendingOwnedSubjectAuthoringIntent ===
+            'generate' &&
+        !incompleteOwnedSubjectBuild
+    ) {
+        consumeOwnedSubjectAuthoringIntent();
+        pendingOwnedSubjectAuthoringIntent =
+            '';
+    }
+
+    const freshOwnedSubjectBuild =
+        incompleteOwnedSubjectBuild &&
+        pendingOwnedSubjectAuthoringIntent ===
+            'generate';
+
     const recoveringOwnedSubjectBuild =
         incompleteOwnedSubjectBuild &&
         !freshOwnedSubjectBuild;
+
+    traceMyVersionBuild(
+        'init-build-state',
+        {
+            pendingIntent:
+                pendingOwnedSubjectAuthoringIntent ||
+                null,
+            incomplete:
+                incompleteOwnedSubjectBuild,
+            fresh:
+                freshOwnedSubjectBuild,
+            recovering:
+                recoveringOwnedSubjectBuild,
+            handoff:
+                Boolean(
+                    getMyVersionForegroundBuildHandoff()
+                )
+        }
+    );
 
     const freshBuildCloudAuthorityPromise =
         freshOwnedSubjectBuild
@@ -23392,6 +22508,14 @@ async function init() {
             await waitForOwnedSubjectRuntimeLayersReady();
 
         if (!runtimeLayersReady) {
+            if (
+                recoveringOwnedSubjectBuild
+            ) {
+                releaseMyVersionForegroundBuildHandoff(
+                    'runtime-layers-unavailable'
+                );
+            }
+
             /*
              * Fresh builds keep ?author=generate intact. Recovery builds keep
              * their durable incomplete marker, so either path can retry after
@@ -23419,7 +22543,19 @@ async function init() {
          * deliberately restarts generation from step 0 instead of exposing
          * the starter document as a finished lesson.
          */
-        await loadTutorContentState();
+        try {
+            await loadTutorContentState();
+        } catch (error) {
+            if (
+                recoveringOwnedSubjectBuild
+            ) {
+                releaseMyVersionForegroundBuildHandoff(
+                    'checkpoint-load-failed'
+                );
+            }
+
+            throw error;
+        }
     }
 
     const ownedSubjectAuthoringIntent =
@@ -23443,7 +22579,7 @@ async function init() {
                 : MODULE.id
     });
 
-    const ownedSubjectBuildState =
+    let ownedSubjectBuildState =
         isOwnedSubjectRuntime() &&
         !freshOwnedSubjectBuild
             ? await requireAtlasTutorSubjects()
@@ -23495,10 +22631,56 @@ async function init() {
             await recoveryBuildCloudAuthorityPromise;
 
         if (!cloudAuthorityReady) {
+            releaseMyVersionForegroundBuildHandoff(
+                'cloud-authority-unavailable'
+            );
+
             showSubjectAuthoringPersistenceUnavailable(
                 'Atlas could not prepare account persistence to continue this subject. Reload and try again.'
             );
             return;
+        }
+    }
+
+    if (
+        freshOwnedSubjectBuild ||
+        recoveringOwnedSubjectBuild
+    ) {
+        /*
+         * The shell and latest durable checkpoint are already visible above.
+         * Only generation itself waits for foreground ownership. If the worker
+         * advanced while the page was opening, reload the checkpoint after the
+         * grant so the page continues from the newest completed operation.
+         */
+        await awaitMyVersionForegroundBuildHandoff();
+
+        if (recoveringOwnedSubjectBuild) {
+            try {
+                await loadTutorContentState({
+                    forceOwnedWorkingDraft:
+                        true
+                });
+
+                ownedSubjectBuildState =
+                    await requireAtlasTutorSubjects()
+                        .getBuildState(
+                            MODULE.id
+                        );
+
+                renderAllTutorContentSurfaces();
+            } catch (error) {
+                releaseMyVersionForegroundBuildHandoff(
+                    'post-handoff-checkpoint-refresh-failed'
+                );
+
+                throw error;
+            }
+        }
+
+        if (
+            getMyVersionForegroundBuildHandoff()
+        ) {
+            await acquireMyVersionForegroundBuildHandoffLease();
         }
     }
 
@@ -23536,6 +22718,14 @@ async function init() {
         ) &&
         !myVersionEditing
     ) {
+        if (
+            recoveringOwnedSubjectBuild
+        ) {
+            releaseMyVersionForegroundBuildHandoff(
+                'foreground-editing-unavailable'
+            );
+        }
+
         /*
          * Fresh builds keep their URL intent; recovery builds keep their
          * durable incomplete marker. Either way a later open can retry.
@@ -23559,11 +22749,30 @@ async function init() {
 
     if (
         myVersionEditing &&
+        getCompassSubjectRuntime()
+            .aiBuildIncomplete === true &&
         (
             ownedSubjectAuthoringIntent === 'generate' ||
             resumableFullSubjectBuild
         )
     ) {
+        traceMyVersionBuild(
+            'resume-dispatched',
+            {
+                intent:
+                    ownedSubjectAuthoringIntent ||
+                    null,
+                completedStep:
+                    resumableFullSubjectBuild
+                        ?.completedStep ??
+                    0,
+                hasHandoff:
+                    Boolean(
+                        getMyVersionForegroundBuildHandoff()
+                    )
+            }
+        );
+
         void generateMyVersionFullSubject({
             autoSaveOnComplete:
                 resumableFullSubjectBuild

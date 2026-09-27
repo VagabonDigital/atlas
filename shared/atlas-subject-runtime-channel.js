@@ -802,6 +802,17 @@
             acquireBuildLease,
             startBuildHeartbeat,
             pulseBuildHeartbeat,
-            publishSubjectChanged
+            publishSubjectChanged,
+
+            ingestExternalMessage(
+                message
+            ) {
+                handleMessage(
+                    message,
+                    true
+                );
+
+                return true;
+            }
         });
 })();
