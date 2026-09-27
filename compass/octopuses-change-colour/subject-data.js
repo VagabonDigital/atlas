@@ -21,7 +21,7 @@ const MODULE = {
     title: `How Octopuses Change Colour`,
     titleHtml: `How Octopuses <em>Change Colour</em>`,
     navTitle: `Octopuses`,
-    bgImage: `https://www.telegraph.co.uk/content/dam/news/2021/03/25/TELEMMGLPICT000120700160_trans_NvBQzQNjv4BqZgEkZX3M936N5BQK4Va8RWtT0gK_6EfZT336f62EI5U.jpeg?imwidth=640`
+    bgImage: '/assets/atlas-originals/octopuses.webp'
 };
 
 const subjectCopy = {
