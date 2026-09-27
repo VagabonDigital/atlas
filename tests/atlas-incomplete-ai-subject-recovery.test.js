@@ -132,12 +132,12 @@ assert.match(
 
 assert.match(
     loader,
-    /compass-engine\.js\?v=20260923-incompletebuild1/
+    /compass-engine\\.js\\?v=20260926-sharedworkerintegration1/
 );
 
 assert.match(
     subjectPage,
-    /compass-subject-loader\.js\?v=20260923-buildprojection1/
+    /compass-subject-loader\\.js\\?v=20260926-cardopening1/
 );
 
 console.log(
