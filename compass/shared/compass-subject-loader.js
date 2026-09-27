@@ -743,7 +743,7 @@
             );
 
             await loadScript(
-                '../shared/compass-generation-recovery.js?v=20260922-checkpoint1',
+                '../shared/compass-generation-recovery.js?v=20260926-sharedworkerbatch5',
                 'Compass generation recovery layer could not be loaded.'
             );
 
