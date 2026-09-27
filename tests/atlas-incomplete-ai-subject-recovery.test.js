@@ -18,6 +18,11 @@ const subjectPage = fs.readFileSync(
     'utf8'
 );
 
+const recovery = fs.readFileSync(
+    'compass/shared/compass-generation-recovery.js',
+    'utf8'
+);
+
 // Owned-subject loading must distinguish a durable unfinished AI build from
 // a normal Structured Subject. The loader delegates to the shared lifecycle
 // classifier; its inline fallback exists only for a partially cached deploy.
@@ -102,6 +107,27 @@ assert.match(
 assert.match(
     engine,
     /resumeFromStep:[\s\S]*?resumableFullSubjectBuild[\s\S]*?\.completedStep[\s\S]*?: 0/
+);
+
+assert.match(
+    recovery,
+    /function hasLiveBackgroundBuild\(\)[\s\S]*?AtlasForegroundSubjectBuildHandoffPromise[\s\S]*?AtlasForegroundSubjectBuildHandoff[\s\S]*?AtlasSubjectBuildWorkerClient[\s\S]*?activeBuild[\s\S]*?AtlasSubjectRuntimeChannel[\s\S]*?isBuildActive/,
+    'Pending handoff, installed handoff, live SharedWorker build, and runtime build lease must all suppress legacy recovery.'
+);
+
+assert.match(
+    recovery,
+    /if \(hasLiveBackgroundBuild\(\)\) \{\s*showLiveContinuation\(\);\s*return;\s*\}[\s\S]*?Generation interrupted · continuing…/
+);
+
+assert.match(
+    recovery,
+    /async function resumeFromCheckpoint[\s\S]*?if \(hasLiveBackgroundBuild\(\)\) \{\s*showLiveContinuation\(\);\s*return false;/
+);
+
+assert.match(
+    recovery,
+    /myVersionFullSubjectGenerationNotice =\s*'Continuing generation…'/
 );
 
 assert.match(
