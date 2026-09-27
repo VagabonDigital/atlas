@@ -22,7 +22,7 @@ const MODULE = {
     title: 'Humour & Wit',
     titleHtml: 'Humour &amp; <em>Wit</em>',
     navTitle: 'Humour',
-    bgImage: '/assets/atlas-originals/humour-wit.png'
+    bgImage: '/assets/atlas-originals/humour-wit.webp'
 };
 
 const subjectCopy = {

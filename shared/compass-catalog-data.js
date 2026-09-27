@@ -1169,7 +1169,7 @@
         },
         {
             id: 'humour-wit',
-            coverImage: "/assets/atlas-originals/humour-wit.png",
+            coverImage: "/assets/atlas-originals/humour-wit.webp",
             title: 'Humour & Wit',
             categoryId: 'people-relationships',
             order: 90,
@@ -1310,7 +1310,7 @@
         },
         {
             id: 'job-interviews-clear-answers',
-            coverImage: "/assets/atlas-originals/job-interviews.png",
+            coverImage: "/assets/atlas-originals/job-interviews.webp",
             title: 'Job Interviews: Clear Answers Under Pressure',
             navTitle: 'Job Interviews',
             categoryId: 'work-time',
