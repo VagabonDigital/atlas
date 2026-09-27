@@ -21,7 +21,7 @@ const MODULE = {
     title: `Job Interviews: Clear Answers Under Pressure`,
     titleHtml: `Job Interviews: <em>Clear Answers Under Pressure</em>`,
     navTitle: `Job Interviews`,
-    bgImage: '/assets/atlas-originals/job-interviews.png'
+    bgImage: '/assets/atlas-originals/job-interviews.webp'
 };
 
 const subjectCopy = {
