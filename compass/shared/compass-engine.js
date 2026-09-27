@@ -439,6 +439,7 @@ const FULL_SUBJECT_COMPLETION_HOLD_MS = 900;
 
 let myVersionGeneratingFullSubject = false;
 let myVersionFullSubjectBuildLease = null;
+let myVersionFullSubjectLeasePreacquired = false;
 let stopMyVersionFullSubjectBuildHeartbeat = null;
 let myVersionAutoSavingFullSubject = false;
 let myVersionFullSubjectGenerationError = '';
@@ -533,6 +534,62 @@ function getCompassSubjectRuntime() {
 
 function isOwnedSubjectRuntime() {
     return getCompassSubjectRuntime().source === 'owned';
+}
+
+function requireOwnedSubjectRuntimeRevision() {
+    const revision =
+        Math.floor(
+            Number(
+                getCompassSubjectRuntime()
+                    ?.revision
+            ) || 0
+        );
+
+    if (revision < 1) {
+        const error = new Error(
+            'Atlas owned subject is missing its revision boundary.'
+        );
+
+        error.code =
+            'ATLAS_REVISION_REQUIRED';
+
+        throw error;
+    }
+
+    return revision;
+}
+
+async function updateOwnedSubjectAtRuntimeRevision(
+    patch = {}
+) {
+    if (!isOwnedSubjectRuntime()) {
+        return null;
+    }
+
+    const Subjects =
+        requireAtlasTutorSubjects();
+
+    if (
+        typeof Subjects
+            .updateSubjectAtRevision !==
+            'function'
+    ) {
+        const error = new Error(
+            'Atlas owned-subject revision guard is unavailable.'
+        );
+
+        error.code =
+            'ATLAS_REVISION_GUARD_UNAVAILABLE';
+
+        throw error;
+    }
+
+    return Subjects
+        .updateSubjectAtRevision(
+            MODULE.id,
+            patch,
+            requireOwnedSubjectRuntimeRevision()
+        );
 }
 
 function getCompassSubjectPublicAccess() {
@@ -1112,7 +1169,7 @@ function resolveTutorContentValue(originalValue, fieldKey) {
     return value;
 }
 
-async function loadTutorContentState() {
+async function loadTutorContentState({ forceOwnedWorkingDraft = false } = {}) {
     const Store = requireAtlasTutorContent();
     const contentId = getTutorContentId();
 
@@ -1132,7 +1189,13 @@ async function loadTutorContentState() {
         tutorContentLiveDraft = liveDraft;
         liveTutorMutationRevision += 1;
 
-        if (!myVersionEditing && workingDraft) {
+        if (
+            workingDraft &&
+            (
+                !myVersionEditing ||
+                forceOwnedWorkingDraft === true
+            )
+        ) {
             resumeMyVersionWorkingDraft(workingDraft);
         } else if (myVersionEditing) {
             applyTutorSubjectDocument(
@@ -1571,11 +1634,77 @@ function saveMyVersionWorkingDraftNow(
     const patch = getMyVersionWorkingDraftPatch(overrides);
 
     return queueTutorContentWrite(async () => {
-        const saved = isOwnedSubjectRuntime()
-            ? await requireAtlasTutorSubjects()
-                .saveWorkingDraft(MODULE.id, patch)
-            : await requireAtlasTutorContent()
-                .saveWorkingDraft(contentId, patch);
+        let saved = null;
+
+        if (isOwnedSubjectRuntime()) {
+            const Subjects =
+                requireAtlasTutorSubjects();
+
+            const buildState =
+                typeof Subjects.getBuildState ===
+                    'function'
+                    ? await Subjects
+                        .getBuildState(
+                            MODULE.id
+                        )
+                    : null;
+
+            if (
+                buildState
+                    ?.kind ===
+                    'full-subject' &&
+                typeof Subjects
+                    .saveBuildCheckpoint ===
+                    'function'
+            ) {
+                const checkpoint =
+                    await Subjects
+                        .saveBuildCheckpoint(
+                            MODULE.id,
+                            {
+                                workingDraft:
+                                    patch,
+                                buildState: {
+                                    kind:
+                                        'full-subject',
+                                    completedStep:
+                                        Math.max(
+                                            0,
+                                            Math.floor(
+                                                Number(
+                                                    buildState
+                                                        .completedStep
+                                                ) || 0
+                                            )
+                                        ),
+                                    autoSaveOnComplete:
+                                        buildState
+                                            .autoSaveOnComplete !==
+                                        false
+                                }
+                            }
+                        );
+
+                saved =
+                    checkpoint
+                        ?.workingDraft ||
+                    null;
+            } else {
+                saved =
+                    await Subjects
+                        .saveWorkingDraft(
+                            MODULE.id,
+                            patch
+                        );
+            }
+        } else {
+            saved =
+                await requireAtlasTutorContent()
+                    .saveWorkingDraft(
+                        contentId,
+                        patch
+                    );
+        }
 
         if (saved && myVersionEditing) {
             tutorContentWorkingDraft = saved;
