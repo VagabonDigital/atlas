@@ -23,7 +23,7 @@ const MODULE = {
     title: 'Travel & Exploration',
     titleHtml: 'Travel &amp; <em>Exploration</em>',
     navTitle: 'Travel',
-    bgImage: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi2lmdQM4psQaMkjfD9_oEcSyYotoHZLhcmLe6VSYRNsJIeMKss3ol57bH5E-UAKrYdF9zBzC2bqaxJYJj-8-IDp4umNP-PevoJpHPpH9lrIBisztiwq56af7NseoacPMmH3E3D1tG4olo/s2048/pexels-photo-3935702.jpeg'
+    bgImage: '/assets/atlas-originals/travel-exploration.jpeg'
 };
 
 const subjectCopy = {

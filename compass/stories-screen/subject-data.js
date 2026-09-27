@@ -23,7 +23,7 @@ const MODULE = {
     title: 'Stories & Screen',
     titleHtml: 'Stories &amp; <em>Screen</em>',
     navTitle: 'Stories',
-    bgImage: 'https://images5.alphacoders.com/376/thumb-1920-376565.jpg'
+    bgImage: '/assets/atlas-originals/stories-screen.jpg'
 };
 
 const subjectCopy = {

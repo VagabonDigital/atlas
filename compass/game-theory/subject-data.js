@@ -20,7 +20,7 @@ const MODULE = {
     title: `Understanding Game Theory: Strategy, Trust & Choice`,
     titleHtml: `Understanding Game Theory: <em>Strategy, Trust & Choice</em>`,
     navTitle: `Game Theory`,
-    bgImage: `https://static.wixstatic.com/media/3eee0b_f7fae24af2bf4fdc8b705e7f35e943f7~mv2.png/v1/fill/w_568,h_316,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/3eee0b_f7fae24af2bf4fdc8b705e7f35e943f7~mv2.png`
+    bgImage: '/assets/atlas-originals/game-theory.avif'
 };
 
 const subjectCopy = {

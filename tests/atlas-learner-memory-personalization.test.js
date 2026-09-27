@@ -104,8 +104,14 @@ assert.doesNotMatch(
 
 assert.match(
     memory,
-    /The things worth remembering for future lessons\. Choose what Atlas can use to suggest better subjects\./,
+    /Keep useful details here for future lessons\. Choose what Atlas can use when suggesting subjects\./,
     'Learner Memory guidance must explain the feature in simple tutor-facing language.'
+);
+
+assert.match(
+    memory,
+    /\.memory-intro \{[\s\S]*?text-wrap: balance;/,
+    'Learner Memory intro must balance line wrapping to avoid orphaned words.'
 );
 
 assert.doesNotMatch(
@@ -154,9 +160,34 @@ assert.match(
 
 assert.match(
     memory,
+    /content\.hidden = false;[\s\S]*?suggestionTextareas\.forEach\([\s\S]*?resizeSuggestionTextarea/,
+    'Learner Memory must reveal suggestion fields before measuring their rendered height.'
+);
+
+assert.match(
+    memory,
+    /window\.requestAnimationFrame\([\s\S]*?suggestionTextareas\.forEach\([\s\S]*?resizeSuggestionTextarea/,
+    'Learner Memory must confirm suggestion field sizing after the reveal frame.'
+);
+
+assert.match(
+    memory,
+    /window\.addEventListener\([\s\S]*?'resize'[\s\S]*?suggestionTextareas\.forEach\([\s\S]*?resizeSuggestionTextarea/,
+    'Learner Memory must remeasure suggestion fields when wrapping changes with viewport width.'
+);
+
+assert.match(
+    memory,
     /memory-textarea--about,[\s\S]*?memory-textarea--interests,[\s\S]*?memory-textarea--goals[\s\S]*?overflow-y: hidden;[\s\S]*?resize: none;/,
     'Learner suggestion fields must not use internal scrolling or manual resize controls.'
 );
+
+assert.match(
+    memory,
+    /memory-textarea--about,[\s\S]*?memory-textarea--interests,[\s\S]*?memory-textarea--goals[\s\S]*?padding-bottom: 1\.8rem;/,
+    'Learner suggestion fields must keep clear breathing room below saved text.'
+);
+
 
 assert.match(
     memory,

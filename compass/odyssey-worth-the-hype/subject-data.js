@@ -22,7 +22,7 @@ const MODULE = {
     title: 'The Odyssey: Worth the Hype?',
     titleHtml: 'The Odyssey: <em>Worth the Hype?</em>',
     navTitle: 'The Odyssey',
-    bgImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2AfNTRW3tus24aRHMr7-C-SizCaIZWt6S5WfFslYLurTBVD-IxBa-zjx3&s=10'
+    bgImage: '/assets/atlas-originals/the-odyssey.jpg'
 };
 
 const subjectCopy = {

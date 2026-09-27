@@ -21,7 +21,7 @@ const MODULE = {
     title: 'Using Modal Verbs in Real Situations',
     titleHtml: 'Using Modal Verbs in <em>Real Situations</em>',
     navTitle: 'Modal Verbs',
-    bgImage: 'https://w0.peakpx.com/wallpaper/1/806/HD-wallpaper-multi-colored-chalk-chalk-pencils-choice-of-color-concepts-chalk-different-colors-of-chalk.jpg'
+    bgImage: '/assets/atlas-originals/modal-verbs.jpg'
 };
 
 const subjectCopy = {

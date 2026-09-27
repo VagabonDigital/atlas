@@ -21,7 +21,7 @@ const MODULE = {
     title: `Business Meetings: Clear Updates, Questions & Decisions`,
     titleHtml: `Business Meetings: <em>Clear Updates, Questions & Decisions</em>`,
     navTitle: `Business Meetings`,
-    bgImage: `https://media.istockphoto.com/id/1355159388/photo/business-people-sitting-around-the-table-and-talking.jpg?s=612x612&w=0&k=20&c=w8pZYQMUG013b50faYS7RgvQ3Rmxc9Vet34AWoRb-_U=`
+    bgImage: '/assets/atlas-originals/business-meetings.jpg'
 };
 
 const subjectCopy = {

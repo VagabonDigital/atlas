@@ -273,6 +273,8 @@
             font-size: 0.96rem;
             font-weight: 300;
             line-height: 1.68;
+
+            text-wrap: balance;
         }
 
         .memory-notes {
@@ -510,6 +512,7 @@
         .memory-textarea.memory-textarea--interests,
         .memory-textarea.memory-textarea--goals {
             min-height: 104px;
+            padding-bottom: 1.8rem;
             overflow-y: hidden;
             resize: none;
         }
@@ -688,7 +691,7 @@
             ></h1>
 
             <p class="memory-intro">
-                The things worth remembering for future lessons. Choose what Atlas can use to suggest better subjects.
+                Keep useful details here for future lessons. Choose what Atlas can use when suggesting subjects.
             </p>
 
             <section class="memory-notes">
@@ -1173,8 +1176,18 @@
             notesTextarea.value =
                 memory.notes || '';
 
+            content.hidden = false;
+
             suggestionTextareas.forEach(
                 resizeSuggestionTextarea
+            );
+
+            window.requestAnimationFrame(
+                () => {
+                    suggestionTextareas.forEach(
+                        resizeSuggestionTextarea
+                    );
+                }
             );
 
             lastSavedValue =
@@ -1219,8 +1232,18 @@
                 );
             });
 
-            content.hidden = false;
         }
+
+        window.addEventListener(
+            'resize',
+            () => {
+                if (content.hidden) return;
+
+                suggestionTextareas.forEach(
+                    resizeSuggestionTextarea
+                );
+            }
+        );
 
         document.addEventListener(
             'visibilitychange',
