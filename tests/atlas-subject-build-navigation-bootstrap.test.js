@@ -49,6 +49,12 @@ assert.match(
 );
 
 assert.match(
+  registry,
+  /atlas-cloud-cache\.js\?v=20260926-sharedworkerbatch6/,
+  'Cloud cache must be cache-busted with the IndexedDB v2 SharedWorker integration.'
+);
+
+assert.match(
   client,
   /const WORKER_URL =[\s\S]*?buildworker16[\s\S]*?const WORKER_NAME =[\s\S]*?buildworker16/
 );
