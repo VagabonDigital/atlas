@@ -2,141 +2,249 @@
 
 Atlas is a tutor-first English teaching workspace built around three connected product worlds:
 
-- **Atlas** — gateway, learner continuity and account-level teaching state.
-- **Compass** — tutor-owned subjects and Atlas Originals.
-- **Arcade** — reusable lesson games and interactive activities.
+- **Atlas** — gateway, learner continuity, account state and cross-product navigation.
+- **Compass** — tutor-owned subjects, Atlas Originals and the shared teaching runtime.
+- **Arcade** — lesson games, current public game runtimes and the developing Engine One architecture.
+
+The core product loop is **Create → Shape → Teach → Continuity**. Repository structure should support that loop without making tutors or developers reason about historical implementation stages.
 
 ## Repository map
 
-- `index.html` — Atlas gateway.
-- `account/` — permanent account lifecycle surface: sign in, account creation, email confirmation return, password recovery, plan identity and sign out.
-- `compass/` — Compass hub, Atlas Originals and subject runtime.
-- `arcade/` — Arcade hub and game runtimes.
-- `memory/` — learner-memory surface.
-- `tutors/` — tutor-facing public/pilot surfaces.
-- `shared/` — shared runtime, persistence, cloud authority, navigation and UI modules.
-- `tests/` — lightweight runtime contract proofs for shared product architecture.
-- `supabase/migrations/` — canonical, source-controlled history of Atlas database schema changes.
+| Path | Current responsibility |
+| --- | --- |
+| `index.html` | Atlas gateway / workspace entry. |
+| `account/` | Account lifecycle: sign in, signup, confirmation, recovery and account management. |
+| `account/subscription/` | Subscription and billing-management surface. |
+| `compass/` | Compass hub, Atlas Originals and owned/generated subject entry. |
+| `compass/subject/` | Generic owned/generated subject runtime route. |
+| `compass/shared/` | Compass-shared teaching runtime and presentation infrastructure. |
+| `arcade/` | Arcade hub, current public games and Engine One engineering. |
+| `memory/` | Learner Memory surface. |
+| `pricing/` | Public Atlas pricing and Pro entry. |
+| `tutors/` | **Inside Atlas** public acquisition/product explanation. The folder name is historical. `tutors/admin.html` is the internal Atlas Inbox and is not conceptually part of Inside Atlas. |
+| `shared/` | Cross-product browser runtime, account/access, persistence, subject-build, navigation and UI modules. It currently also contains the backend Worker source at `shared/worker.js`. |
+| `assets/` | Shared product, branding and Atlas Original media. |
+| `tests/` | Root Atlas regression and source-contract tests. |
+| `scripts/` | Repository tooling, including the root test runner and Compass cover projection check. |
+| `supabase/migrations/` | Source-controlled Atlas database evolution files. See `supabase/README.md`. |
+| `prototypes/` | Retained design studies/provenance; not production runtime. |
+| `.github/workflows/` | Permanent repository CI. |
 
-## Persistence model
+## Runtime architecture
 
-Atlas JavaScript running in the browser communicates directly with the Supabase backend. Supabase provides authentication, the Postgres database and the API boundary used by Atlas.
+### Account, access and capabilities
 
-For signed-in tutors, durable account-owned state is stored in Supabase, including My Subjects, My Versions, learner records, Session Subjects, curation, hub personalization and teaching continuity. Browser storage remains appropriate for deliberately local or transient state such as the active learner tab/session, working drafts, short-lived undo state and cosmetic preferences.
+`AtlasCloud` owns the shared Supabase browser client. `AtlasAccountCloud` owns Supabase-specific account operations. `AtlasAccount` exposes product-facing identity and entitlement state.
 
-## Account lifecycle and entitlements
+`AtlasAccess` resolves that state into product capabilities used by Atlas, Compass and Arcade. Product code should consume capability state rather than scatter plan-string checks through the application.
 
-`AtlasCloud` owns the shared Supabase browser client. `AtlasAccountCloud` contains Supabase-specific account lifecycle operations and entitlement reads. `AtlasAccount` is the product-facing account contract used by Atlas surfaces.
+Anonymous access remains local/lightweight. Signed-in durable account state is cloud-authoritative.
 
-Email/password signup requires email confirmation. Signup confirmation and password-recovery links return to `/account/`, which handles normal sign-in, account creation and recovery states without introducing a separate auth product.
+### Durable and local state
 
-`account_entitlements` owns Free/Pro entitlement state, while the AI subject-creation policy, usage state and reservation events are server-owned and not directly readable or writable by browser roles. A missing entitlement row intentionally means the Free baseline. The initial configurable creation policy is 8 lifetime successful AI subject builds for Free and 100 successful builds per active Pro billing period. Fresh generated subjects reserve capacity when the durable owned-subject shell is created, release that reservation when generation pauses/fails, and consume it exactly once only when the completed subject is durably committed. `atlas_get_account_access_v1()` projects the resulting allowance into the existing account/access contract, so product code consumes capabilities rather than scattering `plan === 'pro'` or browser counters through Atlas.
+Supabase owns durable signed-in account data, including:
 
-## Canonical access state
+- My Subjects;
+- My Versions;
+- learner records and Session Subjects;
+- Atlas Original curation;
+- hub personalization;
+- learner/shared teaching continuity;
+- entitlement and server-owned commercial state.
 
-`AtlasAccess` is the product-level access resolver above `AtlasAccount`. `AtlasAccount` continues to own identity and raw server entitlement state; `AtlasAccess` converts that into one semantic access contract for Atlas, Compass and Arcade. Product surfaces should consume `AtlasAccess` capabilities rather than inspect Supabase state or `plan_code`.
+Browser storage is appropriate for deliberately local or transient state such as:
 
-The canonical tiers are `anonymous`, `free` and future `pro`. The shared capability vocabulary covers durable saving, learner creation, subject creation, subject editing, fresh AI-assisted subject creation (`canCreateWithAI`), ordinary AI shaping/discovery (`canUseAI`) and access to the account library. Fresh AI creation carries a normalized creation-allowance state (`available`, `limited`, `exhausted`, `blocked` or `unknown`). Exhausting the fresh-subject allowance must not disable ordinary AI shaping of work the tutor already owns.
+- active learner/tab state;
+- working drafts;
+- short-lived undo/recovery state;
+- transient generation checkpoints;
+- cosmetic preferences.
 
-Anonymous access resolves locally with all account-owned capabilities blocked. A stored signed-in session upgrades through `AtlasCloud` → `AtlasAccount` → `AtlasAccess`; anonymous visitors do not load the Supabase/auth stack merely to resolve the anonymous tier. While an authenticated account is still resolving entitlement state, or if that entitlement read fails, Atlas preserves authenticated identity but keeps access not-ready and capability checks fail closed rather than misclassifying the tutor as anonymous.
+`AtlasPersistenceTrust` scopes browser projections so local state from one account is not presented as another account's state.
 
-`atlas-access-bootstrap.js` makes this state available through the shared content-registry seam across the Atlas gateway, Compass hub and subjects, and Arcade hub and games. Batch 2.1 establishes state only: shared account gates, return-to-intent and feature-level interception are later Stage 2 responsibilities.
+### Subject generation
 
-The executable access-state proof lives at `tests/atlas-access-contract.test.js`. The Stage 6.2 quota wiring proof lives at `tests/atlas-ai-subject-quota-6-2.test.js`. Together they cover anonymous → Free access resolution, allowance projection, exhausted-limit gating, fresh AI-build lifecycle wiring and the source-controlled server enforcement contract.
+Fresh AI subject generation uses a SharedWorker-based build architecture with:
 
-### Authenticated AI operation boundary
+- Web Locks for single-writer coordination;
+- IndexedDB checkpoints;
+- BroadcastChannel/storage signaling;
+- resurrection/reconnect behavior;
+- durable owned-subject persistence.
 
-Every cost-bearing Atlas AI request is authenticated at the Worker boundary. The browser sends the current Supabase access token, one stable request ID per human AI action, and the owned subject ID when relevant. The Worker verifies the Atlas account before invoking external providers, then uses Worker-only Supabase service credentials to reserve and finalize hidden operational usage.
+This complexity is intentional. The subject-build regression family protects failure modes such as navigation during generation, worker death/recreation, cross-tab coordination and later resume.
 
-Fresh subject construction remains one commercial creation even though it performs many internal AI operations. An active server-side subject-build reservation classifies those internal calls as `subject_build_internal`; the launch safety ceiling is 60 successful internal operations per build. Outside an active build, hidden server policy protects ordinary AI shaping (100 successful actions/day, 500/month), web-backed actions (30/day, 150/month), cover search (200/day), and short-window attempts (30/minute, or 60/minute for an active subject build). Current Affairs Read More is one successful generation per owned subject. These are abuse guardrails, not tutor-facing credits.
+### Compass
 
-The Worker requires `ATLAS_SUPABASE_URL` and the server-only `ATLAS_SUPABASE_SECRET_KEY` (`sb_secret_…`, preferred). `ATLAS_SUPABASE_SERVICE_ROLE_KEY` remains a legacy fallback. The guardrail tables are not exposed to browser roles, and their begin/finish RPCs are executable only by `service_role`. The executable source contract lives at `tests/atlas-ai-operation-guardrails-6-2b.test.js`.
+Each Atlas Original keeps canonical subject content in:
 
-## Shared account gate foundation
+`compass/<subject>/subject-data.js`
 
-`AtlasAccountGate` is the reusable account-entry UI above `AtlasAccess` and `AtlasAccount`. It owns the shared sign-in/create-account dialog, password-reset entry, email-confirmation success state and the compact signed-in account menu. The account menu exposes private identity only on demand (email, Free/Pro status, account settings and sign out) rather than placing tutor identity permanently in teaching chrome.
+The generic owned/generated subject route lives at:
 
-Anonymous product surfaces remain lightweight. `AtlasAccessBootstrap.prepareAccount()` upgrades the anonymous access runtime into the existing `AtlasCloud` → `AtlasAccount` → `AtlasAccess` stack only when the tutor deliberately opens account UI. The gate does not duplicate Supabase or account lifecycle logic.
+`compass/subject/`
 
-Batch 2.2A establishes the shared account UI contract only. Header placement and cross-world lifecycle proof belong to Batch 2.2B; return-to-intent belongs to Batch 2.3; protected-action interception belongs to Batch 2.4. The executable foundation proof lives at `tests/atlas-account-gate-contract.test.js`.
+`scripts/sync-compass-covers.js` projects canonical Original cover metadata into the shared Compass catalog so hubs do not need to load every subject definition.
 
-Batch 2.2B places that contract into the public product without contaminating teaching canvases. Atlas, Compass and Arcade hubs receive one shared right-side account control: anonymous tutors see **Sign in**; authenticated tutors see a compact account icon opening the shared account menu. Atlas's pilot feedback button is removed from the prime desktop header slot while the secondary mobile-drawer contact remains available. Inside Atlas exposes **Explore Atlas**, **Sign in** and **Create free account** when anonymous, collapsing to Explore Atlas plus the account control when authenticated. Subject and game surfaces receive no promotional account chrome. The executable placement/state proof lives at `tests/atlas-account-chrome-contract.test.js`.
+### Arcade
 
-Return-to-intent is still intentionally deferred to Batch 2.3, and capability-driven protected-action interception remains Batch 2.4.
+Arcade currently contains two valid generations at once:
 
-## Return-to-intent foundation
+1. the current bespoke public games;
+2. the developing **Engine One / Shared Plan** architecture.
 
-`AtlasReturnIntent` is the canonical temporary contract for preserving what an anonymous tutor meant to do before authentication interrupted them. Each intent receives an opaque ID and stores only a supported action type, a normalized same-origin Atlas destination, small JSON-safe context, creation time and expiry. The destination is persisted as a relative path/query/hash rather than an arbitrary absolute redirect URL. Account routes are rejected as return destinations so an auth round-trip cannot loop back into the account surface.
+Engine One engineering includes definitions, frozen revisions, deterministic harnesses, a development workbench and a separate test package. Do not reorganize the public games merely to make the transition look cleaner before Engine One is ready to replace them.
 
-Return intents are stored independently by ID in browser-local storage so separate tabs do not overwrite one another and a confirmation email opened in another same-browser tab can recover the exact intent. If localStorage is unavailable, the runtime can preserve same-page intent state in memory but makes no claim of cross-tab durability. Intents expire after 24 hours by default, cannot live longer than seven days, reject oversized or non-plain context, validate again when read, and are consume-once when the later resume layer chooses to consume them. Tampered, malformed and expired records fail closed and are removed.
+## Testing
 
-Batch 2.3A establishes storage and validation only. It does not wire the account gate, add auth callback/query parameters, navigate to destinations or intercept protected features. Same-page authentication resume belongs to Batch 2.3B; confirmation/deep-link handoff belongs to Batch 2.3C; feature actions begin creating return intents in Batch 2.4. The executable contract proof lives at `tests/atlas-return-intent-contract.test.js`.
+Root Atlas has one canonical verification entry point.
 
-Batch 2.3B teaches `AtlasAccountGate` to accept an optional existing return-intent ID without changing generic account entry. The gate validates that intent when it opens, preserves it through failed authentication, cancellation, password-reset entry and email-confirmation-required signup, and consumes it only after Atlas has an authenticated account. Successful same-page authentication publishes `atlas:return-intent-resume` with the consumed intent and `source: 'account-gate'`; the existing `atlas:account-gate-authenticated` event also carries the resumed intent. The gate never navigates to the stored destination itself. A gate opened with a still-valid intent after another auth path has already authenticated the tutor resumes immediately rather than opening the account menu. The executable same-page proof lives at `tests/atlas-account-gate-return-intent.test.js`.
+```bash
+npm test
+npm run check:compass-covers
+npm run verify
+```
 
-Batch 2.3C completes cross-page authentication return. Signup confirmation carries only the validated opaque return-intent ID on `/account/?ri=…`; no destination is accepted from the callback URL. `AtlasReturnHandoff` resolves that ID back to the canonical browser-stored intent, waits for an authenticated non-recovery account state, consumes the intent once, removes the temporary callback parameter, and returns with `location.replace()` to the exact stored path/query/hash. Invalid, stale, tampered or same-browser-missing intent records fail closed to the ordinary account page. Opening the confirmation email on another device therefore authenticates normally but cannot invent or trust a destination that is absent from that browser. Password recovery remains independent and takes precedence over return navigation. The executable cross-page proof lives at `tests/atlas-return-handoff-contract.test.js`.
+### `npm test`
 
-Batch 2.3 is now complete: Atlas can preserve intent through same-page authentication and email-confirmation round trips without yet deciding which product actions require authentication. Capability-driven feature interception and the actual Add Learner/save/create/edit/My Subjects call sites remain Batch 2.4.
+Runs every root `tests/*.test.js` file independently.
 
-## Browser persistence trust
+The suite contains historical source-shape contracts as well as current runtime/VM regressions. When permanent CI was introduced, 38 historical contracts were already failing against current product source. Those were recorded explicitly in `tests/known-failing-contracts.json`; one has since been repaired, leaving **37 known historical failures**.
 
-`AtlasPersistenceTrust` complements database RLS at the browser boundary. Generic Atlas browser projections and local working-state keys are scoped to either a specific authenticated account or the signed-out/local workspace. When account identity changes, Atlas stashes the outgoing scope, restores the incoming scope and clears transient tab/session state before publishing the new account state. This prevents Account A learner/cache/draft projections from becoming visible to Account B while preserving deliberately local anonymous work and account-local drafts.
+Those tests are **still executed**. CI behaves as follows:
 
-Existing cloud authorities retain their own server-authoritative recovery behavior. Background persistence failures emit explicit cloud-error events; `AtlasPersistenceTrust` normalizes them into `atlas:persistence-failure` for observability and adds a visible failure message for learner writes that previously only emitted an event. Direct My Subjects/My Versions actions continue to throw on failed cloud writes rather than silently falling back to local storage.
+- a new failure outside the baseline fails CI;
+- a quarantined historical failure remains visible but does not fail normal CI;
+- a quarantined test that starts passing fails CI until it is removed from the baseline;
+- `npm run test:strict` treats all failures as blocking.
+
+The quarantine is a migration aid, not permission to add new failing tests.
+
+### Compass cover check
+
+```bash
+npm run check:compass-covers
+```
+
+verifies that shared Compass catalog cover metadata matches the canonical Original subject definitions.
+
+### Arcade tests
+
+Arcade owns a separate Node package:
+
+```bash
+cd arcade
+npm ci
+npm test
+npm run test:browser
+```
+
+The permanent GitHub workflow runs Arcade's Node suite. Browser tests remain a separate explicit command.
+
+### CI
+
+`.github/workflows/atlas-tests.yml` runs on pull requests and pushes to `main`.
+
+It currently provides:
+
+- **Atlas root verification** — syntax checks, the complete baseline-aware root suite and Compass cover drift verification;
+- **Arcade node tests** — the Engine One Node regression suite.
+
+Historical SharedWorker Batch 1–6 workflows have been retired. Their final integration coverage is contained in the permanent root suite.
+
+## Deployment
+
+Atlas has **two distinct deployment boundaries**. Do not conflate them.
+
+### Public Atlas web application
+
+`wrangler.jsonc` configures the static Atlas Worker named `atlas`.
+
+The static asset directory remains the repository root:
+
+```json
+"assets": {
+  "directory": ".",
+  "html_handling": "auto-trailing-slash",
+  "not_found_handling": "404-page"
+}
+```
+
+`.assetsignore` is therefore an important production boundary. Repository-only material — tests, migrations, scripts, prototypes, backend source and Arcade development infrastructure — is excluded from the client-side asset upload.
+
+Cloudflare's GitHub integration currently builds/deploys the public `atlas` Worker from changes on `main`. A successful repository push is still expected to pass the permanent GitHub CI checks as an independent regression signal.
+
+There is also a byte-identical `wrangler.atlas-web.jsonc`. Its external deployment role has not yet been proven; do not delete it until that is verified.
+
+### Atlas AI/backend Worker
+
+Browser AI requests target:
+
+`https://atlas-ai.savvy989.workers.dev`
+
+The source-controlled backend implementation is:
+
+`shared/worker.js`
+
+It owns provider credentials, authenticated Atlas account verification, AI abuse guardrails, Paddle webhooks/customer-portal operations and server-side external-provider requests.
+
+**The repository currently contains no GitHub Actions workflow that deploys this backend Worker.** Do not assume that editing `shared/worker.js` makes the production `atlas-ai` Worker current. Backend Worker deployment must be performed and verified through its actual Cloudflare deployment process.
+
+The physical location/name of `shared/worker.js` is historical and may be improved in a future backend-architecture pass. Do not move it as routine repository hygiene.
+
+## Supabase and database changes
+
+Atlas browser code communicates with Supabase for authentication and durable account-owned data. Server-only operations use protected backend boundaries.
+
+Read `supabase/README.md` before changing database structure.
+
+Key rule:
+
+> **Once a migration has been applied to production, its source file is immutable. Any correction or extension becomes a new migration.**
+
+The existing numbered migration directory and the historical production Supabase migration ledger do not map one-to-one because some earlier source files were curated after deployment. The repository audit found the relevant inspected production tables/functions present; do not rewrite production history merely to make the two ledgers visually identical.
+
+No current GitHub workflow automatically applies `supabase/migrations/` to production.
 
 ## Backup and data ownership
 
-Signed-in manual backups use **Atlas Backup v3**. Durable account-owned data is read from canonical Supabase/cloud authority state at export time rather than trusting browser projections. The package includes learner records and Session Subjects, named-learner and Shared teaching continuity, My Subjects and library state, My Versions, Atlas Original curation, and Hub personalization. Deliberately local authoring working drafts and a small set of cosmetic preferences are included separately under the backup workspace section.
+Signed-in manual backups use Atlas Backup v3 and read durable account-owned data from canonical cloud authorities.
 
-Transient runtime state is intentionally excluded: active learner/tab selection, live manipulation, Wrap Up drafts, pending-delete undo journals, generation checkpoints/build state, catalog projections, launch URLs, auth tokens, entitlement/plan state and other server-controlled access data. The package is validated before download. Manual export is an account data-ownership feature and is not a Pro capability.
+Backup/restore intentionally excludes authentication credentials, plan/entitlement ownership and transient runtime state. Restore is an authenticated import/merge operation with stable-ID conflict protection; it is not a database replacement mechanism.
 
-Signed-out browser-local export remains on the legacy v2 path until the anonymous/public access architecture is rebuilt.
+Signed-out browser-local export remains a separate legacy/local path.
 
-### Backup v3 restore
+## Repository operating principles
 
-Backup v3 restore is an authenticated recovery/import operation, not a database replacement tool. Atlas previews the package against the destination account first. Stable entity IDs remain strict: an existing learner, learner-continuity record, My Subject or My Version with the same stable ID blocks the restore rather than being overwritten. A same-ID My Subjects category with a different name is also an explicit conflict.
+When changing Atlas:
 
-A destination account does **not** need to be empty. Account-level singleton state is merged transactionally with destination values taking precedence on overlap: My Subjects library/order and placement, Shared teaching continuity, Atlas Original curation, and Hub personalization/favourites. Source-only state is added; unrelated destination state is preserved. A second import of the same backup is therefore blocked by the stable entities created by the first import rather than silently duplicating or replacing them.
+1. **Re-read current `main` before editing.** Multiple product changes can land concurrently.
+2. **Preserve runtime evidence over source appearance.** A strange-looking file can still be active.
+3. **Run `npm run verify` before trusting a root-runtime change.**
+4. **Keep browser runtime, backend runtime and database authority explicit.**
+5. **Do not edit an applied Supabase migration.**
+6. **Do not add product runtime dependencies under paths excluded by `.assetsignore`.**
+7. **Prefer small reversible commits over broad cleanup/refactor bundles.**
+8. **Do not reorganize architecture merely to reduce file count or make the tree symmetrical.**
 
-A conflict-free durable restore is applied inside one `atlas_restore_v3` PostgreSQL transaction under the signed-in user's RLS identity. The backup source account is provenance only: data may be reconstructed into a different Atlas account, but auth identity, plan and entitlement state never transfer. My Subject identity is therefore account-scoped as `(owner_user_id, id)` rather than globally keyed by subject ID.
+## Deliberately deferred structural work
 
-Local working drafts use the same stable-ID conflict rule. Ordinary portable preferences are destination-preserving: existing destination preferences and per-session appearance values win where both sides have a value, while source-only appearance entries can be added. Local restore writes are rolled back if the durable transaction fails. If the destination already contains meaningful Atlas data, the client downloads a safety Backup v3 before applying the restore.
+The repository audit identified legitimate future architecture opportunities that are **not** public-acquisition blockers:
 
-## Stage 1 trust contract
+- physically grouping the flat root `shared/` directory by domain;
+- separating backend Worker source from browser-shared modules;
+- splitting registry responsibility from runtime composition in `atlas-content-registry.js`;
+- reducing root-runtime monkey-patch composition;
+- consolidating analytics ownership;
+- decomposing the large Compass hub/engine when real maintenance pressure justifies it;
+- making Compass extension points explicit;
+- clarifying Arcade's filesystem after Engine One begins replacing public game runtimes;
+- separating Inside Atlas, product showcase assets and internal Inbox ownership currently under `tutors/`;
+- grouping/renaming historical root tests by permanent product responsibility;
+- replacing fragmented historical cache-version query strings with a deliberate cache strategy.
 
-Stage 1 establishes the durable account boundary Atlas relies on before public access work begins:
-
-- Auth identity is centralized behind `AtlasAccount`; confirmation and recovery return to the permanent `/account/` route.
-- RLS protects every durable account-owned table, while the browser projection boundary prevents same-browser account leakage.
-- Durable write failures are observable and user-visible where the action matters; Atlas does not silently pretend an account save succeeded.
-- Manual Backup v3 export reads canonical cloud truth and remains available as a basic data-ownership feature.
-- Backup v3 restore is validated, previewed, transaction-scoped and destination-preserving: stable-ID collisions block, unrelated destination data survives, and account-level singleton state merges rather than requiring an empty account.
-- Auth credentials, entitlement/plan state and transient lesson/runtime state are outside the backup/restore contract.
-
-## Supabase migrations
-
-Files in `supabase/migrations/` are the permanent database blueprint/history. They are **not** runtime scripts and are not automatically executed by GitHub. A migration becomes live only when its SQL is applied to Supabase, either manually or through the Supabase migration tooling.
-
-Saved queries in the Supabase SQL Editor are optional convenience copies and are not the source of truth. The source-controlled migration files are the canonical schema history; the live Supabase schema is the deployed database truth.
-
-## Database access boundary
-
-Durable account tables are RLS-protected. The ordinary Atlas product-state tables expose only `SELECT`, `INSERT`, `UPDATE` and `DELETE` to authenticated Atlas clients. `account_entitlements` is stricter: authenticated clients receive `SELECT` only, with server/admin infrastructure retaining mutation authority. Anonymous clients have no durable account-table access. Broad default browser-role table grants are disabled for future Atlas migrations, and the `rls_auto_enable` event-trigger helper remains only as an internal DDL safety net rather than an exposed RPC.
-
-The `atlas_restore_v3` recovery function is `SECURITY INVOKER`, executable only by authenticated clients, and writes only through the caller's normal RLS identity. It is not an admin bypass.
-
-## Auth hardening
-
-Production email/password accounts require a minimum password length of 8 characters and email confirmation. `https://atlasfortutors.com/account/` is an allowed auth redirect. Supabase leaked-password checking is not enabled because that hosted Auth feature is unavailable on the current Free project; enable it if the infrastructure tier later supports it. Auth email currently uses Supabase's default mail service, so custom SMTP remains a public-launch hardening task rather than part of the account runtime.
-
-## Legacy data migration
-
-Production Atlas does not automatically claim pre-account browser-local tutor data into a signed-in account. Signed-in durable state is cloud-authoritative. If a legacy tutor later needs an import, build and run a deliberate one-off migration/import flow rather than restoring the old staged migration runtime.
+These are architecture projects, not repository-hygiene obligations.
 
 ## Working principle
 
-Keep durable state authority explicit, keep transient browser state local, and avoid UI rendering that mutates persistence as a side effect. Database changes should be additive, reviewable migrations rather than edits to old migration history.
-
-## Runtime organization
-
-Shared production modules use canonical single-entry files rather than wrapper/core/sync chains. `atlas-content-registry.js`, `atlas-session-panel.js`, and `atlas-tutor-content-cloud-authority.js` each own their complete runtime behavior. Compass background and cross-module repaint requests flow through the coalesced `atlas:compass-hub-refresh-request` boundary; rendering itself stays read-only.
+**Preserve the architecture, remove the archaeology, strengthen operational boundaries, and keep the repository truthful about the product that actually exists.**
