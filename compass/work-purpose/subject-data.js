@@ -23,7 +23,7 @@ const MODULE = {
     title: 'Work & Purpose',
     titleHtml: 'Work &amp; <em>Purpose</em>',
     navTitle: 'Work',
-    bgImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhFkB7MkDcQS5edh6lz8gV33trxD9uWQ2_uiEwRevOErKxW6sFHoRo-FA&s=10'
+    bgImage: '/assets/atlas-originals/work-purpose.jpg'
 };
 
 const subjectCopy = {
