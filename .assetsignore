@@ -1,4 +1,31 @@
 # Cloudflare Workers static-assets exclusions.
-# The deployment serves the repository root, but Git metadata is not a web asset
-# and can exceed Cloudflare's 25 MiB per-asset limit.
+# The deployment serves the repository root. Keep repository-only tooling,
+# tests, database history, prototypes, and backend source out of the public
+# static asset upload while leaving browser/runtime assets untouched.
+
 .git/
+.github/
+
+tests/
+supabase/
+scripts/
+prototypes/
+
+README.md
+package.json
+package-lock.json
+wrangler.jsonc
+wrangler.atlas-web.jsonc
+
+shared/worker.js
+
+arcade/.gitignore
+arcade/package.json
+arcade/package-lock.json
+arcade/dev/
+arcade/harness/
+arcade/spikes/
+arcade/tests/
+arcade/contracts/
+arcade/engines/shared-plan-workbench/
+arcade/engines/shared-plan/CHANGE-DIARY.md
