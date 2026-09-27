@@ -21,7 +21,7 @@ const MODULE = {
     title: `TOEFL Writing: From Sentence to Argument`,
     titleHtml: `TOEFL Writing: From <em>Sentence to Argument</em>`,
     navTitle: `TOEFL Writing`,
-    bgImage: `https://thumbs.dreamstime.com/b/woman-hands-laptop-student-typing-education-writing-report-essay-studying-exam-university-scholarship-college-266007255.jpg`
+    bgImage: '/assets/atlas-originals/toefl-writing.webp'
 };
 
 const subjectCopy = {

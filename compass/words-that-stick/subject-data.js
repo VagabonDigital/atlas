@@ -19,7 +19,7 @@ const MODULE = {
     title: `Words That Stick: Vocabulary Through Roots & Stories`,
     titleHtml: `Words That Stick: <em>Vocabulary Through Roots & Stories</em>`,
     navTitle: `Words That Stick`,
-    bgImage: `https://www.piqosity.com/wp-content/uploads/2022/02/Depositphotos_169103504_L-1024x612.jpg`
+    bgImage: '/assets/atlas-originals/words-that-stick.jpg'
 };
 
 const subjectCopy = {

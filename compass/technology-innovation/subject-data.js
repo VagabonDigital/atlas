@@ -24,7 +24,7 @@ const MODULE = {
     title: 'Technology & Innovation',
     titleHtml: 'Technology &amp; <em>Innovation</em>',
     navTitle: 'Technology',
-    bgImage: 'https://static.wixstatic.com/media/c50469_bce6b50502f242c098f6edda48d2559b~mv2.jpeg/v1/fill/w_1110,h_662,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c50469_bce6b50502f242c098f6edda48d2559b~mv2.jpeg'
+    bgImage: '/assets/atlas-originals/technology-innovation.avif'
 };
 
 const subjectCopy = {
