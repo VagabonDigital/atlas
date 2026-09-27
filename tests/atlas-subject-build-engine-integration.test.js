@@ -34,6 +34,19 @@ assert.match(engine, /function getMyVersionBuildDocumentOperations\(\)[\s\S]*?At
 assert.match(engine, /AtlasSubjectBuildRunner[\s\S]*?BuildRunner\.run\(\{[\s\S]*?resumeFromStep:[\s\S]*?onCheckpoint:/);
 assert.match(engine, /AtlasForegroundSubjectBuildHandoffPromise[\s\S]*?handoff-await-start[\s\S]*?handoff-await-result/);
 assert.match(engine, /loadTutorContentState\(\{ forceOwnedWorkingDraft = false \} = \{\}\)/);
+
+const ownedStateLoader = engine.slice(
+  engine.indexOf('async function loadTutorContentState'),
+  engine.indexOf('function queueTutorContentWrite')
+);
+assert.match(
+  ownedStateLoader,
+  /getBuildState\(MODULE\.id\)[\s\S]*?completedAiSubject[\s\S]*?staleCompletedBuildDraft[\s\S]*?clearWorkingDraft\([\s\S]*?MODULE\.id/
+);
+assert.match(
+  ownedStateLoader,
+  /stale-completed-build-draft-discarded/
+);
 assert.match(engine, /await awaitMyVersionForegroundBuildHandoff\(\);[\s\S]*?loadTutorContentState\(\{[\s\S]*?forceOwnedWorkingDraft:[\s\S]*?true[\s\S]*?\}\)[\s\S]*?getBuildState\([\s\S]*?acquireMyVersionForegroundBuildHandoffLease\(\)/);
 assert.match(engine, /myVersionFullSubjectLeasePreacquired[\s\S]*?acquireBuildLease/);
 assert.match(engine, /saveMyVersionWorkingDraftNow\([\s\S]*?saveBuildCheckpoint\(/);
