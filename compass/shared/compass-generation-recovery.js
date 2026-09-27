@@ -70,6 +70,103 @@
         );
     }
 
+    function hasLiveBackgroundBuild() {
+        const subjectId = getSubjectId();
+
+        if (!subjectId) {
+            return false;
+        }
+
+        /*
+         * Worker → foreground ownership transfer is itself live build
+         * activity. During that transfer the SharedWorker intentionally
+         * releases its Web Lock and can briefly report activeBuild = null.
+         * Legacy recovery must not treat that handoff gap as an interrupted
+         * build and race the loader for the same subject lock.
+         */
+        const pendingHandoff =
+            window
+                .AtlasForegroundSubjectBuildHandoffPromise;
+
+        if (
+            pendingHandoff &&
+            typeof pendingHandoff.then ===
+                'function'
+        ) {
+            return true;
+        }
+
+        const installedHandoff =
+            window
+                .AtlasForegroundSubjectBuildHandoff;
+
+        if (
+            installedHandoff &&
+            typeof installedHandoff ===
+                'object' &&
+            !Array.isArray(
+                installedHandoff
+            ) &&
+            String(
+                installedHandoff
+                    .subjectId ||
+                ''
+            ).trim() ===
+                subjectId
+        ) {
+            return true;
+        }
+
+        const Client =
+            window.AtlasSubjectBuildWorkerClient;
+
+        const clientState =
+            Client?.getState?.() ||
+            null;
+
+        if (
+            String(
+                clientState
+                    ?.activeBuild
+                    ?.subjectId ||
+                ''
+            ).trim() === subjectId
+        ) {
+            return true;
+        }
+
+        const Runtime =
+            window.AtlasSubjectRuntimeChannel;
+
+        return Boolean(
+            Runtime &&
+            typeof Runtime.isBuildActive ===
+                'function' &&
+            Runtime.isBuildActive(
+                subjectId
+            )
+        );
+    }
+
+    function showLiveContinuation() {
+        recoveryPending = true;
+        setRecoveryPresentationActive(true);
+        showRetryButton(false);
+
+        myVersionFullSubjectGenerationError = '';
+        myVersionFullSubjectGenerationNotice =
+            'Continuing generation…';
+
+        if (
+            typeof originalUpdateMyVersionAuthorBar ===
+                'function'
+        ) {
+            originalUpdateMyVersionAuthorBar();
+        }
+
+        scheduleRetry(2000);
+    }
+
     function clearRecoveryTimer() {
         if (recoveryTimer === null) return;
 
@@ -357,6 +454,11 @@
 
         if (recoveryTimer !== null) return;
 
+        if (hasLiveBackgroundBuild()) {
+            showLiveContinuation();
+            return;
+        }
+
         const failedAt =
             getFailedStageLabel() ||
             'this step';
@@ -397,6 +499,11 @@
             setRecoveryStatus(
                 'Connection lost · generation will continue when you reconnect.'
             );
+            return false;
+        }
+
+        if (hasLiveBackgroundBuild()) {
+            showLiveContinuation();
             return false;
         }
 
