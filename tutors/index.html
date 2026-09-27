@@ -412,6 +412,7 @@
     html.theme-changing .revolver-wrap,
     html.theme-changing .hero-lede,
     html.theme-changing .product-entry-primary,
+    html.theme-changing .product-entry-secondary,
     html.theme-changing .power strong,
     html.theme-changing .power span,
     html.theme-changing .overview-video-copy p:not(.kicker),
@@ -818,6 +819,36 @@
 
     html[data-theme="night"] .product-entry-primary {
       color: #172124;
+    }
+
+    .product-entry-secondary {
+      display: inline-flex;
+      min-height: 42px;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 15px;
+      border: 1px solid var(--border-strong);
+      border-radius: 7px;
+      background: transparent;
+      color: var(--text-heading);
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1;
+      text-decoration: none;
+      transition:
+        border-color var(--motion) ease,
+        color var(--motion) ease,
+        transform var(--motion) ease;
+    }
+
+    .product-entry-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent-ink);
+      transform: translateY(-1px);
+    }
+
+    .product-entry-secondary:active {
+      transform: translateY(0);
     }
 
     .power-rail {
@@ -2904,6 +2935,12 @@
       gap: 8px;
     }
 
+    .product-entry-final-buttons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
     .product-entry-final-note {
       color: var(--text-muted);
       font-size: 12px;
@@ -3132,7 +3169,13 @@
         align-items: stretch;
       }
 
-      .product-entry-final .product-entry-primary {
+      .product-entry-final-buttons {
+        width: 100%;
+        flex-direction: column;
+      }
+
+      .product-entry-final .product-entry-primary,
+      .product-entry-final .product-entry-secondary {
         width: 100%;
       }
 
@@ -3686,12 +3729,14 @@
     <section class="section product-entry-final" aria-labelledby="product-entry-final-title">
       <div class="frame product-entry-final-inner">
         <div>
-          <p class="kicker">Explore Atlas</p>
-          <h2 id="product-entry-final-title">Ready to try it?</h2>
-          <p>Open Atlas, choose a subject or game, and use it in your next lesson.</p>
+          <h2 id="product-entry-final-title">Find something for your next lesson.</h2>
+          <p>If nothing fits, tell Atlas what your learner needs. It will prepare a new subject for you.</p>
         </div>
         <div class="product-entry-final-action">
-          <a class="product-entry-primary" href="/?entry=product" data-atlas-product-entry>Explore Atlas</a>
+          <div class="product-entry-final-buttons">
+            <a class="product-entry-primary" href="/compass/">Find a subject</a>
+            <a class="product-entry-secondary" href="/arcade/">Find a game</a>
+          </div>
           <span class="product-entry-final-note">Free to start. No card required.</span>
         </div>
       </div>
