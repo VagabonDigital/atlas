@@ -446,6 +446,11 @@ let myVersionFullSubjectGenerationError = '';
 let myVersionFullSubjectGenerationProgress = null;
 let myVersionFullSubjectGenerationNotice = '';
 let myVersionFullSubjectReadyForCommit = false;
+let myVersionFullSubjectWorkerRegistered = false;
+let myVersionFullSubjectPageExiting = false;
+let myVersionFullSubjectAutoSaveOnComplete = false;
+
+let myVersionBuildDocumentOperations = null;
 
 let currentAffairsReadMoreEnrichmentPromise = null;
 let currentAffairsPreviousBodyOverflow = '';
@@ -1603,6 +1608,10 @@ async function checkpointMyVersionFullSubjectGeneration(
             'Could not save subject construction checkpoint.'
         );
     }
+
+    registerMyVersionFullSubjectWithWorker(
+        autoSaveOnComplete
+    );
 
     return savedState;
 }
@@ -7684,6 +7693,373 @@ function getMyVersionKeyLanguageLimit(section) {
         : limits.discussion;
 }
 
+function traceMyVersionBuild(
+    stage,
+    detail = {}
+) {
+    window
+        .AtlasSubjectBuildWorkerClient
+        ?.traceDebug?.(
+            'engine:' + stage,
+            {
+                subjectId:
+                    String(
+                        window.MODULE?.id ||
+                        ''
+                    ).trim() ||
+                    null,
+                ...detail
+            }
+        );
+}
+
+function getMyVersionForegroundBuildHandoff() {
+    const handoff =
+        window
+            .AtlasForegroundSubjectBuildHandoff;
+
+    if (
+        !handoff ||
+        typeof handoff !==
+            'object' ||
+        Array.isArray(handoff) ||
+        String(
+            handoff.subjectId ||
+            ''
+        ).trim() !==
+            String(
+                MODULE.id ||
+                ''
+            ).trim()
+    ) {
+        return null;
+    }
+
+    return handoff;
+}
+
+async function awaitMyVersionForegroundBuildHandoff() {
+    const pending =
+        window
+            .AtlasForegroundSubjectBuildHandoffPromise;
+
+    if (
+        !pending ||
+        typeof pending.then !==
+            'function'
+    ) {
+        return getMyVersionForegroundBuildHandoff();
+    }
+
+    traceMyVersionBuild(
+        'handoff-await-start',
+        {}
+    );
+
+    try {
+        await pending;
+    } catch (error) {
+        console.warn(
+            '[Compass] Foreground build handoff promise failed:',
+            error
+        );
+    } finally {
+        if (
+            window
+                .AtlasForegroundSubjectBuildHandoffPromise ===
+            pending
+        ) {
+            delete window
+                .AtlasForegroundSubjectBuildHandoffPromise;
+        }
+    }
+
+    const handoff =
+        getMyVersionForegroundBuildHandoff();
+
+    traceMyVersionBuild(
+        'handoff-await-result',
+        {
+            granted:
+                Boolean(handoff),
+            completedStep:
+                handoff
+                    ?.completedStep ??
+                null
+        }
+    );
+
+    return handoff;
+}
+
+function releaseMyVersionForegroundBuildHandoff(
+    reason =
+        'foreground-handoff-ended'
+) {
+    traceMyVersionBuild(
+        'handoff-release',
+        {
+            reason
+        }
+    );
+
+    if (
+        myVersionFullSubjectLeasePreacquired
+    ) {
+        myVersionFullSubjectBuildLease
+            ?.release?.();
+
+        myVersionFullSubjectBuildLease =
+            null;
+
+        myVersionFullSubjectLeasePreacquired =
+            false;
+    }
+
+    const handoff =
+        getMyVersionForegroundBuildHandoff();
+
+    if (handoff) {
+        window
+            .AtlasSubjectBuildWorkerClient
+            ?.releaseForegroundOwnership
+            ?.(
+                MODULE.id,
+                reason
+            );
+    }
+
+    delete window
+        .AtlasForegroundSubjectBuildHandoff;
+}
+
+async function acquireMyVersionForegroundBuildHandoffLease() {
+    const handoff =
+        getMyVersionForegroundBuildHandoff();
+
+    if (!handoff) {
+        traceMyVersionBuild(
+            'handoff-lease-skipped',
+            {
+                reason:
+                    'no-handoff'
+            }
+        );
+
+        return false;
+    }
+
+    traceMyVersionBuild(
+        'handoff-lease-request',
+        {
+            completedStep:
+                handoff
+                    ?.completedStep ??
+                null,
+            readyToCommit:
+                handoff
+                    ?.readyToCommit ===
+                true
+        }
+    );
+
+    if (
+        myVersionFullSubjectBuildLease
+            ?.acquired ===
+            true
+    ) {
+        myVersionFullSubjectLeasePreacquired =
+            true;
+
+        return true;
+    }
+
+    const RuntimeChannel =
+        window
+            .AtlasSubjectRuntimeChannel;
+
+    if (
+        !RuntimeChannel ||
+        typeof RuntimeChannel
+            .acquireBuildLease !==
+            'function'
+    ) {
+        releaseMyVersionForegroundBuildHandoff(
+            'foreground-lock-unavailable'
+        );
+
+        return false;
+    }
+
+    let lease = null;
+
+    try {
+        lease =
+            await RuntimeChannel
+                .acquireBuildLease(
+                    MODULE.id
+                );
+    } catch (error) {
+        console.warn(
+            '[Compass] Foreground subject build lock was unavailable:',
+            error
+        );
+    }
+
+    if (
+        !lease ||
+        lease.acquired !==
+            true
+    ) {
+        lease?.release?.();
+
+        window
+            .AtlasSubjectBuildWorkerClient
+            ?.releaseForegroundOwnership
+            ?.(
+                MODULE.id,
+                'foreground-lock-not-acquired'
+            );
+
+        delete window
+            .AtlasForegroundSubjectBuildHandoff;
+
+        traceMyVersionBuild(
+            'handoff-lease-result',
+            {
+                acquired:
+                    false
+            }
+        );
+
+        return false;
+    }
+
+    myVersionFullSubjectBuildLease =
+        lease;
+
+    myVersionFullSubjectLeasePreacquired =
+        true;
+
+    traceMyVersionBuild(
+        'handoff-lease-result',
+        {
+            acquired:
+                true
+        }
+    );
+
+    return true;
+}
+
+function registerMyVersionFullSubjectWithWorker(
+    autoSaveOnComplete =
+        myVersionFullSubjectAutoSaveOnComplete
+) {
+    if (!isOwnedSubjectRuntime()) {
+        return false;
+    }
+
+    const Client =
+        window
+            .AtlasSubjectBuildWorkerClient;
+
+    if (
+        !Client ||
+        typeof Client.enqueueSubject !==
+            'function'
+    ) {
+        return false;
+    }
+
+    const generationContext =
+        window.AtlasGenerationContext &&
+        typeof window.AtlasGenerationContext ===
+            'object' &&
+        !Array.isArray(
+            window.AtlasGenerationContext
+        )
+            ? cloneTutorSubjectDocument(
+                window.AtlasGenerationContext
+            )
+            : null;
+
+    if (!generationContext) {
+        return false;
+    }
+
+    const registered =
+        Client.enqueueSubject(
+            MODULE.id,
+            {
+                generationContext,
+                autoSaveOnComplete:
+                    Boolean(
+                        autoSaveOnComplete
+                    ),
+                revision:
+                    requireOwnedSubjectRuntimeRevision()
+            }
+        ) === true;
+
+    if (registered) {
+        myVersionFullSubjectWorkerRegistered =
+            true;
+    }
+
+    return registered;
+}
+
+function cancelMyVersionFullSubjectWorkerRegistration(
+    reason = 'foreground-ended'
+) {
+    const Client =
+        window
+            .AtlasSubjectBuildWorkerClient;
+
+    if (
+        Client &&
+        typeof Client.cancelSubject ===
+            'function'
+    ) {
+        Client.cancelSubject(
+            MODULE.id,
+            reason
+        );
+    }
+
+    myVersionFullSubjectWorkerRegistered =
+        false;
+}
+
+function noteMyVersionFullSubjectPageExit() {
+    if (
+        myVersionGeneratingFullSubject &&
+        myVersionFullSubjectWorkerRegistered
+    ) {
+        myVersionFullSubjectPageExiting =
+            true;
+    }
+}
+
+window.addEventListener(
+    'pagehide',
+    noteMyVersionFullSubjectPageExit
+);
+
+window.addEventListener(
+    'beforeunload',
+    noteMyVersionFullSubjectPageExit
+);
+
+window.addEventListener(
+    'pageshow',
+    () => {
+        myVersionFullSubjectPageExiting =
+            false;
+    }
+);
+
 async function setMyVersionAiBuildStatus(status) {
     if (!isOwnedSubjectRuntime()) {
         return null;
@@ -7704,16 +8080,14 @@ async function setMyVersionAiBuildStatus(status) {
     const saved =
         await queueTutorContentWrite(
             async () =>
-                requireAtlasTutorSubjects()
-                    .updateSubject(
-                        MODULE.id,
-                        {
-                            metadata: {
-                                aiBuildStatus:
-                                    nextStatus
-                            }
+                updateOwnedSubjectAtRuntimeRevision(
+                    {
+                        metadata: {
+                            aiBuildStatus:
+                                nextStatus
                         }
-                    )
+                    }
+                )
         );
 
     if (!saved) {
