@@ -1,0 +1,3 @@
+# Cloudflare Workers static-assets exclusions.
+# Git metadata is not a web asset and can exceed Cloudflare's per-asset limit.
+.git/
