@@ -1575,7 +1575,22 @@ async function checkpointMyVersionFullSubjectGeneration(
                                 buildState: {
                                     kind: 'full-subject',
                                     completedStep,
-                                    autoSaveOnComplete
+                                    autoSaveOnComplete,
+                                    ...(
+                                        window.AtlasGenerationContext &&
+                                        typeof window.AtlasGenerationContext ===
+                                            'object' &&
+                                        !Array.isArray(
+                                            window.AtlasGenerationContext
+                                        )
+                                            ? {
+                                                generationContext:
+                                                    cloneTutorSubjectDocument(
+                                                        window.AtlasGenerationContext
+                                                    )
+                                            }
+                                            : {}
+                                    )
                                 }
                             }
                         );
@@ -1689,7 +1704,22 @@ function saveMyVersionWorkingDraftNow(
                                     autoSaveOnComplete:
                                         buildState
                                             .autoSaveOnComplete !==
-                                        false
+                                        false,
+                                    ...(
+                                        window.AtlasGenerationContext &&
+                                        typeof window.AtlasGenerationContext ===
+                                            'object' &&
+                                        !Array.isArray(
+                                            window.AtlasGenerationContext
+                                        )
+                                            ? {
+                                                generationContext:
+                                                    cloneTutorSubjectDocument(
+                                                        window.AtlasGenerationContext
+                                                    )
+                                            }
+                                            : {}
+                                    )
                                 }
                             }
                         );
