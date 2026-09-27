@@ -1286,7 +1286,7 @@
                             >
                             <img
                                 class="atlas-pro-checkout-paddle-logo atlas-pro-checkout-paddle-logo--night"
-                                src="https://pub-13d93423376c4822820635b75cfbea29.r2.dev/images/Paddle%20Logo%20Night%20Mode.png"
+                                src="/assets/branding/paddle/paddle-wordmark-white.png"
                                 alt=""
                                 aria-hidden="true"
                             >
