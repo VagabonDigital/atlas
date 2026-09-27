@@ -37,6 +37,18 @@ assert.match(engine, /loadTutorContentState\(\{ forceOwnedWorkingDraft = false \
 assert.match(engine, /await awaitMyVersionForegroundBuildHandoff\(\);[\s\S]*?loadTutorContentState\(\{[\s\S]*?forceOwnedWorkingDraft:[\s\S]*?true[\s\S]*?\}\)[\s\S]*?getBuildState\([\s\S]*?acquireMyVersionForegroundBuildHandoffLease\(\)/);
 assert.match(engine, /myVersionFullSubjectLeasePreacquired[\s\S]*?acquireBuildLease/);
 assert.match(engine, /saveMyVersionWorkingDraftNow\([\s\S]*?saveBuildCheckpoint\(/);
+
+const fullSubjectCheckpoint = engine.slice(
+  engine.indexOf('async function checkpointMyVersionFullSubjectGeneration'),
+  engine.indexOf('function clearMyVersionFullSubjectBuildState')
+);
+assert.match(fullSubjectCheckpoint, /saveBuildCheckpoint\([\s\S]*?buildState:[\s\S]*?generationContext:[\s\S]*?window\.AtlasGenerationContext/);
+
+const activeBuildDraftCheckpoint = engine.slice(
+  engine.indexOf('function saveMyVersionWorkingDraftNow'),
+  engine.indexOf('function scheduleMyVersionWorkingDraftSave')
+);
+assert.match(activeBuildDraftCheckpoint, /saveBuildCheckpoint\([\s\S]*?buildState:[\s\S]*?generationContext:[\s\S]*?window\.AtlasGenerationContext/);
 assert.match(engine, /function requireOwnedSubjectRuntimeRevision\([\s\S]*?ATLAS_REVISION_REQUIRED/);
 assert.match(engine, /function updateOwnedSubjectAtRuntimeRevision[\s\S]*?updateSubjectAtRevision\([\s\S]*?requireOwnedSubjectRuntimeRevision\(\)/);
 assert.match(engine, /completesAiSubjectBuild[\s\S]*?aiBuildStatus:[\s\S]*?'complete'[\s\S]*?generationContext:/);
