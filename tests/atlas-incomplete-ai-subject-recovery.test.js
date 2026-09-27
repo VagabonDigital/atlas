@@ -137,7 +137,7 @@ assert.match(
 
 assert.match(
     subjectPage,
-    /compass-subject-loader\.js\?v=20260926-cardopening1/
+    /compass-subject-loader\.js\?v=20260926-sharedworkerbatch5/
 );
 
 console.log(
