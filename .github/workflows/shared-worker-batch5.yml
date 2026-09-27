@@ -1,0 +1,30 @@
+name: SharedWorker Integration Batch 5
+
+on:
+  push:
+    branches:
+      - integration/shared-worker-subject-builds
+
+jobs:
+  batch5-navigation-reconnect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check Batch 5 JavaScript syntax
+        run: |
+          set -euo pipefail
+          node --check shared/atlas-subject-build-worker-client.js
+          node --check shared/atlas-subject-build-shared-worker.js
+          node --check shared/atlas-subject-build-resurrection.js
+          node --check compass/shared/compass-generation-recovery.js
+          node --check compass/shared/compass-subject-loader.js
+      - name: Run Batch 5 navigation and reconnect regressions
+        run: |
+          set -euo pipefail
+          node tests/atlas-subject-build-navigation-bootstrap.test.js
+          node tests/atlas-subject-build-worker-reconnect.test.js
+          node tests/atlas-subject-build-full-journey.test.js
