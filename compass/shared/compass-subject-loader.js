@@ -716,7 +716,17 @@
     async function loadCompassEngine() {
         try {
             await loadScript(
-                '../shared/compass-engine.js?v=20260926-cardopening1',
+                '../../shared/atlas-subject-build-runner.js?v=20260926-sharedworkerintegration1',
+                'Atlas subject build runner could not be loaded.'
+            );
+
+            await loadScript(
+                '../../shared/atlas-subject-build-document-operations.js?v=20260926-sharedworkerintegration1',
+                'Atlas subject build document operations could not be loaded.'
+            );
+
+            await loadScript(
+                '../shared/compass-engine.js?v=20260926-sharedworkerintegration1',
                 'Compass engine could not be loaded.'
             );
 
