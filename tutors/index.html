@@ -771,13 +771,15 @@
       grid-area: 1 / 1;
       visibility: hidden;
       opacity: 0;
-      transition: opacity 220ms ease, visibility 0s linear 220ms;
+      transform: translateY(4px);
+      transition: opacity 180ms ease, transform 180ms ease, visibility 0s linear 180ms;
     }
 
     .revolver-item.is-active {
       visibility: visible;
       opacity: 1;
-      transition: opacity 220ms ease;
+      transform: translateY(0);
+      transition: opacity 180ms ease, transform 180ms ease;
     }
 
     .hero-lede {
