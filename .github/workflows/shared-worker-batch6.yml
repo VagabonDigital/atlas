@@ -51,3 +51,6 @@ jobs:
           node tests/atlas-subject-build-shared-worker-generation.test.js
           node tests/atlas-subject-build-full-journey.test.js
           node tests/atlas-key-language-worker-resilience.test.js
+          node tests/atlas-compass-suggestion-memory.test.js
+          node tests/atlas-account-duplicate-signup.test.js
+          node tests/atlas-learner-memory-personalization.test.js
