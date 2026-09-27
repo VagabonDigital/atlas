@@ -1,0 +1,4 @@
+# Cloudflare Workers static-assets exclusions.
+# The deployment serves the repository root, but Git metadata is not a web asset
+# and can exceed Cloudflare's 25 MiB per-asset limit.
+.git/
