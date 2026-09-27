@@ -404,7 +404,7 @@ for (const [label, source] of [
 
     assert.match(
         source,
-        /atlas-session-panel\.js\?v=20260926-learnercontext1/,
+        /atlas-session-panel\.js\?v=20260926-duplicatesignup1/,
         `${label} must refresh the learner-session runtime revision.`
     );
 }
