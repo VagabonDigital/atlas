@@ -46,7 +46,7 @@
     const PENDING_DELETE_PREFIX = 'atlas::tutorSubjects::pendingDelete::';
 
     const BROWSER_STATE_DB_NAME = 'atlas-tutor-subjects';
-    const BROWSER_STATE_DB_VERSION = 1;
+    const BROWSER_STATE_DB_VERSION = 2;
     const BROWSER_STATE_STORE = 'browser-state';
 
     const pendingDeleteTimers = new Map();
@@ -245,7 +245,17 @@
                 };
 
                 request.onsuccess = () => {
-                    resolve(request.result);
+                    const db = request.result;
+
+                    db.onversionchange = () => {
+                        try {
+                            db.close();
+                        } catch { }
+
+                        browserStateDbPromise = null;
+                    };
+
+                    resolve(db);
                 };
 
                 request.onerror = () => {
@@ -1224,6 +1234,147 @@
         return updated;
     }
 
+    async function updateSubjectAtRevision(
+        subjectId,
+        patch = {},
+        expectedRevision
+    ) {
+        if (!(await useCloud())) {
+            const error = new Error(
+                'Revision-specific subject updates require authenticated cloud authority.'
+            );
+            error.code = 'ATLAS_CLOUD_AUTHORITY_REQUIRED';
+            throw error;
+        }
+
+        const id = String(subjectId || '').trim();
+        const revision =
+            Math.floor(
+                Number(
+                    expectedRevision
+                ) || 0
+            );
+
+        if (
+            !id ||
+            revision < 1
+        ) {
+            const error = new Error(
+                'Revision-specific subject update requires a subject and expected revision.'
+            );
+            error.code = 'ATLAS_REVISION_REQUIRED';
+            throw error;
+        }
+
+        const current =
+            await getSubject(id);
+
+        if (!current) return null;
+
+        if (
+            Math.max(
+                1,
+                Math.floor(Number(current.revision) || 1)
+            ) !== revision
+        ) {
+            const conflict = new Error(
+                'This My Subject changed elsewhere before your save completed.'
+            );
+            conflict.code = 'ATLAS_REVISION_CONFLICT';
+            throw conflict;
+        }
+
+        const nextPatch =
+            patch &&
+            typeof patch === 'object' &&
+            !Array.isArray(patch)
+                ? patch
+                : {};
+
+        let document =
+            cloneJson(current.document);
+
+        if (
+            Object.prototype.hasOwnProperty.call(
+                nextPatch,
+                'document'
+            )
+        ) {
+            document =
+                cloneJson(nextPatch.document);
+
+            if (
+                !document ||
+                typeof document !== 'object' ||
+                Array.isArray(document)
+            ) {
+                return null;
+            }
+        }
+
+        validateDocument(
+            document,
+            'revision-specific update'
+        );
+
+        const metadata =
+            Object.prototype.hasOwnProperty.call(
+                nextPatch,
+                'metadata'
+            )
+                ? normalizeMetadata({
+                    ...current.metadata,
+                    ...(
+                        nextPatch.metadata &&
+                        typeof nextPatch.metadata === 'object' &&
+                        !Array.isArray(nextPatch.metadata)
+                            ? nextPatch.metadata
+                            : {}
+                    )
+                })
+                : current.metadata;
+
+        const provenance =
+            Object.prototype.hasOwnProperty.call(
+                nextPatch,
+                'provenance'
+            )
+                ? (
+                    nextPatch.provenance &&
+                    typeof nextPatch.provenance === 'object' &&
+                    !Array.isArray(nextPatch.provenance)
+                        ? cloneJson(nextPatch.provenance)
+                        : null
+                )
+                : current.provenance;
+
+        const updated =
+            await AtlasCloud.updateOwnedSubject(
+                {
+                    ...current,
+                    metadata,
+                    document,
+                    provenance
+                },
+                revision
+            );
+
+        invalidateSnapshot();
+
+        publishSubjectRuntimeChanged(
+            current.id,
+            'committed',
+            {
+                revision:
+                    Number(updated?.revision) ||
+                    null
+            }
+        );
+
+        return updated;
+    }
+
+
     async function renameSubject(subjectId, nextTitle) {
         if (!(await useCloud())) {
             return original.renameSubject ? original.renameSubject(subjectId, nextTitle) : null;
@@ -1673,6 +1824,12 @@
             kind: 'full-subject',
             completedStep: Math.max(0, Math.floor(Number(record.completedStep) || 0)),
             autoSaveOnComplete: record.autoSaveOnComplete !== false,
+            generationContext:
+                record.generationContext &&
+                typeof record.generationContext === 'object' &&
+                !Array.isArray(record.generationContext)
+                    ? cloneJson(record.generationContext)
+                    : null,
             startedAt: Math.max(0, Number(record.startedAt) || Number(record.updatedAt) || Date.now()),
             updatedAt: Math.max(0, Number(record.updatedAt) || 0)
         };
@@ -1723,16 +1880,14 @@
             subject.id
         );
 
-        if (
-            checkpoint &&
-            (
-                !storedDraft ||
-                checkpoint
-                    .workingDraft
-                    .updatedAt >
-                    storedDraft.updatedAt
-            )
-        ) {
+        /*
+         * During a full-subject build, the atomic checkpoint is the
+         * authoritative document + progress journal. A separately persisted
+         * working draft can have a later timestamp while still containing an
+         * older document (for example, when a page is crossing an ownership
+         * handoff). Never let that timestamp overwrite checkpoint coherence.
+         */
+        if (checkpoint) {
             return cloneJson(
                 checkpoint.workingDraft
             );
@@ -1827,16 +1982,13 @@
             subject.id
         );
 
-        if (
-            checkpoint &&
-            (
-                !storedState ||
-                checkpoint
-                    .buildState
-                    .updatedAt >
-                    storedState.updatedAt
-            )
-        ) {
+        /*
+         * Build progress must come from the same atomic checkpoint as the
+         * document above. Timestamp arbitration against a separate build-state
+         * projection can otherwise pair a newer step with an older document,
+         * or vice versa.
+         */
+        if (checkpoint) {
             return cloneJson(
                 checkpoint.buildState
             );
@@ -2129,6 +2281,7 @@
         listSubjects,
         createSubject,
         updateSubject,
+        updateSubjectAtRevision,
         renameSubject,
         duplicateSubject,
         deleteSubject,
