@@ -429,8 +429,13 @@ html.theme-changing::-webkit-scrollbar-thumb {
 
   .legal-footer-inner {
     padding: 22px 0;
-    align-items: flex-start;
+    align-items: center;
     flex-direction: column;
     gap: 10px;
+    text-align: center;
+  }
+
+  .legal-footer-links {
+    justify-content: center;
   }
 }
