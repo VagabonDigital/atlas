@@ -3135,7 +3135,7 @@
         gap: 28px;
       }
 
-      /* Stacked: preserve each problem and Atlas answer as one comparison unit. */
+      /* Stacked: each mobile card keeps one problem and its Atlas answer together. */
       .why-ledger {
         margin-top: 32px;
       }
@@ -3147,18 +3147,24 @@
 
       .why-pair {
         grid-template-columns: 1fr;
-        row-gap: 18px;
-        padding-bottom: 28px;
-        border-bottom: 1px solid var(--border-faint);
+        row-gap: 16px;
+        padding: 20px;
+        border: 1px solid var(--border-faint);
+        border-radius: 18px;
+        background: var(--surface-panel);
+        box-shadow:
+          0 18px 34px -30px rgba(33, 31, 27, .22),
+          inset 0 1px 0 rgba(255, 255, 255, .82);
       }
 
       .why-pair + .why-pair {
-        margin-top: 26px;
+        margin-top: 14px;
       }
 
-      .why-pair:last-child {
-        padding-bottom: 0;
-        border-bottom: 0;
+      html[data-theme="night"] .why-pair {
+        box-shadow:
+          0 20px 38px -28px rgba(0, 0, 0, .52),
+          inset 0 1px 0 rgba(255, 255, 255, .04);
       }
 
       .why-pair + .why-pair .why-problem,
@@ -3170,14 +3176,14 @@
       .why-pair:first-child .why-problem {
         display: block;
         max-width: none;
-        padding: 0 2px;
+        padding: 0;
         font-size: 16px;
       }
 
       .why-problem::before,
       .why-fix::before {
         display: block;
-        margin-bottom: 8px;
+        margin-bottom: 7px;
         font-size: 13px;
         line-height: 1.4;
         font-weight: 700;
@@ -3192,8 +3198,9 @@
       .why-pair:first-child .why-fix,
       .why-pair:last-child .why-fix {
         margin: 0;
-        padding: 0 2px;
+        padding: 16px 0 0;
         border: 0;
+        border-top: 1px solid var(--border-faint);
         border-radius: 0;
         background: transparent;
         box-shadow: none;
