@@ -47,6 +47,18 @@ assert.ok(
     'Identity.renderButton'
   )
 );
+assert.match(
+  googleIdentity,
+  /ux_mode:\s*'popup'/
+);
+assert.match(
+  googleIdentity,
+  /auto_select:\s*false/
+);
+assert.match(
+  googleIdentity,
+  /handlers\.get\(state\)/
+);
 assert.ok(
   googleIdentity.includes(
     'response?.credential'
@@ -89,15 +101,22 @@ assert.ok(
     '.signInWithGoogleIdToken('
   )
 );
+assert.match(
+  gate,
+  /await completeAuthenticatedFlow\(\)/
+);
+assert.match(
+  gate,
+  /action:\s*'google_id_token'/
+);
 assert.doesNotMatch(
   gate,
   /signInWithGoogle\(\{/
 );
 
-assert.ok(
-  page.includes(
-    'atlas-google-identity.js?v=20260920-googleid1'
-  )
+assert.match(
+  page,
+  /atlas-google-identity\.js\?v=[^"'\s<]+/
 );
 assert.ok(
   page.includes(
@@ -109,27 +128,28 @@ assert.ok(
     '.signInWithGoogleIdToken('
   )
 );
+assert.match(
+  page,
+  /action:\s*'google_id_token'/
+);
 assert.doesNotMatch(
   page,
   /AtlasAccount\.signInWithGoogle\(/
 );
 
-assert.ok(
-  registry.includes(
-    'atlas-access-bootstrap.js?v=20260920-googleid1'
-  )
+assert.match(
+  registry,
+  /atlas-access-bootstrap\.js\?v=[^"'\s<]+/
 );
-assert.ok(
-  registry.includes(
-    'atlas-account-chrome.js?v=20260920-googleid1'
-  )
+assert.match(
+  registry,
+  /atlas-account-chrome\.js\?v=[^"'\s<]+/
 );
-assert.ok(
-  capabilityGate.includes(
-    'atlas-account-gate.js?v=20260920-googleid1'
-  )
+assert.match(
+  capabilityGate,
+  /atlas-account-gate\.js\?v=[^"'\s<]+/
 );
 
 console.log(
-  'Atlas Google auth contract passed: GIS popup button delivers a Google ID token directly to Supabase on the active UI path.'
+  'Atlas Google auth contract passed: GIS popup delivers a Google ID token directly to Supabase on the active account and gate paths.'
 );

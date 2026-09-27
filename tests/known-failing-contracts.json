@@ -1,6 +1,6 @@
 {
   "capturedAtCommit": "495941fc565cbfffdbe375ace95c26fc5b0f3455",
-  "note": "These historical contract tests were already failing on current main when permanent CI was introduced. They are still executed on every run. New failures fail CI, and a quarantined test that starts passing also fails CI until it is removed from this baseline.",
+  "note": "These historical contract tests were already failing on current main when permanent CI was introduced. They are still executed on every run. New failures fail CI, and a quarantined test that starts passing also fails CI until it is removed from this baseline. Repaired contracts are removed from this list.",
   "tests": [
     "tests/atlas-account-chrome-contract.test.js",
     "tests/atlas-account-management-5-1a.test.js",
@@ -22,7 +22,6 @@
     "tests/atlas-deterministic-root-routing-4-2.test.js",
     "tests/atlas-discussion-enrichment-progress.test.js",
     "tests/atlas-fresh-subject-entry-fast.test.js",
-    "tests/atlas-google-auth-contract.test.js",
     "tests/atlas-google-oauth-return.test.js",
     "tests/atlas-hub-modernization.test.js",
     "tests/atlas-key-language-resilience.test.js",
