@@ -22339,22 +22339,58 @@ async function init() {
     loadSessions();
     loadProgress();
 
-    const pendingOwnedSubjectAuthoringIntent =
+    let pendingOwnedSubjectAuthoringIntent =
         getOwnedSubjectAuthoringIntent();
-
-    const freshOwnedSubjectBuild =
-        isOwnedSubjectRuntime() &&
-        pendingOwnedSubjectAuthoringIntent ===
-            'generate';
 
     const incompleteOwnedSubjectBuild =
         isOwnedSubjectRuntime() &&
         getCompassSubjectRuntime()
             .aiBuildIncomplete === true;
 
+    /*
+     * A completed owned subject can retain ?author=generate after a build
+     * finishes in another Atlas surface. That URL hint is not durable build
+     * authority. Once the canonical subject is complete, discard the stale
+     * generation intent before authoring state is derived so the subject
+     * opens as an ordinary completed My Subject.
+     */
+    if (
+        pendingOwnedSubjectAuthoringIntent ===
+            'generate' &&
+        !incompleteOwnedSubjectBuild
+    ) {
+        consumeOwnedSubjectAuthoringIntent();
+        pendingOwnedSubjectAuthoringIntent =
+            '';
+    }
+
+    const freshOwnedSubjectBuild =
+        incompleteOwnedSubjectBuild &&
+        pendingOwnedSubjectAuthoringIntent ===
+            'generate';
+
     const recoveringOwnedSubjectBuild =
         incompleteOwnedSubjectBuild &&
         !freshOwnedSubjectBuild;
+
+    traceMyVersionBuild(
+        'init-build-state',
+        {
+            pendingIntent:
+                pendingOwnedSubjectAuthoringIntent ||
+                null,
+            incomplete:
+                incompleteOwnedSubjectBuild,
+            fresh:
+                freshOwnedSubjectBuild,
+            recovering:
+                recoveringOwnedSubjectBuild,
+            handoff:
+                Boolean(
+                    getMyVersionForegroundBuildHandoff()
+                )
+        }
+    );
 
     const freshBuildCloudAuthorityPromise =
         freshOwnedSubjectBuild
@@ -22378,6 +22414,14 @@ async function init() {
             await waitForOwnedSubjectRuntimeLayersReady();
 
         if (!runtimeLayersReady) {
+            if (
+                recoveringOwnedSubjectBuild
+            ) {
+                releaseMyVersionForegroundBuildHandoff(
+                    'runtime-layers-unavailable'
+                );
+            }
+
             /*
              * Fresh builds keep ?author=generate intact. Recovery builds keep
              * their durable incomplete marker, so either path can retry after
@@ -22405,7 +22449,19 @@ async function init() {
          * deliberately restarts generation from step 0 instead of exposing
          * the starter document as a finished lesson.
          */
-        await loadTutorContentState();
+        try {
+            await loadTutorContentState();
+        } catch (error) {
+            if (
+                recoveringOwnedSubjectBuild
+            ) {
+                releaseMyVersionForegroundBuildHandoff(
+                    'checkpoint-load-failed'
+                );
+            }
+
+            throw error;
+        }
     }
 
     const ownedSubjectAuthoringIntent =
@@ -22429,7 +22485,7 @@ async function init() {
                 : MODULE.id
     });
 
-    const ownedSubjectBuildState =
+    let ownedSubjectBuildState =
         isOwnedSubjectRuntime() &&
         !freshOwnedSubjectBuild
             ? await requireAtlasTutorSubjects()
@@ -22481,10 +22537,56 @@ async function init() {
             await recoveryBuildCloudAuthorityPromise;
 
         if (!cloudAuthorityReady) {
+            releaseMyVersionForegroundBuildHandoff(
+                'cloud-authority-unavailable'
+            );
+
             showSubjectAuthoringPersistenceUnavailable(
                 'Atlas could not prepare account persistence to continue this subject. Reload and try again.'
             );
             return;
+        }
+    }
+
+    if (
+        freshOwnedSubjectBuild ||
+        recoveringOwnedSubjectBuild
+    ) {
+        /*
+         * The shell and latest durable checkpoint are already visible above.
+         * Only generation itself waits for foreground ownership. If the worker
+         * advanced while the page was opening, reload the checkpoint after the
+         * grant so the page continues from the newest completed operation.
+         */
+        await awaitMyVersionForegroundBuildHandoff();
+
+        if (recoveringOwnedSubjectBuild) {
+            try {
+                await loadTutorContentState({
+                    forceOwnedWorkingDraft:
+                        true
+                });
+
+                ownedSubjectBuildState =
+                    await requireAtlasTutorSubjects()
+                        .getBuildState(
+                            MODULE.id
+                        );
+
+                renderAllTutorContentSurfaces();
+            } catch (error) {
+                releaseMyVersionForegroundBuildHandoff(
+                    'post-handoff-checkpoint-refresh-failed'
+                );
+
+                throw error;
+            }
+        }
+
+        if (
+            getMyVersionForegroundBuildHandoff()
+        ) {
+            await acquireMyVersionForegroundBuildHandoffLease();
         }
     }
 
@@ -22522,6 +22624,14 @@ async function init() {
         ) &&
         !myVersionEditing
     ) {
+        if (
+            recoveringOwnedSubjectBuild
+        ) {
+            releaseMyVersionForegroundBuildHandoff(
+                'foreground-editing-unavailable'
+            );
+        }
+
         /*
          * Fresh builds keep their URL intent; recovery builds keep their
          * durable incomplete marker. Either way a later open can retry.
@@ -22545,11 +22655,30 @@ async function init() {
 
     if (
         myVersionEditing &&
+        getCompassSubjectRuntime()
+            .aiBuildIncomplete === true &&
         (
             ownedSubjectAuthoringIntent === 'generate' ||
             resumableFullSubjectBuild
         )
     ) {
+        traceMyVersionBuild(
+            'resume-dispatched',
+            {
+                intent:
+                    ownedSubjectAuthoringIntent ||
+                    null,
+                completedStep:
+                    resumableFullSubjectBuild
+                        ?.completedStep ??
+                    0,
+                hasHandoff:
+                    Boolean(
+                        getMyVersionForegroundBuildHandoff()
+                    )
+            }
+        );
+
         void generateMyVersionFullSubject({
             autoSaveOnComplete:
                 resumableFullSubjectBuild
