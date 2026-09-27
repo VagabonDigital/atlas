@@ -3135,8 +3135,7 @@
         gap: 28px;
       }
 
-      /* Stacked: each problem sits directly above its own Atlas surface,
-         so the pairing survives without column labels. */
+      /* Stacked: preserve each problem and Atlas answer as one comparison unit. */
       .why-ledger {
         margin-top: 32px;
       }
@@ -3148,11 +3147,18 @@
 
       .why-pair {
         grid-template-columns: 1fr;
-        row-gap: 12px;
+        row-gap: 18px;
+        padding-bottom: 28px;
+        border-bottom: 1px solid var(--border-faint);
       }
 
       .why-pair + .why-pair {
-        margin-top: 30px;
+        margin-top: 26px;
+      }
+
+      .why-pair:last-child {
+        padding-bottom: 0;
+        border-bottom: 0;
       }
 
       .why-pair + .why-pair .why-problem,
@@ -3162,28 +3168,44 @@
 
       .why-problem,
       .why-pair:first-child .why-problem {
+        display: block;
         max-width: none;
         padding: 0 2px;
         font-size: 16px;
+      }
+
+      .why-problem::before,
+      .why-fix::before {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 13px;
+        line-height: 1.4;
+        font-weight: 700;
+      }
+
+      .why-problem::before {
+        content: "Usually";
+        color: var(--text-heading);
       }
 
       .why-fix,
       .why-pair:first-child .why-fix,
       .why-pair:last-child .why-fix {
         margin: 0;
-        padding: 20px 20px 22px;
-        border: 1px solid var(--border-faint);
-        border-radius: 18px;
-        background: var(--surface-panel);
-        box-shadow:
-          0 22px 40px -30px rgba(33, 31, 27, .24),
-          inset 0 1px 0 rgba(255, 255, 255, .9);
+        padding: 0 2px;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+
+      .why-fix::before {
+        content: "With Atlas";
+        color: var(--accent-ink);
       }
 
       html[data-theme="night"] .why-fix {
-        box-shadow:
-          0 24px 44px -28px rgba(0, 0, 0, .6),
-          inset 0 1px 0 rgba(255, 255, 255, .045);
+        box-shadow: none;
       }
 
       .why-fix-line {
@@ -3359,7 +3381,7 @@
               <p class="why-problem"><span class="sr-only">Usually: </span>Personalising a lesson means unpaid time searching, choosing and piecing material together.</p>
               <div class="why-fix">
                 <strong class="why-fix-line"><span class="sr-only">With Atlas: </span>Walk in with nothing prepared.</strong>
-                <p class="why-fix-body">Pick a direction and have a full, beautifully presented subject ready to teach in seconds.</p>
+                <p class="why-fix-body">Pick a direction and have a complete, beautifully presented subject ready to teach in seconds.</p>
               </div>
             </li>
             <li class="why-pair">
