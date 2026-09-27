@@ -1181,13 +1181,77 @@ async function loadTutorContentState({ forceOwnedWorkingDraft = false } = {}) {
     if (isOwnedSubjectRuntime()) {
         const Subjects = requireAtlasTutorSubjects();
 
-        const [workingDraft, liveDraft] = await Promise.all([
+        const [
+            storedWorkingDraft,
+            buildState,
+            liveDraft
+        ] = await Promise.all([
             Subjects.getWorkingDraft(MODULE.id),
+            typeof Subjects.getBuildState === 'function'
+                ? Subjects.getBuildState(MODULE.id)
+                : Promise.resolve(null),
             Store.getLiveDraft(
                 currentSessionId,
                 contentId
             )
         ]);
+
+        const runtime =
+            getCompassSubjectRuntime();
+
+        const completedAiSubject =
+            runtime?.aiBuildIncomplete !== true &&
+            String(
+                runtime?.aiBuildStatus || ''
+            ).trim() === 'complete';
+
+        const staleCompletedBuildDraft =
+            completedAiSubject &&
+            buildState?.kind ===
+                'full-subject';
+
+        let workingDraft =
+            storedWorkingDraft;
+
+        if (staleCompletedBuildDraft) {
+            /*
+             * A second tab can open in the narrow window where a completed
+             * AI build has already reached cloud authority but this browser
+             * still has the old full-subject checkpoint. That checkpoint is
+             * recovery state for the now-finished build, not a tutor edit.
+             * Never resurrect it over the completed cloud document.
+             */
+            workingDraft = null;
+
+            traceMyVersionBuild(
+                'stale-completed-build-draft-discarded',
+                {
+                    runtimeRevision:
+                        runtime?.revision ??
+                        null,
+                    draftBaseRevision:
+                        storedWorkingDraft
+                            ?.baseRevision ??
+                        null,
+                    completedStep:
+                        buildState
+                            ?.completedStep ??
+                        null
+                }
+            );
+
+            try {
+                await Subjects
+                    .clearWorkingDraft(
+                        MODULE.id
+                    );
+            } catch (error) {
+                console.warn(
+                    '[Compass] Stale completed build checkpoint cleanup failed:',
+                    error
+                );
+            }
+        }
 
         tutorContentVersion = null;
         tutorContentWorkingDraft = workingDraft;
