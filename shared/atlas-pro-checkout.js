@@ -1281,7 +1281,7 @@
                         <div class="atlas-pro-checkout-paddle-intro">
                             <img
                                 class="atlas-pro-checkout-paddle-logo atlas-pro-checkout-paddle-logo--light"
-                                src="https://1000logos.net/wp-content/uploads/2025/10/Paddle-Logo-1.png"
+                                src="/assets/branding/paddle/paddle-wordmark-black.png"
                                 alt="Paddle"
                             >
                             <img
