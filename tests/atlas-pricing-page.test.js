@@ -57,12 +57,12 @@ assert.match(pricing, /Unlimited learners/);
 
 assert.match(
   pricing,
-  /overview-toefl-wide\.png/,
+  /\/pricing\/assets\/overview-toefl-wide\.png/,
   'Pricing should use truthful Atlas product proof rather than generic mock imagery.'
 );
 assert.match(
   pricing,
-  /overview-toefl-mobile\.png/,
+  /\/pricing\/assets\/overview-toefl-mobile\.png/,
   'Pricing product proof should retain its dedicated mobile asset.'
 );
 
