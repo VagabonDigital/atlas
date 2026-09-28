@@ -1,0 +1,11 @@
+{
+  "name": "atlas",
+  "private": true,
+  "scripts": {
+    "test": "node scripts/run-atlas-tests.js",
+    "test:strict": "node scripts/run-atlas-tests.js --strict",
+    "check:shared-worker-syntax": "node --check shared/atlas-ai.js && node --check shared/atlas-structured-subject.js && node --check shared/atlas-subject-build-document-operations.js && node --check shared/atlas-subject-build-runner.js && node --check shared/atlas-subject-build-shared-worker.js && node --check shared/atlas-subject-build-worker-client.js && node --check shared/atlas-subject-build-resurrection.js && node --check shared/atlas-subject-runtime-channel.js && node --check shared/atlas-tutor-subjects-cloud-authority.js && node --check shared/atlas-cloud-cache.js && node --check shared/atlas-content-registry.js && node --check compass/shared/compass-subject-loader.js && node --check compass/shared/compass-generation-recovery.js && node --check compass/shared/compass-engine.js",
+    "check:compass-covers": "node scripts/sync-compass-covers.js --check",
+    "verify": "npm run check:shared-worker-syntax && npm test && npm run check:compass-covers"
+  }
+}
