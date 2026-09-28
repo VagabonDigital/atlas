@@ -7,7 +7,7 @@ const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
 const hubCss = fs.readFileSync('shared/atlas-hub.css', 'utf8').replace(/\r\n/g, '\n');
 const compassHtml = fs.readFileSync('compass/index.html', 'utf8').replace(/\r\n/g, '\n');
 const arcadeHtml = fs.readFileSync('arcade/index.html', 'utf8').replace(/\r\n/g, '\n');
-const insideHtml = fs.readFileSync('tutors/index.html', 'utf8').replace(/\r\n/g, '\n');
+const insideHtml = fs.readFileSync('inside-atlas/index.html', 'utf8').replace(/\r\n/g, '\n');
 
 assert.match(
   html,

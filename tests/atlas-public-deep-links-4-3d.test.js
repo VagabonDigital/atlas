@@ -612,7 +612,7 @@ function testRootAcquisitionParametersSurviveProductEntry() {
 
     assert.match(
         rootSource,
-        /'\.\/tutors\/' \+[\s\S]*?window\.location\.search \+[\s\S]*?window\.location\.hash/
+        /'\.\/inside-atlas\/' \+[\s\S]*?window\.location\.search \+[\s\S]*?window\.location\.hash/
     );
 
     assert.doesNotMatch(

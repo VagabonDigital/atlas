@@ -4,7 +4,7 @@ const vm = require('vm');
 const { URL } = require('url');
 
 const root = fs.readFileSync('index.html', 'utf8');
-const inside = fs.readFileSync('tutors/index.html', 'utf8');
+const inside = fs.readFileSync('inside-atlas/index.html', 'utf8');
 const accountChrome = fs.readFileSync(
   'shared/atlas-account-chrome.js',
   'utf8'
@@ -153,7 +153,7 @@ function runRootCase({
 
   assert.deepStrictEqual(
     result.replaceCalls,
-    ['./tutors/']
+    ['./inside-atlas/']
   );
   assert.strictEqual(
     result.dataset.atlasWelcome,

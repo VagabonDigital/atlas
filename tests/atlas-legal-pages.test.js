@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 
 const atlas = fs.readFileSync('index.html', 'utf8');
-const inside = fs.readFileSync('tutors/index.html', 'utf8');
+const inside = fs.readFileSync('inside-atlas/index.html', 'utf8');
 const privacy = fs.readFileSync('privacy/index.html', 'utf8');
 const terms = fs.readFileSync('terms/index.html', 'utf8');
 const refunds = fs.readFileSync('refunds/index.html', 'utf8');

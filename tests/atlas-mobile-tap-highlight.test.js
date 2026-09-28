@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const coveredSurfaces = [
   ['Atlas and Arcade shared modal theme', 'shared/atlas-modal-theme.css'],
   ['Compass subject shell', 'compass/shared/compass-subject.css'],
-  ['Inside Atlas', 'tutors/index.html'],
+  ['Inside Atlas', 'inside-atlas/index.html'],
   ['Account', 'account/index.html'],
   ['Manage Subscription', 'account/subscription/index.html'],
   ['Pricing', 'pricing/pricing.css'],

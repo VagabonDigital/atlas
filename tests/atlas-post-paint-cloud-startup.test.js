@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const access = fs.readFileSync('shared/atlas-access-bootstrap.js', 'utf8');
 const root = fs.readFileSync('shared/atlas-root-runtime.js', 'utf8');
 const registry = fs.readFileSync('shared/atlas-content-registry.js', 'utf8');
-const tutors = fs.readFileSync('tutors/index.html', 'utf8');
+const tutors = fs.readFileSync('inside-atlas/index.html', 'utf8');
 
 assert.match(access, /function waitForHubPresentationPaint\(\)/);
 assert.match(access, /atlas:local-presentation-ready/);

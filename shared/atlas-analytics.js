@@ -76,7 +76,7 @@
 
         const path = String(window.location.pathname || '/');
 
-        if (path.startsWith('/tutors')) return 'inside-atlas';
+        if (path.startsWith('/inside-atlas')) return 'inside-atlas';
         if (path.startsWith('/account')) return 'account';
         if (path.startsWith('/compass/')) return 'content';
         if (

@@ -12,7 +12,7 @@ const recoveryHosts = [
   'index.html',
   'compass/index.html',
   'arcade/index.html',
-  'tutors/index.html',
+  'inside-atlas/index.html',
   'pricing/index.html',
   'account/subscription/index.html'
 ];

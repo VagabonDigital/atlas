@@ -48,6 +48,24 @@ assert.match(
 
 assert.ok(
   feedback.includes(
+    'function captureContext()'
+  )
+);
+
+assert.ok(
+  feedback.includes(
+    'clientTimestamp:'
+  )
+);
+
+assert.ok(
+  feedback.includes(
+    'var(--atlas-modal-accent-ink, #ffffff)'
+  )
+);
+
+assert.ok(
+  feedback.includes(
     'function visibleFocusable(container)'
   )
 );
