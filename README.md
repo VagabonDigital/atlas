@@ -22,13 +22,12 @@ The core product loop is **Create → Shape → Teach → Continuity**. Reposito
 | `memory/` | Learner Memory surface. |
 | `pricing/` | Public Atlas pricing and Pro entry. |
 | `inside-atlas/` | **Inside Atlas** public acquisition/product explanation. |
-| `admin/` | Internal Atlas Inbox surface. Its privileged backend operations remain authorization-protected independently of this public route. |
+| `admin/` | Internal Atlas administration surface; currently hosts the Atlas Inbox. Privileged backend operations remain authorization-protected independently of this public route. |
 | `shared/` | Cross-product browser runtime, account/access, persistence, subject-build, navigation and UI modules. It currently also contains the backend Worker source at `shared/worker.js`. |
 | `assets/` | Shared product, branding and Atlas Original media. |
 | `tests/` | Root Atlas regression and source-contract tests. |
 | `scripts/` | Repository tooling, including the root test runner and Compass cover projection check. |
 | `supabase/migrations/` | Source-controlled Atlas database evolution files. See `supabase/README.md`. |
-| `prototypes/` | Retained design studies/provenance; not production runtime. |
 | `.github/workflows/` | Permanent repository CI. |
 
 ## Runtime architecture
@@ -148,7 +147,7 @@ The static asset directory remains the repository root:
 }
 ```
 
-`.assetsignore` is therefore an important production boundary. Repository-only material — tests, migrations, scripts, prototypes, backend source and Arcade development infrastructure — is excluded from the client-side asset upload.
+`.assetsignore` is therefore an important production boundary. Repository-only material — tests, migrations, scripts and backend source — is excluded from the client-side asset upload.
 
 Cloudflare's GitHub integration currently builds/deploys the public `atlas` Worker from changes on `main`. A successful repository push is still expected to pass the permanent GitHub CI checks as an independent regression signal.
 
@@ -163,6 +162,8 @@ Browser AI requests target:
 The source-controlled backend implementation is:
 
 `shared/worker.js`
+
+Despite its physical location under `shared/`, this file is backend source, not browser-shared runtime. It is kept there for source maintenance continuity and is explicitly excluded from the static asset deployment.
 
 It owns provider credentials, authenticated Atlas account verification, AI abuse guardrails, Paddle webhooks/customer-portal operations and server-side external-provider requests.
 
@@ -204,6 +205,16 @@ When changing Atlas:
 6. **Do not add product runtime dependencies under paths excluded by `.assetsignore`.**
 7. **Prefer small reversible commits over broad cleanup/refactor bundles.**
 8. **Do not reorganize architecture merely to reduce file count or make the tree symmetrical.**
+
+## Repository structure guardrails
+
+Keep repository structure aligned to stable ownership rather than temporary implementation stages:
+
+1. Top-level directories should represent durable product surfaces or infrastructure responsibilities, not experiments or one-off tasks.
+2. Product-local shared code belongs with that product (for example, `compass/shared/` or `arcade/shared/`). Only genuinely cross-product browser runtime belongs in root `shared/`.
+3. Public route directories are product interfaces as well as filesystem structure. Do not move or rename them for neatness without treating the URL change as a migration.
+4. New experiments, generated evidence and temporary tooling should not become permanent architecture unless they acquire an ongoing responsibility.
+5. When ownership materially changes, update this repository map in the same change so the README continues to describe current `main`.
 
 ## Deliberately deferred structural work
 

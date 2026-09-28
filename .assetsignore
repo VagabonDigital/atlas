@@ -1,6 +1,6 @@
 # Cloudflare Workers static-assets exclusions.
 # The deployment serves the repository root. Keep repository-only tooling,
-# tests, database history, prototypes, and backend source out of the public
+# tests, database history, and backend source out of the public
 # static asset upload while leaving browser/runtime assets untouched.
 
 .git/
@@ -9,9 +9,9 @@
 tests/
 supabase/
 scripts/
-prototypes/
 
 README.md
+.gitignore
 package.json
 package-lock.json
 wrangler.atlas-web.jsonc

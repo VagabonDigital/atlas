@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Local Cloudflare state and secrets
+.wrangler/
+.dev.vars
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Logs and generated test output
+*.log
+coverage/
+test-results/
+
+# Operating-system noise
+.DS_Store
+Thumbs.db
+desktop.ini
