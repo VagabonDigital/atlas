@@ -13,7 +13,7 @@ const coveredSurfaces = [
   ['Legal pages', 'shared/atlas-legal.css'],
   ['Learner Memory', 'memory/index.html'],
   ['404', '404.html'],
-  ['Arcade workbench', 'arcade/engines/shared-plan-workbench/workbench.css']
+  ['Arcade shared game chrome', 'arcade/shared/arcade-game-chrome.css']
 ];
 
 for (const [label, path] of coveredSurfaces) {

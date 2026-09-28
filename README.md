@@ -4,7 +4,7 @@ Atlas is a tutor-first English teaching workspace built around three connected p
 
 - **Atlas** — gateway, learner continuity, account state and cross-product navigation.
 - **Compass** — tutor-owned subjects, Atlas Originals and the shared teaching runtime.
-- **Arcade** — lesson games, current public game runtimes and the developing Engine One architecture.
+- **Arcade** — lesson games, the Arcade hub and current public game runtimes.
 
 The core product loop is **Create → Shape → Teach → Continuity**. Repository structure should support that loop without making tutors or developers reason about historical implementation stages.
 
@@ -18,7 +18,7 @@ The core product loop is **Create → Shape → Teach → Continuity**. Reposito
 | `compass/` | Compass hub, Atlas Originals and owned/generated subject entry. |
 | `compass/subject/` | Generic owned/generated subject runtime route. |
 | `compass/shared/` | Compass-shared teaching runtime and presentation infrastructure. |
-| `arcade/` | Arcade hub, current public games and Engine One engineering. |
+| `arcade/` | Arcade hub, shared game chrome/access and current public game runtimes. |
 | `memory/` | Learner Memory surface. |
 | `pricing/` | Public Atlas pricing and Pro entry. |
 | `inside-atlas/` | **Inside Atlas** public acquisition/product explanation. |
@@ -89,12 +89,9 @@ The generic owned/generated subject route lives at:
 
 ### Arcade
 
-Arcade currently contains two valid generations at once:
+Arcade currently ships the hub plus bespoke public game runtimes. Shared Arcade infrastructure lives under `arcade/shared/`, while canonical game catalog metadata lives in `shared/arcade-catalog-data.js`.
 
-1. the current bespoke public games;
-2. the developing **Engine One / Shared Plan** architecture.
-
-Engine One engineering includes definitions, frozen revisions, deterministic harnesses, a development workbench and a separate test package. Do not reorganize the public games merely to make the transition look cleaner before Engine One is ready to replace them.
+New games should follow the current Arcade product and production direction rather than a retained generalized engine layer.
 
 ## Testing
 
@@ -122,18 +119,6 @@ npm run check:compass-covers
 
 verifies that shared Compass catalog cover metadata matches the canonical Original subject definitions.
 
-### Arcade tests
-
-Arcade owns a separate Node package:
-
-```bash
-cd arcade
-npm ci
-npm test
-npm run test:browser
-```
-
-The permanent GitHub workflow runs Arcade's Node suite. Browser tests remain a separate explicit command.
 
 ### CI
 
@@ -142,7 +127,6 @@ The permanent GitHub workflow runs Arcade's Node suite. Browser tests remain a s
 It currently provides:
 
 - **Atlas root verification** — syntax checks, the complete baseline-aware root suite and Compass cover drift verification;
-- **Arcade node tests** — the Engine One Node regression suite.
 
 Historical SharedWorker Batch 1–6 workflows have been retired. Their final integration coverage is contained in the permanent root suite.
 
@@ -232,7 +216,6 @@ The repository audit identified legitimate future architecture opportunities tha
 - consolidating analytics ownership;
 - decomposing the large Compass hub/engine when real maintenance pressure justifies it;
 - making Compass extension points explicit;
-- clarifying Arcade's filesystem after Engine One begins replacing public game runtimes;
 - grouping/renaming historical root tests by permanent product responsibility;
 - replacing fragmented historical cache-version query strings with a deliberate cache strategy.
 
