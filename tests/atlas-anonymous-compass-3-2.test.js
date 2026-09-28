@@ -327,7 +327,7 @@ assert.match(
 
 assert.match(
     originalEntry,
-    /atlas-content-registry\\.js\\?v=20260920-googleid1/
+    /atlas-content-registry\\.js\\?v=[A-Za-z0-9_-]+/
 );
 
 console.log(

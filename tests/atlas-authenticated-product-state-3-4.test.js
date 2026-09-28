@@ -267,7 +267,12 @@ assert.match(
 
 assert.match(
     tutorSubjects,
-    /async function getSessionSubjects\([\s\S]*?readSessionSubjects\(sessionId\)/
+    /const SESSION_SUBJECTS_PREFIX = 'atlas::tutorSubjects::sessionSubjects::';/
+);
+
+assert.match(
+    tutorSubjects,
+    /const current = original\.getSessionSubjects[\s\S]*?await original\.getSessionSubjects\(id\)/
 );
 
 assert.match(

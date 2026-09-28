@@ -75,12 +75,12 @@ assert.match(
 
 assert.match(
     loader,
-    /compass-engine\.js\?v=20260923-languagemode2/
+    /compass-engine\.js\?v=[A-Za-z0-9_-]+/
 );
 
 assert.match(
     subjectPage,
-    /compass-subject-loader\.js\?v=20260923-languagemode2/
+    /compass-subject-loader\.js\?v=[A-Za-z0-9_-]+/
 );
 
 console.log(

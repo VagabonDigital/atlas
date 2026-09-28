@@ -35,7 +35,7 @@ assert.match(
 
 assert.match(
   inside,
-  /hero-actions[\s\S]*?href="\/\?entry=product">Explore Atlas/
+  /hero-actions[\s\S]*?href="\/\?entry=product"[^>]*>Explore Atlas/
 );
 
 assert.match(

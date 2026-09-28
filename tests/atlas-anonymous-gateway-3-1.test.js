@@ -165,7 +165,7 @@ assert.match(
 const authenticatedGateway = between(
     atlas,
     '    function renderGateway(',
-    '    function getContinueItemArt('
+    '    function renderContinueCard('
 );
 
 assert.match(
