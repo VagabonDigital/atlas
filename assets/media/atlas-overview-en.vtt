@@ -1,889 +1,889 @@
 WEBVTT
 
 1
-00:00:00.240 --> 00:00:01.680
+00:00:00.240 --> 00:00:01.680 line:84%
 Welcome to this explainer.
 
 2
-00:00:01.680 --> 00:00:04.240
+00:00:01.680 --> 00:00:04.240 line:84%
 If you spend your days guiding learners one-on-one
 
 3
-00:00:04.240 --> 00:00:07.080
+00:00:04.240 --> 00:00:07.080 line:84%
 through the quirks and nuances of the English language
 
 4
-00:00:07.080 --> 00:00:08.460
+00:00:07.080 --> 00:00:08.460 line:84%
 you're gonna wanna stick around.
 
 5
-00:00:08.520 --> 00:00:10.560
+00:00:08.520 --> 00:00:10.560 line:84%
 Today we're taking a look at a brand new
 
 6
-00:00:10.560 --> 00:00:12.040
+00:00:10.560 --> 00:00:12.040 line:84%
 creative teaching workspace
 
 7
-00:00:12.040 --> 00:00:14.480
+00:00:12.040 --> 00:00:14.480 line:84%
 built specifically for online English tutors
 
 8
-00:00:14.480 --> 00:00:15.540
+00:00:14.480 --> 00:00:15.540 line:84%
 It's called Atlas.
 
 9
-00:00:15.920 --> 00:00:17.680
+00:00:15.920 --> 00:00:17.680 line:84%
 We're gonna unpack the philosophy behind it,
 
 10
-00:00:17.680 --> 00:00:19.760
+00:00:17.680 --> 00:00:19.760 line:84%
 and honestly, if you're an online tutor,
 
 11
-00:00:19.760 --> 00:00:22.140
+00:00:19.760 --> 00:00:22.140 line:84%
 this is gonna feel incredibly close to home.
 
 12
-00:00:22.440 --> 00:00:23.600
+00:00:22.440 --> 00:00:23.600 line:84%
 Let's just dive right into
 
 13
-00:00:23.600 --> 00:00:25.333
+00:00:23.600 --> 00:00:25.333 line:84%
 the core of what this platform is all about.
 
 14
-00:00:25.333 --> 00:00:26.746
+00:00:25.333 --> 00:00:26.746 line:84%
 But real quick,
 
 15
-00:00:26.746 --> 00:00:27.426
+00:00:26.746 --> 00:00:27.426 line:84%
 let's acknowledge
 
 16
-00:00:27.426 --> 00:00:30.046
+00:00:27.426 --> 00:00:30.046 line:84%
 the familiar reality of our daily workspace.
 
 17
-00:00:30.106 --> 00:00:31.146
+00:00:30.106 --> 00:00:31.146 line:84%
 We all know this scene, right?
 
 18
-00:00:31.146 --> 00:00:31.426
+00:00:31.146 --> 00:00:31.426 line:84%
 Whether
 
 19
-00:00:31.426 --> 00:00:33.546
+00:00:31.426 --> 00:00:33.546 line:84%
 you've been teaching business English for 10 years
 
 20
-00:00:33.546 --> 00:00:34.506
+00:00:33.546 --> 00:00:34.506 line:84%
 from your home office
 
 21
-00:00:34.506 --> 00:00:37.026
+00:00:34.506 --> 00:00:37.026 line:84%
 or you're logging in from a lively hostel in Thailand,
 
 22
-00:00:37.026 --> 00:00:39.406
+00:00:37.026 --> 00:00:39.406 line:84%
 your laptop screen probably looks a bit like this.
 
 23
-00:00:39.546 --> 00:00:41.186
+00:00:39.546 --> 00:00:41.186 line:84%
 You've got a dozen browser tabs open,
 
 24
-00:00:41.186 --> 00:00:42.466
+00:00:41.186 --> 00:00:42.466 line:84%
 a topic wheel ready to go,
 
 25
-00:00:42.466 --> 00:00:43.666
+00:00:42.466 --> 00:00:43.666 line:84%
 that trusty Google Doc
 
 26
-00:00:43.666 --> 00:00:45.786
+00:00:43.666 --> 00:00:45.786 line:84%
 filled with the questions that always seem to work,
 
 27
-00:00:45.786 --> 00:00:48.886
+00:00:45.786 --> 00:00:48.886 line:84%
 and a PDF you definitely saved somewhere just in case.
 
 28
-00:00:48.946 --> 00:00:49.866
+00:00:48.946 --> 00:00:49.866 line:84%
 It's an affectionate,
 
 29
-00:00:49.866 --> 00:00:52.486
+00:00:49.866 --> 00:00:52.486 line:84%
 completely recognisable picture of how we teach.
 
 30
-00:00:52.546 --> 00:00:53.986
+00:00:52.546 --> 00:00:53.986 line:84%
 It's not chaotic or incompetent.
 
 31
-00:00:53.986 --> 00:00:55.186
+00:00:53.986 --> 00:00:55.186 line:84%
 It's just the very real,
 
 32
-00:00:55.186 --> 00:00:57.966
+00:00:55.186 --> 00:00:57.966 line:84%
 functional reality of piecing a lesson together.
 
 33
-00:00:58.106 --> 00:00:59.306
+00:00:58.106 --> 00:00:59.306 line:84%
 So the big question is
 
 34
-00:00:59.306 --> 00:01:01.846
+00:00:59.306 --> 00:01:01.846 line:84%
 how Atlas actually shifts this dynamic.
 
 35
-00:01:02.106 --> 00:01:04.306
+00:01:02.106 --> 00:01:04.306 line:84%
 Rather than having a million tools spread out,
 
 36
-00:01:04.306 --> 00:01:06.266
+00:01:04.306 --> 00:01:06.266 line:84%
 it brings the material, the learner,
 
 37
-00:01:06.266 --> 00:01:08.966
+00:01:06.266 --> 00:01:08.966 line:84%
 and your teaching history into one unified place,
 
 38
-00:01:09.226 --> 00:01:10.906
+00:01:09.226 --> 00:01:10.906 line:84%
 and it operates on a really clear,
 
 39
-00:01:10.906 --> 00:01:12.300
+00:01:10.906 --> 00:01:12.300 line:84%
 deliberate premise.
 
 40
-00:01:12.300 --> 00:01:14.293
+00:01:12.300 --> 00:01:14.293 line:84%
 Atlas lets tutors create precisely
 
 41
-00:01:14.293 --> 00:01:15.813
+00:01:14.293 --> 00:01:15.813 line:84%
 what they wanna teach around the learner
 
 42
-00:01:15.813 --> 00:01:16.766
+00:01:15.813 --> 00:01:16.766 line:84%
 in front of them.
 
 43
-00:01:16.766 --> 00:01:19.733
+00:01:16.766 --> 00:01:19.733 line:84%
 Now, to be clear, this is not just a rescue tool
 
 44
-00:01:19.733 --> 00:01:21.733
+00:01:19.733 --> 00:01:21.733 line:84%
 for when a lesson goes completely off the rails
 
 45
-00:01:21.733 --> 00:01:23.513
+00:01:21.733 --> 00:01:23.513 line:84%
 or changes direction halfway through.
 
 46
-00:01:23.653 --> 00:01:25.573
+00:01:23.653 --> 00:01:25.573 line:84%
 It is a highly creative workspace
 
 47
-00:01:25.573 --> 00:01:27.933
+00:01:25.573 --> 00:01:27.933 line:84%
 built from the ground up for you to craft substantial
 
 48
-00:01:27.933 --> 00:01:29.366
+00:01:27.933 --> 00:01:29.366 line:84%
 meaningful lessons.
 
 49
-00:01:29.366 --> 00:01:32.153
+00:01:29.366 --> 00:01:32.153 line:84%
 All right. Section 1: Create for the learner.
 
 50
-00:01:32.213 --> 00:01:35.473
+00:01:32.213 --> 00:01:35.473 line:84%
 Let's talk about generating highly specific subjects.
 
 51
-00:01:35.653 --> 00:01:38.813
+00:01:35.653 --> 00:01:38.813 line:84%
 You know, one-to-one teaching is inherently personal,
 
 52
-00:01:38.813 --> 00:01:39.653
+00:01:38.813 --> 00:01:39.653 line:84%
 but so often
 
 53
-00:01:39.653 --> 00:01:42.433
+00:01:39.653 --> 00:01:42.433 line:84%
 the off-the-shelf material we find just isn't.
 
 54
-00:01:42.733 --> 00:01:44.733
+00:01:42.733 --> 00:01:44.733 line:84%
 Here is how that creation process flows
 
 55
-00:01:44.733 --> 00:01:45.633
+00:01:44.733 --> 00:01:45.633 line:84%
 in Atlas.
 
 56
-00:01:45.933 --> 00:01:48.933
+00:01:45.933 --> 00:01:48.933 line:84%
 You actually don't start with a generic textbook page.
 
 57
-00:01:48.933 --> 00:01:50.573
+00:01:48.933 --> 00:01:50.573 line:84%
 You start with an intention.
 
 58
-00:01:50.573 --> 00:01:52.013
+00:01:50.573 --> 00:01:52.013 line:84%
 That could be a professional need
 
 59
-00:01:52.013 --> 00:01:54.653
+00:01:52.013 --> 00:01:54.653 line:84%
 your learner has a tricky language target you wanna hit
 
 60
-00:01:54.653 --> 00:01:57.473
+00:01:54.653 --> 00:01:57.473 line:84%
 or just pure curiosity about something in the news.
 
 61
-00:01:57.573 --> 00:01:58.413
+00:01:57.573 --> 00:01:58.413 line:84%
 From there,
 
 62
-00:01:58.413 --> 00:02:01.533
+00:01:58.413 --> 00:02:01.533 line:84%
 Atlas generates specific high-quality subject ideas,
 
 63
-00:02:01.533 --> 00:02:04.253
+00:02:01.533 --> 00:02:04.253 line:84%
 and literally in seconds, that initial starting point
 
 64
-00:02:04.253 --> 00:02:07.033
+00:02:04.253 --> 00:02:07.033 line:84%
 blossoms into beautifully structured teaching material.
 
 65
-00:02:07.213 --> 00:02:08.493
+00:02:07.213 --> 00:02:08.493 line:84%
 The subject suggestions
 
 66
-00:02:08.493 --> 00:02:10.453
+00:02:08.493 --> 00:02:10.453 line:84%
 are where you really see the eclectic
 
 67
-00:02:10.453 --> 00:02:11.753
+00:02:10.453 --> 00:02:11.753 line:84%
 depth of what you can build.
 
 68
-00:02:11.773 --> 00:02:13.413
+00:02:11.773 --> 00:02:13.413 line:84%
 It's all about you and your learner
 
 69
-00:02:13.413 --> 00:02:15.913
+00:02:13.413 --> 00:02:15.913 line:84%
 looking at options and choosing a direction together.
 
 70
-00:02:16.053 --> 00:02:17.773
+00:02:16.053 --> 00:02:17.773 line:84%
 For example, if you're focusing on work,
 
 71
-00:02:17.773 --> 00:02:18.893
+00:02:17.773 --> 00:02:18.893 line:84%
 you might pull up a subject
 
 72
-00:02:18.893 --> 00:02:21.793
+00:02:18.893 --> 00:02:21.793 line:84%
 like leading a meeting when nobody agrees.
 
 73
-00:02:21.813 --> 00:02:23.773
+00:02:21.813 --> 00:02:23.773 line:84%
 Or maybe you wanna go a totally different route
 
 74
-00:02:23.773 --> 00:02:26.873
+00:02:23.773 --> 00:02:26.873 line:84%
 with crossing the Patagonian ice field on foot.
 
 75
-00:02:27.093 --> 00:02:28.293
+00:02:27.093 --> 00:02:28.293 line:84%
 You can even tackle grammar
 
 76
-00:02:28.293 --> 00:02:29.773
+00:02:28.293 --> 00:02:29.773 line:84%
 through a highly personal lens
 
 77
-00:02:29.773 --> 00:02:32.233
+00:02:29.773 --> 00:02:32.233 line:84%
 like present perfect through life changes.
 
 78
-00:02:32.333 --> 00:02:33.453
+00:02:32.333 --> 00:02:33.453 line:84%
 You're choosing the path together,
 
 79
-00:02:33.453 --> 00:02:34.173
+00:02:33.453 --> 00:02:34.173 line:84%
 which ensures
 
 80
-00:02:34.173 --> 00:02:36.333
+00:02:34.173 --> 00:02:36.333 line:84%
 the material actually matters to the person sitting
 
 81
-00:02:36.333 --> 00:02:37.553
+00:02:36.333 --> 00:02:37.553 line:84%
 right in front of you.
 
 82
-00:02:37.973 --> 00:02:40.173
+00:02:37.973 --> 00:02:40.173 line:84%
 And why does that choice matter so much?
 
 83
-00:02:40.173 --> 00:02:43.753
+00:02:40.173 --> 00:02:43.753 line:84%
 Because genuine engagement transforms the language.
 
 84
-00:02:43.973 --> 00:02:45.413
+00:02:43.973 --> 00:02:45.413 line:84%
 We aren't just looking at learner
 
 85
-00:02:45.413 --> 00:02:47.853
+00:02:45.413 --> 00:02:47.853 line:84%
 engagement as some dry pedagogy lesson.
 
 86
-00:02:47.853 --> 00:02:49.133
+00:02:47.853 --> 00:02:49.133 line:84%
 It is the natural,
 
 87
-00:02:49.133 --> 00:02:52.273
+00:02:49.133 --> 00:02:52.273 line:84%
 obvious result of using highly relevant material.
 
 88
-00:02:52.573 --> 00:02:54.653
+00:02:52.573 --> 00:02:54.653 line:84%
 When a learner is genuinely invested in the
 
 89
-00:02:54.653 --> 00:02:56.393
+00:02:54.653 --> 00:02:56.393 line:84%
 conversation, they relax.
 
 90
-00:02:56.613 --> 00:02:59.453
+00:02:56.613 --> 00:02:59.453 line:84%
 They stop monitoring every single word they say.
 
 91
-00:02:59.453 --> 00:03:02.073
+00:02:59.453 --> 00:03:02.073 line:84%
 They take risks, they reach for better vocabulary,
 
 92
-00:03:02.133 --> 00:03:04.233
+00:03:02.133 --> 00:03:04.233 line:84%
 and they try to explain what they really mean.
 
 93
-00:03:04.493 --> 00:03:07.413
+00:03:04.493 --> 00:03:07.413 line:84%
 The grammar and pronunciation just develop organically
 
 94
-00:03:07.413 --> 00:03:09.473
+00:03:07.413 --> 00:03:09.473 line:84%
 right there in the flow of conversation.
 
 95
-00:03:10.093 --> 00:03:11.933
+00:03:10.093 --> 00:03:11.933 line:84%
 Moving right along to Section 2:
 
 96
-00:03:11.933 --> 00:03:14.293
+00:03:11.933 --> 00:03:14.293 line:84%
 Shape what you teach. Okay,
 
 97
-00:03:14.293 --> 00:03:16.973
+00:03:14.293 --> 00:03:16.973 line:84%
 so you have this brilliant material generated.
 
 98
-00:03:16.973 --> 00:03:19.553
+00:03:16.973 --> 00:03:19.553 line:84%
 Now you need to confidently make it your own.
 
 99
-00:03:19.573 --> 00:03:20.373
+00:03:19.573 --> 00:03:20.373 line:84%
 And in Atlas,
 
 100
-00:03:20.373 --> 00:03:23.593
+00:03:20.373 --> 00:03:23.593 line:84%
 that ownership is visible and practically effortless.
 
 101
-00:03:23.653 --> 00:03:25.133
+00:03:23.653 --> 00:03:25.133 line:84%
 Take a look here. On the left,
 
 102
-00:03:25.133 --> 00:03:27.193
+00:03:25.133 --> 00:03:27.193 line:84%
 we have a generated discussion question.
 
 103
-00:03:27.333 --> 00:03:28.853
+00:03:27.333 --> 00:03:28.853 line:84%
 It's solid. It works.
 
 104
-00:03:28.853 --> 00:03:31.293
+00:03:28.853 --> 00:03:31.293 line:84%
 But on the right, you can see how a tutor has quickly
 
 105
-00:03:31.293 --> 00:03:33.173
+00:03:31.293 --> 00:03:33.173 line:84%
 rewritten that exact question
 
 106
-00:03:33.173 --> 00:03:36.033
+00:03:33.173 --> 00:03:36.033 line:84%
 to perfectly fit their specific learner's context.
 
 107
-00:03:36.173 --> 00:03:37.453
+00:03:36.173 --> 00:03:37.453 line:84%
 You can adjust the framing,
 
 108
-00:03:37.453 --> 00:03:39.373
+00:03:37.453 --> 00:03:39.373 line:84%
 change the length, or swap out an image
 
 109
-00:03:39.373 --> 00:03:41.193
+00:03:39.373 --> 00:03:41.193 line:84%
 without it feeling like a massive chore.
 
 110
-00:03:41.293 --> 00:03:43.453
+00:03:41.293 --> 00:03:43.453 line:84%
 You're simply tweaking the material around your learner
 
 111
-00:03:43.453 --> 00:03:45.633
+00:03:43.453 --> 00:03:45.633 line:84%
 and your own unique teaching style.
 
 112
-00:03:46.013 --> 00:03:48.433
+00:03:46.013 --> 00:03:48.433 line:84%
 Which brings us to Section 3:
 
 113
-00:03:48.453 --> 00:03:50.233
+00:03:48.453 --> 00:03:50.233 line:84%
 Compass and Arcade.
 
 114
-00:03:50.493 --> 00:03:52.773
+00:03:50.493 --> 00:03:52.773 line:84%
 These are the two distinct teaching environments
 
 115
-00:03:52.773 --> 00:03:55.373
+00:03:52.773 --> 00:03:55.373 line:84%
 within Atlas. Once your material is ready,
 
 116
-00:03:55.373 --> 00:03:57.433
+00:03:55.373 --> 00:03:57.433 line:84%
 it's time to actually teach.
 
 117
-00:03:57.613 --> 00:03:59.193
+00:03:57.613 --> 00:03:59.193 line:84%
 Let's look at Compass first.
 
 118
-00:03:59.333 --> 00:04:00.666
+00:03:59.333 --> 00:04:00.666 line:84%
 Think of Compass as a clean,
 
 119
-00:04:00.666 --> 00:04:02.066
+00:04:00.666 --> 00:04:02.066 line:84%
 structured conversational terrain
 
 120
-00:04:02.133 --> 00:04:04.200
+00:04:02.133 --> 00:04:04.200 line:84%
 for your live screen-shared lessons.
 
 121
-00:04:04.300 --> 00:04:06.393
+00:04:04.300 --> 00:04:06.393 line:84%
 The heart of it is discussion,
 
 122
-00:04:06.613 --> 00:04:08.013
+00:04:06.613 --> 00:04:08.013 line:84%
 but this isn't a rigid, linear
 
 123
-00:04:08.047 --> 00:04:10.327
+00:04:08.047 --> 00:04:10.327 line:84%
 sequence of prompts that you have to march through.
 
 124
-00:04:10.327 --> 00:04:13.047
+00:04:10.327 --> 00:04:13.047 line:84%
 It's flexible. It lets you and your learner spend time
 
 125
-00:04:13.047 --> 00:04:15.427
+00:04:13.047 --> 00:04:15.427 line:84%
 exactly where the conversation gets productive.
 
 126
-00:04:15.527 --> 00:04:16.607
+00:04:15.527 --> 00:04:16.607 line:84%
 You skip what you don't need
 
 127
-00:04:16.607 --> 00:04:18.827
+00:04:16.607 --> 00:04:18.827 line:84%
 and just let the discussion develop naturally.
 
 128
-00:04:19.207 --> 00:04:21.947
+00:04:19.207 --> 00:04:21.947 line:84%
 Also within Compass, you have the cultural lens.
 
 129
-00:04:22.047 --> 00:04:23.247
+00:04:22.047 --> 00:04:23.247 line:84%
 This is such a great feature
 
 130
-00:04:23.247 --> 00:04:26.047
+00:04:23.247 --> 00:04:26.047 line:84%
 because it visually opens a subject out into culture,
 
 131
-00:04:26.047 --> 00:04:27.867
+00:04:26.047 --> 00:04:27.867 line:84%
 history, and real-world context.
 
 132
-00:04:27.887 --> 00:04:30.007
+00:04:27.887 --> 00:04:30.007 line:84%
 It brings in new stories or historical moments
 
 133
-00:04:30.007 --> 00:04:31.767
+00:04:30.007 --> 00:04:31.767 line:84%
 connected to whatever you're talking about.
 
 134
-00:04:31.767 --> 00:04:34.047
+00:04:31.767 --> 00:04:34.047 line:84%
 It basically gives your conversation fresh,
 
 135
-00:04:34.047 --> 00:04:36.087
+00:04:34.047 --> 00:04:36.087 line:84%
 unexpected material to think with,
 
 136
-00:04:36.087 --> 00:04:38.487
+00:04:36.087 --> 00:04:38.487 line:84%
 and lets the learner bounce those new perspectives
 
 137
-00:04:38.487 --> 00:04:40.147
+00:04:38.487 --> 00:04:40.147 line:84%
 off their own experiences.
 
 138
-00:04:40.367 --> 00:04:41.567
+00:04:40.367 --> 00:04:41.567 line:84%
 But let's be honest,
 
 139
-00:04:41.567 --> 00:04:44.147
+00:04:41.567 --> 00:04:44.147 line:84%
 sometimes you need a totally different energy.
 
 140
-00:04:44.287 --> 00:04:46.147
+00:04:44.287 --> 00:04:46.147 line:84%
 And that's where Arcade comes in.
 
 141
-00:04:46.487 --> 00:04:48.607
+00:04:46.487 --> 00:04:48.607 line:84%
 Arcade is fast. It's loose.
 
 142
-00:04:48.607 --> 00:04:50.047
+00:04:48.607 --> 00:04:50.047 line:84%
 It's incredibly playful.
 
 143
-00:04:50.047 --> 00:04:52.527
+00:04:50.047 --> 00:04:52.527 line:84%
 It's built completely around quick decisions,
 
 144
-00:04:52.527 --> 00:04:54.187
+00:04:52.527 --> 00:04:54.187 line:84%
 instinct, and imagination.
 
 145
-00:04:54.327 --> 00:04:56.867
+00:04:54.327 --> 00:04:56.867 line:84%
 There are absolutely no perfect answers here.
 
 146
-00:04:56.887 --> 00:04:59.167
+00:04:56.887 --> 00:04:59.167 line:84%
 The learner just has to choose, explain,
 
 147
-00:04:59.167 --> 00:05:01.107
+00:04:59.167 --> 00:05:01.107 line:84%
 defend their choice, and keep moving.
 
 148
-00:05:01.207 --> 00:05:04.447
+00:05:01.207 --> 00:05:04.447 line:84%
 It pushes them to use spontaneous, reactive English,
 
 149
-00:05:04.447 --> 00:05:07.167
+00:05:04.447 --> 00:05:07.167 line:84%
 which, as we know, is usually much more revealing of
 
 150
-00:05:07.167 --> 00:05:08.567
+00:05:07.167 --> 00:05:08.567 line:84%
 how they actually communicate
 
 151
-00:05:08.567 --> 00:05:11.527
+00:05:08.567 --> 00:05:11.527 line:84%
 under pressure. Seeing them side by side like this
 
 152
-00:05:11.527 --> 00:05:13.587
+00:05:11.527 --> 00:05:13.587 line:84%
 really highlights the contrast.
 
 153
-00:05:13.687 --> 00:05:15.647
+00:05:13.687 --> 00:05:15.647 line:84%
 Compass gives you this substantial,
 
 154
-00:05:15.647 --> 00:05:17.787
+00:05:15.647 --> 00:05:17.787 line:84%
 deep material to explore together.
 
 155
-00:05:18.007 --> 00:05:19.487
+00:05:18.007 --> 00:05:19.487 line:84%
 Arcade gives you immediate,
 
 156
-00:05:19.487 --> 00:05:21.467
+00:05:19.487 --> 00:05:21.467 line:84%
 quickfire material to play with.
 
 157
-00:05:21.687 --> 00:05:22.207
+00:05:21.687 --> 00:05:22.207 line:84%
 And actually,
 
 158
-00:05:22.207 --> 00:05:24.607
+00:05:22.207 --> 00:05:24.607 line:84%
 Arcade is an absolute lifesaver for those tricky
 
 159
-00:05:24.607 --> 00:05:26.927
+00:05:24.607 --> 00:05:26.927 line:84%
 short 15-minute lessons where you just
 
 160
-00:05:26.927 --> 00:05:29.547
+00:05:26.927 --> 00:05:29.547 line:84%
 don't have time to slowly build into a deep topic.
 
 161
-00:05:29.607 --> 00:05:31.727
+00:05:29.607 --> 00:05:31.727 line:84%
 It can reset the mood of a longer session
 
 162
-00:05:31.727 --> 00:05:34.127
+00:05:31.727 --> 00:05:34.127 line:84%
 or stand completely on its own as a brilliant
 
 163
-00:05:34.127 --> 00:05:35.233
+00:05:34.127 --> 00:05:35.233 line:84%
 mini-lesson.
 
 164
-00:05:35.266 --> 00:05:38.107
+00:05:35.266 --> 00:05:38.107 line:84%
 Okay. Section 4: A relationship with memory.
 
 165
-00:05:38.487 --> 00:05:40.347
+00:05:38.487 --> 00:05:40.347 line:84%
 Let's talk about the long-term payoff.
 
 166
-00:05:40.527 --> 00:05:43.907
+00:05:40.527 --> 00:05:43.907 line:84%
 So we've created, shaped, and taught.
 
 167
-00:05:44.047 --> 00:05:46.067
+00:05:44.047 --> 00:05:46.067 line:84%
 But what happens when the session ends?
 
 168
-00:05:46.167 --> 00:05:48.147
+00:05:46.167 --> 00:05:48.147 line:84%
 Well, let me introduce you to Maya.
 
 169
-00:05:48.207 --> 00:05:49.887
+00:05:48.207 --> 00:05:49.887 line:84%
 Maya is a learner from Istanbul.
 
 170
-00:05:49.887 --> 00:05:51.267
+00:05:49.887 --> 00:05:51.267 line:84%
 She studies urban design.
 
 171
-00:05:51.287 --> 00:05:52.707
+00:05:51.287 --> 00:05:52.707 line:84%
 She's planning a move to Berlin,
 
 172
-00:05:52.727 --> 00:05:55.267
+00:05:52.727 --> 00:05:55.267 line:84%
 and she has these wonderfully specific interests:
 
 173
-00:05:55.287 --> 00:05:58.387
+00:05:55.287 --> 00:05:58.387 line:84%
 Brutalist architecture, stargazing, and live music.
 
 174
-00:05:58.687 --> 00:05:59.687
+00:05:58.687 --> 00:05:59.687 line:84%
 The magic here is that
 
 175
-00:05:59.687 --> 00:06:02.167
+00:05:59.687 --> 00:06:02.167 line:84%
 Atlas remembers this highly specific context
 
 176
-00:06:02.167 --> 00:06:03.987
+00:06:02.167 --> 00:06:03.987 line:84%
 from your very first session with her.
 
 177
-00:06:04.087 --> 00:06:06.647
+00:06:04.087 --> 00:06:06.647 line:84%
 It's not just sitting in some random static notes doc.
 
 178
-00:06:06.647 --> 00:06:09.307
+00:06:06.647 --> 00:06:09.307 line:84%
 It's actively woven right into the workspace.
 
 179
-00:06:09.527 --> 00:06:11.447
+00:06:09.527 --> 00:06:11.447 line:84%
 When Maya logs in for her next lesson,
 
 180
-00:06:11.447 --> 00:06:13.307
+00:06:11.447 --> 00:06:13.307 line:84%
 her history is right there waiting.
 
 181
-00:06:13.367 --> 00:06:14.807
+00:06:13.367 --> 00:06:14.807 line:84%
 You can visually see her interests
 
 182
-00:06:14.807 --> 00:06:16.567
+00:06:14.807 --> 00:06:16.567 line:84%
 connected to her past subjects,
 
 183
-00:06:16.567 --> 00:06:19.507
+00:06:16.567 --> 00:06:19.507 line:84%
 like Finding Your Crowd in Berlin's Live Music Scene.
 
 184
-00:06:19.687 --> 00:06:21.007
+00:06:19.687 --> 00:06:21.007 line:84%
 You've got her Arcade scores,
 
 185
-00:06:21.007 --> 00:06:21.967
+00:06:21.007 --> 00:06:21.967 line:84%
 and crucially,
 
 186
-00:06:21.967 --> 00:06:24.327
+00:06:21.967 --> 00:06:24.327 line:84%
 you have access to saved language from earlier
 
 187
-00:06:24.327 --> 00:06:27.267
+00:06:24.327 --> 00:06:27.267 line:84%
 conversations, like the phrase 'hard to put into words.'
 
 188
-00:06:27.287 --> 00:06:29.447
+00:06:27.287 --> 00:06:29.447 line:84%
 So the next lesson starts with this incredible
 
 189
-00:06:29.447 --> 00:06:30.467
+00:06:29.447 --> 00:06:30.467 line:84%
 shared history.
 
 190
-00:06:30.487 --> 00:06:32.727
+00:06:30.487 --> 00:06:32.727 line:84%
 It doesn't force a strict lesson plan on you,
 
 191
-00:06:32.727 --> 00:06:34.527
+00:06:32.727 --> 00:06:34.527 line:84%
 but it gives you a brilliant foundation to
 
 192
-00:06:34.527 --> 00:06:35.967
+00:06:34.527 --> 00:06:35.967 line:84%
 either continue a previous thread
 
 193
-00:06:35.967 --> 00:06:37.707
+00:06:35.967 --> 00:06:37.707 line:84%
 or pivot to something brand new.
 
 194
-00:06:37.807 --> 00:06:40.247
+00:06:37.807 --> 00:06:40.247 line:84%
 So what Atlas is doing over time is twofold,
 
 195
-00:06:40.247 --> 00:06:42.467
+00:06:40.247 --> 00:06:42.467 line:84%
 and it's super powerful. Number one:
 
 196
-00:06:42.487 --> 00:06:45.107
+00:06:42.487 --> 00:06:45.107 line:84%
 your own personal teaching library grows.
 
 197
-00:06:45.287 --> 00:06:46.847
+00:06:45.287 --> 00:06:46.847 line:84%
 The material you create and shape
 
 198
-00:06:46.847 --> 00:06:48.747
+00:06:46.847 --> 00:06:48.747 line:84%
 reflects your unique methods.
 
 199
-00:06:49.207 --> 00:06:52.287
+00:06:49.207 --> 00:06:52.287 line:84%
 And number two: each learner's individual teaching history
 
 200
-00:06:52.287 --> 00:06:53.867
+00:06:52.287 --> 00:06:53.867 line:84%
 builds right alongside them.
 
 201
-00:06:54.127 --> 00:06:55.967
+00:06:54.127 --> 00:06:55.967 line:84%
 You're no longer just producing isolated,
 
 202
-00:06:55.967 --> 00:06:59.087
+00:06:55.967 --> 00:06:59.087 line:84%
 disposable lessons. You're building a rich continuity
 
 203
-00:06:59.087 --> 00:07:02.067
+00:06:59.087 --> 00:07:02.067 line:84%
 that gets more intuitive with every single session.
 
 204
-00:07:02.353 --> 00:07:05.333
+00:07:02.353 --> 00:07:05.333 line:84%
 And that brings us full circle to our main through line.
 
 205
-00:07:05.633 --> 00:07:07.833
+00:07:05.633 --> 00:07:07.833 line:84%
 Atlas is a shared teaching environment
 
 206
-00:07:07.833 --> 00:07:10.633
+00:07:07.833 --> 00:07:10.633 line:84%
 built entirely around the relationship between you
 
 207
-00:07:10.633 --> 00:07:12.573
+00:07:10.633 --> 00:07:12.573 line:84%
 and the person on the other side of the screen.
 
 208
-00:07:12.833 --> 00:07:15.133
+00:07:12.833 --> 00:07:15.133 line:84%
 You create exactly what you want to teach.
 
 209
-00:07:15.193 --> 00:07:17.453
+00:07:15.193 --> 00:07:17.453 line:84%
 You shape it around their needs and your style.
 
 210
-00:07:17.513 --> 00:07:19.473
+00:07:17.513 --> 00:07:19.473 line:84%
 And you teach it through environments that adapt
 
 211
-00:07:19.473 --> 00:07:20.700
+00:07:19.473 --> 00:07:20.700 line:84%
 the energy in the room.
 
 212
-00:07:20.700 --> 00:07:22.513
+00:07:20.700 --> 00:07:22.513 line:84%
 Create, shape,
 
 213
-00:07:22.513 --> 00:07:23.873
+00:07:22.513 --> 00:07:23.873 line:84%
 teach.
 
 214
-00:07:23.873 --> 00:07:25.393
+00:07:23.873 --> 00:07:25.393 line:84%
 It really is a fundamental shift
 
 215
-00:07:25.393 --> 00:07:27.553
+00:07:25.393 --> 00:07:27.553 line:84%
 from just handing out static PDFs
 
 216
-00:07:27.553 --> 00:07:29.913
+00:07:27.553 --> 00:07:29.913 line:84%
 to actively operating inside a dynamic
 
 217
-00:07:29.913 --> 00:07:32.953
+00:07:29.913 --> 00:07:32.953 line:84%
 teaching workspace. Which leaves us with one final
 
 218
-00:07:32.953 --> 00:07:34.113
+00:07:32.953 --> 00:07:34.113 line:84%
 exciting question for you
 
 219
-00:07:34.113 --> 00:07:35.773
+00:07:34.113 --> 00:07:35.773 line:84%
 as you prep for your next session:
 
 220
-00:07:35.873 --> 00:07:38.373
+00:07:35.873 --> 00:07:38.373 line:84%
 What will you and your learner build first?
 
 221
-00:07:38.393 --> 00:07:40.713
+00:07:38.393 --> 00:07:40.713 line:84%
 Thank you so much for joining me for this explainer,
 
 222
-00:07:40.713 --> 00:07:41.813
+00:07:40.713 --> 00:07:41.813 line:84%
 and happy teaching.
