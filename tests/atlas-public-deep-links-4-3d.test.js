@@ -365,7 +365,7 @@ function testAnonymousBaselineAndScopedSharing() {
             .sort();
 
     assert.deepEqual(
-        fullSubjects,
+        Array.from(fullSubjects),
         [
             'business-meetings-clear-updates',
             'octopuses-change-colour',
@@ -387,7 +387,7 @@ function testAnonymousBaselineAndScopedSharing() {
             );
 
     assert.deepEqual(
-        fullGames,
+        Array.from(fullGames),
         [
             'arcade:truth-trap'
         ]
@@ -493,20 +493,26 @@ function testSourceParametersNeverOwnDestination() {
         '&from=arcade' +
         '#discussion';
 
+    runtime.context.__intentInput =
+        JSON.stringify({
+            action:
+                'open-gated-content',
+            destination,
+            context: {
+                operation:
+                    'begin-compass-subject',
+                subjectId:
+                    'food-table'
+            }
+        });
+
     const intent =
-        runtime.window
-            .AtlasReturnIntent
-            .create({
-                action:
-                    'open-gated-content',
-                destination,
-                context: {
-                    operation:
-                        'begin-compass-subject',
-                    subjectId:
-                        'food-table'
-                }
-            });
+        vm.runInNewContext(
+            'window.AtlasReturnIntent.create(JSON.parse(__intentInput))',
+            runtime.context
+        );
+
+    delete runtime.context.__intentInput;
 
     assert.equal(
         intent.destination,

@@ -98,7 +98,7 @@ function makeRuntime(
       .sort();
 
   assert.deepStrictEqual(
-    fullSubjects,
+    Array.from(fullSubjects),
     [
       'business-meetings-clear-updates',
       'octopuses-change-colour',
@@ -116,7 +116,7 @@ function makeRuntime(
       .map(game => game.registryId);
 
   assert.deepStrictEqual(
-    fullGames,
+    Array.from(fullGames),
     ['arcade:truth-trap']
   );
 }

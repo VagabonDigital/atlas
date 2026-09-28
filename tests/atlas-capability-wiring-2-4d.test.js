@@ -88,6 +88,20 @@ assert.match(
 [hub, engine, panel].forEach(source => {
     assert.doesNotMatch(source, /\bisPro\s*\(/);
     assert.doesNotMatch(source, /\bplanCode\b/);
+});
+
+[
+    'async function requireAccountLibraryAccess',
+    'async function requireCompassSubjectCapability'
+].forEach(signature => {
+    assert.doesNotMatch(
+        functionBlock(hub, signature),
+        /\btier\s*===\s*['\"](?:free|pro)['\"]/,
+        signature + ' must consume canonical capability state rather than tier policy.'
+    );
+});
+
+[engine, panel].forEach(source => {
     assert.doesNotMatch(
         source,
         /\btier\s*===\s*['\"](?:free|pro)['\"]/

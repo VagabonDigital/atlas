@@ -204,7 +204,7 @@ assert.match(
 
 assert.match(
   checkout,
-  /atlas-pro-checkout-summary[\s\S]*?position: sticky;[\s\S]*?top: 44px;[\s\S]*?height: fit-content;/,
+  /atlas-pro-checkout-summary[\s\S]*?position: sticky;[\s\S]*?top: \d+px;[\s\S]*?align-self: start;[\s\S]*?height: fit-content;/,
   'Desktop Pro summary must lock at its natural starting position without a visible pre-stick slide.'
 );
 
