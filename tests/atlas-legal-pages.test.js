@@ -152,15 +152,15 @@ assert.match(
 
 assert.match(
   privacy,
-  /atlas-legal\.css\?v=20260925-tap1/
+  /atlas-legal\.css\?v=[A-Za-z0-9_-]+/
 );
 assert.match(
   terms,
-  /atlas-legal\.css\?v=20260925-tap1/
+  /atlas-legal\.css\?v=[A-Za-z0-9_-]+/
 );
 assert.match(
   refunds,
-  /atlas-legal\.css\?v=20260925-tap1/
+  /atlas-legal\.css\?v=[A-Za-z0-9_-]+/
 );
 assert.match(
   privacy,

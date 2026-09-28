@@ -192,8 +192,8 @@ assert.match(
 
 assert.match(
   checkout,
-  /atlas-pro-checkout-context[\s\S]*?Secure checkout[\s\S]*?atlas-pro-checkout-layout/,
-  'Checkout shell must provide stable Atlas-owned context around the Paddle frame.'
+  /atlas-pro-checkout-layout[\s\S]*?atlas-pro-checkout-summary[\s\S]*?Atlas Pro[\s\S]*?atlas-pro-checkout-payment-column[\s\S]*?Billing by Paddle[\s\S]*?atlas-pro-checkout-stage/,
+  'Checkout shell must provide stable Atlas-owned plan and billing context around the Paddle frame.'
 );
 
 assert.match(

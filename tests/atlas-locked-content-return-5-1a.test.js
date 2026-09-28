@@ -101,13 +101,13 @@ assert.ok(
 
 assert.ok(
   tomorrow.includes(
-    "Create free account to play"
+    "Play with free account"
   )
 );
 
 assert.ok(
   wouldYouRather.includes(
-    "Create free account to play"
+    "Play with free account"
   )
 );
 
