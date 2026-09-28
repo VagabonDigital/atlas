@@ -63,21 +63,25 @@ async function verifyAuthenticatedArtworkRequest() {
         clearTimeout
     };
 
+    const context = {
+        ...window,
+        Headers,
+        AbortController,
+        console
+    };
+
+    context.window = context;
+
     vm.runInNewContext(
         atlasAI,
-        {
-            window,
-            Headers,
-            AbortController,
-            console
-        },
+        context,
         {
             filename: 'shared/atlas-ai.js'
         }
     );
 
     const generated =
-        await window.AtlasAI
+        await context.AtlasAI
             .generateSubjectArtwork({
                 subjectId:
                     'subject-test-owned-123',

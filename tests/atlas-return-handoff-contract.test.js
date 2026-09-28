@@ -227,7 +227,7 @@ function testIntegrationBoundaries() {
 
     assert.doesNotMatch(
         page,
-        /new URLSearchParams[\s\S]*?window\.location\.href\s*=\s*.*ri/
+        /new URLSearchParams[\s\S]{0,400}?\.get\(['"]ri['"]\)/
     );
 }
 
