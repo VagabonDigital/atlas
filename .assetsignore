@@ -18,13 +18,3 @@ wrangler.atlas-web.jsonc
 
 shared/worker.js
 
-arcade/.gitignore
-arcade/package.json
-arcade/package-lock.json
-arcade/dev/
-arcade/harness/
-arcade/spikes/
-arcade/tests/
-arcade/contracts/
-arcade/engines/shared-plan-workbench/
-arcade/engines/shared-plan/CHANGE-DIARY.md
