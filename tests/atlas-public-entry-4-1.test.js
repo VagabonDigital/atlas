@@ -40,7 +40,7 @@ assert.match(
 
 assert.match(
   inside,
-  /product-entry-final[\s\S]*?href="\/compass\/">Find a subject<[\s\S]*?href="\/arcade\/">Find a game</
+  /product-entry-final[\s\S]*?href="\/compass\/"[^>]*>Find a subject<[\s\S]*?href="\/arcade\/"[^>]*>Find a game</
 );
 
 assert.doesNotMatch(
