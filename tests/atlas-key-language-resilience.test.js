@@ -73,7 +73,7 @@ async function verifyPlannerFallback() {
     };
 
     const context = {
-        window,
+        ...window,
         Headers,
         AbortController,
         console: {
@@ -82,6 +82,8 @@ async function verifyPlannerFallback() {
             log() {}
         }
     };
+
+    context.window = context;
 
     vm.runInNewContext(
         atlasAI,
@@ -92,7 +94,7 @@ async function verifyPlannerFallback() {
     );
 
     const selected =
-        await window.AtlasAI
+        await context.AtlasAI
             .selectKeyLanguageOpportunities({
                 section: 'discussion',
                 limit: 2,

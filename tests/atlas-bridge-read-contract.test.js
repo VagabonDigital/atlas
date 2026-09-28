@@ -44,7 +44,13 @@ function boot(code = source, { sessions, active = 'default', legacy, blocked = f
     const listeners = new Map();
     const labels = new Map();
     for (const id of ['spine-session-name', 'mobile-session-name', 'drawer-session-name']) {
-        labels.set(id, { textContent: '', closest: () => ({ setAttribute() {} }) });
+        labels.set(id, {
+            textContent: '',
+            closest: () => ({
+                dataset: {},
+                setAttribute() {}
+            })
+        });
     }
     let nextId = 0;
     const context = {

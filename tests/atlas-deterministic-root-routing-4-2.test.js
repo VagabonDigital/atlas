@@ -97,7 +97,9 @@ function runRootCase({
     },
     CSS: {
       registerProperty() {}
-    }
+    },
+    addEventListener() {},
+    removeEventListener() {}
   };
 
   const document = {
