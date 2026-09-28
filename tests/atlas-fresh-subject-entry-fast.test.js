@@ -111,14 +111,25 @@ const fullGenerationStart = engine.indexOf(
   'async function generateMyVersionFullSubject({'
 );
 
-const overviewStep = engine.indexOf(
-  "if (completedStep < 2) {",
+const framingOperationStart = engine.indexOf(
+  'generateSubjectFraming:',
   fullGenerationStart
 );
 
+const overviewOperationStart = engine.indexOf(
+  'generateOverview:',
+  framingOperationStart
+);
+
 const framingSegment = engine.slice(
-  fullGenerationStart,
-  overviewStep
+  framingOperationStart,
+  overviewOperationStart
+);
+
+assert.ok(
+  framingOperationStart > fullGenerationStart &&
+  overviewOperationStart > framingOperationStart,
+  'Fresh generation must expose framing and overview as distinct build-runner operations.'
 );
 
 assert.doesNotMatch(

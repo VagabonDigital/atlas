@@ -102,7 +102,13 @@ assert.match(
 
 assert.match(
   subscription,
-  /paymentState[\s\S]*?hasPaymentUpdateIntent[\s\S]*?setPaymentUpdateIntent[\s\S]*?await updatePaymentMethod\(\)/,
+  /async function updatePaymentMethod\(\)[\s\S]*?setPaymentUpdateIntent\(true\)/,
+  'Update Payment must persist recoverable intent before reconstructing the payment surface.'
+);
+
+assert.match(
+  subscription,
+  /if \(hasPaymentUpdateIntent\(\)\)[\s\S]*?await updatePaymentMethod\(\)/,
   'Update Payment must reconstruct a fresh payment update after refresh while intent is active.'
 );
 

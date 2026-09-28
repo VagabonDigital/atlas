@@ -14,7 +14,7 @@ const expected = [
   [feedback, 'html:has(#${IDS.overlay}:not([hidden]))'],
   [search, 'html:has(.atlas-search-overlay.open)'],
   [sessions, 'html:has(.atlas-session-overlay.is-open)'],
-  [accountGate, 'html:has(.atlas-account-gate-layer:not([hidden]))'],
+  [accountGate, 'html:has(.atlas-account-gate-layer:not([hidden]):not(.is-prewarming))'],
   [compass, 'html:has(#owned-subject-dialog:not([hidden]))'],
   [compass, 'html:has(#subject-artwork-studio-backdrop:not([hidden]))'],
   [subject, 'html:has(.atlas-my-version-dialog:not([hidden]))']

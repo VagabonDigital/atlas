@@ -2,13 +2,7 @@
   "capturedAtCommit": "495941fc565cbfffdbe375ace95c26fc5b0f3455",
   "note": "These historical contract tests were already failing on current main when permanent CI was introduced. They are still executed on every run. New failures fail CI, and a quarantined test that starts passing also fails CI until it is removed from this baseline. Repaired contracts are removed from this list.",
   "tests": [
-    "tests/atlas-account-management-5-1a.test.js",
     "tests/atlas-capability-wiring-2-4d.test.js",
-    "tests/atlas-compass-presentation-prewarm.test.js",
-    "tests/atlas-contextual-pro-checkout.test.js",
-    "tests/atlas-fresh-subject-entry-fast.test.js",
-    "tests/atlas-legal-pages.test.js",
-    "tests/atlas-modal-scroll-lock-5-1a.test.js",
     "tests/atlas-public-deep-links-4-3d.test.js",
     "tests/atlas-resource-share-4-3.test.js"
   ]

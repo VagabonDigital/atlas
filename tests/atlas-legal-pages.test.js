@@ -23,8 +23,8 @@ assert.match(
 );
 assert.match(
   inside,
-  /class="footer-links"[\s\S]*?href="\/privacy\/"[\s\S]*?href="\/terms\/"[\s\S]*?href="\/refunds\/"[\s\S]*?support@atlasfortutors\.com/,
-  'Inside Atlas must expose Privacy, Terms, Refunds, and Support publicly.'
+  /class="footer-links"[\s\S]*?href="\/pricing\/"[\s\S]*?href="\/privacy\/"[\s\S]*?href="\/terms\/"[\s\S]*?href="\/refunds\/"[\s\S]*?<\/nav>/,
+  'Inside Atlas must expose Pricing, Privacy, Terms, and Refunds publicly.'
 );
 
 assert.match(

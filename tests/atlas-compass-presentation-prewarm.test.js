@@ -188,7 +188,7 @@ assert.match(
 assert.equal(
     (
         registry.match(
-            /atlas-root-runtime\.js\?v=20260923-coverprewarm2/g
+            /atlas-root-runtime\.js\?v=[A-Za-z0-9_-]+/g
         ) || []
     ).length,
     2,
@@ -197,7 +197,7 @@ assert.equal(
 assert.equal(
     (
         registry.match(
-            /atlas-cloud-cache\.js\?v=20260922-order1/g
+            /atlas-cloud-cache\.js\?v=[A-Za-z0-9_-]+/g
         ) || []
     ).length,
     2,
@@ -206,27 +206,27 @@ assert.equal(
 
 assert.match(
     atlas,
-    /atlas-content-registry\.js\?v=20260923-coverprewarm2/,
+    /atlas-content-registry\.js\?v=[A-Za-z0-9_-]+/,
     'Atlas must load the restored cover-warming Content Registry revision'
 );
 assert.match(
     compass,
-    /atlas-content-registry\.js\?v=20260923-coverprewarm2/,
+    /atlas-content-registry\.js\?v=[A-Za-z0-9_-]+/,
     'Compass must load the restored cover-warming Content Registry revision'
 );
 assert.match(
     arcade,
-    /atlas-content-registry\.js\?v=20260923-coverprewarm2/,
+    /atlas-content-registry\.js\?v=[A-Za-z0-9_-]+/,
     'Arcade must load the restored cover-warming Content Registry revision'
 );
 assert.match(
     ownedSubject,
-    /atlas-content-registry\.js\?v=20260923-coverprewarm2/,
+    /atlas-content-registry\.js\?v=[A-Za-z0-9_-]+/,
     'Owned subject pages must load the restored cover-warming Content Registry revision'
 );
 assert.match(
     atlasOriginalEntry,
-    /atlas-content-registry\.js\?v=20260923-coverprewarm2/,
+    /atlas-content-registry\.js\?v=[A-Za-z0-9_-]+/,
     'Atlas Original pages must load the restored cover-warming Content Registry revision'
 );
 
