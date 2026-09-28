@@ -507,7 +507,22 @@ function testRecoveryIntentWiring() {
 function testResourceResumeConsumers() {
     assert.match(
         compassEngineSource,
-        /operation ===[\s\S]*?'begin-compass-subject'[\s\S]*?subjectId === MODULE\.id[\s\S]*?beginModule\(\{[\s\S]*?skipPublicAccessGate: true/
+        /operation ===[\s\S]*?'begin-compass-subject'[\s\S]*?subjectId === MODULE\.id[\s\S]*?updateCoverActionUI\(\)/
+    );
+
+    const compassResume =
+        compassEngineSource.slice(
+            compassEngineSource.indexOf(
+                'async function installCompassPublicAccessResume()'
+            ),
+            compassEngineSource.indexOf(
+                'function applyCompassPublicAccessChrome()'
+            )
+        );
+
+    assert.doesNotMatch(
+        compassResume,
+        /beginModule\(\{/
     );
 
     assert.match(

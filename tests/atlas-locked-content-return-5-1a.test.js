@@ -89,7 +89,7 @@ assert.ok(
 
 assert.ok(
   compass.includes(
-    "Create free account to explore"
+    "Explore with free account"
   )
 );
 
