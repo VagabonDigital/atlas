@@ -918,6 +918,10 @@
       background: #000;
     }
 
+    .overview-video-player--mobile {
+      display: none;
+    }
+
     /* Why Atlas exists.
        The usual week sits on bare canvas; the Atlas version sits on one
        continuous working surface. The change of surface and type carries
@@ -3069,6 +3073,21 @@
         padding: 68px 0;
       }
 
+      .overview-video-player--desktop {
+        display: none;
+      }
+
+      .overview-video-player--mobile {
+        display: block;
+        width: min(100%, 420px);
+        margin-inline: auto;
+      }
+
+      .overview-video-player--mobile video {
+        aspect-ratio: 9 / 16;
+        object-fit: contain;
+      }
+
       .site-header {
         position: sticky;
         top: 0;
@@ -3427,9 +3446,17 @@
           <h2 id="atlas-video-title">See Atlas in action<span class="title-stop">.</span></h2>
           <p>A short introduction to creating and teaching with Atlas.</p>
         </div>
-        <div class="overview-video-player">
+        <div class="overview-video-player overview-video-player--desktop">
           <video controls preload="metadata" playsinline poster="/assets/media/atlas-overview-poster.webp">
             <source src="https://media.atlasfortutors.com/videos/atlas-overview.mp4" type="video/mp4">
+            <track kind="captions" src="/assets/media/atlas-overview-en.vtt" srclang="en" label="English">
+            Your browser does not support HTML video.
+          </video>
+        </div>
+        <div class="overview-video-player overview-video-player--mobile">
+          <video controls preload="metadata" playsinline>
+            <source src="https://media.atlasfortutors.com/videos/atlas-short.mp4" type="video/mp4">
+            <track kind="captions" src="/assets/media/atlas-short-en.vtt" srclang="en" label="English">
             Your browser does not support HTML video.
           </video>
         </div>
