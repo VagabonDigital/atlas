@@ -8,6 +8,11 @@ const engine = fs.readFileSync(
     'utf8'
 );
 
+const documentOperations = fs.readFileSync(
+    'shared/atlas-subject-build-document-operations.js',
+    'utf8'
+);
+
 const loader = fs.readFileSync(
     'compass/shared/compass-subject-loader.js',
     'utf8'
@@ -24,13 +29,18 @@ assert.match(
 );
 
 assert.match(
-    engine,
-    /const operationTotals = operations\.reduce\([\s\S]*?totals\[operation\.kind\]/
+    documentOperations,
+    /const operationTotals = \{[\s\S]*?upgrade:[\s\S]*?'make-it-real':/
+);
+
+assert.match(
+    documentOperations,
+    /completedByKind\[[\s\S]*?operation\.kind[\s\S]*?current:[\s\S]*?completedByKind[\s\S]*?total:[\s\S]*?operationTotals/
 );
 
 assert.match(
     engine,
-    /completedByKind\[operation\.kind\][\s\S]*?current:[\s\S]*?completedByKind[\s\S]*?total:[\s\S]*?operationTotals/
+    /event[\s\S]*?operationTotals[\s\S]*?event\.current[\s\S]*?event\.total/
 );
 
 assert.doesNotMatch(

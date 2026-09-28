@@ -30,7 +30,7 @@ assert.doesNotMatch(
 
 assert.match(
   inside,
-  /atlas-inside-account-explore" href="\/\?entry=product">Explore Atlas/
+  /atlas-inside-account-explore" href="\/\?entry=product"[\s\S]*?atlas-inside-account-explore-label">Explore Atlas/
 );
 
 assert.match(
@@ -40,17 +40,7 @@ assert.match(
 
 assert.match(
   inside,
-  /href="\.\.\/compass\/index\.html">Explore Compass/
-);
-
-assert.match(
-  inside,
-  /href="\.\.\/arcade\/index\.html">Explore Arcade/
-);
-
-assert.match(
-  inside,
-  /product-entry-final[\s\S]*?href="\/\?entry=product">Explore Atlas/
+  /product-entry-final[\s\S]*?href="\/compass\/">Find a subject<[\s\S]*?href="\/arcade\/">Find a game</
 );
 
 assert.doesNotMatch(
@@ -60,7 +50,7 @@ assert.doesNotMatch(
 
 assert.match(
   inside,
-  /Ready to try it\?[\s\S]*?Open Atlas, choose a subject or game, and use it in your next lesson\./
+  /Get your next lesson sorted[\s\S]*?If nothing fits, tell Atlas what your learner needs\./
 );
 
 

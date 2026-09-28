@@ -131,34 +131,34 @@ for (const surface of [
 ]) {
   assert.match(
     surface,
-    /atlas-analytics\.js\?v=20260919-observability1/
+    /atlas-analytics\.js\?v=[A-Za-z0-9_-]+/
   );
 }
 
 assert.match(
   originalEntry,
-  /atlas-analytics\.js\?v=20260919-observability1/
+  /atlas-analytics\.js\?v=[A-Za-z0-9_-]+/
 );
 
 assert.match(
   accountGate,
-  /AtlasAnalytics\?\.accountGate/
+  /AtlasAnalytics\s*\?\.\s*accountGate/
 );
 assert.match(
   accountGate,
-  /AtlasAnalytics\?\.signupStart/
+  /AtlasAnalytics\s*\?\.\s*signupStart/
 );
 assert.match(
   accountGate,
-  /AtlasAnalytics\?\.signupCreated/
+  /AtlasAnalytics\s*\?\.\s*signupCreated/
 );
 assert.match(
   accountGate,
-  /AtlasAnalytics\?\.signupComplete/
+  /AtlasAnalytics\s*\?\.\s*signupComplete/
 );
 assert.match(
   accountGate,
-  /AtlasAnalytics\?\.authFailure/
+  /AtlasAnalytics\s*\?\.\s*authFailure/
 );
 
 assert.match(

@@ -145,7 +145,11 @@ assert.match(
 );
 assert.match(
     compass,
-    /const nextHubContentMarkup =\s*authenticated\s*\? \([\s\S]*?getActiveSessionSubjectCollectionTitle\(\)[\s\S]*?ownedLibraryHtml[\s\S]*?: renderSubjectCollection\([\s\S]*?remainingAtlasSubjects,[\s\S]*?'Atlas Subjects'/
+    /const nextHubContentMarkup =\s*authenticated\s*\? \([\s\S]*?getActiveSessionSubjectCollectionTitle\(\)[\s\S]*?ownedLibraryHtml[\s\S]*?renderSubjectCollection\([\s\S]*?remainingAtlasSubjects,[\s\S]*?'Atlas Subjects'/
+);
+assert.match(
+    compass,
+    /:\s*\([\s\S]*?renderAnonymousCreationHero\(\)[\s\S]*?renderSubjectCollection\([\s\S]*?remainingAtlasSubjects,[\s\S]*?'Atlas Subjects'/
 );
 assert.match(
     compass,

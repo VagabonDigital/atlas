@@ -89,7 +89,7 @@ assert.match(
 );
 assert.match(
     compass,
-    /await renderHub\(\{\s*initialSnapshot,\s*diagnosticSource: 'initial'\s*\}\);\s*\n\s*markLocalPresentationReady/
+    /async function init\(\)[\s\S]*?await renderHub\(\{\s*initialSnapshot,\s*diagnosticSource: 'initial'\s*\}\);[\s\S]*?markLocalPresentationReady\(/
 );
 
 const snapshotStart =

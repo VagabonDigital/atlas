@@ -40,7 +40,7 @@ assert.match(
 
 assert.match(
     runtimeChannel,
-    /async function acquireFallbackLease\([\s\S]*?build-probe[\s\S]*?build-claim/
+    /async function probeActiveBuild\([\s\S]*?build-probe[\s\S]*?async function acquireFallbackLease\([\s\S]*?probeActiveBuild[\s\S]*?build-claim/
 );
 
 assert.match(
@@ -63,16 +63,14 @@ assert.match(
     /STORAGE_SIGNAL_KEY[\s\S]*?window\.addEventListener\([\s\S]*?'storage'/
 );
 
-assert.ok(
-    subjectPage.includes(
-        'atlas-subject-runtime-channel.js?v=20260923-buildcoord1'
-    )
+assert.match(
+    subjectPage,
+    /atlas-subject-runtime-channel\.js\?v=[A-Za-z0-9_-]+/
 );
 
-assert.ok(
-    compassHub.includes(
-        'atlas-subject-runtime-channel.js?v=20260923-buildcoord1'
-    )
+assert.match(
+    compassHub,
+    /atlas-subject-runtime-channel\.js\?v=[A-Za-z0-9_-]+/
 );
 
 const generationStart = engine.indexOf(

@@ -143,7 +143,7 @@ assert.match(
 );
 assert.match(
     panelCreateEntry,
-    /setCreateExpanded\([\s\S]*?true[\s\S]*?focus: true/
+    /setCreateExpanded\([\s\S]*?true[\s\S]*?focus:\s*!isMobileSessionLayout\(\)/
 );
 assert.match(
     panel,

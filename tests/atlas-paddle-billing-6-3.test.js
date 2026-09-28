@@ -25,7 +25,7 @@ assert.match(worker, /Paddle-Signature/);
 assert.match(worker, /crypto\.subtle\.importKey/);
 assert.match(worker, /crypto\.subtle\.sign/);
 assert.match(worker, /\`\$\{timestamp\}:\$\{rawBody\}\`/);
-assert.match(worker, /Math\.abs\([\s\S]*nowSeconds - unixTime[\s\S]*\) > 5/);
+assert.match(worker, /const ageSeconds =[\s\S]*?Math\.abs\([\s\S]*?nowSeconds - unixTime[\s\S]*?\)[\s\S]*?if \(ageSeconds > 5\)/);
 assert.match(worker, /timestamp_out_of_tolerance/);
 assert.match(worker, /hmac_mismatch/);
 assert.doesNotMatch(

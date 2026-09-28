@@ -267,7 +267,7 @@ assert.match(
 
 assert.match(
     tutorSubjects,
-    /async function getSessionSubjects\([\s\S]*?SESSION_SUBJECTS_PREFIX/
+    /async function getSessionSubjects\([\s\S]*?readSessionSubjects\(sessionId\)/
 );
 
 assert.match(
