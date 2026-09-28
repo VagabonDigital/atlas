@@ -395,30 +395,35 @@ for (const [hubName, hubSource] of [
     ['Compass', compass],
     ['Arcade', arcade]
 ]) {
-    const mobileAccountIndex = hubSource.indexOf(
-        'data-atlas-account-control="mobile"'
-    );
     const mobileSearchIndex = hubSource.indexOf(
-        'data-atlas-search',
-        mobileAccountIndex
+        'data-atlas-search'
+    );
+    const mobileAccountIndex = hubSource.indexOf(
+        'data-atlas-account-control="mobile"',
+        mobileSearchIndex
     );
     const mobileMenuIndex = hubSource.indexOf(
         'aria-label="Menu"',
-        mobileSearchIndex
+        mobileAccountIndex
     );
 
     assert.ok(
-        mobileAccountIndex >= 0 &&
-        mobileSearchIndex > mobileAccountIndex &&
-        mobileMenuIndex > mobileSearchIndex,
+        mobileSearchIndex >= 0 &&
+        mobileAccountIndex > mobileSearchIndex &&
+        mobileMenuIndex > mobileAccountIndex,
         hubName +
-            ' mobile account control should precede Search, with Search beside Menu'
+            ' mobile controls should remain learner, Search, Account, Menu'
     );
 }
 
 assert.match(
     accountChrome,
-    /const searchButton =\s*mobileActions\.querySelector\([\s\S]*?\[data-atlas-search\][\s\S]*?insertBefore\(\s*control,\s*searchButton\s*\)/
+    /const menuButton =[\s\S]*?aria-label[\s\S]*?Menu[\s\S]*?insertBefore\(\s*control,\s*menuButton\s*\)/
+);
+
+assert.match(
+    accountChrome,
+    /else if \(searchButton\)[\s\S]*?insertAdjacentElement\(\s*'afterend',[\s\S]*?control/
 );
 
 assert.match(
