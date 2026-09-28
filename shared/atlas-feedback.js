@@ -43,6 +43,39 @@
     let previousBodyOverflow = '';
     let submitting = false;
 
+    function captureContext() {
+        return {
+            world:
+                String(
+                    document.body?.dataset.atlasWorld || ''
+                ),
+
+            surface:
+                String(
+                    document.body?.dataset.atlasSurface || ''
+                ),
+
+            path:
+                window.location.pathname +
+                window.location.search +
+                window.location.hash,
+
+            title:
+                document.title || '',
+
+            theme:
+                document.documentElement.dataset.theme || '',
+
+            viewport: {
+                width:
+                    window.innerWidth || 0,
+
+                height:
+                    window.innerHeight || 0
+            }
+        };
+    }
+
     function installStyles() {
         if (
             document.getElementById(
@@ -300,7 +333,7 @@
                 background:
                     var(--accent, #4d7184);
                 color:
-                    var(--accent-ink, #ffffff);
+                    var(--atlas-modal-accent-ink, #ffffff);
                 font: inherit;
                 font-size: 0.84rem;
                 font-weight: 600;
@@ -805,7 +838,14 @@
                             JSON.stringify({
                                 message,
                                 replyName,
-                                replyEmail
+                                replyEmail,
+
+                                context:
+                                    captureContext(),
+
+                                clientTimestamp:
+                                    new Date()
+                                        .toISOString()
                             })
                     }
                 );
