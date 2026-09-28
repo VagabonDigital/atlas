@@ -2,7 +2,7 @@ const assert = require('assert');
 const fs = require('fs');
 
 const root = fs.readFileSync('index.html', 'utf8');
-const inside = fs.readFileSync('tutors/index.html', 'utf8');
+const inside = fs.readFileSync('inside-atlas/index.html', 'utf8');
 const accountGate = fs.readFileSync(
   'shared/atlas-account-gate.js',
   'utf8'
@@ -10,7 +10,7 @@ const accountGate = fs.readFileSync(
 
 assert.match(
   root,
-  /function enterAtlasFromWelcome\(\)[\s\S]*?atlas::welcomeSeen:v1[\s\S]*?window\.location\.href = '\.\/tutors\/'/
+  /function enterAtlasFromWelcome\(\)[\s\S]*?atlas::welcomeSeen:v1[\s\S]*?window\.location\.href = '\.\/inside-atlas\/'/
 );
 
 assert.match(

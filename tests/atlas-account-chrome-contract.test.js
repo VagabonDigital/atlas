@@ -6,7 +6,7 @@ const vm = require('node:vm');
 
 const CHROME_PATH = 'shared/atlas-account-chrome.js';
 const REGISTRY_PATH = 'shared/atlas-content-registry.js';
-const INSIDE_PATH = 'tutors/index.html';
+const INSIDE_PATH = 'inside-atlas/index.html';
 
 function read(path) {
     return fs.readFileSync(path, 'utf8');

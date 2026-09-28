@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const pricing = fs.readFileSync('pricing/index.html', 'utf8');
 const pricingCss = fs.readFileSync('pricing/pricing.css', 'utf8');
 const accountChromeCss = fs.readFileSync('shared/atlas-account-chrome.css', 'utf8');
-const inside = fs.readFileSync('tutors/index.html', 'utf8');
+const inside = fs.readFileSync('inside-atlas/index.html', 'utf8');
 
 assert.match(pricing, /https:\/\/atlasfortutors\.com\/pricing\//);
 assert.match(pricing, /The magic of Atlas Pro/);
@@ -184,7 +184,7 @@ assert.match(
 );
 assert.match(
   pricing,
-  /class="footer-links"[\s\S]*?href="\/tutors\/"[\s\S]*?href="\/privacy\/"[\s\S]*?href="\/terms\/"[\s\S]*?href="\/refunds\//,
+  /class="footer-links"[\s\S]*?href="\/inside-atlas\/"[\s\S]*?href="\/privacy\/"[\s\S]*?href="\/terms\/"[\s\S]*?href="\/refunds\//,
   'Pricing should link back to Inside Atlas and the shared legal surfaces.'
 );
 assert.match(

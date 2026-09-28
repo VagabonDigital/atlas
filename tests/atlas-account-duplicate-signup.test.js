@@ -39,7 +39,7 @@ const ownedSubject = fs.readFileSync(
 );
 
 const insideAtlas = fs.readFileSync(
-    'tutors/index.html',
+    'inside-atlas/index.html',
     'utf8'
 );
 

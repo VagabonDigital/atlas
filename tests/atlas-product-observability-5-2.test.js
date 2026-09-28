@@ -46,7 +46,7 @@ const arcade = fs.readFileSync(
   'utf8'
 );
 const inside = fs.readFileSync(
-  'tutors/index.html',
+  'inside-atlas/index.html',
   'utf8'
 );
 const tgw = fs.readFileSync(

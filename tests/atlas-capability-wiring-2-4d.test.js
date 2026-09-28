@@ -26,7 +26,7 @@ const gate = read('shared/atlas-capability-gate.js');
 const access = read('shared/atlas-access.js');
 const atlas = read('index.html');
 const arcade = read('arcade/index.html');
-const tutors = read('tutors/index.html');
+const tutors = read('inside-atlas/index.html');
 
 [
     'async function openCreateCategoryDialog',

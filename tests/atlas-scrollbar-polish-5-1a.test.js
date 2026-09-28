@@ -22,7 +22,7 @@ const memory = fs.readFileSync(
   'utf8'
 );
 const insideAtlas = fs.readFileSync(
-  'tutors/index.html',
+  'inside-atlas/index.html',
   'utf8'
 );
 const notFound = fs.readFileSync(
