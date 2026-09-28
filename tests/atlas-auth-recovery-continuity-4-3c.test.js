@@ -217,8 +217,8 @@ function createResourceIntent(
         resourceId
     }
 ) {
-    return runtime.window
-        .AtlasReturnIntent.create({
+    runtime.context.__intentInput =
+        JSON.stringify({
             action:
                 'open-gated-content',
             destination,
@@ -228,6 +228,16 @@ function createResourceIntent(
                     resourceId
             }
         });
+
+    const intent =
+        vm.runInNewContext(
+            'window.AtlasReturnIntent.create(JSON.parse(__intentInput))',
+            runtime.context
+        );
+
+    delete runtime.context.__intentInput;
+
+    return intent;
 }
 
 function testSharedSubjectRecoveryRoundTrip() {

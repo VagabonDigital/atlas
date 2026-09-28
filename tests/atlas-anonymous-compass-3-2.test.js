@@ -283,7 +283,14 @@ assert.match(
 );
 assert.match(
     engine,
-    /beginModule\(\{\s*skipPublicAccessGate: true\s*\}\)/
+    /installCompassPublicAccessResume[\s\S]*?updateCoverActionUI\(\)/
+);
+assert.doesNotMatch(
+    engine.slice(
+        engine.indexOf('async function installCompassPublicAccessResume()'),
+        engine.indexOf('function applyCompassPublicAccessChrome()')
+    ),
+    /beginModule\(\{/
 );
 assert.match(
     engine,
