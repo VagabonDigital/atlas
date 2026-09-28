@@ -152,7 +152,7 @@ Atlas has **two distinct deployment boundaries**. Do not conflate them.
 
 ### Public Atlas web application
 
-`wrangler.jsonc` configures the static Atlas Worker named `atlas`.
+`wrangler.atlas-web.jsonc` is the canonical configuration for the static Atlas Worker named `atlas`.
 
 The static asset directory remains the repository root:
 
@@ -168,7 +168,7 @@ The static asset directory remains the repository root:
 
 Cloudflare's GitHub integration currently builds/deploys the public `atlas` Worker from changes on `main`. A successful repository push is still expected to pass the permanent GitHub CI checks as an independent regression signal.
 
-There is also a byte-identical `wrangler.atlas-web.jsonc`. Its external deployment role has not yet been proven; do not delete it until that is verified.
+Cloudflare's production deploy and version commands explicitly use `wrangler.atlas-web.jsonc`; keep that filename aligned with the external build configuration.
 
 ### Atlas AI/backend Worker
 
