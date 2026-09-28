@@ -74,15 +74,14 @@ assert.match(
   /data-account-menu-feedback>Message Atlas<\/button>[\s\S]*?openFeedbackFromAccount/
 );
 
-const createIndex = inside.indexOf('<strong>Create</strong>');
-const shapeIndex = inside.indexOf('<strong>Shape</strong>');
-const teachIndex = inside.indexOf('<strong>Teach</strong>');
+assert.match(
+  inside,
+  /hero-lede[\s\S]*?Create or choose[\s\S]*?shape it around the learner[\s\S]*?return with context, language and momentum/
+);
 
-assert.ok(
-  createIndex >= 0 &&
-  shapeIndex > createIndex &&
-  teachIndex > shapeIndex,
-  'Inside Atlas should present Create → Shape → Teach in that order'
+assert.match(
+  inside,
+  /power-rail[\s\S]*?<strong>Teach<\/strong>[\s\S]*?<strong>Create<\/strong>[\s\S]*?<strong>Remember<\/strong>/
 );
 
 console.log(

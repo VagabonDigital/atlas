@@ -44,7 +44,7 @@ assert.match(
 
 assert.match(
   boot,
-  /function handoffReady[\s\S]*?payment-update[\s\S]*?data-open[\s\S]*?\.atlas-pro-checkout-loading\[open\]/,
+  /function handoffReady[\s\S]*?payment-update[\s\S]*?dataset\.open[\s\S]*?getComputedStyle[\s\S]*?visibility[\s\S]*?display[\s\S]*?opacity/,
   'Recovery boot must hand off only when the canonical checkout/payment surface is visible.'
 );
 

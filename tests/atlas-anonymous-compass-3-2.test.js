@@ -300,7 +300,7 @@ assert.match(
 );
 assert.match(
     search,
-    /item\?\.world === 'compass'[\s\S]*?item\?\.type === 'subject'[\s\S]*?item\?\.publicAccess === 'preview'[\s\S]*?return 'Preview'/
+    /!hasStoredAtlasAccountSession\(\)[\s\S]*?item\?\.publicAccess === 'preview'[\s\S]*?item\?\.world === 'compass'[\s\S]*?item\?\.type === 'subject'[\s\S]*?return 'Preview'/
 );
 assert.equal(
     (
