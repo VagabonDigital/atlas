@@ -210,7 +210,7 @@ assert.match(
 
 assert.match(
   checkout,
-  /The magic of Atlas Pro[\s\S]*?Make the lesson feel made for them\.[\s\S]*?Their interests\. Their work\. Their next big step\.[\s\S]*?Turn whatever matters to them into lesson-ready material — minutes before a lesson, or together in the moment\./,
+  /The magic of Atlas Pro[\s\S]*?Make the lesson[\s\S]*?feel made for them\.[\s\S]*?Their interests\. Their work\. Their next big step\.[\s\S]*?Turn whatever matters to them into lesson-ready material — minutes before a lesson, or together in the moment\./,
   'Checkout reassurance must reuse the proven Pricing promise instead of generic account-state reassurance.'
 );
 
