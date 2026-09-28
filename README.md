@@ -109,16 +109,9 @@ npm run verify
 
 Runs every root `tests/*.test.js` file independently.
 
-The suite contains historical source-shape contracts as well as current runtime/VM regressions. When permanent CI was introduced, 38 historical contracts were already failing against current product source. Those were recorded explicitly in `tests/known-failing-contracts.json`; one has since been repaired, leaving **37 known historical failures**.
+The suite contains historical source-shape contracts as well as current runtime/VM regressions. Every discovered root test is blocking: any test failure makes `npm test` exit non-zero and fails CI.
 
-Those tests are **still executed**. CI behaves as follows:
-
-- a new failure outside the baseline fails CI;
-- a quarantined historical failure remains visible but does not fail normal CI;
-- a quarantined test that starts passing fails CI until it is removed from the baseline;
-- `npm run test:strict` treats all failures as blocking.
-
-The quarantine is a migration aid, not permission to add new failing tests.
+There is no known-failure quarantine and no separate strict mode. A green root test run means the complete root suite passed.
 
 ### Compass cover check
 
