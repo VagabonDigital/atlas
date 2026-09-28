@@ -26,7 +26,7 @@
         'atlas::ownerMode';
 
     const INBOX_URL =
-        './tutors/admin.html';
+        '/admin/';
 
     const IDS = {
         overlay: 'atlas-feedback-overlay',

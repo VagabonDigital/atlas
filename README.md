@@ -21,7 +21,8 @@ The core product loop is **Create → Shape → Teach → Continuity**. Reposito
 | `arcade/` | Arcade hub, current public games and Engine One engineering. |
 | `memory/` | Learner Memory surface. |
 | `pricing/` | Public Atlas pricing and Pro entry. |
-| `tutors/` | **Inside Atlas** public acquisition/product explanation. The folder name is historical. `tutors/admin.html` is the internal Atlas Inbox and is not conceptually part of Inside Atlas. |
+| `tutors/` | **Inside Atlas** public acquisition/product explanation. The folder name is historical. |
+| `admin/` | Internal Atlas Inbox surface. Its privileged backend operations remain authorization-protected independently of this public route. |
 | `shared/` | Cross-product browser runtime, account/access, persistence, subject-build, navigation and UI modules. It currently also contains the backend Worker source at `shared/worker.js`. |
 | `assets/` | Shared product, branding and Atlas Original media. |
 | `tests/` | Root Atlas regression and source-contract tests. |
