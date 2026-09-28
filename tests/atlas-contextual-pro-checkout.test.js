@@ -509,7 +509,7 @@ assert.doesNotMatch(
 
 assert.match(
   subscription,
-  /mobile-payment-success/
+  /payment-update-success/
 );
 
 assert.match(
