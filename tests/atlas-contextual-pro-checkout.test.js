@@ -222,7 +222,7 @@ assert.doesNotMatch(
 
 assert.match(
   checkout,
-  /Atlas%20Logo\.png/,
+  /\/assets\/branding\/atlas\/atlas-logo\.png/,
   'Desktop checkout summary must use the Atlas product icon.'
 );
 
