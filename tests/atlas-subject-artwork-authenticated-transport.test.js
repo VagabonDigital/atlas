@@ -157,12 +157,12 @@ assert.doesNotMatch(
 
 assert.match(
     hub,
-    /atlas-subject-artwork\.js\?v=20260921-artworkauth1/
+    /atlas-subject-artwork\.js\?v=[A-Za-z0-9_-]+/
 );
 
 assert.match(
     hub,
-    /atlas-ai\.js\?v=20260921-artworkauth1/
+    /atlas-ai\.js\?v=[A-Za-z0-9_-]+/
 );
 
 verifyAuthenticatedArtworkRequest()

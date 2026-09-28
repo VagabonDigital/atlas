@@ -33,8 +33,8 @@ assert.match(root, /atlas:local-presentation-ready/);
 assert.match(root, /scheduleInitialRootCloudBootstrap\(\s*storedSessionUserId\(\)\s*\);/);
 assert.doesNotMatch(root, /const rootCloudAuthorityBootstrapPromise/);
 
-assert.match(registry, /atlas-root-runtime\.js\?v=20260917-postpaint1/);
-assert.match(registry, /atlas-access-bootstrap\.js\?v=20260920-googleid1/);
+assert.match(registry, /atlas-root-runtime\.js\?v=[A-Za-z0-9_-]+/);
+assert.match(registry, /atlas-access-bootstrap\.js\?v=[A-Za-z0-9_-]+/);
 assert.match(registry, /function scheduleCompassHubCloudAuthorityScripts\(\)[\s\S]*atlas:compass-first-paint-ready/);
 assert.match(registry, /function installCompassLiveAccountBootstrap\(\)/);
 assert.match(

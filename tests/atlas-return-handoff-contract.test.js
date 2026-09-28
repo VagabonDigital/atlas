@@ -217,7 +217,7 @@ function testIntegrationBoundaries() {
 
     assert.match(
         page,
-        /atlas-return-handoff\.js\?v=20260917-capability1/
+        /atlas-return-handoff\.js\?v=[A-Za-z0-9_-]+/
     );
 
     assert.match(

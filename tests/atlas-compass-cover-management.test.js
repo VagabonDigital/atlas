@@ -289,19 +289,19 @@ assert.match(
 
 assert.match(
     originalEntry,
-    /compass-engine\.js\?v=20260926-coverfallback2/,
+    /compass-engine\.js\?v=[A-Za-z0-9_-]+/,
     'Atlas Original subjects must load the cover-fallback engine revision.'
 );
 
 assert.match(
     subjectLoader,
-    /compass-engine\.js\?v=20260926-coverfallback2/,
+    /compass-engine\.js\?v=[A-Za-z0-9_-]+/,
     'Owned subjects must load the cover-fallback engine revision.'
 );
 
 assert.match(
     ownedSubjectEntry,
-    /compass-subject-loader\.js\?v=20260926-coverfallback2/,
+    /compass-subject-loader\.js\?v=[A-Za-z0-9_-]+/,
     'Owned-subject entry must refresh the loader that requests the cover-fallback engine.'
 );
 

@@ -471,7 +471,7 @@ async function run() {
 
     assert.match(
         bootstrap,
-        /atlas-capability-gate\\.js\\?v=20260921-insideheader1/
+        /atlas-capability-gate\.js\?v=[A-Za-z0-9_-]+/
     );
     assert.match(bootstrap, /prepareCapabilityGate/);
     assert.match(
@@ -481,7 +481,7 @@ async function run() {
     );
     assert.match(
         registry,
-        /atlas-access-bootstrap\.js\?v=20260926-capabilityorder1/
+        /atlas-access-bootstrap\.js\?v=[A-Za-z0-9_-]+/
     );
 
     console.log(

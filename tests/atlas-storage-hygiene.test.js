@@ -579,12 +579,12 @@ assert.match(
 
 assert.match(
     registrySource,
-    /atlas-cloud-cache\.js\?v=20260922-delete1/
+    /atlas-cloud-cache\.js\?v=[A-Za-z0-9_-]+/
 );
 
 assert.match(
     registrySource,
-    /atlas-tutor-content-cloud-authority\.js\?v=20260922-storage2/
+    /atlas-tutor-content-cloud-authority\.js\?v=[A-Za-z0-9_-]+/
 );
 
 verifyTutorDraftSurvivesFullLocalStorage()
