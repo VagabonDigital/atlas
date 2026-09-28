@@ -1,5 +1,0 @@
-{
-  "capturedAtCommit": "495941fc565cbfffdbe375ace95c26fc5b0f3455",
-  "note": "No historical contract failures remain. Any root Atlas test failure is a regression and must fail verification.",
-  "tests": []
-}
