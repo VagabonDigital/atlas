@@ -294,13 +294,13 @@ assert.match(
 
 assert.match(
   checkout,
-  /Paddle-Logo-1\.png/,
+  /\/assets\/branding\/paddle\/paddle-wordmark-black\.png/,
   'Checkout Paddle introduction must include the Paddle wordmark.'
 );
 
 assert.match(
   checkout,
-  /Paddle%20Logo%20Night%20Mode\.png/,
+  /\/assets\/branding\/paddle\/paddle-wordmark-white\.png/,
   'Night-mode checkout must use the white Paddle wordmark.'
 );
 
