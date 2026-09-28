@@ -271,11 +271,11 @@ assert.match(
 );
 assert.match(
   inside,
-  /href="\.\.\/compass\/index\.html" data-atlas-product-entry/
+  /href="\/compass\/" data-atlas-product-entry/
 );
 assert.match(
   inside,
-  /href="\.\.\/arcade\/index\.html" data-atlas-product-entry/
+  /href="\/arcade\/" data-atlas-product-entry/
 );
 assert.match(
   inside,

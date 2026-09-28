@@ -210,7 +210,21 @@ for (const active of [null, 'missing']) {
     assert.equal(env.sessionStorage.getItem(activeKey), created.id);
     assert.equal(env.bridge.readAppearanceMode(), 'night');
     assert.deepEqual(JSON.parse(env.localStorage.getItem(sessionsKey)).find(item => item.id === created.id), created);
-    const memory = { schemaVersion: 1, sessionId: 'learner-4', about: '', interests: '', notes: 'Remember', nextTime: '', updatedAt: 1000 };
+    const memory = {
+        schemaVersion: 2,
+        sessionId: 'learner-4',
+        about: '',
+        interests: '',
+        goals: '',
+        suggestionSources: {
+            about: false,
+            interests: true,
+            goals: true
+        },
+        notes: 'Remember',
+        nextTime: '',
+        updatedAt: 1000
+    };
     mutation('writeLearnerMemory', ['learner-4', { notes: 'Remember' }], memory,
         [{ type: 'atlas:learner-memory-change', detail: { sessionId: 'learner-4', memory } }]);
     assert.deepEqual(JSON.parse(env.localStorage.getItem('atlas::learnerMemory'))['learner-4'], memory);
