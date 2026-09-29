@@ -384,6 +384,17 @@
         return [
             {
                 group: 'Atlas Pages',
+                title: 'Inside Atlas',
+                sub: 'How Atlas works',
+                type: 'item',
+                hub: false,
+                planned: false,
+                disabled: false,
+                searchText: 'inside atlas how atlas works overview introduction learn about atlas',
+                action: () => navigateTo('inside-atlas/index.html')
+            },
+            {
+                group: 'Atlas Pages',
                 title: 'Pricing',
                 sub: 'Plans & billing',
                 type: 'item',
