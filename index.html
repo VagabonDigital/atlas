@@ -4352,6 +4352,25 @@
   <script src="./shared/atlas-content-registry.js?v=20260926-sharedworkerbatch5"></script>
   <script src="./shared/atlas-session-panel.js?v=20260926-duplicatesignup1"></script>
   <script src="./shared/atlas-search.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var url = new URL(window.location.href);
+      if (url.searchParams.get('search') !== '1') return;
+
+      url.searchParams.delete('search');
+      window.history.replaceState(
+        null,
+        '',
+        url.pathname +
+          (url.searchParams.toString() ? '?' + url.searchParams.toString() : '') +
+          url.hash
+      );
+
+      window.AtlasSearch?.open?.();
+    })();
+  </script>
   <script src="./shared/atlas-feedback.js"></script>
   <script>
     'use strict';
