@@ -80,14 +80,15 @@ button {
   position: relative;
   z-index: 1;
 }
-#chrome {
+#landing-chrome {
+  min-height: 72px;
   padding: 20px 38px 0;
 }
-#chrome .arcade-game-chrome {
+#landing-chrome .arcade-game-chrome {
   position: relative;
   inset: auto;
 }
-#chrome .arcade-game-chrome-back {
+#landing-chrome .arcade-game-chrome-back {
   color: #285288;
 }
 #app {
@@ -424,17 +425,32 @@ button {
   margin-left: -22px;
 }
 .game-heading {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  justify-content: space-between;
-  padding: 25px 48px 24px;
+  padding: 18px 32px;
   border-bottom: 1px solid #c8dbeeaa;
-  background: #f7fbfd66;
-  gap: 25px;
-  min-height: 96px;
+  background: #f7fbfd99;
+  gap: 20px;
+  min-height: 76px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.game-heading-left,
+.game-heading-right {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+}
+.game-heading-left {
+  gap: 12px;
+}
+.game-heading-right {
+  justify-content: flex-end;
+  gap: 10px;
 }
 .game-heading .brand {
-  font-size: clamp(29px, 3vw, 46px);
+  font-size: clamp(26px, 2.5vw, 38px);
 }
 .round-label {
   text-align: center;
@@ -1324,16 +1340,23 @@ dialog li {
     padding: 21px 17px;
   }
   .game-heading {
-    flex-wrap: wrap;
-    padding: 20px 23px 16px;
-    gap: 15px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 12px 16px;
+    gap: 10px 14px;
+  }
+  .game-heading-left {
+    gap: 6px;
+  }
+  .game-heading-right {
+    grid-column: 1 / -1;
+    gap: 8px;
   }
   .game-heading .brand {
-    font-size: 34px;
+    font-size: 30px;
     letter-spacing: -1.6px;
   }
   .round-label {
-    margin-left: auto;
+    margin-left: 0;
     font-size: 9px;
     letter-spacing: 2px;
   }
@@ -1341,8 +1364,9 @@ dialog li {
     font-size: 8px;
   }
   .utilities {
-    width: 100%;
-    justify-content: flex-end;
+    flex: 1;
+    min-width: 0;
+    justify-content: flex-start;
     gap: 8px;
   }
   .utilities button {
@@ -1517,10 +1541,24 @@ dialog li {
     font-size: 14px;
   }
   .game-heading {
-    padding: 18px 18px 12px;
+    padding: 10px 12px;
+    gap: 8px 10px;
+  }
+  .game-heading-left {
+    min-width: 0;
   }
   .game-heading .brand {
-    font-size: 30px;
+    overflow: hidden;
+    font-size: clamp(22px, 7vw, 28px);
+    text-overflow: ellipsis;
+  }
+  .game-heading-right {
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+  .game-heading-right::-webkit-scrollbar {
+    display: none;
   }
   .board {
     display: flex;
@@ -1714,59 +1752,36 @@ dialog li {
     font-size: clamp(24px, 7.6vw, 30px);
   }
 }
-#chrome {
-  min-height: 65px;
-  padding: 15px 38px 0;
-}
-#chrome .arcade-game-chrome {
-  position: relative;
-  inset: auto;
+#landing-chrome .arcade-game-chrome {
   height: 44px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-#chrome .arcade-game-chrome-back,
-#chrome .arcade-game-chrome-actions {
+#landing-chrome .arcade-game-chrome-back,
+#landing-chrome .arcade-game-chrome-actions {
   position: static;
 }
-#chrome .arcade-game-chrome-back {
+#landing-chrome .arcade-game-chrome-back {
   color: #355c89;
 }
-#chrome .arcade-game-chrome-session,
-#chrome .arcade-game-chrome-icon-btn {
+#landing-chrome .arcade-game-chrome-session,
+#landing-chrome .arcade-game-chrome-icon-btn {
   background: #ffffffb8;
   border-color: #fff;
   color: #355c89;
 }
-#playing-chrome:not([hidden]) {
+#playing-chrome[hidden] {
+  display: none;
+}
+#arcade-game-return-root,
+#arcade-game-actions-root {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  min-height: 44px;
 }
-.arcade-game-chrome-game-actions {
+#fw-header-brand {
   display: flex;
-  gap: 9px;
-  align-items: center;
-}
-.arcade-game-chrome-game-actions button,
-.arcade-game-chrome-game-return {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 17px;
-  background: #ffffff9c;
-  border: 1px solid #fff9;
-  border-radius: 30px;
-  color: #315c8d;
-  font-size: 12px;
-  min-height: 39px;
-}
-.arcade-game-chrome-game-icon-btn {
-  width: 40px;
-  padding: 10px !important;
-  justify-content: center;
+  min-width: 0;
 }
 .timer-progress {
   stroke: color-mix(in srgb, #2991ff calc(100% - var(--heat) * 100%), #ff3514);
@@ -1786,17 +1801,9 @@ dialog li {
     0 0 calc(var(--heat) * 90px) calc(var(--heat) * 18px) #ff6a3144;
 }
 @media (max-width: 760px) {
-  #chrome {
-    padding: 10px 20px 0;
+  #landing-chrome {
     min-height: 57px;
-  }
-  .arcade-game-chrome-game-actions {
-    gap: 5px;
-  }
-  .arcade-game-chrome-game-actions button,
-  .arcade-game-chrome-game-return {
-    padding: 8px 12px;
-    font-size: 11px;
+    padding: 10px 20px 0;
   }
 }
 @media (prefers-reduced-motion: reduce) {
