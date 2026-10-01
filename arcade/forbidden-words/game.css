@@ -14,6 +14,44 @@
 * {
   box-sizing: border-box;
 }
+html {
+  min-height: 100%;
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color:
+    rgba(90, 74, 110, 0.28)
+    transparent;
+}
+html::-webkit-scrollbar {
+  width: 10px;
+}
+html::-webkit-scrollbar-track {
+  background: transparent;
+}
+html::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: rgba(90, 74, 110, 0.28);
+  background-clip: padding-box;
+}
+html::-webkit-scrollbar-thumb:hover {
+  background: rgba(90, 74, 110, 0.42);
+  background-clip: padding-box;
+}
+html[data-theme="night"] {
+  scrollbar-color:
+    rgba(207, 193, 209, 0.30)
+    transparent;
+}
+html[data-theme="night"]::-webkit-scrollbar-thumb {
+  background: rgba(207, 193, 209, 0.30);
+  background-clip: padding-box;
+}
+html[data-theme="night"]::-webkit-scrollbar-thumb:hover {
+  background: rgba(207, 193, 209, 0.44);
+  background-clip: padding-box;
+}
 body {
   margin: 0;
   min-height: 100vh;
@@ -1141,12 +1179,44 @@ body:before {
 dialog {
   max-width: 600px;
   width: calc(100% - 32px);
+  max-height: min(88svh, 46rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(90, 74, 110, 0.28) transparent;
   border: 1px solid white;
   border-radius: 25px;
   padding: 38px;
   box-shadow: 0 30px 100px #16355766;
   background: #f8fbff;
   color: #1c3555;
+}
+dialog::-webkit-scrollbar {
+  width: 10px;
+}
+dialog::-webkit-scrollbar-track {
+  background: transparent;
+}
+dialog::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: rgba(90, 74, 110, 0.28);
+  background-clip: padding-box;
+}
+dialog::-webkit-scrollbar-thumb:hover {
+  background: rgba(90, 74, 110, 0.42);
+  background-clip: padding-box;
+}
+html[data-theme="night"] dialog {
+  scrollbar-color: rgba(207, 193, 209, 0.30) transparent;
+}
+html[data-theme="night"] dialog::-webkit-scrollbar-thumb {
+  background: rgba(207, 193, 209, 0.30);
+  background-clip: padding-box;
+}
+html[data-theme="night"] dialog::-webkit-scrollbar-thumb:hover {
+  background: rgba(207, 193, 209, 0.44);
+  background-clip: padding-box;
 }
 dialog::backdrop {
   background: #16355766;
@@ -1171,14 +1241,44 @@ dialog li {
   padding-left: 5px;
   margin-bottom: 10px;
 }
-.close {
+.rules-close {
   position: absolute;
   right: 15px;
   top: 12px;
-  background: none;
-  font-size: 30px;
-  color: #7890ae;
-  padding: 0 12px;
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  min-height: 2rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--atlas-modal-muted, #7890ae);
+  cursor: pointer;
+  font: inherit;
+  font-size: 1.35rem;
+  line-height: 1;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    color 0.18s ease;
+}
+#rules .rules-close:hover,
+#rules .rules-close:focus-visible {
+  border-color: var(--atlas-modal-border-strong, rgba(76, 57, 72, 0.21));
+  background: var(--atlas-modal-control-hover, #f0ebe6);
+  color: var(--atlas-modal-heading, #302730);
+  transform: none;
+  filter: none;
+}
+#rules .rules-close:active {
+  transform: none;
+}
+#rules .rules-close:focus-visible {
+  outline: 2px solid var(--atlas-modal-accent, #6f536f);
+  outline-offset: 2px;
 }
 .sr-only {
   position: absolute;
@@ -1424,47 +1524,6 @@ dialog li {
     font-size: 15px;
     min-width: 34px;
   }
-  .learner-game-heading {
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      "brand round"
-      "actions actions";
-    min-height: 82px;
-    padding: 7px 12px 8px;
-    gap: 5px 10px;
-  }
-  .learner-game-brand {
-    grid-area: brand;
-  }
-  .learner-game-brand .brand {
-    font-size: clamp(21px, 6vw, 26px);
-  }
-  .learner-game-heading .round-label {
-    grid-area: round;
-    font-size: 8px;
-    letter-spacing: 1.6px;
-  }
-  .learner-game-heading .round-label span {
-    margin-top: 2px;
-    font-size: 7px;
-    letter-spacing: 1px;
-  }
-  .learner-game-actions {
-    grid-area: actions;
-    justify-content: flex-end;
-    gap: 6px;
-  }
-  .learner-game-actions .quiet {
-    min-height: 32px;
-    padding: 5px 10px;
-    font-size: 10px;
-  }
-  .learner-game-actions .help-button {
-    width: 32px;
-    min-width: 32px;
-    padding: 5px;
-    font-size: 14px;
-  }
   .board {
     grid-template-columns: minmax(0, 1fr) minmax(170px, 0.75fr);
     gap: 25px;
@@ -1626,13 +1685,6 @@ dialog li {
   }
   .invitation > p:not(.eyebrow):not(.small-note) {
     font-size: 14px;
-  }
-  .learner-game-heading {
-    min-height: 78px;
-    padding: 6px 10px 7px;
-  }
-  .learner-game-brand .brand {
-    font-size: clamp(20px, 6.5vw, 24px);
   }
 
   .game-heading-left {
@@ -1989,36 +2041,65 @@ dialog li {
     padding: 14px 20px 0;
   }
 
-  #playing-chrome.game-heading {
+  #playing-chrome.arcade-game-chrome-host {
+    position: relative;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    grid-template-areas: "left actions" !important;
+    height: 56px !important;
+    min-height: 56px;
+    padding: 0 10px !important;
+    column-gap: 8px !important;
+    row-gap: 0 !important;
     overflow: visible;
   }
 
-  #playing-chrome .game-heading-left,
-  #playing-chrome .game-heading-right {
+  #playing-chrome .arcade-game-chrome-host-left {
+    grid-area: left !important;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  #playing-chrome .arcade-game-chrome-host-actions {
+    grid-area: actions !important;
+    min-width: 0;
+    justify-self: end;
+    justify-content: flex-end !important;
     overflow: visible;
+  }
+
+  #fw-header-round.arcade-game-chrome-host-context {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    grid-area: auto !important;
+    margin: 0;
+    padding: 0;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    font-size: 9px;
+    letter-spacing: 2px;
+    white-space: nowrap;
   }
 
   #playing-chrome .game-heading-left {
     gap: 6px;
+    min-width: 0;
   }
 
   #playing-chrome .game-heading-right {
     gap: 7px;
+    min-width: 0;
+    overflow: visible;
     padding-bottom: 0;
   }
 
   #playing-chrome .brand {
-    overflow: visible;
+    display: block;
+    overflow: hidden;
     font-size: clamp(20px, 3.6vw, 26px);
     letter-spacing: -1.35px;
-    text-overflow: clip;
-  }
-
-  #fw-header-round {
-    padding-left: 44px;
-    text-align: left;
-    font-size: 9px;
-    letter-spacing: 2px;
+    text-overflow: ellipsis;
   }
 
   #fw-header-pause .quiet {
@@ -2060,6 +2141,8 @@ dialog li {
   .arcade-game-chrome-game-menu #fw-header-utilities button:focus-visible {
     background: var(--game-chrome-return-hover-surface, rgba(15, 25, 35, 0.05));
     color: var(--game-chrome-control-strong, #152235);
+    transform: none;
+    filter: none;
   }
 
   .arcade-game-chrome-game-menu #fw-header-utilities .help-button {
@@ -2077,12 +2160,56 @@ dialog li {
     justify-content: center;
     font-size: 15px;
   }
-}
 
+  .learner-game-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-areas: "brand round actions";
+    min-height: 56px;
+    padding: 0 10px;
+    gap: 8px;
+  }
+
+  .learner-game-brand {
+    grid-area: brand;
+    min-width: 0;
+  }
+
+  .learner-game-heading .round-label {
+    grid-area: round;
+    margin: 0;
+    align-self: center;
+    justify-self: center;
+    font-size: 8px;
+    letter-spacing: 1.8px;
+    white-space: nowrap;
+  }
+
+  .learner-game-actions {
+    grid-area: actions;
+    min-width: 0;
+    justify-self: end;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+
+  .learner-game-brand .brand {
+    display: block;
+    overflow: hidden;
+    font-size: clamp(19px, 4.5vw, 24px);
+    letter-spacing: -1.2px;
+    text-overflow: ellipsis;
+  }
+}
 @media (max-width: 520px) {
   #playing-chrome .brand {
-    font-size: clamp(20px, 5.8vw, 23px);
-    letter-spacing: -1.15px;
+    font-size: clamp(17px, 5.2vw, 21px);
+    letter-spacing: -1px;
+  }
+
+  .learner-game-brand .brand {
+    font-size: clamp(17px, 5.2vw, 21px);
+    letter-spacing: -1px;
   }
 
   #fw-header-pause .pause-button {
@@ -2103,6 +2230,18 @@ dialog li {
 
   #fw-header-pause [data-action="resume"]::before {
     content: "▶";
+  }
+
+  .learner-game-actions .quiet {
+    min-height: 34px;
+    padding: 6px 9px;
+    font-size: 10px;
+  }
+
+  .learner-game-actions .help-button {
+    width: 34px;
+    min-width: 34px;
+    padding: 6px;
   }
 }
 
