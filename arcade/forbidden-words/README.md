@@ -101,9 +101,10 @@ This implementation is not deployed by merely changing the repository.
 
 1. Apply the new migration through Atlas's intentional Supabase migration process.
    Do not change an applied migration. Run database advisors and verify the grants.
-2. Deploy the existing `atlas-ai` backend Worker with its new imported game modules.
-   Existing `ATLAS_SUPABASE_URL`, backend secret key, `ALLOWED_ORIGIN` and optional
-   `ALLOWED_DEV_ORIGIN` configuration are reused. No new service or secret is required.
+2. Run `npm run build:atlas-ai-worker`, then replace the code in the existing
+   `atlas-ai` backend Worker with the complete generated `shared/worker.cloudflare.js`.
+   Existing bindings, variables and secrets remain unchanged. No new Worker, service,
+   binding or secret is required.
 3. Publish the static Atlas application, including the catalog entry. Preserve the
    `.assetsignore` exclusions for `server/`, `dev/`, migration sources and dependencies.
 4. On the deployed origins, smoke-test authenticated tutor creation and anonymous
