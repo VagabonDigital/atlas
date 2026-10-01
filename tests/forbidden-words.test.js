@@ -112,7 +112,7 @@ const fs = require("node:fs");
   const excludes = fs.readFileSync(".assetsignore", "utf8");
   assert.ok(excludes.includes("arcade/forbidden-words/server/"));
   const sql = fs.readFileSync(
-    "supabase/migrations/20261001025602_forbidden_words_sessions.sql",
+    "supabase/migrations/20261001201937_forbidden_words_sessions.sql",
     "utf8",
   );
   assert.ok(sql.includes("enable row level security"));
