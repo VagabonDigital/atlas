@@ -14,7 +14,17 @@
   <body data-player="tutor">
     <div id="chrome">
       <div id="landing-chrome"></div>
-      <div id="playing-chrome" hidden></div>
+      <header id="playing-chrome" class="game-heading" hidden>
+        <div class="game-heading-left">
+          <div id="arcade-game-return-root"></div>
+          <div id="fw-header-brand"></div>
+        </div>
+        <div id="fw-header-round" class="round-label"></div>
+        <div class="game-heading-right">
+          <div id="fw-header-utilities" class="utilities"></div>
+          <div id="arcade-game-actions-root"></div>
+        </div>
+      </header>
     </div>
     <main id="app" aria-label="Forbidden Words">
       <p class="loading">Shuffling the deck…</p>
@@ -61,6 +71,7 @@
       </p>
       <button class="primary" data-action="close-rules">Let’s play</button>
     </dialog>
+    <div id="atlas-session-panel-root"></div>
     <script src="../../shared/atlas-bridge.js"></script>
     <script type="module" src="./app.mjs"></script>
   </body>
