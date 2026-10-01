@@ -75,6 +75,13 @@ function script(src) {
     document.head.append(el);
   });
 }
+function showTutorLandingChrome() {
+  if (learner) return;
+  const landingChrome = document.querySelector("#landing-chrome");
+  const playingChrome = document.querySelector("#playing-chrome");
+  if (landingChrome) landingChrome.hidden = false;
+  if (playingChrome) playingChrome.hidden = true;
+}
 function syncAtlasContinuity(s) {
   if (learner || LOCAL || !s || !window.AtlasBridge) return;
   try {
@@ -142,6 +149,7 @@ async function setupTutor() {
     await window.AtlasAccessBootstrap.prepareAccount();
     const auth = await window.AtlasCloud.getSession();
     if (!auth) {
+      showTutorLandingChrome();
       landing(null);
       window.ArcadePublicAccess.subscribeGameResume(
         "arcade:forbidden-words",
