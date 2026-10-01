@@ -315,7 +315,7 @@ function board(s) {
   const describer = s.role === "Describer";
   return `${learnerHeader(s)}<section class="board"><aside class="deck-area">${deck}<p>${s.remaining} cards in the deck</p><span class="deal-arrow" aria-hidden="true">⤴</span></aside>
     <div class="card-area"><div class="active-card ${s.card?.nonce !== lastNonce ? "dealing" : ""} ${describer ? "face-up" : "face-down"}">${cardFace(s)}</div>
-    <div class="role-caption"><p class="eyebrow">TURN ${s.turn} OF 2 · ${describer ? "YOU’RE DESCRIBING" : "YOUR PARTNER IS DESCRIBING"}</p><p>${describer ? "Find another way to say it." : "Guess the word out loud."}</p></div></div>
+    <div class="role-caption"><p class="eyebrow"><span>TURN ${s.turn} OF 2</span> · ${describer ? "YOU’RE DESCRIBING" : "YOUR PARTNER IS DESCRIBING"}</p><p>${describer ? "Find another way to say it." : "Guess the word out loud."}</p></div></div>
     <aside class="dashboard panel"><div class="timer" role="timer" aria-label="Turn time remaining"><svg viewBox="0 0 220 220" aria-hidden="true"><circle class="timer-track" cx="110" cy="110" r="96"/><circle class="timer-progress" cx="110" cy="110" r="96"/></svg><div><span class="timer-symbol">◴</span><strong id="clock">01:00</strong><span id="timer-label">TIME TO TALK</span></div></div>
       <div class="score-area"><div class="score-label"><span>SHARED SCORE</span><strong>${s.score}<small> ${s.score === 1 ? "point" : "points"}</small></strong></div>${pile(s)}<span class="played-count">${s.played} ${s.played === 1 ? "card" : "cards"} played</span></div>
       ${describer ? `<div class="resolutions">${button("correct", "<span>✓</span> Correct <kbd>1</kbd>", "correct")}${button("skip", "<span>↠</span> Skip <kbd>2</kbd>", "skip")}${button("oops", "<span>!</span> I said one! <kbd>3</kbd>", "oops")}</div>` : '<div class="guesser-note"><span>◌</span><div><strong>GUESSER</strong><p>Listen. Ask questions. <br>Follow the clues.</p></div></div>'}
@@ -537,12 +537,12 @@ function tone(frequency, duration) {
 }
 async function act(action) {
   if (action === "rules") {
-    closeTutorChromeMenu();
+    closeTutorMobileMenu();
     return document.querySelector("#rules").showModal();
   }
   if (action === "close-rules") return document.querySelector("#rules").close();
   if (action === "sound") {
-    closeTutorChromeMenu();
+    closeTutorMobileMenu();
     sound = !sound;
     storage.set("fw:sound", sound ? "on" : "off");
     audio ||= new AudioContext();
