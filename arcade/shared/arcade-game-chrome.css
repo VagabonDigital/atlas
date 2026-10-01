@@ -8,9 +8,9 @@
    - fixed in-game Arcade return control
    - landing-screen session control
    - landing-screen appearance control
-   - responsive behaviour
+   - responsive behaviour for mounted in-game header slots
 
-   Does not own game layout, content, progress, state, or headers.
+   Does not own game content, progress, or state.
    ============================================================ */
 
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,500;9..40,600&display=swap");
@@ -257,6 +257,88 @@ html[data-theme="night"] {
   flex: 0 0 auto;
 }
 
+.arcade-game-chrome-game-menu-toggle,
+.arcade-game-chrome-game-menu {
+  display: none;
+}
+
+.arcade-game-chrome-game-actions {
+  position: relative;
+}
+
+.arcade-game-chrome-game-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 500;
+  width: min(230px, calc(100vw - 24px));
+  padding: 6px;
+  border: 1px solid var(--game-chrome-control-border);
+  border-radius: 14px;
+  background: var(--game-chrome-control-surface);
+  box-shadow: 0 16px 40px rgba(15, 25, 35, 0.16);
+}
+
+html[data-theme="night"] .arcade-game-chrome-game-menu {
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.48);
+}
+
+.arcade-game-chrome-game-menu[hidden] {
+  display: none !important;
+}
+
+.arcade-game-chrome-game-menu:not([hidden]) {
+  display: grid;
+  gap: 2px;
+}
+
+.arcade-game-chrome-game-menu-item {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  min-height: 42px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--game-chrome-control-text);
+  font-family: var(--game-chrome-font);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--game-chrome-motion),
+    color var(--game-chrome-motion);
+}
+
+.arcade-game-chrome-game-menu-item:hover,
+.arcade-game-chrome-game-menu-item:focus-visible {
+  background: var(--game-chrome-return-hover-surface);
+  color: var(--game-chrome-control-strong);
+}
+
+.arcade-game-chrome-game-menu-item:focus-visible {
+  outline: 2px solid var(--game-chrome-control-focus);
+  outline-offset: -2px;
+}
+
+.arcade-game-chrome-game-menu-item svg {
+  display: block;
+}
+
+.arcade-game-chrome-game-menu-session-name {
+  max-width: 88px;
+  overflow: hidden;
+  color: var(--game-chrome-control-muted);
+  font-size: 0.72rem;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* ============================================================
    RIGHT UTILITY ROW
    ============================================================ */
@@ -433,7 +515,49 @@ html.theme-changing .arcade-game-chrome-game-icon-btn {
    RESPONSIVE
    ============================================================ */
 
-@media (max-width: 680px) {
+@media (max-width: 820px) {
+  .arcade-game-chrome-host {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "left actions"
+      "context context";
+    height: auto !important;
+    min-height: 64px;
+    padding: 6px 10px 7px !important;
+    column-gap: 8px !important;
+    row-gap: 1px !important;
+  }
+
+  .arcade-game-chrome-host-left {
+    grid-area: left;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .arcade-game-chrome-host-actions {
+    grid-area: actions;
+    min-width: 0;
+    justify-content: flex-end !important;
+  }
+
+  .arcade-game-chrome-host-context {
+    grid-area: context;
+    min-width: 0;
+    justify-content: flex-start !important;
+  }
+
+  .arcade-game-chrome-game-direct {
+    display: none !important;
+  }
+
+  .arcade-game-chrome-game-menu-toggle {
+    display: inline-flex;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+  }
+
   .arcade-game-chrome-back {
     top: 1rem;
     left: 1rem;
@@ -448,18 +572,18 @@ html.theme-changing .arcade-game-chrome-game-icon-btn {
   .arcade-game-chrome-session {
     max-width: min(12rem, calc(100vw - 6rem));
   }
+}
 
-  .arcade-game-chrome-game-session {
-    max-width: 130px;
-    height: 40px;
-    padding: 0.25rem 0.7rem;
-    font-size: 0.76rem;
+@media (max-width: 520px) {
+  .arcade-game-chrome-game-return {
+    width: 38px;
+    min-width: 38px;
+    padding: 0;
+    justify-content: center;
   }
 
-  .arcade-game-chrome-game-icon-btn {
-    width: 40px;
-    height: 40px;
-    flex-basis: 40px;
+  .arcade-game-chrome-game-return > span {
+    display: none;
   }
 }
 
