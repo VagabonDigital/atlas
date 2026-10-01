@@ -1369,6 +1369,11 @@ dialog li {
     justify-content: flex-start;
     gap: 8px;
   }
+  .learner-game-heading .utilities {
+    grid-column: 1 / -1;
+    width: 100%;
+    justify-content: flex-end;
+  }
   .utilities button {
     font-size: 11px;
     min-height: 34px;
