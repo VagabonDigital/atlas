@@ -167,15 +167,24 @@ Browser AI requests target:
 
 `https://atlas-ai.savvy989.workers.dev`
 
-The source-controlled backend implementation is:
+The source-controlled backend entry is:
 
 `shared/worker.js`
 
-Despite its physical location under `shared/`, this file is backend source, not browser-shared runtime. It is kept there for source maintenance continuity and is explicitly excluded from the static asset deployment.
+Game-specific backend modules remain with their games; Forbidden Words is imported from
+`arcade/forbidden-words/server/`. For the existing manual Cloudflare code-editor workflow,
+`npm run build:atlas-ai-worker` deterministically bundles the backend entry and its Forbidden
+Words modules into `shared/worker.cloudflare.js`. That generated file is the single file copied
+into the existing `atlas-ai` Worker. It is generated deployment output, not a second Worker or
+a second source of truth, and must not be hand-edited.
+
+Despite its physical location under `shared/`, `shared/worker.js` is backend source, not
+browser-shared runtime. Both backend source and the generated Cloudflare bundle are explicitly
+excluded from the static asset deployment.
 
 It owns provider credentials, authenticated Atlas account verification, AI abuse guardrails, Paddle webhooks/customer-portal operations and server-side external-provider requests.
 
-**The repository currently contains no GitHub Actions workflow that deploys this backend Worker.** Do not assume that editing `shared/worker.js` makes the production `atlas-ai` Worker current. Backend Worker deployment must be performed and verified through its actual Cloudflare deployment process.
+**The repository currently contains no GitHub Actions workflow that deploys this backend Worker.** Do not assume that editing backend source makes the production `atlas-ai` Worker current. Before a manual Cloudflare deployment, run `npm run build:atlas-ai-worker`, then copy the complete contents of `shared/worker.cloudflare.js` into the existing `atlas-ai` Worker and deploy without changing its existing bindings, variables or secrets. `npm run verify` fails if the generated bundle is stale.
 
 The physical location/name of `shared/worker.js` is historical and may be improved in a future backend-architecture pass. Do not move it as routine repository hygiene.
 
