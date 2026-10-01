@@ -12,7 +12,7 @@ product specification supplied for this build is `GAME.md` in the handoff worksp
 - `dev/`: local PostgreSQL-backed verification, isolated from deployed runtime.
 - `shared/worker.js`: the existing Atlas backend dispatches `/forbidden-words/*` and
   supplies its existing authenticated-account verifier. It does not contain game rules.
-- `supabase/migrations/20261001025602_forbidden_words_sessions.sql`: private storage,
+- `supabase/migrations/20261001201937_forbidden_words_sessions.sql`: private storage,
   owner creation quota, revision-based atomic commits and database clock.
 
 Existing Arcade chrome, catalog, access/sign-in and scoped resource-share URL building
