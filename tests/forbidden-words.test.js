@@ -109,7 +109,26 @@ const fs = require("node:fs");
   advance(s, s.deadline);
   act("tutor", "finish", s.deadline + 1);
   assert.equal(s.phase, "finished");
-  const excludes = fs.readFileSync(".assetsignore", "utf8");
+  const tutorPage = fs.readFileSync(
+    "arcade/forbidden-words/index.html",
+    "utf8",
+  );
+  const learnerPage = fs.readFileSync(
+    "arcade/forbidden-words/join.html",
+    "utf8",
+  );
+  const client = fs.readFileSync(
+    "arcade/forbidden-words/app.mjs",
+    "utf8",
+  );
+  assert.ok(tutorPage.includes('id="atlas-session-panel-root"'));
+  assert.ok(tutorPage.includes('id="arcade-game-return-root"'));
+  assert.ok(tutorPage.includes('id="arcade-game-actions-root"'));
+  assert.ok(client.includes("window.AtlasSessionPanel.mount"));
+  assert.ok(client.includes('returnRoot: "#arcade-game-return-root"'));
+  assert.ok(client.includes('actionsRoot: "#arcade-game-actions-root"'));
+  assert.ok(!learnerPage.includes("arcade-game-chrome"));
+    const excludes = fs.readFileSync(".assetsignore", "utf8");
   assert.ok(excludes.includes("arcade/forbidden-words/server/"));
   const sql = fs.readFileSync(
     "supabase/migrations/20261001201937_forbidden_words_sessions.sql",
