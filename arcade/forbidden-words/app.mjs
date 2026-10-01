@@ -211,8 +211,11 @@ function headerUtilities(s, includePause = false) {
 }
 function learnerHeader(s) {
   if (!learner) return "";
-  return `<header class="game-heading learner-game-heading">${brand}<div class="round-label">ROUND ${s.round || 1}<span>${s.round ? `TURN ${s.turn} OF 2` : "TWO VOICES · ONE SCORE"}</span></div>
-    <div class="utilities">${headerUtilities(s)}</div></header>`;
+  return `<header class="learner-game-heading">
+    <div class="learner-game-brand">${brand}</div>
+    <div class="round-label">ROUND ${s.round || 1}<span>${s.round ? `TURN ${s.turn} OF 2` : "TWO VOICES · ONE SCORE"}</span></div>
+    <div class="learner-game-actions">${headerUtilities(s)}</div>
+  </header>`;
 }
 function updateTutorHeader(s) {
   if (learner) return;

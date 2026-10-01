@@ -479,17 +479,61 @@ body:before {
 }
 .quiet {
   min-height: 36px;
-  background: #ffffff78;
-  border: 1px solid #fff9;
+  background: var(--game-chrome-control-surface, #ffffff);
+  border: 1px solid var(--game-chrome-control-border, rgba(15, 25, 35, 0.1));
   border-radius: 30px;
-  color: #365c88;
+  color: var(--game-chrome-control-muted, #647890);
   padding: 7px 13px;
+  font-family: var(--game-chrome-font, "Manrope", Arial, sans-serif);
   font-size: 12px;
+  box-shadow: var(--game-chrome-control-shadow, 0 2px 8px rgba(15, 25, 35, 0.08));
+  transition:
+    border-color var(--game-chrome-motion, 0.18s cubic-bezier(0.4, 0, 0.2, 1)),
+    color var(--game-chrome-motion, 0.18s cubic-bezier(0.4, 0, 0.2, 1)),
+    box-shadow var(--game-chrome-motion, 0.18s cubic-bezier(0.4, 0, 0.2, 1));
+}
+.quiet:hover:not(:disabled) {
+  border-color: var(--game-chrome-control-border-hover, rgba(15, 25, 35, 0.18));
+  color: var(--game-chrome-control-strong, #152235);
+  box-shadow: var(--game-chrome-control-shadow-hover, 0 8px 28px rgba(15, 25, 35, 0.12));
+  transform: none;
+  filter: none;
+}
+.quiet:active:not(:disabled) {
+  transform: none;
 }
 .help-button {
-  font-size: 16px;
+  width: 36px;
   min-width: 36px;
   padding: 7px;
+  font-size: 16px;
+}
+.learner-game-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  min-height: 56px;
+  padding: 0 16px;
+  gap: 14px;
+  border-bottom: 1px solid #c8dbeeaa;
+  background: #f7fbfd99;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.learner-game-brand {
+  min-width: 0;
+}
+.learner-game-brand .brand {
+  overflow: hidden;
+  font-size: clamp(22px, 2vw, 30px);
+  letter-spacing: -1.5px;
+  text-overflow: ellipsis;
+}
+.learner-game-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
 }
 .board {
   display: grid;
@@ -532,8 +576,9 @@ body:before {
   position: relative;
 }
 .active-card {
-  width: 100%;
+  width: min(100%, 330px);
   aspect-ratio: 0.67;
+  margin-inline: auto;
   border: 10px solid #fff;
   border-radius: 27px;
   box-shadow:
@@ -542,7 +587,6 @@ body:before {
     0 0 calc(var(--heat) * 40px) calc(var(--heat) * 9px) #ffc33b;
   position: relative;
   background: #fff;
-  max-height: 475px;
 }
 .card-face {
   border: 1px solid #d8e7f9;
@@ -1196,7 +1240,7 @@ dialog li {
     padding-top: 45px;
   }
   .active-card {
-    max-height: 580px;
+    width: min(100%, 360px);
   }
   .dashboard {
     padding: 28px 30px;
@@ -1250,6 +1294,7 @@ dialog li {
     padding: 20px 17px;
   }
   .active-card {
+    width: min(100%, 300px);
     border-width: 8px;
   }
   .card-face h1 {
@@ -1266,7 +1311,6 @@ dialog li {
     padding: 10px 12px;
   }
   .game-heading {
-    padding: 25px 28px;
     gap: 10px;
   }
   .utilities {
@@ -1378,11 +1422,6 @@ dialog li {
     justify-content: flex-start;
     gap: 8px;
   }
-  .learner-game-heading .utilities {
-    grid-column: 1 / -1;
-    width: 100%;
-    justify-content: flex-end;
-  }
   .utilities button {
     font-size: 11px;
     min-height: 34px;
@@ -1391,6 +1430,47 @@ dialog li {
   .utilities .help-button {
     font-size: 15px;
     min-width: 34px;
+  }
+  .learner-game-heading {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "brand round"
+      "actions actions";
+    min-height: 82px;
+    padding: 7px 12px 8px;
+    gap: 5px 10px;
+  }
+  .learner-game-brand {
+    grid-area: brand;
+  }
+  .learner-game-brand .brand {
+    font-size: clamp(21px, 6vw, 26px);
+  }
+  .learner-game-heading .round-label {
+    grid-area: round;
+    font-size: 8px;
+    letter-spacing: 1.6px;
+  }
+  .learner-game-heading .round-label span {
+    margin-top: 2px;
+    font-size: 7px;
+    letter-spacing: 1px;
+  }
+  .learner-game-actions {
+    grid-area: actions;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+  .learner-game-actions .quiet {
+    min-height: 32px;
+    padding: 5px 10px;
+    font-size: 10px;
+  }
+  .learner-game-actions .help-button {
+    width: 32px;
+    min-width: 32px;
+    padding: 5px;
+    font-size: 14px;
   }
   .board {
     grid-template-columns: minmax(0, 1fr) minmax(170px, 0.75fr);
@@ -1558,6 +1638,14 @@ dialog li {
     padding: 8px 10px;
     gap: 7px 8px;
   }
+  .learner-game-heading {
+    min-height: 78px;
+    padding: 6px 10px 7px;
+  }
+  .learner-game-brand .brand {
+    font-size: clamp(20px, 6.5vw, 24px);
+  }
+
   .game-heading-left {
     min-width: 0;
   }
@@ -1651,7 +1739,6 @@ dialog li {
     max-width: 100%;
     aspect-ratio: 0.77;
     border-width: 8px;
-    max-height: none;
     box-shadow:
       0 10px 25px #1774ca40,
       0 0 calc(var(--heat) * 25px) calc(var(--heat) * 6px) #ffbd40;
@@ -1832,7 +1919,7 @@ dialog li {
     margin-bottom: 38px;
   }
   .active-card {
-    max-height: 430px;
+    width: min(100%, 288px);
   }
   .dashboard {
     max-width: 340px;

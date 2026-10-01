@@ -139,6 +139,12 @@ const fs = require("node:fs");
   assert.ok(client.includes('returnRoot: "#arcade-game-return-root"'));
   assert.ok(client.includes('actionsRoot: "#arcade-game-actions-root"'));
   assert.ok(!learnerPage.includes("arcade-game-chrome"));
+  assert.ok(client.includes('class="learner-game-heading"'));
+  assert.ok(client.includes('class="learner-game-actions"'));
+  assert.ok(gameCss.includes("width: min(100%, 330px);"));
+  assert.ok(!gameCss.includes("max-height: 475px"));
+  assert.ok(!gameCss.includes("max-height: 430px"));
+  assert.ok(gameCss.includes(".quiet:hover:not(:disabled)"));
   const excludes = fs.readFileSync(".assetsignore", "utf8");
   assert.ok(excludes.includes("arcade/forbidden-words/server/"));
   const sql = fs.readFileSync(
