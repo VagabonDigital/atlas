@@ -46,11 +46,9 @@ const fs = require("node:fs");
     act("tutor", action, now + 4000, { card: old.nonce });
     assert.notEqual(s.card.nonce, old.nonce);
     assert.equal(s.score, 1);
-    assert.ok(
-      !JSON.stringify(view(s, "learner", now + 4000, 5)).includes(
-        CARDS[old.index].target,
-      ),
-    );
+    const learnerView = view(s, "learner", now + 4000, 5);
+    assert.deepEqual(Object.keys(learnerView.card), ["nonce"]);
+    assert.equal(learnerView.feedback?.target, undefined);
   }
   assert.throws(() => act("learner", "pause", now + 4500));
   act("tutor", "pause", now + 5000);
@@ -141,11 +139,18 @@ const fs = require("node:fs");
   assert.ok(tutorPage.includes('id="fw-header-pause"'));
   assert.ok(client.includes("setupTutorMobileUtilities"));
   assert.ok(client.includes("closeTutorMobileMenu"));
+  assert.ok(client.includes('document.querySelector("#rules")?.addEventListener("click"'));
+
   assert.ok(client.includes('window.matchMedia("(max-width: 820px)")'));
   assert.ok(client.includes("roundRoot.textContent = `ROUND ${s.round || 1}`"));
   assert.ok(client.includes("<span>TURN ${s.turn} OF 2</span> · ${describer ?"));
   assert.ok(gameCss.includes("#chrome {\n  z-index: 100;"));
   assert.ok(gameCss.includes(".arcade-game-chrome-game-menu #fw-header-utilities"));
+  assert.ok(gameCss.includes('grid-template-areas: "left actions"'));
+  assert.ok(gameCss.includes("#fw-header-round.arcade-game-chrome-host-context"));
+  assert.ok(gameCss.includes("scrollbar-color:"));
+  assert.ok(gameCss.includes(".rules-close"));
+  assert.ok(tutorPage.includes('class="rules-close"'));
   assert.ok(!learnerPage.includes("arcade-game-chrome"));
   assert.ok(client.includes('class="learner-game-heading"'));
   assert.ok(client.includes('class="learner-game-actions"'));
