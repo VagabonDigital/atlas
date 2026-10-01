@@ -125,8 +125,18 @@ async function setupTutor() {
   }
   await script("/arcade/shared/arcade-public-access.js");
   await script("/arcade/shared/arcade-game-chrome.js");
+  if (window.AtlasSessionPanel) {
+    window.AtlasSessionPanel.mount({
+      root: "#atlas-session-panel-root",
+      initialView: "manage",
+    });
+  }
   window.ArcadeGameChrome.mountLanding({ root: "#landing-chrome" });
-  window.ArcadeGameChrome.mountGame({ root: "#playing-chrome" });
+  window.ArcadeGameChrome.mountGame({
+    root: "#playing-chrome",
+    returnRoot: "#arcade-game-return-root",
+    actionsRoot: "#arcade-game-actions-root",
+  });
   if (!LOCAL) {
     await window.AtlasAccessBootstrap.prepareAccount();
     const auth = await window.AtlasCloud.getSession();
@@ -195,10 +205,30 @@ async function request(action, extra = {}, commandId) {
   if (!learner && action !== "poll") syncAtlasContinuity(state);
   return state;
 }
-function sharedHeader(s) {
-  return `<header class="game-heading">${brand}<div class="round-label">ROUND ${s.round || 1}<span>${s.round ? `TURN ${s.turn} OF 2` : "TWO VOICES · ONE SCORE"}</span></div>
-    <div class="utilities">${button("sound", sound ? "♪ Sound on" : "♪ Sound off", "quiet")}${button("rules", "?", "quiet help-button")}
-    ${!learner && ["active", "countdown"].includes(s.phase) ? button(s.paused ? "resume" : "pause", s.paused ? "▶ Resume" : "Ⅱ Pause", "quiet") : ""}</div></header>`;
+function headerUtilities(s, includePause = false) {
+  return `${button("sound", sound ? "♪ Sound on" : "♪ Sound off", "quiet")}${button("rules", "?", "quiet help-button")}
+    ${includePause && ["active", "countdown"].includes(s.phase) ? button(s.paused ? "resume" : "pause", s.paused ? "▶ Resume" : "Ⅱ Pause", "quiet") : ""}`;
+}
+function learnerHeader(s) {
+  if (!learner) return "";
+  return `<header class="game-heading learner-game-heading">${brand}<div class="round-label">ROUND ${s.round || 1}<span>${s.round ? `TURN ${s.turn} OF 2` : "TWO VOICES · ONE SCORE"}</span></div>
+    <div class="utilities">${headerUtilities(s)}</div></header>`;
+}
+function updateTutorHeader(s) {
+  if (learner) return;
+  const landingChrome = document.querySelector("#landing-chrome");
+  const playingChrome = document.querySelector("#playing-chrome");
+  const waiting = s.phase === "waiting";
+  if (landingChrome) landingChrome.hidden = !waiting;
+  if (playingChrome) playingChrome.hidden = waiting;
+  if (waiting) return;
+  const brandRoot = document.querySelector("#fw-header-brand");
+  const roundRoot = document.querySelector("#fw-header-round");
+  const utilitiesRoot = document.querySelector("#fw-header-utilities");
+  if (brandRoot) brandRoot.innerHTML = brand;
+  if (roundRoot)
+    roundRoot.innerHTML = `ROUND ${s.round || 1}<span>${s.round ? `TURN ${s.turn} OF 2` : "TWO VOICES · ONE SCORE"}</span>`;
+  if (utilitiesRoot) utilitiesRoot.innerHTML = headerUtilities(s, true);
 }
 function landing(s) {
   const joined = s?.connected.learner;
@@ -235,7 +265,7 @@ function pile(s) {
 }
 function board(s) {
   const describer = s.role === "Describer";
-  return `${sharedHeader(s)}<section class="board"><aside class="deck-area">${deck}<p>${s.remaining} cards in the deck</p><span class="deal-arrow" aria-hidden="true">⤴</span></aside>
+  return `${learnerHeader(s)}<section class="board"><aside class="deck-area">${deck}<p>${s.remaining} cards in the deck</p><span class="deal-arrow" aria-hidden="true">⤴</span></aside>
     <div class="card-area"><div class="active-card ${s.card?.nonce !== lastNonce ? "dealing" : ""} ${describer ? "face-up" : "face-down"}">${cardFace(s)}</div>
     <div class="role-caption"><p class="eyebrow">${describer ? "YOU’RE DESCRIBING" : "YOUR PARTNER IS DESCRIBING"}</p><p>${describer ? "Find another way to say it." : "Guess the word out loud."}</p></div></div>
     <aside class="dashboard panel"><div class="timer" role="timer" aria-label="Turn time remaining"><svg viewBox="0 0 220 220" aria-hidden="true"><circle class="timer-track" cx="110" cy="110" r="96"/><circle class="timer-progress" cx="110" cy="110" r="96"/></svg><div><span class="timer-symbol">◴</span><strong id="clock">01:00</strong><span id="timer-label">TIME TO TALK</span></div></div>
@@ -260,7 +290,7 @@ function between(s) {
   const switching = s.phase === "switch",
     finished = s.phase === "finished";
   const ready = s.ready.includes(s.actor);
-  return `${sharedHeader(s)}<section class="between"><div class="results-deck">${deck}</div><div class="result-panel panel"><p class="eyebrow">${finished ? "THANKS FOR PLAYING" : switching ? "TIME’S UP · SWAP ROLES" : "TWO VOICES. ONE GREAT ROUND."}</p>
+  return `${learnerHeader(s)}<section class="between"><div class="results-deck">${deck}</div><div class="result-panel panel"><p class="eyebrow">${finished ? "THANKS FOR PLAYING" : switching ? "TIME’S UP · SWAP ROLES" : "TWO VOICES. ONE GREAT ROUND."}</p>
     <h1>${finished ? "Keep the conversation going." : switching ? (s.role === "Describer" ? "Your turn to describe." : "Your turn to guess.") : "Look what you cleared."}</h1>
     <div class="result-score"><strong>${s.score}</strong><span>shared ${s.score === 1 ? "point" : "points"}${switching ? " so far" : ""}</span></div>
     ${s.best !== null ? `<p class="best">Session best <strong>${s.best}</strong>${!switching && s.score === s.best ? " ✦" : ""}</p>` : ""}
@@ -271,10 +301,7 @@ function between(s) {
 }
 function render() {
   const s = state;
-  if (!learner) {
-    document.querySelector("#landing-chrome").hidden = s.phase !== "waiting";
-    document.querySelector("#playing-chrome").hidden = s.phase === "waiting";
-  }
+  updateTutorHeader(s);
   const key = JSON.stringify({ ...s, serverNow: 0, revision: 0 });
   if (key === lastKey) {
     updateControls();
