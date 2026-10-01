@@ -55,7 +55,7 @@ for (const path of [
   "arcade/would-you-rather/index.html",
   "arcade/truth-trap/index.html",
   "arcade/tomorrow-got-weird/index.html",
-  "arcade/forbidden-words/index.html",
+  "arcade/forbidden-words/app.mjs",
 ]) {
   const source = fs.readFileSync(path, "utf8");
   assert.ok(
