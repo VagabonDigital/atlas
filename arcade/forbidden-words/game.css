@@ -2023,6 +2023,18 @@ dialog li {
   display: none;
 }
 
+.utility-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sound-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .pause-utility {
   display: flex;
   align-items: center;
@@ -2043,7 +2055,7 @@ dialog li {
 
   #playing-chrome.arcade-game-chrome-host {
     display: grid !important;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
+    grid-template-columns: minmax(0, 1fr) auto auto !important;
     grid-template-areas: "left context actions" !important;
     height: 56px !important;
     min-height: 56px;
@@ -2107,6 +2119,7 @@ dialog li {
 
   .arcade-game-chrome-game-menu #fw-header-utilities {
     display: grid;
+    justify-items: stretch;
     gap: 2px;
     width: 100%;
     margin: 0 0 4px;
@@ -2115,9 +2128,10 @@ dialog li {
   }
 
   .arcade-game-chrome-game-menu #fw-header-utilities button {
-    display: flex;
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr);
     align-items: center;
-    justify-content: flex-start;
+    justify-items: start;
     gap: 9px;
     width: 100%;
     min-width: 0;
@@ -2151,16 +2165,21 @@ dialog li {
     display: inline;
   }
 
-  .arcade-game-chrome-game-menu .utility-rule-mark {
+  .arcade-game-chrome-game-menu .utility-icon {
     display: inline-flex;
-    width: 16px;
+    width: 20px;
     justify-content: center;
     font-size: 15px;
   }
 
+  .arcade-game-chrome-game-menu .utility-label {
+    justify-self: start;
+    white-space: nowrap;
+  }
+
   .learner-game-heading {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) auto auto;
     grid-template-areas: "brand round actions";
     min-height: 56px;
     padding: 0 10px;
@@ -2200,12 +2219,12 @@ dialog li {
 }
 @media (max-width: 520px) {
   #playing-chrome .brand {
-    font-size: clamp(17px, 5.2vw, 21px);
+    font-size: clamp(16.5px, 5vw, 20px);
     letter-spacing: -1px;
   }
 
   .learner-game-brand .brand {
-    font-size: clamp(17px, 5.2vw, 21px);
+    font-size: clamp(16.5px, 5vw, 20px);
     letter-spacing: -1px;
   }
 

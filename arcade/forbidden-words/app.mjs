@@ -215,7 +215,8 @@ async function request(action, extra = {}, commandId) {
   return state;
 }
 function headerUtilities() {
-  return `${button("sound", sound ? "♪ Sound on" : "♪ Sound off", "quiet")}${button("rules", '<span class="utility-rule-mark">?</span><span class="utility-rule-label">How to play</span>', "quiet help-button")}`;
+  const soundLabel = sound ? "Sound on" : "Sound off";
+  return `${button("sound", `<span class="utility-icon" aria-hidden="true">♪</span><span class="utility-label">${soundLabel}</span>`, "quiet sound-button")}${button("rules", '<span class="utility-icon" aria-hidden="true">?</span><span class="utility-label utility-rule-label">How to play</span>', "quiet help-button")}`;
 }
 function headerPause(s) {
   if (!["active", "countdown"].includes(s.phase)) return "";
