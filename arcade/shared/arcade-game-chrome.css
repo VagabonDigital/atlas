@@ -530,19 +530,19 @@ html.theme-changing .arcade-game-chrome-game-icon-btn {
   }
 
   .arcade-game-chrome-host-left {
-    grid-area: left;
+    grid-area: left !important;
     min-width: 0;
     overflow: hidden;
   }
 
   .arcade-game-chrome-host-actions {
-    grid-area: actions;
+    grid-area: actions !important;
     min-width: 0;
     justify-content: flex-end !important;
   }
 
   .arcade-game-chrome-host-context {
-    grid-area: context;
+    grid-area: context !important;
     min-width: 0;
     justify-content: flex-start !important;
   }
