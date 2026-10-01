@@ -121,6 +121,17 @@ const fs = require("node:fs");
     "arcade/forbidden-words/app.mjs",
     "utf8",
   );
+  const gameCss = fs.readFileSync(
+    "arcade/forbidden-words/game.css",
+    "utf8",
+  );
+  assert.ok(
+    tutorPage.includes(
+      'data-player="tutor" data-atlas-world="arcade" data-atlas-surface="content"',
+    ),
+  );
+  assert.ok(!/^button\s*\{/m.test(gameCss));
+  assert.ok(!/^button:hover/m.test(gameCss));
   assert.ok(tutorPage.includes('id="atlas-session-panel-root"'));
   assert.ok(tutorPage.includes('id="arcade-game-return-root"'));
   assert.ok(tutorPage.includes('id="arcade-game-actions-root"'));
@@ -128,7 +139,7 @@ const fs = require("node:fs");
   assert.ok(client.includes('returnRoot: "#arcade-game-return-root"'));
   assert.ok(client.includes('actionsRoot: "#arcade-game-actions-root"'));
   assert.ok(!learnerPage.includes("arcade-game-chrome"));
-    const excludes = fs.readFileSync(".assetsignore", "utf8");
+  const excludes = fs.readFileSync(".assetsignore", "utf8");
   assert.ok(excludes.includes("arcade/forbidden-words/server/"));
   const sql = fs.readFileSync(
     "supabase/migrations/20261001201937_forbidden_words_sessions.sql",
