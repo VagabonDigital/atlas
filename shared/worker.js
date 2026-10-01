@@ -16,6 +16,8 @@
    - document mutation
    ============================================================ */
 
+import { handleForbiddenWords } from '../arcade/forbidden-words/server/http.mjs';
+
 const ATLAS_AI_REQUEST_ID_HEADER =
     'X-Atlas-Request-Id';
 
@@ -2039,6 +2041,9 @@ function atlasAIGuardrailResponse(reason) {
 export default {
     async fetch(request, env) {
         const url = new URL(request.url);
+        if (url.pathname.startsWith('/forbidden-words/')) {
+            return handleForbiddenWords(request, env, { authenticate: authenticateAtlasAIRequest });
+        }
         const origin = request.headers.get('Origin') || '';
 
         const allowedOrigins = new Set(

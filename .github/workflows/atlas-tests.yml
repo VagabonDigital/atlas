@@ -22,4 +22,8 @@ jobs:
           node-version: 22
       - name: Run Atlas verification
         run: npm run verify
+      - name: Verify Forbidden Words database and transport
+        run: |
+          npm ci --ignore-scripts --prefix arcade/forbidden-words/dev
+          npm test --prefix arcade/forbidden-words/dev
 

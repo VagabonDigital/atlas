@@ -92,6 +92,14 @@ Arcade currently ships the hub plus bespoke public game runtimes. Shared Arcade 
 
 New games should follow the current Arcade product and production direction rather than a retained generalized engine layer.
 
+Forbidden Words keeps its browser UI, card pool and game rules in `arcade/forbidden-words/`.
+Its `server/` modules run only inside the existing Atlas backend Worker, which dispatches
+`/forbidden-words/*` through the existing account-verification boundary. Supabase owns the
+private session records and atomic revision commits; anonymous learners receive a scoped,
+claimed seat credential, never account access. Server modules and `dev/` verification tools
+are excluded from static deployment. See `arcade/forbidden-words/README.md` for verification
+and the separate database/backend/frontend release steps.
+
 ## Testing
 
 Root Atlas has one canonical verification entry point.

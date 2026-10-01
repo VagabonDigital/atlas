@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Join Forbidden Words</title>
+    <link rel="stylesheet" href="./game.css" />
+  </head>
+  <body data-player="learner">
+    <main id="app" aria-label="Forbidden Words">
+      <p class="loading">Joining your partner…</p>
+    </main>
+    <div id="notice" role="status" aria-live="polite"></div>
+    <dialog id="rules" aria-labelledby="rules-title">
+      <button class="close" data-action="close-rules" aria-label="Close rules">
+        ×
+      </button>
+      <p class="eyebrow">A game for two voices</p>
+      <h2 id="rules-title">Find another way.</h2>
+      <p>
+        Keep your lesson call open. Describe the target without saying it or the
+        four forbidden words. Ordinary word endings also count.
+      </p>
+      <p>
+        No spelling, letters, rhymes, translation, typed clues, drawing or
+        deliberate miming. Normal gestures are fine.
+      </p>
+      <p>
+        Guess aloud as often as you like and ask questions. The Describer
+        presses Correct (+1), Skip (0), or I said one! (0). If a violation is
+        unclear, keep playing.
+      </p>
+      <p>
+        You each describe for 60 seconds. The timer keeps running between cards.
+        Together, your two turns make a round.
+      </p>
+      <button class="primary" data-action="close-rules">Got it</button>
+    </dialog>
+    <script type="module" src="./app.mjs"></script>
+  </body>
+</html>
