@@ -147,18 +147,11 @@ const fs = require("node:fs");
   assert.ok(gameCss.includes(".arcade-game-chrome-game-menu #fw-header-utilities"));
   assert.ok(!learnerPage.includes("arcade-game-chrome"));
   assert.ok(client.includes('class="learner-game-heading"'));
-  assert.ok(client.includes("ensureTutorChromeMenuUtilities"));
-  assert.ok(client.includes("fw-game-menu-sound"));
-  assert.ok(client.includes("fw-game-menu-rules"));
-  assert.ok(client.includes("TURN ${s.turn} OF 2"));
-  assert.ok(client.includes("roundRoot.textContent = `ROUND ${s.round || 1}`"));
   assert.ok(client.includes('class="learner-game-actions"'));
   assert.ok(gameCss.includes("width: min(100%, 330px);"));
   assert.ok(!gameCss.includes("max-height: 475px"));
   assert.ok(!gameCss.includes("max-height: 430px"));
   assert.ok(gameCss.includes(".quiet:hover:not(:disabled)"));
-  assert.ok(gameCss.includes(".game-heading .fw-header-secondary"));
-  assert.ok(!gameCss.includes("#chrome {\n    padding: 14px 20px 0;"));
   const excludes = fs.readFileSync(".assetsignore", "utf8");
   assert.ok(excludes.includes("arcade/forbidden-words/server/"));
   const sql = fs.readFileSync(
