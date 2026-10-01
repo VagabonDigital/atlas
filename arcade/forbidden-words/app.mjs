@@ -536,9 +536,13 @@ function tone(frequency, duration) {
   oscillator.stop(audio.currentTime + duration);
 }
 async function act(action) {
-  if (action === "rules") return document.querySelector("#rules").showModal();
+  if (action === "rules") {
+    closeTutorChromeMenu();
+    return document.querySelector("#rules").showModal();
+  }
   if (action === "close-rules") return document.querySelector("#rules").close();
   if (action === "sound") {
+    closeTutorChromeMenu();
     sound = !sound;
     storage.set("fw:sound", sound ? "on" : "off");
     audio ||= new AudioContext();
