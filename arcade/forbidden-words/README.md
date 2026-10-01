@@ -102,7 +102,7 @@ This implementation is not deployed by merely changing the repository.
 1. Apply the new migration through Atlas's intentional Supabase migration process.
    Do not change an applied migration. Run database advisors and verify the grants.
 2. Run `npm run build:atlas-ai-worker`, then replace the code in the existing
-   `atlas-ai` backend Worker with the complete generated `shared/worker.cloudflare.js`.
+   `atlas-ai` backend Worker with the complete `shared/worker.js`.
    Existing bindings, variables and secrets remain unchanged. No new Worker, service,
    binding or secret is required.
 3. Publish the static Atlas application, including the catalog entry. Preserve the
