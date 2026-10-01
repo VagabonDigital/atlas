@@ -14,7 +14,7 @@ export async function database(path) {
     await db.exec(
       await readFile(
         new URL(
-          "../../../supabase/migrations/20261001025602_forbidden_words_sessions.sql",
+          "../../../supabase/migrations/20261001201937_forbidden_words_sessions.sql",
           import.meta.url,
         ),
         "utf8",
