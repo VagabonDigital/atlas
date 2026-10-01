@@ -42,38 +42,44 @@ body:before {
     linear-gradient(140deg, #425f95b5, #7e789dad 55%, #ff9a75b0);
   transition: opacity 0.4s linear;
 }
-button,
-input {
+#app button,
+#app input,
+#rules button,
+#rules input {
   font: inherit;
 }
-button {
+#app button,
+#rules button {
   cursor: pointer;
   border: 0;
+  min-height: 44px;
   transition:
     transform 0.15s,
     box-shadow 0.15s,
     background 0.15s;
 }
-button:hover:not(:disabled) {
+#app button:hover:not(:disabled),
+#rules button:hover:not(:disabled) {
   transform: translateY(-2px);
   filter: brightness(1.035);
 }
-button:active:not(:disabled) {
+#app button:active:not(:disabled),
+#rules button:active:not(:disabled) {
   transform: translateY(1px);
 }
-button:disabled {
+#app button:disabled,
+#rules button:disabled {
   cursor: default;
   opacity: 0.5;
 }
-button:focus-visible,
-a:focus-visible,
-summary:focus-visible,
-input:focus-visible {
+#app button:focus-visible,
+#app a:focus-visible,
+#app summary:focus-visible,
+#app input:focus-visible,
+#rules button:focus-visible,
+#rules input:focus-visible {
   outline: 3px solid #0067ee;
   outline-offset: 5px;
-}
-button {
-  min-height: 44px;
 }
 #app,
 #chrome {
@@ -428,11 +434,11 @@ button {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  padding: 18px 32px;
+  height: 56px;
+  padding: 0 20px;
   border-bottom: 1px solid #c8dbeeaa;
   background: #f7fbfd99;
-  gap: 20px;
-  min-height: 76px;
+  gap: 16px;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 }
@@ -443,14 +449,14 @@ button {
   align-items: center;
 }
 .game-heading-left {
-  gap: 12px;
+  gap: 10px;
 }
 .game-heading-right {
   justify-content: flex-end;
-  gap: 10px;
+  gap: 8px;
 }
 .game-heading .brand {
-  font-size: clamp(26px, 2.5vw, 38px);
+  font-size: clamp(24px, 2vw, 32px);
 }
 .round-label {
   text-align: center;
@@ -463,7 +469,7 @@ button {
   display: block;
   font-size: 9px;
   letter-spacing: 1.5px;
-  margin-top: 8px;
+  margin-top: 4px;
   color: #6c86a5;
 }
 .utilities {
@@ -472,26 +478,27 @@ button {
   gap: 7px;
 }
 .quiet {
+  min-height: 36px;
   background: #ffffff78;
   border: 1px solid #fff9;
   border-radius: 30px;
   color: #365c88;
-  padding: 9px 16px;
+  padding: 7px 13px;
   font-size: 12px;
 }
 .help-button {
-  font-size: 17px;
-  min-width: 44px;
-  padding: 8px;
+  font-size: 16px;
+  min-width: 36px;
+  padding: 7px;
 }
 .board {
   display: grid;
   grid-template-columns: 0.8fr 1.1fr 1fr;
   align-items: center;
-  gap: clamp(30px, 5vw, 85px);
-  padding: 35px 55px 44px;
-  min-height: calc(100vh - 220px);
-  max-width: 1440px;
+  gap: clamp(28px, 4vw, 68px);
+  padding: 24px 48px 30px;
+  min-height: calc(100vh - 56px);
+  max-width: 1380px;
   margin: auto;
 }
 .deck-area {
@@ -500,9 +507,9 @@ button {
   padding-top: 0;
 }
 .deck-area .deck-object {
-  margin: 0 auto 64px;
-  width: clamp(155px, 17vw, 235px);
-  height: clamp(235px, 25vw, 355px);
+  margin: 0 auto 48px;
+  width: clamp(145px, 15vw, 210px);
+  height: clamp(215px, 22vw, 315px);
 }
 .deck-area > p {
   color: #4d7197;
@@ -535,7 +542,7 @@ button {
     0 0 calc(var(--heat) * 40px) calc(var(--heat) * 9px) #ffc33b;
   position: relative;
   background: #fff;
-  max-height: 535px;
+  max-height: 475px;
 }
 .card-face {
   border: 1px solid #d8e7f9;
@@ -606,8 +613,8 @@ button {
   margin-left: -29px;
 }
 .role-caption {
-  margin-top: 24px;
-  min-height: 45px;
+  margin-top: 16px;
+  min-height: 38px;
 }
 .role-caption .eyebrow {
   font-size: 10px;
@@ -621,18 +628,18 @@ button {
   margin: 0;
 }
 .dashboard {
-  padding: 24px 25px 27px;
-  border-radius: 24px;
-  max-width: 390px;
+  padding: 19px 22px 21px;
+  border-radius: 22px;
+  max-width: 360px;
   width: 100%;
   align-self: center;
 }
 .timer {
   position: relative;
-  width: 195px;
-  height: 195px;
+  width: 168px;
+  height: 168px;
   max-width: 100%;
-  margin: 0 auto 19px;
+  margin: 0 auto 14px;
   filter: drop-shadow(0 4px 6px #64a9fd24);
 }
 .timer svg {
@@ -680,7 +687,7 @@ button {
 .timer strong {
   font-family: "Manrope", Arial, sans-serif;
   font-weight: 800;
-  font-size: 39px;
+  font-size: 34px;
   letter-spacing: -1.5px;
   font-variant-numeric: tabular-nums;
   line-height: 1.3;
@@ -699,7 +706,7 @@ button {
 .score-area {
   border-top: 1px solid #d8dfe8;
   border-bottom: 1px solid #d8dfe8;
-  padding: 15px 0 11px;
+  padding: 11px 0 9px;
   text-align: center;
 }
 .score-label {
@@ -724,9 +731,9 @@ button {
   color: #7388a5;
 }
 .pile {
-  height: 65px;
+  height: 58px;
   position: relative;
-  margin: 12px auto 4px;
+  margin: 8px auto 2px;
   width: 150px;
 }
 .pile > div {
@@ -763,16 +770,16 @@ button {
 }
 .resolutions {
   display: grid;
-  gap: 12px;
-  margin-top: 21px;
+  gap: 9px;
+  margin-top: 14px;
 }
 .resolutions button {
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-radius: 50px;
-  min-height: 49px;
-  padding: 10px 19px;
+  min-height: 45px;
+  padding: 8px 17px;
   font-weight: 800;
   text-transform: uppercase;
   font-size: 15px;
@@ -913,12 +920,12 @@ button {
 .between {
   display: grid;
   grid-template-columns: 0.8fr 1.2fr;
-  gap: 60px;
+  gap: 44px;
   align-items: center;
-  max-width: 1060px;
+  max-width: 1000px;
   margin: auto;
-  padding: 50px 30px 90px;
-  min-height: calc(100vh - 200px);
+  padding: 28px 30px 36px;
+  min-height: calc(100vh - 56px);
 }
 .results-deck {
   display: grid;
@@ -926,17 +933,17 @@ button {
 }
 .results-deck .deck-object {
   transform: rotate(-9deg);
-  width: 245px;
-  height: 340px;
+  width: 215px;
+  height: 300px;
 }
 .result-panel {
-  padding: 35px 40px;
+  padding: 26px 34px;
   text-align: center;
 }
 .result-panel h1 {
   font-family: Georgia, serif;
-  font-size: 36px;
-  line-height: 1.14;
+  font-size: 32px;
+  line-height: 1.12;
   letter-spacing: -1px;
   margin: 0;
 }
@@ -944,11 +951,11 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 20px 0 12px;
+  margin: 14px 0 8px;
 }
 .result-score > strong {
   font-family: "Manrope", Arial, sans-serif;
-  font-size: 85px;
+  font-size: 70px;
   line-height: 1.05;
   color: #086be5;
   font-weight: 800;
@@ -957,7 +964,7 @@ button {
 .result-score > span {
   color: #526e90;
   font-size: 14px;
-  margin-top: 7px;
+  margin-top: 4px;
 }
 .best {
   color: #7387a1;
@@ -976,11 +983,11 @@ button {
 .final-card {
   background: #edf3fb;
   border-radius: 13px;
-  padding: 13px;
+  padding: 11px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  margin: 20px 0;
+  gap: 4px;
+  margin: 14px 0;
 }
 .final-card > span {
   color: #7a8da7;
@@ -1004,13 +1011,13 @@ button {
   display: flex;
   gap: 10px;
   justify-content: center;
-  margin-top: 24px;
+  margin-top: 16px;
 }
 .review {
-  margin-top: 24px;
+  margin-top: 16px;
   text-align: left;
   border-top: 1px solid #d7e3ee;
-  padding-top: 18px;
+  padding-top: 13px;
 }
 .review summary {
   font-size: 13px;
@@ -1341,8 +1348,10 @@ dialog li {
   }
   .game-heading {
     grid-template-columns: minmax(0, 1fr) auto;
-    padding: 12px 16px;
-    gap: 10px 14px;
+    height: auto;
+    min-height: 56px;
+    padding: 8px 14px;
+    gap: 8px 12px;
   }
   .game-heading-left {
     gap: 6px;
@@ -1546,8 +1555,8 @@ dialog li {
     font-size: 14px;
   }
   .game-heading {
-    padding: 10px 12px;
-    gap: 8px 10px;
+    padding: 8px 10px;
+    gap: 7px 8px;
   }
   .game-heading-left {
     min-width: 0;
@@ -1809,6 +1818,62 @@ dialog li {
   #landing-chrome {
     min-height: 57px;
     padding: 10px 20px 0;
+  }
+}
+@media (min-width: 761px) and (max-height: 820px) {
+  .board {
+    gap: clamp(22px, 3vw, 50px);
+    padding-top: 16px;
+    padding-bottom: 20px;
+  }
+  .deck-area .deck-object {
+    width: clamp(135px, 13vw, 185px);
+    height: clamp(200px, 19vw, 278px);
+    margin-bottom: 38px;
+  }
+  .active-card {
+    max-height: 430px;
+  }
+  .dashboard {
+    max-width: 340px;
+    padding: 16px 20px 18px;
+  }
+  .timer {
+    width: 148px;
+    height: 148px;
+    margin-bottom: 10px;
+  }
+  .timer strong {
+    font-size: 30px;
+  }
+  .guesser-note {
+    margin-top: 14px;
+    padding: 16px 14px;
+  }
+  .between {
+    gap: 34px;
+    padding-top: 18px;
+    padding-bottom: 24px;
+  }
+  .results-deck .deck-object {
+    width: 190px;
+    height: 265px;
+  }
+  .result-panel {
+    padding: 22px 30px;
+  }
+  .result-panel h1 {
+    font-size: 29px;
+  }
+  .result-score > strong {
+    font-size: 62px;
+  }
+  .final-card {
+    margin: 10px 0;
+  }
+  .result-actions,
+  .review {
+    margin-top: 12px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
