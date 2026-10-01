@@ -13,6 +13,7 @@
     if (window.ArcadeCatalogData) return;
 
     const ARCADE_GAME_ART = {
+        forbidden: `<svg class="game-artwork" viewBox="0 0 180 150" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="36" y="22" width="76" height="110" rx="11" transform="rotate(-12 36 22)" stroke="currentColor" stroke-width="2"/><rect x="63" y="18" width="76" height="110" rx="11" fill="var(--card-bg, #eef5ff)" stroke="currentColor" stroke-width="2.5"/><path d="M80 47h43M81 70h40M81 86h40M81 102h40" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="m149 15 3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="currentColor"/></svg>`,
         tomorrow: `
             <svg class="game-artwork game-artwork--tomorrow"
                 viewBox="0 0 180 150"
@@ -228,6 +229,18 @@
 
     const ARCADE_GAMES = [
         {
+            registryId: 'arcade:forbidden-words',
+            publicAccess: 'preview',
+            title: 'Forbidden Words',
+            premise: 'Describe the word. Lose the obvious language. Clear cards together before the clock runs out.',
+            unitLabel: 'Cards',
+            total: 141,
+            artId: 'forbidden',
+            accent: '#0762de',
+            order: 4,
+            launchUrl: './forbidden-words/index.html'
+        },
+        {
             registryId: 'arcade:tomorrow-got-weird',
             publicAccess: 'preview',
             title: 'Tomorrow Got Weird',
@@ -266,6 +279,7 @@
     ];
 
     const ARCADE_GAME_SHARE_GRANTS = Object.freeze({
+        'arcade:forbidden-words': 'g1_fwConversation',
         'arcade:tomorrow-got-weird': 'g1_r7K2vM9xC4qT',
         'arcade:would-you-rather': 'g1_p4W8nD3yL6sV'
     });

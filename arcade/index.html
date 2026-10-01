@@ -1812,6 +1812,26 @@
         Number(progress.covered) || 0
       );
 
+      if (progress.openEnded === true) {
+        const complete =
+          status === 'complete' ||
+          status === 'completed';
+        const started = rawCovered > 0 && !complete;
+
+        return {
+          mode: started ? 'in-progress' : 'unstarted',
+          actionLabel: complete
+            ? 'Play again'
+            : started
+              ? 'Resume'
+              : 'Play',
+          positionLabel: started
+            ? 'In progress'
+            : 'Open-ended',
+          progressPercent: 0
+        };
+      }
+
       const exhausted = total > 0 && (
         rawCovered >= total ||
         status === 'complete' ||

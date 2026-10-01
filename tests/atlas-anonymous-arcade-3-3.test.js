@@ -50,8 +50,8 @@ const games =
 
 assert.equal(
     games.length,
-    3,
-    'Stage 3.3 keeps the real three-game Arcade catalogue visible'
+    4,
+    'The Arcade catalogue includes Forbidden Words with authenticated hosting'
 );
 
 const accessById =
@@ -65,6 +65,7 @@ const accessById =
 assert.deepEqual(
     accessById,
     {
+        'arcade:forbidden-words': 'preview',
         'arcade:tomorrow-got-weird':
             'preview',
         'arcade:truth-trap':

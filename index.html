@@ -4736,6 +4736,10 @@
         return null;
       }
 
+      if (progress.openEnded === true) {
+        return null;
+      }
+
       const total =
         Number(progress.total) ||
         Number(item.total) ||
@@ -5376,6 +5380,7 @@
     }
 
     const GAME_COVERS = {
+      'arcade:forbidden-words': './assets/hub/forbidden-words.webp',
       'arcade:would-you-rather': './assets/hub/would-you-rather.webp',
       'arcade:truth-trap': './assets/hub/truth-trap.webp',
       'arcade:tomorrow-got-weird': './assets/hub/tomorrow-got-weird.webp'

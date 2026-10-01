@@ -92,6 +92,14 @@ Arcade currently ships the hub plus bespoke public game runtimes. Shared Arcade 
 
 New games should follow the current Arcade product and production direction rather than a retained generalized engine layer.
 
+Forbidden Words keeps its browser UI, card pool and game rules in `arcade/forbidden-words/`.
+Its `server/` modules run only inside the existing Atlas backend Worker, which dispatches
+`/forbidden-words/*` through the existing account-verification boundary. Supabase owns the
+private session records and atomic revision commits; anonymous learners receive a scoped,
+claimed seat credential, never account access. Server modules and `dev/` verification tools
+are excluded from static deployment. See `arcade/forbidden-words/README.md` for verification
+and the separate database/backend/frontend release steps.
+
 ## Testing
 
 Root Atlas has one canonical verification entry point.
@@ -163,11 +171,18 @@ The source-controlled backend implementation is:
 
 `shared/worker.js`
 
-Despite its physical location under `shared/`, this file is backend source, not browser-shared runtime. It is kept there for source maintenance continuity and is explicitly excluded from the static asset deployment.
+That file is also the exact single-file payload used by the existing manual Cloudflare
+code-editor workflow. Game-specific backend modules remain with their games for ownership,
+testing and maintenance; `npm run build:atlas-ai-worker` refreshes the generated Forbidden
+Words section inside `shared/worker.js` before deployment. This preserves one obvious Worker
+file while keeping game logic maintainable in its owning game directory.
+
+Despite its physical location under `shared/`, `shared/worker.js` is backend source, not
+browser-shared runtime, and is explicitly excluded from the static asset deployment.
 
 It owns provider credentials, authenticated Atlas account verification, AI abuse guardrails, Paddle webhooks/customer-portal operations and server-side external-provider requests.
 
-**The repository currently contains no GitHub Actions workflow that deploys this backend Worker.** Do not assume that editing `shared/worker.js` makes the production `atlas-ai` Worker current. Backend Worker deployment must be performed and verified through its actual Cloudflare deployment process.
+**The repository currently contains no GitHub Actions workflow that deploys this backend Worker.** Do not assume that editing backend source makes the production `atlas-ai` Worker current. Before a manual Cloudflare deployment, run `npm run build:atlas-ai-worker`, then copy the complete contents of `shared/worker.js` into the existing `atlas-ai` Worker and deploy without changing its existing bindings, variables or secrets. `npm run verify` fails if the generated Forbidden Words section is stale.
 
 The physical location/name of `shared/worker.js` is historical and may be improved in a future backend-architecture pass. Do not move it as routine repository hygiene.
 

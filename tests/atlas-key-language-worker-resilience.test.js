@@ -9,6 +9,7 @@ const workerSource = fs
         'shared/worker.js',
         'utf8'
     )
+    .replace(/^import \{ handleForbiddenWords \} from .*;\r?\n/m, '')
     .replace(
         'export default {',
         'globalThis.__atlasWorker = {'
@@ -94,6 +95,7 @@ async function mockFetch(input, init = {}) {
 }
 
 const context = {
+    handleForbiddenWords() { throw new Error('Unexpected game route in AI resilience test'); },
     console: {
         log() {},
         warn() {},
