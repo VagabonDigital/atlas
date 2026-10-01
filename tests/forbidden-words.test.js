@@ -46,11 +46,9 @@ const fs = require("node:fs");
     act("tutor", action, now + 4000, { card: old.nonce });
     assert.notEqual(s.card.nonce, old.nonce);
     assert.equal(s.score, 1);
-    assert.ok(
-      !JSON.stringify(view(s, "learner", now + 4000, 5)).includes(
-        CARDS[old.index].target,
-      ),
-    );
+    const learnerView = view(s, "learner", now + 4000, 5);
+    assert.deepEqual(Object.keys(learnerView.card), ["nonce"]);
+    assert.equal(learnerView.feedback?.target, undefined);
   }
   assert.throws(() => act("learner", "pause", now + 4500));
   act("tutor", "pause", now + 5000);
