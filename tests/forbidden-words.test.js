@@ -132,7 +132,7 @@ const fs = require("node:fs");
   );
   assert.ok(!/^button\s*\{/m.test(gameCss));
   assert.ok(!/^button:hover/m.test(gameCss));
-    assert.ok(tutorPage.includes('id="atlas-session-panel-root"'));
+  assert.ok(tutorPage.includes('id="atlas-session-panel-root"'));
   assert.ok(tutorPage.includes('id="arcade-game-return-root"'));
   assert.ok(tutorPage.includes('id="arcade-game-actions-root"'));
   assert.ok(client.includes("window.AtlasSessionPanel.mount"));
