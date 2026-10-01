@@ -7,6 +7,6 @@
     "check:compass-covers": "node scripts/sync-compass-covers.js --check",
     "verify": "npm run check:shared-worker-syntax && npm run check:atlas-ai-worker && npm test && npm run check:compass-covers",
     "build:atlas-ai-worker": "node scripts/build-atlas-ai-worker.js",
-    "check:atlas-ai-worker": "node scripts/build-atlas-ai-worker.js --check && node --check shared/worker.cloudflare.js"
+    "check:atlas-ai-worker": "node scripts/build-atlas-ai-worker.js --check && node --check shared/worker.js"
   }
 }
