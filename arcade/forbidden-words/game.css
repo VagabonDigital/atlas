@@ -479,23 +479,23 @@ body:before {
 }
 .quiet {
   min-height: 36px;
-  background: var(--game-chrome-control-surface);
-  border: 1px solid var(--game-chrome-control-border);
+  background: var(--game-chrome-control-surface, #ffffff);
+  border: 1px solid var(--game-chrome-control-border, rgba(15, 25, 35, 0.1));
   border-radius: 30px;
-  color: var(--game-chrome-control-muted);
+  color: var(--game-chrome-control-muted, #647890);
   padding: 7px 13px;
-  font-family: var(--game-chrome-font);
+  font-family: var(--game-chrome-font, "Manrope", Arial, sans-serif);
   font-size: 12px;
-  box-shadow: var(--game-chrome-control-shadow);
+  box-shadow: var(--game-chrome-control-shadow, 0 2px 8px rgba(15, 25, 35, 0.08));
   transition:
-    border-color var(--game-chrome-motion),
-    color var(--game-chrome-motion),
-    box-shadow var(--game-chrome-motion);
+    border-color var(--game-chrome-motion, 0.18s cubic-bezier(0.4, 0, 0.2, 1)),
+    color var(--game-chrome-motion, 0.18s cubic-bezier(0.4, 0, 0.2, 1)),
+    box-shadow var(--game-chrome-motion, 0.18s cubic-bezier(0.4, 0, 0.2, 1));
 }
 .quiet:hover:not(:disabled) {
-  border-color: var(--game-chrome-control-border-hover);
-  color: var(--game-chrome-control-strong);
-  box-shadow: var(--game-chrome-control-shadow-hover);
+  border-color: var(--game-chrome-control-border-hover, rgba(15, 25, 35, 0.18));
+  color: var(--game-chrome-control-strong, #152235);
+  box-shadow: var(--game-chrome-control-shadow-hover, 0 8px 28px rgba(15, 25, 35, 0.12));
   transform: none;
   filter: none;
 }
