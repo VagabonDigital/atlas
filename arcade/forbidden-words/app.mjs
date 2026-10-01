@@ -137,6 +137,7 @@ async function setupTutor() {
     returnRoot: "#arcade-game-return-root",
     actionsRoot: "#arcade-game-actions-root",
   });
+  setupTutorMobileUtilities();
   if (!LOCAL) {
     await window.AtlasAccessBootstrap.prepareAccount();
     const auth = await window.AtlasCloud.getSession();
@@ -205,16 +206,59 @@ async function request(action, extra = {}, commandId) {
   if (!learner && action !== "poll") syncAtlasContinuity(state);
   return state;
 }
-function headerUtilities(s, includePause = false) {
-  return `${button("sound", sound ? "♪ Sound on" : "♪ Sound off", "quiet")}${button("rules", "?", "quiet help-button")}
-    ${includePause && ["active", "countdown"].includes(s.phase) ? button(s.paused ? "resume" : "pause", s.paused ? "▶ Resume" : "Ⅱ Pause", "quiet") : ""}`;
+function headerUtilities() {
+  return `${button("sound", sound ? "♪ Sound on" : "♪ Sound off", "quiet")}${button("rules", '<span class="utility-rule-mark">?</span><span class="utility-rule-label">How to play</span>', "quiet help-button")}`;
+}
+function headerPause(s) {
+  if (!["active", "countdown"].includes(s.phase)) return "";
+  return button(
+    s.paused ? "resume" : "pause",
+    s.paused ? "▶ Resume" : "Ⅱ Pause",
+    "quiet pause-button",
+  );
+}
+function closeTutorMobileMenu() {
+  const menu = document.querySelector(".arcade-game-chrome-game-menu");
+  const toggle = document.querySelector(".arcade-game-chrome-game-menu-toggle");
+  if (menu) menu.hidden = true;
+  if (toggle) toggle.setAttribute("aria-expanded", "false");
+}
+function setupTutorMobileUtilities() {
+  const utilities = document.querySelector("#fw-header-utilities");
+  const menu = document.querySelector(".arcade-game-chrome-game-menu");
+  if (!utilities || !menu || utilities.dataset.mobileMenuReady === "true") return;
+
+  utilities.dataset.mobileMenuReady = "true";
+  const home = utilities.parentNode;
+  const marker = document.createComment("Forbidden Words utility home");
+  home.insertBefore(marker, utilities);
+  const media = window.matchMedia("(max-width: 820px)");
+
+  const sync = () => {
+    if (media.matches) {
+      menu.insertBefore(utilities, menu.firstChild);
+      utilities.classList.add("mobile-menu-utilities");
+      utilities.querySelectorAll("button").forEach((el) => el.setAttribute("role", "menuitem"));
+    } else {
+      marker.after(utilities);
+      utilities.classList.remove("mobile-menu-utilities");
+      utilities.querySelectorAll("button").forEach((el) => el.removeAttribute("role"));
+      closeTutorMobileMenu();
+    }
+  };
+
+  media.addEventListener("change", sync);
+  utilities.addEventListener("click", (event) => {
+    if (event.target.closest("button") && media.matches) closeTutorMobileMenu();
+  });
+  sync();
 }
 function learnerHeader(s) {
   if (!learner) return "";
   return `<header class="learner-game-heading">
     <div class="learner-game-brand">${brand}</div>
-    <div class="round-label">ROUND ${s.round || 1}<span>${s.round ? `TURN ${s.turn} OF 2` : "TWO VOICES · ONE SCORE"}</span></div>
-    <div class="learner-game-actions">${headerUtilities(s)}</div>
+    <div class="round-label">ROUND ${s.round || 1}</div>
+    <div class="learner-game-actions">${headerUtilities()}</div>
   </header>`;
 }
 function updateTutorHeader(s) {
@@ -228,10 +272,11 @@ function updateTutorHeader(s) {
   const brandRoot = document.querySelector("#fw-header-brand");
   const roundRoot = document.querySelector("#fw-header-round");
   const utilitiesRoot = document.querySelector("#fw-header-utilities");
+  const pauseRoot = document.querySelector("#fw-header-pause");
   if (brandRoot) brandRoot.innerHTML = brand;
-  if (roundRoot)
-    roundRoot.innerHTML = `ROUND ${s.round || 1}<span>${s.round ? `TURN ${s.turn} OF 2` : "TWO VOICES · ONE SCORE"}</span>`;
-  if (utilitiesRoot) utilitiesRoot.innerHTML = headerUtilities(s, true);
+  if (roundRoot) roundRoot.textContent = `ROUND ${s.round || 1}`;
+  if (utilitiesRoot) utilitiesRoot.innerHTML = headerUtilities();
+  if (pauseRoot) pauseRoot.innerHTML = headerPause(s);
 }
 function landing(s) {
   const joined = s?.connected.learner;
@@ -270,7 +315,7 @@ function board(s) {
   const describer = s.role === "Describer";
   return `${learnerHeader(s)}<section class="board"><aside class="deck-area">${deck}<p>${s.remaining} cards in the deck</p><span class="deal-arrow" aria-hidden="true">⤴</span></aside>
     <div class="card-area"><div class="active-card ${s.card?.nonce !== lastNonce ? "dealing" : ""} ${describer ? "face-up" : "face-down"}">${cardFace(s)}</div>
-    <div class="role-caption"><p class="eyebrow">${describer ? "YOU’RE DESCRIBING" : "YOUR PARTNER IS DESCRIBING"}</p><p>${describer ? "Find another way to say it." : "Guess the word out loud."}</p></div></div>
+    <div class="role-caption"><p class="eyebrow">TURN ${s.turn} OF 2 · ${describer ? "YOU’RE DESCRIBING" : "YOUR PARTNER IS DESCRIBING"}</p><p>${describer ? "Find another way to say it." : "Guess the word out loud."}</p></div></div>
     <aside class="dashboard panel"><div class="timer" role="timer" aria-label="Turn time remaining"><svg viewBox="0 0 220 220" aria-hidden="true"><circle class="timer-track" cx="110" cy="110" r="96"/><circle class="timer-progress" cx="110" cy="110" r="96"/></svg><div><span class="timer-symbol">◴</span><strong id="clock">01:00</strong><span id="timer-label">TIME TO TALK</span></div></div>
       <div class="score-area"><div class="score-label"><span>SHARED SCORE</span><strong>${s.score}<small> ${s.score === 1 ? "point" : "points"}</small></strong></div>${pile(s)}<span class="played-count">${s.played} ${s.played === 1 ? "card" : "cards"} played</span></div>
       ${describer ? `<div class="resolutions">${button("correct", "<span>✓</span> Correct <kbd>1</kbd>", "correct")}${button("skip", "<span>↠</span> Skip <kbd>2</kbd>", "skip")}${button("oops", "<span>!</span> I said one! <kbd>3</kbd>", "oops")}</div>` : '<div class="guesser-note"><span>◌</span><div><strong>GUESSER</strong><p>Listen. Ask questions. <br>Follow the clues.</p></div></div>'}
