@@ -691,6 +691,16 @@ document.addEventListener("click", (event) => {
   if (el && !el.disabled)
     act(el.dataset.action).catch((e) => notify(e.message));
 });
+document.querySelector("#rules")?.addEventListener("click", (event) => {
+  const dialog = event.currentTarget;
+  const rect = dialog.getBoundingClientRect();
+  const inside =
+    event.clientX >= rect.left &&
+    event.clientX <= rect.right &&
+    event.clientY >= rect.top &&
+    event.clientY <= rect.bottom;
+  if (!inside) dialog.close();
+});
 document.addEventListener("keydown", (event) => {
   if (
     event.repeat ||
