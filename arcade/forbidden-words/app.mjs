@@ -8,6 +8,7 @@ const API =
 const LOCAL =
   document.querySelector('meta[name="fw-local-verification"]')?.content ===
   "true";
+const REGISTRY_ID = "arcade:forbidden-words";
 const uuid = () => crypto.randomUUID();
 const randomToken = () =>
   [...crypto.getRandomValues(new Uint8Array(32))]
@@ -51,7 +52,8 @@ let lastKey = "",
   failed = false,
   lastSync = 0,
   pollTimer,
-  owner;
+  owner,
+  atlasSession;
 let sound = storage.get("fw:sound") === "on",
   audio,
   retryDelay = 650;
@@ -72,6 +74,37 @@ function script(src) {
     el.onerror = reject;
     document.head.append(el);
   });
+}
+function syncAtlasContinuity(s) {
+  if (learner || LOCAL || !s || !window.AtlasBridge) return;
+  try {
+    atlasSession = window.AtlasBridge.readActiveSession?.() || atlasSession;
+    if (!atlasSession?.id) return;
+    const started = s.phase !== "waiting";
+    const finished = s.phase === "finished";
+    const round = Math.max(1, Number(s.round) || 1);
+    const launchUrl = new URL("./index.html", location.href).href;
+    window.AtlasBridge.upsertSessionState(atlasSession.id, REGISTRY_ID, {
+      world: "arcade",
+      status: finished ? "complete" : started ? "in-progress" : "available",
+      launchUrl,
+      currentLabel: started ? `Round ${round}` : null,
+      progress: started
+        ? { covered: round, openEnded: true }
+        : { covered: 0 },
+      lastTouchedAt: Date.now(),
+    });
+    if (started) {
+      window.AtlasBridge.touchRecentActivity({
+        sessionId: atlasSession.id,
+        registryId: REGISTRY_ID,
+        title: "Forbidden Words",
+        launchUrl,
+      });
+    }
+  } catch {
+    /* Continuity must never interrupt live play. */
+  }
 }
 async function setupTutor() {
   for (const src of [
@@ -107,6 +140,7 @@ async function setupTutor() {
     }
     owner = auth.user.id;
   } else owner = "local-verification";
+  if (!LOCAL) atlasSession = window.AtlasBridge?.readActiveSession?.() || null;
   session = storage.get(`fw:tutor:${owner}`) || uuid();
   storage.set(`fw:tutor:${owner}`, session);
   return true;
@@ -158,6 +192,7 @@ async function request(action, extra = {}, commandId) {
     state = data.state;
     render();
   }
+  if (!learner && action !== "poll") syncAtlasContinuity(state);
   return state;
 }
 function sharedHeader(s) {
@@ -204,7 +239,7 @@ function board(s) {
     <div class="card-area"><div class="active-card ${s.card?.nonce !== lastNonce ? "dealing" : ""} ${describer ? "face-up" : "face-down"}">${cardFace(s)}</div>
     <div class="role-caption"><p class="eyebrow">${describer ? "YOU’RE DESCRIBING" : "YOUR PARTNER IS DESCRIBING"}</p><p>${describer ? "Find another way to say it." : "Guess the word out loud."}</p></div></div>
     <aside class="dashboard panel"><div class="timer" role="timer" aria-label="Turn time remaining"><svg viewBox="0 0 220 220" aria-hidden="true"><circle class="timer-track" cx="110" cy="110" r="96"/><circle class="timer-progress" cx="110" cy="110" r="96"/></svg><div><span class="timer-symbol">◴</span><strong id="clock">01:00</strong><span id="timer-label">TIME TO TALK</span></div></div>
-      <div class="score-area"><div class="score-label"><span>SHARED SCORE</span><strong>${s.score}<small> ${s.score === 1 ? "point" : "points"}</small></strong></div>${pile(s)}<span class="played-count">${s.played} cards played</span></div>
+      <div class="score-area"><div class="score-label"><span>SHARED SCORE</span><strong>${s.score}<small> ${s.score === 1 ? "point" : "points"}</small></strong></div>${pile(s)}<span class="played-count">${s.played} ${s.played === 1 ? "card" : "cards"} played</span></div>
       ${describer ? `<div class="resolutions">${button("correct", "<span>✓</span> Correct <kbd>1</kbd>", "correct")}${button("skip", "<span>↠</span> Skip <kbd>2</kbd>", "skip")}${button("oops", "<span>!</span> I said one! <kbd>3</kbd>", "oops")}</div>` : '<div class="guesser-note"><span>◌</span><div><strong>GUESSER</strong><p>Listen. Ask questions. <br>Follow the clues.</p></div></div>'}
     </aside></section><div class="feedback" aria-live="polite">${feedbackText(s)}</div>
     ${s.phase === "countdown" ? '<div class="countdown-overlay"><div><p class="eyebrow">GET READY</p><strong id="countdown-number">3</strong><p>Your card. Your voice. Go.</p></div></div>' : ""}
@@ -287,7 +322,11 @@ function render() {
     tone(180, 0.5);
     notify("Time’s up!");
   }
-  if (lastPhase !== s.phase && ["countdown", "finished"].includes(s.phase)) notify("");
+  if (
+    ["countdown", "active", "finished"].includes(s.phase) &&
+    document.querySelector("#notice").textContent === "Time’s up!"
+  )
+    notify("");
   if (
     s.feedback?.nonce &&
     s.feedback.nonce !== lastFeedback &&
@@ -599,6 +638,12 @@ document.addEventListener("visibilitychange", () => {
     clearTimeout(pollTimer);
     poll();
   }
+});
+window.addEventListener("atlas:session-change", (event) => {
+  if (learner || LOCAL) return;
+  atlasSession =
+    event.detail?.session || window.AtlasBridge?.readActiveSession?.() || null;
+  if (state) syncAtlasContinuity(state);
 });
 setInterval(tick, 100);
 boot();
