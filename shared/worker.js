@@ -16,8 +16,682 @@
    - document mutation
    ============================================================ */
 
-import { handleForbiddenWords } from '../arcade/forbidden-words/server/http.mjs';
+/* BEGIN GENERATED FORBIDDEN WORDS BACKEND — npm run build:atlas-ai-worker */
+const handleForbiddenWords = (() => {
+    /* arcade/forbidden-words/server/cards.mjs */
+    // Server-only content. Never serve this file or send the deck to either browser.
+    const lines = `
+    umbrella|rain,wet,weather,cover
+    airport|plane,fly,travel,flight
+    library|book,read,quiet,borrow
+    birthday|cake,party,age,present
+    dentist|teeth,mouth,doctor,pain
+    mountain|high,climb,hill,snow
+    refrigerator|cold,food,kitchen,fridge
+    passport|travel,country,document,identity
+    elephant|trunk,big,animal,grey
+    restaurant|food,eat,menu,waiter
+    mirror|reflection,look,glass,face
+    bridge|river,cross,road,water
+    neighbor|live,house,next,near
+    breakfast|morning,eat,meal,eggs
+    beach|sand,sea,ocean,sun
+    wallet|money,cash,cards,pocket
+    traffic|cars,road,jam,drive
+    secret|tell,know,hidden,private
+    garden|plants,flowers,grow,outside
+    photograph|picture,camera,take,image
+    adventure|travel,exciting,explore,journey
+    honest|truth,lie,trust,sincere
+    jealous|envy,want,other,relationship
+    comfortable|relax,soft,chair,cozy
+    generous|give,kind,money,share
+    elegant|classy,stylish,sophisticated,graceful
+    stubborn|change,mind,refuse,stuck
+    patient|wait,calm,time,hospital
+    delicious|taste,food,eat,good
+    exhausted|tired,sleep,energy,rest
+    proud|achievement,happy,success,pleased
+    curious|questions,know,interested,learn
+    lonely|alone,friends,sad,people
+    brave|fear,scared,courage,danger
+    polite|please,thank,rude,manners
+    surprise|expect,unexpected,gift,shock
+    promise|keep,word,swear,commitment
+    mistake|wrong,error,accident,correct
+    memory|remember,past,forget,brain
+    dream|sleep,night,imagine,wish
+    freedom|free,choice,prison,rules
+    deadline|time,finish,date,work
+    habit|always,routine,repeat,do
+    opinion|think,believe,view,agree
+    advice|should,suggest,help,recommend
+    complaint|problem,unhappy,service,bad
+    invitation|party,come,invite,event
+    decision|choose,choice,option,decide
+    excuse|reason,sorry,late,explain
+    opportunity|chance,possible,offer,job
+    competition|win,lose,game,prize
+    teamwork|together,group,cooperate,team
+    recycle|reuse,plastic,waste,bin
+    volunteer|help,free,work,charity
+    apologize|sorry,mistake,forgive,regret
+    celebrate|party,happy,occasion,enjoy
+    whisper|quiet,voice,speak,secret
+    argue|fight,disagree,angry,shout
+    borrow|lend,return,take,money
+    repair|fix,broken,work,damage
+    discover|find,new,explore,unknown
+    pretend|act,fake,real,imagine
+    recommend|suggest,advice,good,try
+    improve|better,progress,practice,change
+    escape|leave,run,prison,free
+    balance|fall,steady,equal,weight
+    recipe|cook,food,ingredients,instructions
+    suitcase|travel,bag,clothes,pack
+    elevator|lift,up,down,floor
+    keyboard|type,computer,letters,keys
+    headphones|music,ears,listen,sound
+    candle|light,flame,wax,burn
+    ladder|climb,steps,up,high
+    scissors|cut,paper,sharp,blades
+    pillow|sleep,bed,head,soft
+    blanket|warm,bed,cover,cold
+    soap|wash,clean,hands,bubbles
+    toothbrush|teeth,clean,mouth,paste
+    envelope|letter,mail,paper,stamp
+    newspaper|news,read,paper,articles
+    dictionary|word,meaning,definition,language
+    calendar|date,month,year,day
+    receipt|buy,pay,shop,paper
+    discount|price,cheap,sale,money
+    salary|money,job,pay,work
+    interview|job,questions,answers,meeting
+    appointment|time,meet,doctor,schedule
+    commute|work,travel,home,train
+    retirement|work,old,job,pension
+    vacation|holiday,travel,rest,trip
+    souvenir|travel,gift,remember,trip
+    museum|art,history,exhibition,visit
+    theater|stage,actors,play,show
+    concert|music,band,singer,live
+    audience|watch,people,show,clap
+    stadium|sport,football,crowd,match
+    referee|rules,game,whistle,judge
+    medal|win,gold,prize,sport
+    rainbow|colors,rain,sky,sun
+    thunder|storm,noise,lightning,loud
+    shadow|dark,light,sun,shape
+    island|water,sea,land,ocean
+    desert|sand,hot,dry,water
+    forest|trees,woods,nature,green
+    waterfall|water,river,fall,cliff
+    earthquake|ground,shake,disaster,buildings
+    butterfly|wings,insect,fly,colors
+    penguin|bird,ice,black,white
+    dolphin|sea,swim,animal,fish
+    octopus|eight,arms,sea,tentacles
+    honey|bee,sweet,sugar,yellow
+    onion|cry,vegetable,layers,cook
+    popcorn|movie,corn,snack,cinema
+    sandwich|bread,fill,eat,lunch
+    chocolate|sweet,cocoa,brown,candy
+    lemon|yellow,sour,fruit,juice
+    garlic|smell,cook,white,flavor
+    ice cream|cold,sweet,frozen,dessert
+    bicycle|bike,wheels,ride,pedal
+    helmet|head,protect,safety,wear
+    seat belt|car,safety,fasten,strap
+    firefighter|fire,water,save,truck
+    plumber|pipes,water,repair,leak
+    architect|building,design,house,plans
+    scientist|experiment,research,lab,science
+    lawyer|law,court,judge,legal
+    farmer|farm,grow,animals,fields
+    cashier|pay,shop,money,till
+    waiter|restaurant,food,serve,table
+    tourist|travel,visit,holiday,foreign
+    friendship|friend,together,trust,relationship
+    respect|admire,polite,treat,value
+    patience|wait,calm,time,patient
+    confidence|believe,sure,self,trust
+    creativity|ideas,imagine,original,create
+    responsibility|duty,job,care,accountable
+    tradition|custom,culture,family,old
+    pollution|dirty,air,environment,waste
+    reputation|people,opinion,known,image
+    permission|allow,can,ask,yes
+    progress|improve,forward,better,development
+    `
+      .trim()
+      .split("\n");
+    const CARDS = lines.map((line) => {
+      const [target, words] = line.split("|");
+      return { target, forbidden: words.split(",") };
+    });
 
+    /* arcade/forbidden-words/server/game.mjs */
+    const TURN_MS = 60000;
+    const COUNTDOWN_MS = 3000;
+    const PRESENCE_MS = 12000;
+    class GameError extends Error {
+      constructor(message, status = 409) {
+        super(message);
+        this.status = status;
+      }
+    }
+    function requireThat(value, message, status) {
+      if (!value) throw new GameError(message, status);
+    }
+    function shuffle() {
+      const pool = CARDS.map((_, i) => i);
+      for (let i = pool.length - 1; i > 0; i--) {
+        // Rejection sampling avoids modulo bias.
+        const limit = Math.floor(0x100000000 / (i + 1)) * (i + 1);
+        let n;
+        do {
+          n = crypto.getRandomValues(new Uint32Array(1))[0];
+        } while (n >= limit);
+        const j = n % (i + 1);
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      return pool;
+    }
+    function initialState(now) {
+      return {
+        phase: "waiting",
+        round: 0,
+        turn: 0,
+        describer: "tutor",
+        score: 0,
+        best: null,
+        pool: shuffle(),
+        cursor: 0,
+        card: null,
+        history: [],
+        feedback: null,
+        ready: [],
+        paused: null,
+        deadline: null,
+        startsAt: null,
+        late: null,
+        learnerHash: null,
+        seen: { tutor: now, learner: 0 },
+        receipts: [],
+        rate: {},
+      };
+    }
+    function deal(s) {
+      if (s.cursor === s.pool.length) {
+        s.pool = shuffle();
+        s.cursor = 0;
+      }
+      s.card = { index: s.pool[s.cursor++], nonce: crypto.randomUUID() };
+    }
+    function startTurn(s, now) {
+      s.phase = "countdown";
+      s.ready = [];
+      s.late = null;
+      s.feedback = null;
+      s.startsAt = now + COUNTDOWN_MS;
+      s.deadline = s.startsAt + TURN_MS;
+      deal(s);
+    }
+    function record(s, result, now) {
+      const entry = { ...s.card, result, turn: s.turn, describer: s.describer };
+      s.history.push(entry);
+      if (result === "correct") s.score++;
+      s.feedback = {
+        result,
+        at: now,
+        nonce: s.card.nonce,
+        ...(result === "correct" ? { target: CARDS[s.card.index].target } : {}),
+      };
+    }
+    function advance(s, now) {
+      if (s.paused) return;
+      if (s.phase === "countdown" && now >= s.startsAt) s.phase = "active";
+      if (s.phase === "active" && now >= s.deadline) {
+        record(s, "unfinished", s.deadline);
+        s.late = { nonce: s.card.nonce, describer: s.describer, credited: false };
+        s.card = null;
+        s.phase = s.turn === 1 ? "switch" : "results";
+        s.ready = [];
+        if (s.phase === "switch")
+          s.describer = s.describer === "tutor" ? "learner" : "tutor";
+        else s.best = Math.max(s.best ?? 0, s.score);
+      }
+    }
+    function command(s, actor, input, now) {
+      s.rate ||= {};
+      const bucket = s.rate[actor];
+      if (!bucket || now - bucket.since >= 10000)
+        s.rate[actor] = { since: now, count: 1 };
+      else {
+        requireThat(
+          bucket.count < 60,
+          "Too many requests. Please wait a moment.",
+          429,
+        );
+        bucket.count++;
+      }
+      advance(s, now);
+      s.seen[actor] = now;
+      const { action, id } = input;
+      if (action === "poll") {
+        if (
+          s.phase === "switch" &&
+          s.ready.length === 2 &&
+          now - s.seen.tutor < PRESENCE_MS &&
+          now - s.seen.learner < PRESENCE_MS
+        ) {
+          s.turn = 2;
+          startTurn(s, now);
+        }
+        return;
+      }
+      requireThat(
+        typeof id === "string" && /^[\w-]{16,80}$/.test(id),
+        "Invalid command.",
+        400,
+      );
+      if (s.receipts.includes(`${actor}:${id}`)) return;
+      requireThat(
+        input.round === s.round && input.turn === s.turn,
+        "The game has moved to another turn. Please try again.",
+      );
+      const tutor = actor === "tutor";
+      if (action === "replace-learner") {
+        requireThat(
+          (tutor && !["active", "countdown"].includes(s.phase)) ||
+            (tutor && s.paused),
+          "Pause before replacing your learner.",
+        );
+        s.learnerHash = null;
+        s.seen.learner = 0;
+        s.ready = [];
+      } else if (action === "pause") {
+        requireThat(
+          tutor && ["active", "countdown"].includes(s.phase) && !s.paused,
+          "Only the tutor can pause a running turn.",
+        );
+        s.paused = {
+          at: now,
+          remaining: s.deadline - now,
+          countdown: Math.max(0, s.startsAt - now),
+        };
+      } else if (action === "resume") {
+        requireThat(tutor && s.paused, "Only the tutor can resume.");
+        s.deadline = now + s.paused.remaining;
+        s.startsAt = now + s.paused.countdown;
+        s.paused = null;
+      } else if (action === "finish") {
+        requireThat(
+          tutor && ["waiting", "switch", "results"].includes(s.phase),
+          "Finish between turns or rounds.",
+        );
+        s.phase = "finished";
+        s.card = null;
+        s.paused = null;
+      } else {
+        requireThat(!s.paused, "The tutor has paused the game.");
+        if (action === "start" || action === "replay") {
+          requireThat(
+            tutor &&
+              (action === "start" ? s.phase === "waiting" : s.phase === "results"),
+            "This round has already started.",
+          );
+          requireThat(
+            s.learnerHash && now - s.seen.learner < PRESENCE_MS,
+            "Wait for your learner to connect.",
+          );
+          s.round++;
+          s.turn = 1;
+          s.score = 0;
+          s.history = [];
+          s.pool = shuffle();
+          s.cursor = 0;
+          s.describer = s.round % 2 ? "tutor" : "learner";
+          startTurn(s, now);
+        } else if (action === "ready") {
+          requireThat(
+            s.phase === "switch" && input.round === s.round,
+            "The next turn is not waiting.",
+          );
+          if (!s.ready.includes(actor)) s.ready.push(actor);
+          if (
+            s.ready.length === 2 &&
+            now - s.seen.tutor < PRESENCE_MS &&
+            now - s.seen.learner < PRESENCE_MS
+          ) {
+            s.turn = 2;
+            startTurn(s, now);
+          }
+        } else if (action === "late-correct") {
+          requireThat(
+            ["switch", "results"].includes(s.phase) &&
+              s.late &&
+              !s.late.credited &&
+              s.late.describer === actor &&
+              input.card === s.late.nonce,
+            "That final card cannot be credited.",
+          );
+          const last = s.history[s.history.length - 1];
+          requireThat(
+            last.result === "unfinished",
+            "That card is already resolved.",
+          );
+          last.result = "correct";
+          s.late.credited = true;
+          s.score++;
+          if (s.phase === "results") s.best = Math.max(s.best ?? 0, s.score);
+        } else if (["correct", "skip", "oops"].includes(action)) {
+          requireThat(
+            s.phase === "active" && s.describer === actor,
+            "Only the current Describer can resolve a card.",
+            403,
+          );
+          requireThat(
+            s.card?.nonce === input.card,
+            "That card has already moved on.",
+          );
+          record(s, action, now);
+          deal(s);
+        } else throw new GameError("Unknown action.", 400);
+      }
+      s.receipts = [...s.receipts.slice(-99), `${actor}:${id}`];
+    }
+    // Explicit allow-list projection: never serialize state, deck indices or credential hashes.
+    function view(s, actor, now, revision) {
+      advance(s, now);
+      const playing = ["active", "countdown"].includes(s.phase);
+      const result = {
+        phase: s.phase,
+        round: s.round,
+        turn: s.turn,
+        describer: s.describer,
+        role: actor === s.describer ? "Describer" : "Guesser",
+        actor,
+        score: s.score,
+        best: s.best,
+        serverNow: now,
+        revision,
+        startsAt: s.startsAt,
+        deadline: s.deadline,
+        paused: s.paused,
+        ready: s.ready,
+        remaining: s.pool.length - s.cursor,
+        played: s.history.filter((x) => x.result !== "unfinished").length,
+        connected: {
+          tutor: now - s.seen.tutor < PRESENCE_MS,
+          learner: !!s.learnerHash && now - s.seen.learner < PRESENCE_MS,
+        },
+        feedback: s.feedback && now - s.feedback.at < 1800 ? s.feedback : null,
+        card:
+          playing && s.card
+            ? {
+                nonce: s.card.nonce,
+                ...(actor === s.describer ? CARDS[s.card.index] : {}),
+              }
+            : null,
+        finalCard: null,
+        canCredit: false,
+        review: [],
+      };
+      if (["switch", "results", "finished"].includes(s.phase) && s.late) {
+        const last = s.history[s.history.length - 1];
+        result.finalCard = {
+          target: CARDS[last.index].target,
+          credited: s.late.credited,
+        };
+        result.canCredit =
+          s.phase !== "finished" && s.late.describer === actor && !s.late.credited;
+        result.finalNonce = s.late.nonce;
+      }
+      if (["results", "finished"].includes(s.phase)) {
+        result.review = s.history
+          .filter((x) => x.result !== "correct")
+          .map((x) => ({ ...CARDS[x.index], result: x.result }));
+      }
+      return result;
+    }
+
+    /* arcade/forbidden-words/server/http.mjs */
+    const UUID =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const TOKEN = /^[0-9a-f]{64}$/;
+    function token() {
+      return Array.from(crypto.getRandomValues(new Uint8Array(32)), (n) =>
+        n.toString(16).padStart(2, "0"),
+      ).join("");
+    }
+    async function hash(value) {
+      return Array.from(
+        new Uint8Array(
+          await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value)),
+        ),
+        (n) => n.toString(16).padStart(2, "0"),
+      ).join("");
+    }
+    async function same(a, b) {
+      if (typeof a !== "string" || typeof b !== "string") return false;
+      // HMAC verification provides constant-time comparison in both Workers and Node.
+      const key = await crypto.subtle.importKey(
+        "raw",
+        new Uint8Array(32),
+        { name: "HMAC", hash: "SHA-256" },
+        false,
+        ["sign", "verify"],
+      );
+      const signature = await crypto.subtle.sign(
+        "HMAC",
+        key,
+        new TextEncoder().encode(a),
+      );
+      return crypto.subtle.verify(
+        "HMAC",
+        key,
+        signature,
+        new TextEncoder().encode(b),
+      );
+    }
+    function supabaseRpc(env) {
+      const base = String(env.ATLAS_SUPABASE_URL || "").replace(/\/+$/, "");
+      const key =
+        env.ATLAS_SUPABASE_SECRET_KEY || env.ATLAS_SUPABASE_SERVICE_ROLE_KEY;
+      return async (name, args) => {
+        if (!base || !key)
+          throw new GameError("Game service is not configured.", 503);
+        const response = await fetch(`${base}/rest/v1/rpc/${name}`, {
+          method: "POST",
+          headers: {
+            apikey: key,
+            Authorization: `Bearer ${key}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(args),
+          signal: AbortSignal.timeout(8000),
+        });
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({}));
+          if (error.code === "P0001")
+            throw new GameError(
+              "Game limit reached. Finish an existing game, or try again later.",
+              429,
+            );
+          throw new GameError(
+            "Game service is temporarily unavailable. Please retry.",
+            503,
+          );
+        }
+        return response.status === 204 ? null : response.json();
+      };
+    }
+    async function bodyOf(request) {
+      if (!request.headers.get("Content-Type")?.startsWith("application/json"))
+        throw new GameError("JSON required.", 415);
+      const reader = request.body?.getReader();
+      if (!reader) throw new GameError("Request required.", 400);
+      const chunks = [];
+      let size = 0;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        size += value.length;
+        if (size > 4096) {
+          await reader.cancel();
+          throw new GameError("Request too large.", 413);
+        }
+        chunks.push(value);
+      }
+      const bytes = new Uint8Array(size);
+      let at = 0;
+      for (const c of chunks) {
+        bytes.set(c, at);
+        at += c.length;
+      }
+      try {
+        return JSON.parse(new TextDecoder().decode(bytes));
+      } catch {
+        throw new GameError("Invalid JSON.", 400);
+      }
+    }
+
+    // Dependencies are supplied by Atlas's existing Worker. The local verifier uses
+    // the identical handler and actual PostgreSQL functions, with an isolated database.
+    async function handleForbiddenWords(
+      request,
+      env,
+      { authenticate, rpc = supabaseRpc(env) },
+    ) {
+      const origin = request.headers.get("Origin");
+      const allowed = [env.ALLOWED_ORIGIN, env.ALLOWED_DEV_ORIGIN].filter(Boolean);
+      const headers = {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store, private",
+        "Referrer-Policy": "no-referrer",
+        Vary: "Origin",
+        ...(allowed.includes(origin)
+          ? { "Access-Control-Allow-Origin": origin }
+          : {}),
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+      };
+      const reply = (body, status = 200) =>
+        new Response(JSON.stringify(body), { status, headers });
+      try {
+        if (origin && !allowed.includes(origin))
+          throw new GameError("Origin is not permitted.", 403);
+        if (request.method === "OPTIONS")
+          return new Response(null, { status: 204, headers });
+        if (request.method !== "POST")
+          throw new GameError("Method not allowed.", 405);
+        const route = new URL(request.url).pathname.slice(
+          "/forbidden-words/".length,
+        );
+        if (!["create", "session"].includes(route))
+          throw new GameError("Not found.", 404);
+        const body = await bodyOf(request);
+        if (!body || !UUID.test(body.session || ""))
+          throw new GameError("Invalid session.", 400);
+        const learner = typeof body.credential === "string";
+        let owner = null;
+        if (!learner) {
+          const auth = await authenticate(request, env);
+          if (!auth.ok)
+            throw new GameError(
+              "Sign in to Atlas to host this game.",
+              auth.status || 401,
+            );
+          owner = auth.userId;
+        } else if (!TOKEN.test(body.credential))
+          throw new GameError("Invalid learner credential.", 403);
+        const credentialHash = learner ? await hash(body.credential) : null;
+        if (route === "create") {
+          if (learner) throw new GameError("Only a tutor can create a game.", 403);
+          const state = initialState(0);
+          state.invite = token();
+          await rpc("forbidden_words_create", {
+            p_id: body.session,
+            p_owner: owner,
+            p_state: state,
+          });
+        }
+        for (let attempt = 0; attempt < 8; attempt++) {
+          const row = await rpc("forbidden_words_read", { p_id: body.session });
+          if (!row)
+            throw new GameError(
+              "This game has expired. Ask your tutor for a new link.",
+              410,
+            );
+          const s = row.state;
+          const now = Number(row.now);
+          const actor = learner ? "learner" : "tutor";
+          if (learner) {
+            if (s.learnerHash) {
+              if (!(await same(s.learnerHash, credentialHash)))
+                throw new GameError(
+                  "This learner seat is already in use. Ask your tutor for a replacement link.",
+                  403,
+                );
+            } else {
+              if (
+                body.action !== "join" ||
+                !TOKEN.test(body.invite || "") ||
+                !(await same(s.invite, body.invite)) ||
+                s.phase === "finished"
+              ) {
+                throw new GameError(
+                  "This invite is no longer available. Ask your tutor for a new link.",
+                  403,
+                );
+              }
+              s.learnerHash = credentialHash;
+            }
+          } else if (row.owner !== owner)
+            throw new GameError("This game belongs to another tutor.", 403);
+          const input =
+            route === "create" || body.action === "join"
+              ? { action: "poll" }
+              : body;
+          const duplicate = s.receipts.includes(`${actor}:${input.id}`);
+          command(s, actor, input, now);
+          if (input.action === "replace-learner" && !duplicate) s.invite = token();
+          // Resolution must still be before the deadline at the atomic DB commit.
+          const isResolution =
+            !duplicate && ["correct", "skip", "oops"].includes(input.action);
+          const committed = await rpc("forbidden_words_commit", {
+            p_id: body.session,
+            p_revision: row.revision,
+            p_state: s,
+            p_deadline: isResolution && s.phase === "active" ? s.deadline : null,
+          });
+          if (!committed) continue;
+          const projection = view(s, actor, now, row.revision + 1);
+          if (!learner) projection.invite = s.invite;
+          return reply({ ok: true, state: projection });
+        }
+        throw new GameError("The game is busy. Please retry.", 409);
+      } catch (error) {
+        // Do not log bodies, card content, tokens or raw database errors.
+        if (!(error instanceof GameError))
+          console.error("[Forbidden Words] Request failed:", error.name);
+        return reply(
+          {
+            ok: false,
+            error:
+              error instanceof GameError
+                ? error.message
+                : "Connection interrupted. Please retry.",
+          },
+          error.status || 503,
+        );
+      }
+    }
+
+    return handleForbiddenWords;
+})();
+/* END GENERATED FORBIDDEN WORDS BACKEND */
 const ATLAS_AI_REQUEST_ID_HEADER =
     'X-Atlas-Request-Id';
 
