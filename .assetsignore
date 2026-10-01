@@ -17,7 +17,6 @@ package-lock.json
 wrangler.atlas-web.jsonc
 
 shared/worker.js
-shared/worker.cloudflare.js
 arcade/forbidden-words/server/
 arcade/forbidden-words/dev/
 arcade/forbidden-words/README.md
