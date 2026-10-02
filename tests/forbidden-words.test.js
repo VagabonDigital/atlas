@@ -177,6 +177,7 @@ const fs = require("node:fs");
   assert.ok(client.includes('"pause-button"'));
   assert.ok(client.includes('aria-label="How to play"'));
   assert.ok(gameCss.includes(".game-utility-button:hover:not(:disabled)"));
+  assert.ok(gameCss.includes("#app button:not(.game-utility-button)"));
   assert.ok(gameCss.includes(".pause-button:hover:not(:disabled)"));
   assert.ok(!gameCss.includes(".quiet {"));
   assert.ok(!client.includes('"quiet pause-button"'));
