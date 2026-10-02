@@ -329,6 +329,8 @@ body[data-atlas-world="compass"] .subject-artwork-studio-close {
     display: inline-flex;
 }
 
+.atlas-modal-close:hover,
+.atlas-modal-close:focus-visible,
 .atlas-search-close:hover,
 .atlas-search-close:focus-visible,
 body[data-atlas-world="atlas"] #settings-modal .modal-close:hover,
@@ -344,6 +346,7 @@ body[data-atlas-world="compass"] .subject-artwork-studio-close:focus-visible {
     color: var(--atlas-modal-heading);
 }
 
+.atlas-modal-close:focus-visible,
 .atlas-search-close:focus-visible,
 body[data-atlas-world="atlas"] #settings-modal .modal-close:focus-visible,
 body[data-atlas-world] .atlas-feedback-close:focus-visible,
