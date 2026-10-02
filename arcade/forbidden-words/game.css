@@ -1257,14 +1257,15 @@ body:before {
   bottom: 18px;
   left: 50%;
   transform: translateX(-50%);
-  max-width: min(440px, calc(100vw - 32px));
+  width: max-content;
+  max-width: min(680px, calc(100vw - 32px));
   background: #102b48ed;
   border: 1px solid #fff3;
   color: white;
   border-radius: 12px;
   font-size: 13px;
   line-height: 1.5;
-  padding: 13px 18px;
+  padding: 10px 18px;
   box-shadow: 0 6px 25px #21496a33;
   text-align: center;
   z-index: 20;
