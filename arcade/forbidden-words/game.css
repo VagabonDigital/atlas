@@ -87,7 +87,7 @@ body:before {
   font: inherit;
 }
 #app button,
-#rules button {
+#rules button:not(.atlas-modal-close) {
   cursor: pointer;
   border: 0;
   min-height: 44px;
@@ -97,16 +97,16 @@ body:before {
     background 0.15s;
 }
 #app button:hover:not(:disabled),
-#rules button:hover:not(:disabled) {
+#rules button:not(.atlas-modal-close):hover:not(:disabled) {
   transform: translateY(-2px);
   filter: brightness(1.035);
 }
 #app button:active:not(:disabled),
-#rules button:active:not(:disabled) {
+#rules button:not(.atlas-modal-close):active:not(:disabled) {
   transform: translateY(1px);
 }
 #app button:disabled,
-#rules button:disabled {
+#rules button:not(.atlas-modal-close):disabled {
   cursor: default;
   opacity: 0.5;
 }
@@ -114,7 +114,7 @@ body:before {
 #app a:focus-visible,
 #app summary:focus-visible,
 #app input:focus-visible,
-#rules button:focus-visible,
+#rules button:not(.atlas-modal-close):focus-visible,
 #rules input:focus-visible {
   outline: 3px solid #0067ee;
   outline-offset: 5px;
@@ -1177,44 +1177,55 @@ body:before {
   pointer-events: none;
 }
 dialog {
+  position: relative;
   max-width: 600px;
   width: calc(100% - 32px);
   max-height: min(88svh, 46rem);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(90, 74, 110, 0.28) transparent;
+  overflow: hidden;
   border: 1px solid white;
   border-radius: 25px;
-  padding: 38px;
+  padding: 0;
   box-shadow: 0 30px 100px #16355766;
   background: #f8fbff;
   color: #1c3555;
 }
-dialog::-webkit-scrollbar {
+.rules-scroll {
+  max-height: min(88svh, 46rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 38px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(90, 74, 110, 0.28) transparent;
+}
+.rules-scroll::-webkit-scrollbar {
   width: 10px;
 }
-dialog::-webkit-scrollbar-track {
+.rules-scroll::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+.rules-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
-dialog::-webkit-scrollbar-thumb {
+.rules-scroll::-webkit-scrollbar-thumb {
   border: 2px solid transparent;
   border-radius: 999px;
   background: rgba(90, 74, 110, 0.28);
   background-clip: padding-box;
 }
-dialog::-webkit-scrollbar-thumb:hover {
+.rules-scroll::-webkit-scrollbar-thumb:hover {
   background: rgba(90, 74, 110, 0.42);
   background-clip: padding-box;
 }
-html[data-theme="night"] dialog {
+html[data-theme="night"] .rules-scroll {
   scrollbar-color: rgba(207, 193, 209, 0.30) transparent;
 }
-html[data-theme="night"] dialog::-webkit-scrollbar-thumb {
+html[data-theme="night"] .rules-scroll::-webkit-scrollbar-thumb {
   background: rgba(207, 193, 209, 0.30);
   background-clip: padding-box;
 }
-html[data-theme="night"] dialog::-webkit-scrollbar-thumb:hover {
+html[data-theme="night"] .rules-scroll::-webkit-scrollbar-thumb:hover {
   background: rgba(207, 193, 209, 0.44);
   background-clip: padding-box;
 }
@@ -1245,40 +1256,13 @@ dialog li {
   position: absolute;
   right: 15px;
   top: 12px;
-  display: inline-flex;
-  width: 2rem;
-  height: 2rem;
-  min-height: 2rem;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--atlas-modal-muted, #7890ae);
-  cursor: pointer;
-  font: inherit;
-  font-size: 1.35rem;
-  line-height: 1;
-  transition:
-    border-color 0.18s ease,
-    background-color 0.18s ease,
-    color 0.18s ease;
+  z-index: 2;
 }
-#rules .rules-close:hover,
-#rules .rules-close:focus-visible {
-  border-color: var(--atlas-modal-border-strong, rgba(76, 57, 72, 0.21));
-  background: var(--atlas-modal-control-hover, #f0ebe6);
-  color: var(--atlas-modal-heading, #302730);
+#rules .atlas-modal-close:hover,
+#rules .atlas-modal-close:focus-visible,
+#rules .atlas-modal-close:active {
   transform: none;
   filter: none;
-}
-#rules .rules-close:active {
-  transform: none;
-}
-#rules .rules-close:focus-visible {
-  outline: 2px solid var(--atlas-modal-accent, #6f536f);
-  outline-offset: 2px;
 }
 .sr-only {
   position: absolute;
@@ -1867,7 +1851,7 @@ dialog li {
   .pause-overlay p {
     font-size: 14px;
   }
-  dialog {
+  .rules-scroll {
     padding: 33px 25px;
   }
   dialog h2 {
