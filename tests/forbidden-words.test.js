@@ -9,6 +9,8 @@ const fs = require("node:fs");
   let s = initialState(now);
   s.learnerHash = "test";
   s.seen.learner = now;
+  const act = (actor, action, time, extra = {}, id = crypto.randomUUID()) =>
+    command(s, actor, { action, id, round: s.round, turn: s.turn, ...extra }, time);
   assert.equal(s.theme, "light");
   assert.throws(() => act("learner", "theme", now, { theme: "night" }), /Only the tutor/);
   act("tutor", "theme", now, { theme: "night" });
@@ -16,8 +18,6 @@ const fs = require("node:fs");
   assert.equal(view(s, "learner", now, 1).theme, "night");
   act("tutor", "theme", now, { theme: "light" });
   assert.equal(s.theme, "light");
-  const act = (actor, action, time, extra = {}, id = crypto.randomUUID()) =>
-    command(s, actor, { action, id, round: s.round, turn: s.turn, ...extra }, time);
   assert.ok(CARDS.length >= 100);
   assert.equal(new Set(CARDS.map((c) => c.target)).size, CARDS.length);
   for (const c of CARDS) {
