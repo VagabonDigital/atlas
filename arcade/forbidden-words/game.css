@@ -166,12 +166,6 @@ body:before {
   margin: 0 0 0 5px;
   transform: translateY(-3px);
 }
-body[data-player="learner"] .entry-footer {
-  grid-template-columns: auto minmax(0, 1fr);
-}
-body[data-player="learner"] .entry-rules {
-  text-align: right;
-}
 .landing {
   display: grid;
   grid-template-columns: 1.18fr 1fr;
@@ -359,13 +353,25 @@ body[data-player="learner"] .entry-rules {
   font-size: 12px;
 }
 .entry-footer {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 14px;
   margin-top: 22px;
   padding-top: 18px;
   border-top: 1px solid #e0e9f3;
+}
+.learner-entry-footer {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+}
+.tutor-entry-footer {
+  display: grid;
+  gap: 11px;
+}
+.entry-footer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
 }
 .entry-footer-action {
   min-height: 0;
@@ -394,8 +400,10 @@ body[data-player="learner"] .entry-rules {
   line-height: 1.45 !important;
   text-align: center;
 }
+.learner-entry-footer .entry-rules {
+  text-align: right;
+}
 .entry-footer-maintenance {
-  justify-self: end;
   font-weight: 600;
 }
 .loading {
@@ -1799,18 +1807,18 @@ dialog li {
   .invitation > p:not(.eyebrow):not(.small-note) {
     font-size: 14px;
   }
-  .entry-footer,
-  body[data-player="learner"] .entry-footer {
+  .learner-entry-footer {
     grid-template-columns: 1fr;
     gap: 8px;
     text-align: center;
   }
-  .entry-footer-action,
-  .entry-footer-maintenance {
-    justify-self: center;
-  }
-  body[data-player="learner"] .entry-rules {
+  .learner-entry-footer .entry-rules {
     text-align: center;
+  }
+  .entry-footer-actions {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px 18px;
   }
 
   .game-heading-left {
