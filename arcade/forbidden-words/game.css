@@ -166,6 +166,12 @@ body:before {
   margin: 0 0 0 5px;
   transform: translateY(-3px);
 }
+body.learner .entry-footer {
+  grid-template-columns: auto 1fr;
+}
+body.learner .entry-rules {
+  text-align: right;
+}
 .landing {
   display: grid;
   grid-template-columns: 1.18fr 1fr;
@@ -352,17 +358,44 @@ body:before {
 .small {
   font-size: 12px;
 }
-.small-note {
-  text-align: center;
-  font-size: 11px !important;
-  color: #7890aa;
-  margin-top: 16px !important;
+.entry-footer {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid #e0e9f3;
 }
-.waiting-label {
+.entry-footer-action {
+  min-height: 0;
+  margin: 0;
+  padding: 5px 0;
+  border: 0;
+  background: transparent;
+  color: #285b9b;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  box-shadow: none;
+}
+.entry-footer-action:hover,
+.entry-footer-action:focus-visible {
+  color: #0d66d7;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+}
+.entry-rules {
+  margin: 0 !important;
+  color: #7890aa;
+  font-size: 11px !important;
+  line-height: 1.45 !important;
   text-align: center;
-  font-size: 15px;
-  color: #37619a;
-  padding: 17px;
+}
+.entry-footer-maintenance {
+  justify-self: end;
+  font-weight: 600;
 }
 .loading {
   padding: 120px;
@@ -1759,6 +1792,15 @@ dialog li {
   }
   .invitation > p:not(.eyebrow):not(.small-note) {
     font-size: 14px;
+  }
+  .entry-footer {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    text-align: center;
+  }
+  .entry-footer-action,
+  .entry-footer-maintenance {
+    justify-self: center;
   }
 
   .game-heading-left {
