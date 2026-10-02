@@ -1157,43 +1157,45 @@ body:before {
   margin-top: 16px;
 }
 .switch-panel {
-  padding-block: 22px;
+  padding-block: 30px;
 }
 .switch-panel .result-score {
-  margin: 8px 0 3px;
+  margin: 14px 0 8px;
 }
 .switch-panel .result-score > strong {
-  font-size: 60px;
+  font-size: 70px;
 }
 .switch-panel .best {
-  margin: 3px 0 7px;
+  margin: 8px 0 14px;
 }
 .switch-panel .final-card {
-  margin: 9px 0;
+  margin: 14px 0;
 }
 .switch-copy {
-  margin: 9px 0 12px !important;
+  margin: 14px 0 18px !important;
 }
 .switch-actions {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
 }
 .switch-actions .primary,
 .switch-actions .secondary {
-  min-width: 128px;
+  min-width: 138px;
 }
 .switch-maintenance {
-  margin-top: 4px;
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px solid #e0e9f3;
 }
 #app .switch-maintenance .text-button {
-  min-height: 32px;
-  margin-top: 3px;
-  padding-block: 5px;
+  min-height: 34px;
+  margin-top: 0;
+  padding-block: 7px;
 }
 .switch-maintenance .link-row {
-  margin: 8px 0 0;
+  margin: 10px 0 0;
 }
 .review {
   margin-top: 16px;
