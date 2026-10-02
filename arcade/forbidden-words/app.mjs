@@ -194,6 +194,12 @@ function syncAtlasContinuity(s) {
 }
 function ensurePlayingChrome() {
   if (learner || playingChromeMounted || !window.ArcadeGameChrome) return;
+  window.ArcadeGameChrome.mountGame({
+    root: "#playing-chrome",
+    returnRoot: "#arcade-game-return-root",
+    actionsRoot: "#arcade-game-actions-root",
+  });
+  setupTutorMobileUtilities();
   playingChromeMounted = true;
 }
 async function setupTutor() {
@@ -222,12 +228,6 @@ async function setupTutor() {
     });
   }
   window.ArcadeGameChrome.mountLanding({ root: "#landing-chrome" });
-  window.ArcadeGameChrome.mountGame({
-    root: "#playing-chrome",
-    returnRoot: "#arcade-game-return-root",
-    actionsRoot: "#arcade-game-actions-root",
-  });
-  setupTutorMobileUtilities();
   if (!LOCAL) {
     await window.AtlasAccessBootstrap.prepareAccount();
     const auth = await window.AtlasCloud.getSession();
