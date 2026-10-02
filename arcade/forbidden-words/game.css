@@ -2450,8 +2450,9 @@ html[data-theme="night"] #rules .atlas-modal-close:active {
   border-color: #fff;
   color: #355c89;
 }
+#landing-chrome[hidden],
 #playing-chrome[hidden] {
-  display: none;
+  display: none !important;
 }
 #arcade-game-return-root,
 #arcade-game-actions-root {
