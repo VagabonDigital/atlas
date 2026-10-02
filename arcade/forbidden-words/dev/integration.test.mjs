@@ -37,11 +37,18 @@ async function call(body, expected = 200, tutor = false, route = "session") {
 }
 try {
   await call({ action: "create" }, 401, false, "create");
-  let tutor = await call({ action: "create" }, 200, true, "create");
+  let tutor = await call({ action: "create", theme: "night" }, 200, true, "create");
+  assert.equal(tutor.theme, "night");
   const invite = tutor.invite;
   await call({ action: "poll", credential }, 403);
   let learner = await call({ action: "join", credential, invite });
   assert.equal(learner.invite, undefined);
+  assert.equal(learner.theme, "night");
+  await call({ action: "theme", credential, theme: "light" }, 403);
+  tutor = await call({ action: "theme", theme: "light" }, 200, true);
+  learner = await call({ action: "poll", credential });
+  assert.equal(tutor.theme, "light");
+  assert.equal(learner.theme, "light");
   await call({ action: "join", credential: token(), invite }, 403);
   tutor = await call({ action: "start" }, 200, true);
   assert.equal(tutor.deadline - tutor.startsAt, 60000);
