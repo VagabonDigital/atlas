@@ -86,7 +86,7 @@ body:before {
 #rules input {
   font: inherit;
 }
-#app button,
+#app button:not(.game-utility-button),
 #rules button:not(.atlas-modal-close) {
   cursor: pointer;
   border: 0;
@@ -96,21 +96,21 @@ body:before {
     box-shadow 0.15s,
     background 0.15s;
 }
-#app button:hover:not(:disabled),
+#app button:not(.game-utility-button):hover:not(:disabled),
 #rules button:not(.atlas-modal-close):hover:not(:disabled) {
   transform: translateY(-2px);
   filter: brightness(1.035);
 }
-#app button:active:not(:disabled),
+#app button:not(.game-utility-button):active:not(:disabled),
 #rules button:not(.atlas-modal-close):active:not(:disabled) {
   transform: translateY(1px);
 }
-#app button:disabled,
+#app button:not(.game-utility-button):disabled,
 #rules button:not(.atlas-modal-close):disabled {
   cursor: default;
   opacity: 0.5;
 }
-#app button:focus-visible,
+#app button:not(.game-utility-button):focus-visible,
 #app a:focus-visible,
 #app summary:focus-visible,
 #app input:focus-visible,
