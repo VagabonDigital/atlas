@@ -1268,6 +1268,9 @@ body:before {
   z-index: 20;
   pointer-events: none;
 }
+body:has(#notice:not(:empty)) .feedback {
+  bottom: 76px;
+}
 dialog {
   position: relative;
   max-width: 600px;
@@ -1335,6 +1338,13 @@ dialog li {
   font-size: 14px;
   line-height: 1.75;
   color: #58708c;
+}
+.shortcut-note {
+  display: block;
+  margin-top: 6px;
+  color: #6f85a0;
+  font-size: 12px;
+  line-height: 1.5;
 }
 dialog ol {
   padding-left: 21px;
@@ -2066,6 +2076,11 @@ dialog li {
   .result-actions,
   .review {
     margin-top: 12px;
+  }
+}
+@media (hover: none) and (pointer: coarse) {
+  .shortcut-note {
+    display: none;
   }
 }
 @media (prefers-reduced-motion: reduce) {
