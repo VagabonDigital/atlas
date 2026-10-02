@@ -928,24 +928,15 @@ body:before {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
   border-radius: 50px;
   min-height: 45px;
   padding: 8px 22px;
   font-weight: 800;
   text-align: center;
-  text-transform: uppercase;
   font-size: 15px;
   box-shadow:
     0 4px 6px #24496017,
     inset 0 1px 0 #fff8;
-}
-.resolutions button > span {
-  flex: 0 0 24px;
-  width: 24px;
-  font-size: 22px;
-  line-height: 1;
-  text-align: center;
 }
 .correct {
   color: white;
@@ -956,9 +947,6 @@ body:before {
   color: #222c40;
   background: linear-gradient(#fff, #f6f4f1);
   border: 1px solid #dcdce0;
-}
-.skip > span {
-  color: #8e9bac;
 }
 .oops {
   color: #d84239;
@@ -1680,9 +1668,6 @@ dialog li {
     padding: 9px 12px;
     min-height: 44px;
   }
-  .resolutions button > span {
-    font-size: 17px;
-  }
   .score-label > span {
     font-size: 7px;
     letter-spacing: 1px;
@@ -1909,15 +1894,11 @@ dialog li {
     font-size: 12px;
     min-height: 47px;
     justify-content: center;
-    gap: 11px;
   }
   .resolutions button.correct {
     grid-column: 1/-1;
     font-size: 16px;
     min-height: 51px;
-  }
-  .resolutions button > span {
-    font-size: 21px;
   }
   .guesser-note {
     margin: 0;
