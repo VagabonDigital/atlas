@@ -1,6 +1,6 @@
 import { CARDS } from "./cards.mjs";
 
-export const TURN_MS = 60000;
+export const TURN_MS = 120000;
 export const COUNTDOWN_MS = 3000;
 export const PRESENCE_MS = 12000;
 export class GameError extends Error {
@@ -256,6 +256,7 @@ export function view(s, actor, now, revision) {
     revision,
     startsAt: s.startsAt,
     deadline: s.deadline,
+    turnMs: TURN_MS,
     paused: s.paused,
     theme: s.theme === "night" ? "night" : "light",
     ready: s.ready,
