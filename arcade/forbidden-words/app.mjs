@@ -384,7 +384,7 @@ function landing(s) {
     ${learner
       ? `<div class="entry-footer learner-entry-footer">
           ${button("rules", "How to play", "entry-footer-action")}
-          <p class="entry-rules">60 seconds each · Four forbidden words · Shared score</p>
+          <p class="entry-rules">2 minutes each · Four forbidden words · Shared score</p>
         </div>`
       : `<div class="entry-footer tutor-entry-footer">
           <div class="entry-footer-actions">
@@ -392,7 +392,7 @@ function landing(s) {
             ${s ? '<span class="entry-footer-separator" aria-hidden="true">·</span>' : ""}
             ${s ? button("replace-learner", "Replace learner link", "entry-footer-action entry-footer-maintenance") : ""}
           </div>
-          <p class="entry-rules">60 seconds each · Four forbidden words · Shared score</p>
+          <p class="entry-rules">2 minutes each · Four forbidden words · Shared score</p>
         </div>`}
     </div></section>`;
 }
@@ -432,7 +432,7 @@ function board(s) {
   return `${learnerHeader(s)}<section class="board"><aside class="deck-area">${deck}<p>${s.remaining} cards in the deck</p></aside>
     <div class="card-area"><div class="active-card ${s.card?.nonce !== lastNonce ? "dealing" : ""} ${describer ? "face-up" : "face-down"}">${cardFace(s)}</div>
     <div class="role-caption"><p class="eyebrow"><span>TURN ${s.turn} OF 2</span> · ${describer ? "YOU’RE DESCRIBING" : "YOUR PARTNER IS DESCRIBING"}</p><p>${describer ? "Find another way to say it." : "Guess the word out loud."}</p></div></div>
-    <aside class="dashboard panel"><div class="timer" role="timer" aria-label="Turn time remaining"><svg viewBox="0 0 220 220" aria-hidden="true"><circle class="timer-track" cx="110" cy="110" r="96"/><circle class="timer-progress" cx="110" cy="110" r="96"/></svg><div><span class="timer-symbol">◴</span><strong id="clock">01:00</strong><span id="timer-label">TIME TO TALK</span></div></div>
+    <aside class="dashboard panel"><div class="timer" role="timer" aria-label="Turn time remaining"><svg viewBox="0 0 220 220" aria-hidden="true"><circle class="timer-track" cx="110" cy="110" r="96"/><circle class="timer-progress" cx="110" cy="110" r="96"/></svg><div><span class="timer-symbol">◴</span><strong id="clock">02:00</strong><span id="timer-label">TIME TO TALK</span></div></div>
       <div class="score-area"><div class="score-label"><span>SHARED SCORE</span><strong>${s.score}<small> ${s.score === 1 ? "point" : "points"}</small></strong></div>${pile(s)}<span class="played-count">${s.played} ${s.played === 1 ? "card" : "cards"} played</span></div>
       ${describer ? `<div class="resolutions">${button("correct", "Correct", "correct")}${button("skip", "Skip", "skip")}${button("oops", "I said one!", "oops")}</div>` : '<div class="guesser-note"><span>◌</span><div><strong>GUESSER</strong><p>Listen. Ask questions. <br>Follow the clues.</p></div></div>'}
     </aside></section><div class="feedback" aria-live="polite">${feedbackText(s)}</div>
@@ -584,7 +584,8 @@ function tick() {
   let ms = state.paused
     ? state.paused.remaining
     : Math.max(0, state.deadline - now);
-  if (state.phase === "countdown") ms = 60000;
+  const turnMs = state.turnMs || 120000;
+  if (state.phase === "countdown") ms = turnMs;
   const seconds = Math.ceil(ms / 1000);
   const clock = document.querySelector("#clock");
   if (clock)
@@ -606,7 +607,7 @@ function tick() {
     .querySelector(".timer-progress")
     ?.style.setProperty(
       "stroke-dashoffset",
-      String(603.2 * (1 - Math.min(1, ms / 60000))),
+      String(603.2 * (1 - Math.min(1, ms / turnMs))),
     );
   const label = document.querySelector("#timer-label");
   if (label)

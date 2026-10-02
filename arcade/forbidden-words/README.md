@@ -46,7 +46,7 @@ for the requested session ID and owner. Per-seat request budgets are persisted, 
 they work across Worker isolates. Creation allows three unfinished sessions and at
 most twenty retained sessions per owner.
 
-A turn starts at database time + 3 seconds and ends exactly 60 seconds later. Clients
+A turn starts at database time + 3 seconds and ends exactly 120 seconds later. Clients
 render from that deadline and a measured server-time offset. Polling every 650 ms
 synchronizes scores and roles; timer rendering is local and continuous. A paused turn
 stores remaining duration. Disconnection does not reset or silently pause the clock.

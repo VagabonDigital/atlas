@@ -51,7 +51,7 @@ try {
   assert.equal(learner.theme, "light");
   await call({ action: "join", credential: token(), invite }, 403);
   tutor = await call({ action: "start" }, 200, true);
-  assert.equal(tutor.deadline - tutor.startsAt, 60000);
+  assert.equal(tutor.deadline - tutor.startsAt, 120000);
   assert.equal(tutor.startsAt - tutor.serverNow, 3000);
   learner = await call({ action: "poll", credential });
   assert.deepEqual(Object.keys(learner.card), ["nonce"]);
