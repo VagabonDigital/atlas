@@ -6,6 +6,7 @@
   --pressure: 0;
   --heat: 0;
   --timer-hue: 210;
+  --fw-theme-motion: 280ms cubic-bezier(0.4, 0, 0.2, 1);
   font-family: "DM Sans", Arial, sans-serif;
   color: var(--ink);
   background: #e8f3fc;
@@ -13,6 +14,45 @@
 }
 * {
   box-sizing: border-box;
+}
+
+/* One lighting change, one duration. Chromium uses the viewport cross-fade
+   so gradients, shadows and every nested surface move together. The scoped
+   fallback below keeps animatable game properties on the same 280ms clock. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 280ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+::view-transition-old(root) {
+  animation-name: fw-theme-fade-out;
+}
+::view-transition-new(root) {
+  animation-name: fw-theme-fade-in;
+}
+@keyframes fw-theme-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes fw-theme-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+html.theme-changing body,
+html.theme-changing body *,
+html.theme-changing body *::before,
+html.theme-changing body *::after,
+html.theme-changing dialog,
+html.theme-changing dialog * {
+  transition:
+    background-color var(--fw-theme-motion),
+    color var(--fw-theme-motion),
+    border-color var(--fw-theme-motion),
+    box-shadow var(--fw-theme-motion),
+    opacity var(--fw-theme-motion),
+    fill var(--fw-theme-motion),
+    stroke var(--fw-theme-motion),
+    filter var(--fw-theme-motion);
 }
 html {
   min-height: 100%;
