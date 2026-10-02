@@ -711,7 +711,6 @@ body:before {
   margin: 0 0 18px;
 }
 .card-face h1 {
-  text-transform: uppercase;
   font-family: "Manrope", Arial, sans-serif;
   font-weight: 800;
   font-size: clamp(23px, 2.75vw, 41px);
@@ -928,7 +927,6 @@ body:before {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
   border-radius: 50px;
   min-height: 45px;
   padding: 8px 22px;
@@ -940,13 +938,6 @@ body:before {
     0 4px 6px #24496017,
     inset 0 1px 0 #fff8;
 }
-.resolutions button > span {
-  flex: 0 0 24px;
-  width: 24px;
-  font-size: 22px;
-  line-height: 1;
-  text-align: center;
-}
 .correct {
   color: white;
   background: linear-gradient(#5db698, #31956f);
@@ -956,9 +947,6 @@ body:before {
   color: #222c40;
   background: linear-gradient(#fff, #f6f4f1);
   border: 1px solid #dcdce0;
-}
-.skip > span {
-  color: #8e9bac;
 }
 .oops {
   color: #d84239;
