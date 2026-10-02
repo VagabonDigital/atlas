@@ -40,6 +40,23 @@ assert.ok(
 );
 
 assert.ok(
+  chromeJs.includes("document.startViewTransition(apply)"),
+  "Arcade appearance should transition the whole viewport when supported",
+);
+assert.ok(
+  !chromeJs.includes("}, 320);"),
+  "Arcade appearance should not keep a competing 320ms transition timer",
+);
+assert.ok(
+  chromeCss.includes("--game-chrome-theme-motion: 280ms"),
+  "Arcade appearance motion should use the canonical 280ms duration",
+);
+assert.ok(
+  chromeCss.includes("::view-transition-old(root)"),
+  "Arcade appearance should define a viewport-level transition",
+);
+
+assert.ok(
   chromeJs.includes("markGameHeaderSlots(root, returnTarget, actionsTarget)"),
   "shared chrome should mark mounted header slots for responsive layout",
 );

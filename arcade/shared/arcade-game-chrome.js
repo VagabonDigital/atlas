@@ -298,18 +298,22 @@
       return;
     }
 
-    const html = document.documentElement;
     const current = Bridge.readAppearanceMode();
     const next = current === 'night' ? 'light' : 'night';
+    const apply = function () {
+      Bridge.setAppearanceMode(next);
+      updateAppearanceDisplay(root);
+    };
 
-    html.classList.add('theme-changing');
-    Bridge.setAppearanceMode(next);
-    html.dataset.theme = next;
-    updateAppearanceDisplay(root);
+    if (
+      typeof document.startViewTransition === 'function' &&
+      !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    ) {
+      document.startViewTransition(apply);
+      return;
+    }
 
-    window.setTimeout(function () {
-      html.classList.remove('theme-changing');
-    }, 320);
+    apply();
   }
 
   function getLandingMarkup() {
