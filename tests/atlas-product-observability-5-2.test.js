@@ -142,23 +142,27 @@ assert.match(
 
 assert.match(
   accountGate,
-  /AtlasAnalytics\s*\?\.\s*accountGate/
+  /function trackAnalytics\(method, payload\)/
 );
 assert.match(
   accountGate,
-  /AtlasAnalytics\s*\?\.\s*signupStart/
+  /trackAnalytics\('accountGate'/
 );
 assert.match(
   accountGate,
-  /AtlasAnalytics\s*\?\.\s*signupCreated/
+  /trackAnalytics\('signupStart'/
 );
 assert.match(
   accountGate,
-  /AtlasAnalytics\s*\?\.\s*signupComplete/
+  /trackAnalytics\('signupCreated'/
 );
 assert.match(
   accountGate,
-  /AtlasAnalytics\s*\?\.\s*authFailure/
+  /trackAnalytics\('signupComplete'/
+);
+assert.match(
+  accountGate,
+  /trackAnalytics\('authFailure'/
 );
 
 assert.match(
