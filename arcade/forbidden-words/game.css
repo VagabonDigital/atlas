@@ -693,17 +693,22 @@ body[data-player="learner"] .entry-rules {
 }
 .deck-area {
   position: relative;
+  display: grid;
+  justify-items: center;
+  row-gap: 66px;
   text-align: center;
   padding-top: 0;
 }
 .deck-area .deck-object {
-  margin: 0 auto 48px;
+  margin: 0;
   width: clamp(145px, 15vw, 210px);
   height: clamp(215px, 22vw, 315px);
 }
 .deck-area > p {
+  margin: 0;
   color: #4d7197;
   font-size: 14px;
+  line-height: 1.35;
   position: relative;
 }
 .card-area {
@@ -2066,7 +2071,6 @@ dialog li {
   .deck-area .deck-object {
     width: clamp(135px, 13vw, 185px);
     height: clamp(200px, 19vw, 278px);
-    margin-bottom: 38px;
   }
   .active-card {
     width: min(100%, 288px);
