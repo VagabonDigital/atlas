@@ -925,13 +925,13 @@ body:before {
   margin-top: 14px;
 }
 .resolutions button {
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 12px;
   border-radius: 50px;
   min-height: 45px;
-  padding: 8px 52px;
+  padding: 8px 22px;
   font-weight: 800;
   text-align: center;
   text-transform: uppercase;
@@ -941,14 +941,11 @@ body:before {
     inset 0 1px 0 #fff8;
 }
 .resolutions button > span {
-  position: absolute;
-  left: 20px;
-  top: 50%;
+  flex: 0 0 24px;
   width: 24px;
   font-size: 22px;
   line-height: 1;
   text-align: center;
-  transform: translateY(-50%);
 }
 .correct {
   color: white;
