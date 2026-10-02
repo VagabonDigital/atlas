@@ -217,7 +217,7 @@ async function request(action, extra = {}, commandId) {
 function headerUtilities() {
   const soundLabel = sound ? "Sound on" : "Sound off";
   const soundAction = sound ? "Turn sound off" : "Turn sound on";
-  return `<button class="game-utility-button sound-button" data-action="sound" aria-pressed="${sound}" aria-label="${soundAction}" title="${soundAction}"><span class="utility-icon" aria-hidden="true">♪</span><span class="utility-label">${soundLabel}</span></button><button class="game-utility-button help-button" data-action="rules" aria-label="How to play" title="How to play"><span class="utility-icon" aria-hidden="true">?</span><span class="utility-label utility-rule-label">How to play</span></button>`;
+  return `<button class="game-utility-button sound-button" data-action="sound" aria-label="${soundAction}" title="${soundAction}"><span class="utility-icon" aria-hidden="true">♪</span><span class="utility-label">${soundLabel}</span></button><button class="game-utility-button help-button" data-action="rules" aria-label="How to play" title="How to play"><span class="utility-icon" aria-hidden="true">?</span><span class="utility-label utility-rule-label">How to play</span></button>`;
 }
 function headerPause(s) {
   if (!["active", "countdown"].includes(s.phase)) return "";
