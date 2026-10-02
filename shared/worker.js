@@ -171,7 +171,7 @@ const handleForbiddenWords = (() => {
     });
 
     /* arcade/forbidden-words/server/game.mjs */
-    const TURN_MS = 60000;
+    const TURN_MS = 120000;
     const COUNTDOWN_MS = 3000;
     const PRESENCE_MS = 12000;
     class GameError extends Error {
@@ -427,6 +427,7 @@ const handleForbiddenWords = (() => {
         revision,
         startsAt: s.startsAt,
         deadline: s.deadline,
+        turnMs: TURN_MS,
         paused: s.paused,
         theme: s.theme === "night" ? "night" : "light",
         ready: s.ready,
