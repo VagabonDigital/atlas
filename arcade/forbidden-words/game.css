@@ -80,13 +80,13 @@ body:before {
     linear-gradient(140deg, #425f95b5, #7e789dad 55%, #ff9a75b0);
   transition: opacity 0.4s linear;
 }
-#app button:not(.game-utility-button),
+#app button:not(.game-utility-button):not(.entry-footer-action),
 #app input,
 #rules button,
 #rules input {
   font: inherit;
 }
-#app button:not(.game-utility-button),
+#app button:not(.game-utility-button):not(.entry-footer-action),
 #rules button:not(.atlas-modal-close) {
   cursor: pointer;
   border: 0;
@@ -96,21 +96,21 @@ body:before {
     box-shadow 0.15s,
     background 0.15s;
 }
-#app button:not(.game-utility-button):hover:not(:disabled),
+#app button:not(.game-utility-button):not(.entry-footer-action):hover:not(:disabled),
 #rules button:not(.atlas-modal-close):hover:not(:disabled) {
   transform: translateY(-2px);
   filter: brightness(1.035);
 }
-#app button:not(.game-utility-button):active:not(:disabled),
+#app button:not(.game-utility-button):not(.entry-footer-action):active:not(:disabled),
 #rules button:not(.atlas-modal-close):active:not(:disabled) {
   transform: translateY(1px);
 }
-#app button:not(.game-utility-button):disabled,
+#app button:not(.game-utility-button):not(.entry-footer-action):disabled,
 #rules button:not(.atlas-modal-close):disabled {
   cursor: default;
   opacity: 0.5;
 }
-#app button:not(.game-utility-button):focus-visible,
+#app button:not(.game-utility-button):not(.entry-footer-action):focus-visible,
 #app a:focus-visible,
 #app summary:focus-visible,
 #app input:focus-visible,
@@ -165,6 +165,12 @@ body:before {
   vertical-align: top;
   margin: 0 0 0 5px;
   transform: translateY(-3px);
+}
+body[data-player="learner"] .entry-footer {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+body[data-player="learner"] .entry-rules {
+  text-align: right;
 }
 .landing {
   display: grid;
@@ -352,17 +358,45 @@ body:before {
 .small {
   font-size: 12px;
 }
-.small-note {
-  text-align: center;
-  font-size: 11px !important;
-  color: #7890aa;
-  margin-top: 16px !important;
+.entry-footer {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid #e0e9f3;
 }
-.waiting-label {
+.entry-footer-action {
+  min-height: 0;
+  cursor: pointer;
+  margin: 0;
+  padding: 5px 0;
+  border: 0;
+  background: transparent;
+  color: #285b9b;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  box-shadow: none;
+}
+.entry-footer-action:hover,
+.entry-footer-action:focus-visible {
+  color: #0d66d7;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+}
+.entry-rules {
+  margin: 0 !important;
+  color: #7890aa;
+  font-size: 11px !important;
+  line-height: 1.45 !important;
   text-align: center;
-  font-size: 15px;
-  color: #37619a;
-  padding: 17px;
+}
+.entry-footer-maintenance {
+  justify-self: end;
+  font-weight: 600;
 }
 .loading {
   padding: 120px;
@@ -1759,6 +1793,19 @@ dialog li {
   }
   .invitation > p:not(.eyebrow):not(.small-note) {
     font-size: 14px;
+  }
+  .entry-footer,
+  body[data-player="learner"] .entry-footer {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    text-align: center;
+  }
+  .entry-footer-action,
+  .entry-footer-maintenance {
+    justify-self: center;
+  }
+  body[data-player="learner"] .entry-rules {
+    text-align: center;
   }
 
   .game-heading-left {
