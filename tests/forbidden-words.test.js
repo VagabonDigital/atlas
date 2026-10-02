@@ -172,7 +172,14 @@ const fs = require("node:fs");
   assert.ok(gameCss.includes("width: min(100%, 330px);"));
   assert.ok(!gameCss.includes("max-height: 475px"));
   assert.ok(!gameCss.includes("max-height: 430px"));
-  assert.ok(gameCss.includes(".quiet:hover:not(:disabled)"));
+  assert.ok(client.includes('class="game-utility-button sound-button"'));
+  assert.ok(client.includes('class="game-utility-button help-button"'));
+  assert.ok(client.includes('"pause-button"'));
+  assert.ok(client.includes('aria-label="How to play"'));
+  assert.ok(gameCss.includes(".game-utility-button:hover:not(:disabled)"));
+  assert.ok(gameCss.includes(".pause-button:hover:not(:disabled)"));
+  assert.ok(!gameCss.includes(".quiet {"));
+  assert.ok(!client.includes('"quiet pause-button"'));
   const excludes = fs.readFileSync(".assetsignore", "utf8");
   assert.ok(excludes.includes("arcade/forbidden-words/server/"));
   const sql = fs.readFileSync(
