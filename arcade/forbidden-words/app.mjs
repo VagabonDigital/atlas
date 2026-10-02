@@ -268,7 +268,7 @@ function learnerHeader(s) {
   return `<header class="learner-game-heading">
     <div class="learner-game-brand">${brand}</div>
     <div class="round-label">ROUND ${s.round || 1}</div>
-    <div class="learner-game-actions">${headerUtilities()}</div>
+    <div class="learner-game-actions"><div class="utilities learner-utilities">${headerUtilities()}</div></div>
   </header>`;
 }
 function updateTutorHeader(s) {
