@@ -1264,6 +1264,7 @@ dialog {
   height: 0;
 }
 .rules-scroll::-webkit-scrollbar-track {
+  margin-block: 10px;
   background: transparent;
 }
 .rules-scroll::-webkit-scrollbar-thumb {
