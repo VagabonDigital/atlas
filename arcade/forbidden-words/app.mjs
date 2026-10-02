@@ -298,11 +298,19 @@ function landing(s) {
     ${!learner && s ? `<div class="link-row"><input id="invite-link" aria-label="Learner invite link" readonly value="${escape(joinUrl())}">${button("copy", "Copy link", "primary")}</div>` : ""}
     <div class="connection"><span class="connection-dot ${joined ? "online" : ""}"></span><div><strong>${learner ? "Connected to the game" : joined ? "Your learner is here" : s ? "Waiting for your learner…" : "Ready for a live lesson?"}</strong><p>${learner ? "Your partner will start the round." : joined ? "You describe first. Your learner guesses." : s ? "They can join on a phone or laptop." : "Sign in to Atlas to host your game."}</p></div></div>
     ${learner ? "" : button(s ? "start" : "sign-in", s ? "▶ Start Round" : "Sign in to host", "primary start-button", s && !joined)}
-    <div class="entry-footer">
-      ${button("rules", "How to play", "entry-footer-action")}
-      <p class="entry-rules">60 seconds each · Four forbidden words · Shared score</p>
-      ${!learner && s ? button("replace-learner", "Replace learner link", "entry-footer-action entry-footer-maintenance") : ""}
-    </div></div></section>`;
+    ${learner
+      ? `<div class="entry-footer learner-entry-footer">
+          ${button("rules", "How to play", "entry-footer-action")}
+          <p class="entry-rules">60 seconds each · Four forbidden words · Shared score</p>
+        </div>`
+      : `<div class="entry-footer tutor-entry-footer">
+          <div class="entry-footer-actions">
+            ${button("rules", "How to play", "entry-footer-action")}
+            ${s ? button("replace-learner", "Replace learner link", "entry-footer-action entry-footer-maintenance") : ""}
+          </div>
+          <p class="entry-rules">60 seconds each · Four forbidden words · Shared score</p>
+        </div>`}
+    </div></section>`;
 }
 function joinUrl() {
   const url = new URL("./join.html", location.href);
