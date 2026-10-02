@@ -11,6 +11,13 @@ async function testGateApi() {
         source,
         /access\.tier === 'pro'[\s\S]*?\? 'Atlas Pro'[\s\S]*?access\.tier === 'free'[\s\S]*?\? 'Free account'/
     );
+    assert.match(source, /function trackAnalytics\(method, payload\)/);
+    assert.match(source, /typeof fn === 'function'/);
+    assert.match(source, /trackAnalytics\('accountGate'/);
+    assert.match(source, /trackAnalytics\('authFailure'/);
+    assert.match(source, /trackAnalytics\('signupStart'/);
+    assert.doesNotMatch(source, /AtlasAnalytics\?\.accountGate\(/);
+    assert.doesNotMatch(source, /AtlasAnalytics\?\.authFailure\(/);
     const context = {
         console,
         window: {}

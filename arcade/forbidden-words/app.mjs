@@ -330,7 +330,16 @@ function joinUrl() {
 function cardFace(s) {
   if (!s.card?.target)
     return `${back}<span class="sr-only">Concealed card. Listen and guess aloud.</span>`;
-  return `<div class="card-face"><p class="eyebrow">DESCRIBE THIS</p><h1 class="${s.card.target.length > 11 ? "long-target" : ""}">${escape(s.card.target)}</h1><div class="card-divider"></div><p class="avoid-label">WITHOUT SAYING</p><ul>${s.card.forbidden.map((w) => `<li>${escape(w)}</li>`).join("")}</ul></div>`;
+  const longestWord = Math.max(
+    ...s.card.target.trim().split(/\s+/).map((word) => word.length),
+  );
+  const targetClass =
+    longestWord >= 12
+      ? "extra-long-target"
+      : longestWord >= 9
+        ? "long-target"
+        : "";
+  return `<div class="card-face"><p class="eyebrow">DESCRIBE THIS</p><h1 class="${targetClass}">${escape(s.card.target)}</h1><div class="card-divider"></div><p class="avoid-label">WITHOUT SAYING</p><ul>${s.card.forbidden.map((w) => `<li>${escape(w)}</li>`).join("")}</ul></div>`;
 }
 function pile(s) {
   return `<div class="pile" aria-hidden="true">${Array.from({ length: Math.min(7, Math.max(1, s.score)) }, (_, i) => `<div style="--i:${i};--n:${Math.min(7, Math.max(1, s.score))}">${back}</div>`).join("")}</div>`;
@@ -345,7 +354,7 @@ function board(s) {
       ${describer ? `<div class="resolutions">${button("correct", "Correct", "correct")}${button("skip", "Skip", "skip")}${button("oops", "I said one!", "oops")}</div>` : '<div class="guesser-note"><span>◌</span><div><strong>GUESSER</strong><p>Listen. Ask questions. <br>Follow the clues.</p></div></div>'}
     </aside></section><div class="feedback" aria-live="polite">${feedbackText(s)}</div>
     ${s.phase === "countdown" ? '<div class="countdown-overlay"><div><p class="eyebrow">GET READY</p><strong id="countdown-number">3</strong><p>Your card. Your voice. Go.</p></div></div>' : ""}
-    ${s.paused ? `<div class="pause-overlay"><div class="panel"><p class="eyebrow">TAKE YOUR TIME</p><h2>Conversation paused.</h2><p>The clock is safe. Pick up when you’re ready.</p>${!learner ? button("resume", "▶ Resume turn", "primary") + button("replace-learner", "Replace learner link", "text-button") + `<input aria-label="Learner invite link" readonly value="${escape(joinUrl())}">` : "<p>Your tutor will resume the game.</p>"}</div></div>` : ""}`;
+    ${s.paused ? `<div class="pause-overlay"><div class="panel"><p class="eyebrow">TAKE YOUR TIME</p><h2>Turn paused.</h2><p>The clock is safe. Pick up when you’re ready.</p>${!learner ? button("resume", "▶ Resume turn", "primary") + button("replace-learner", "Replace learner link", "text-button") + `<input aria-label="Learner invite link" readonly value="${escape(joinUrl())}">` : "<p>Your tutor will resume the game.</p>"}</div></div>` : ""}`;
 }
 function feedbackText(s) {
   return !s.feedback
