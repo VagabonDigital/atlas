@@ -28,6 +28,7 @@ const fs = require("node:fs");
   act("tutor", "start", now);
   assert.equal(s.startsAt, now + 3000);
   assert.equal(s.deadline, now + 123000);
+  assert.equal(view(s, "tutor", now, 1).turnMs, 120000);
   let secret = CARDS[s.card.index];
   let guessed = JSON.stringify(view(s, "learner", now, 1));
   assert.ok(!guessed.includes(secret.target));
