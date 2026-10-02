@@ -306,6 +306,7 @@ function landing(s) {
       : `<div class="entry-footer tutor-entry-footer">
           <div class="entry-footer-actions">
             ${button("rules", "How to play", "entry-footer-action")}
+            ${s ? '<span class="entry-footer-separator" aria-hidden="true">·</span>' : ""}
             ${s ? button("replace-learner", "Replace learner link", "entry-footer-action entry-footer-maintenance") : ""}
           </div>
           <p class="entry-rules">60 seconds each · Four forbidden words · Shared score</p>
