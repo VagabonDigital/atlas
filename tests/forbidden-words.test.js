@@ -150,7 +150,7 @@ const fs = require("node:fs");
   assert.ok(gameCss.includes("grid-template-columns: 20px minmax(0, 1fr);"));
   assert.ok(client.includes('class="utility-icon"'));
   assert.ok(client.includes('class="utility-label"'));
-  assert.ok(gameCss.includes("#fw-header-round.arcade-game-chrome-host-context"));
+  assert.ok(gameCss.includes("#fw-header-round {"));
   assert.ok(gameCss.includes("scrollbar-color:"));
   assert.ok(gameCss.includes(".rules-scroll"));
   assert.ok(gameCss.includes(".rules-scroll::-webkit-scrollbar-button"));
