@@ -1668,9 +1668,6 @@ dialog li {
     padding: 9px 12px;
     min-height: 44px;
   }
-  .resolutions button > span {
-    font-size: 17px;
-  }
   .score-label > span {
     font-size: 7px;
     letter-spacing: 1px;
@@ -1897,15 +1894,11 @@ dialog li {
     font-size: 12px;
     min-height: 47px;
     justify-content: center;
-    gap: 11px;
   }
   .resolutions button.correct {
     grid-column: 1/-1;
     font-size: 16px;
     min-height: 51px;
-  }
-  .resolutions button > span {
-    font-size: 21px;
   }
   .guesser-note {
     margin: 0;
