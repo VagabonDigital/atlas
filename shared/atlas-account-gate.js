@@ -55,6 +55,18 @@
         menuOpen: false
     };
 
+    function trackAnalytics(method, payload) {
+        try {
+            const fn = window.AtlasAnalytics?.[method];
+
+            if (typeof fn === 'function') {
+                fn(payload);
+            }
+        } catch {
+            /* Analytics must never interrupt account access. */
+        }
+    }
+
     function snapshot() {
         return { ...state };
     }
@@ -1121,8 +1133,7 @@
                     onCredential:
                         handleGoogleCredential,
                     onError: error => {
-                        window.AtlasAnalytics
-                            ?.authFailure({
+                        trackAnalytics('authFailure', {
                                 action:
                                     'google_id_token',
                                 error
@@ -1570,8 +1581,7 @@
                 );
             });
 
-            window.AtlasAnalytics
-                ?.accountGate({
+            trackAnalytics('accountGate', {
                     mode,
                     action:
                         returnIntent?.action ||
@@ -1731,7 +1741,7 @@
 
             await completeAuthenticatedFlow();
         } catch (error) {
-            window.AtlasAnalytics?.authFailure({
+            trackAnalytics('authFailure', {
                 action: 'google_id_token',
                 error
             });
@@ -1764,7 +1774,7 @@
             await window.AtlasAccount.signIn(email, password);
             await completeAuthenticatedFlow();
         } catch (error) {
-            window.AtlasAnalytics?.authFailure({
+            trackAnalytics('authFailure', {
                 action: 'sign_in',
                 error
             });
@@ -1798,7 +1808,7 @@
 
         setGateStatus('');
 
-        window.AtlasAnalytics?.signupStart({
+        trackAnalytics('signupStart', {
             source: 'account-gate'
         });
 
@@ -1817,7 +1827,7 @@
 
             setBusy(false);
 
-            window.AtlasAnalytics?.signupCreated({
+            trackAnalytics('signupCreated', {
                 source: 'account-gate',
                 confirmationRequired:
                     result?.confirmationRequired === true
@@ -1841,13 +1851,13 @@
                 return;
             }
 
-            window.AtlasAnalytics?.signupComplete({
+            trackAnalytics('signupComplete', {
                 source: 'account-gate'
             });
 
             await completeAuthenticatedFlow();
         } catch (error) {
-            window.AtlasAnalytics?.authFailure({
+            trackAnalytics('authFailure', {
                 action: 'sign_up',
                 error
             });
@@ -1885,7 +1895,7 @@
                 `If ${email} is linked to an account, a password reset link is on its way.`
             );
         } catch (error) {
-            window.AtlasAnalytics?.authFailure({
+            trackAnalytics('authFailure', {
                 action: 'password_reset_request',
                 error
             });
