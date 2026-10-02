@@ -203,6 +203,18 @@ const fs = require("node:fs");
   assert.ok(gameCss.includes(".pause-button:hover:not(:disabled)"));
   assert.ok(!gameCss.includes(".quiet {"));
   assert.ok(!client.includes('"quiet pause-button"'));
+  assert.ok(!client.includes("<kbd>"));
+  assert.ok(!client.includes('class="deal-arrow"'));
+  assert.ok(client.includes('{ correct: "1", skip: "2", oops: "3" }'));
+  assert.ok(client.includes('aria-keyshortcuts="${shortcut}"'));
+  assert.ok(tutorPage.includes("Keyboard shortcuts: 1 = Correct"));
+  assert.ok(learnerPage.includes("Keyboard shortcuts: 1 = Correct"));
+  assert.ok(gameCss.includes(".switch-panel {"));
+  assert.ok(client.includes('class="switch-actions"'));
+  assert.ok(client.includes('class="switch-maintenance"'));
+  assert.ok(gameCss.includes("#notice:not(:empty) {"));
+  assert.ok(gameCss.includes("left: 50%;"));
+  assert.ok(gameCss.includes("body:has(#notice:not(:empty)) .feedback"));
   const excludes = fs.readFileSync(".assetsignore", "utf8");
   assert.ok(excludes.includes("arcade/forbidden-words/server/"));
   const sql = fs.readFileSync(

@@ -61,8 +61,10 @@ const brand = '<span class="brand">Forbidden <em>Words</em><sup>✦</sup></span>
 const rings = '<span class="rings" aria-hidden="true"><i></i><i></i></span>';
 const back = `<div class="card-back">${rings}</div>`;
 const deck = `<div class="deck-object" aria-hidden="true"><div class="deck-shadow"></div><div class="deck-layer layer-two">${back}</div><div class="deck-layer layer-one">${back}</div><div class="deck-top">${back}</div><div class="deck-tray"></div></div>`;
-const button = (action, label, cls = "", disabled = false) =>
-  `<button class="${cls}" data-action="${action}" ${disabled ? "disabled" : ""}>${label}</button>`;
+const button = (action, label, cls = "", disabled = false) => {
+  const shortcut = { correct: "1", skip: "2", oops: "3" }[action];
+  return `<button class="${cls}" data-action="${action}" ${shortcut ? `aria-keyshortcuts="${shortcut}"` : ""} ${disabled ? "disabled" : ""}>${label}</button>`;
+};
 function notify(message) {
   document.querySelector("#notice").textContent = message;
 }
@@ -323,12 +325,12 @@ function pile(s) {
 }
 function board(s) {
   const describer = s.role === "Describer";
-  return `${learnerHeader(s)}<section class="board"><aside class="deck-area">${deck}<p>${s.remaining} cards in the deck</p><span class="deal-arrow" aria-hidden="true">⤴</span></aside>
+  return `${learnerHeader(s)}<section class="board"><aside class="deck-area">${deck}<p>${s.remaining} cards in the deck</p></aside>
     <div class="card-area"><div class="active-card ${s.card?.nonce !== lastNonce ? "dealing" : ""} ${describer ? "face-up" : "face-down"}">${cardFace(s)}</div>
     <div class="role-caption"><p class="eyebrow"><span>TURN ${s.turn} OF 2</span> · ${describer ? "YOU’RE DESCRIBING" : "YOUR PARTNER IS DESCRIBING"}</p><p>${describer ? "Find another way to say it." : "Guess the word out loud."}</p></div></div>
     <aside class="dashboard panel"><div class="timer" role="timer" aria-label="Turn time remaining"><svg viewBox="0 0 220 220" aria-hidden="true"><circle class="timer-track" cx="110" cy="110" r="96"/><circle class="timer-progress" cx="110" cy="110" r="96"/></svg><div><span class="timer-symbol">◴</span><strong id="clock">01:00</strong><span id="timer-label">TIME TO TALK</span></div></div>
       <div class="score-area"><div class="score-label"><span>SHARED SCORE</span><strong>${s.score}<small> ${s.score === 1 ? "point" : "points"}</small></strong></div>${pile(s)}<span class="played-count">${s.played} ${s.played === 1 ? "card" : "cards"} played</span></div>
-      ${describer ? `<div class="resolutions">${button("correct", "<span>✓</span> Correct <kbd>1</kbd>", "correct")}${button("skip", "<span>↠</span> Skip <kbd>2</kbd>", "skip")}${button("oops", "<span>!</span> I said one! <kbd>3</kbd>", "oops")}</div>` : '<div class="guesser-note"><span>◌</span><div><strong>GUESSER</strong><p>Listen. Ask questions. <br>Follow the clues.</p></div></div>'}
+      ${describer ? `<div class="resolutions">${button("correct", "<span>✓</span> Correct", "correct")}${button("skip", "<span>↠</span> Skip", "skip")}${button("oops", "<span>!</span> I said one!", "oops")}</div>` : '<div class="guesser-note"><span>◌</span><div><strong>GUESSER</strong><p>Listen. Ask questions. <br>Follow the clues.</p></div></div>'}
     </aside></section><div class="feedback" aria-live="polite">${feedbackText(s)}</div>
     ${s.phase === "countdown" ? '<div class="countdown-overlay"><div><p class="eyebrow">GET READY</p><strong id="countdown-number">3</strong><p>Your card. Your voice. Go.</p></div></div>' : ""}
     ${s.paused ? `<div class="pause-overlay"><div class="panel"><p class="eyebrow">TAKE YOUR TIME</p><h2>Conversation paused.</h2><p>The clock is safe. Pick up when you’re ready.</p>${!learner ? button("resume", "▶ Resume turn", "primary") + button("replace-learner", "Replace learner link", "text-button") + `<input aria-label="Learner invite link" readonly value="${escape(joinUrl())}">` : "<p>Your tutor will resume the game.</p>"}</div></div>` : ""}`;
@@ -348,14 +350,14 @@ function between(s) {
   const switching = s.phase === "switch",
     finished = s.phase === "finished";
   const ready = s.ready.includes(s.actor);
-  return `${learnerHeader(s)}<section class="between"><div class="results-deck">${deck}</div><div class="result-panel panel"><p class="eyebrow">${finished ? "THANKS FOR PLAYING" : switching ? "TIME’S UP · SWAP ROLES" : "TWO VOICES. ONE GREAT ROUND."}</p>
+  return `${learnerHeader(s)}<section class="between"><div class="results-deck">${deck}</div><div class="result-panel panel ${switching ? "switch-panel" : ""}"><p class="eyebrow">${finished ? "THANKS FOR PLAYING" : switching ? "TIME’S UP · SWAP ROLES" : "TWO VOICES. ONE GREAT ROUND."}</p>
     <h1>${finished ? "Keep the conversation going." : switching ? (s.role === "Describer" ? "Your turn to describe." : "Your turn to guess.") : "Look what you cleared."}</h1>
     <div class="result-score"><strong>${s.score}</strong><span>shared ${s.score === 1 ? "point" : "points"}${switching ? " so far" : ""}</span></div>
     ${s.best !== null ? `<p class="best">Session best <strong>${s.best}</strong>${!switching && s.score === s.best ? " ✦" : ""}</p>` : ""}
     ${s.finalCard && !finished ? `<div class="final-card"><span>At the horn</span><strong>${escape(s.finalCard.target)}</strong>${s.finalCard.credited ? "<small>✓ Credited</small>" : s.canCredit ? button("late-correct", "They said it before the horn · +1", "text-button") : ""}</div>` : ""}
-    ${switching ? `<p>Take a breath. Both of you tap ready to begin.</p>${button("ready", ready ? "✓ You’re ready — waiting for your partner" : "I’m ready", "primary", ready)}${!learner ? button("finish", "Finish", "text-button") : ""}` : finished ? `<p>Your lesson call stays open. Take those new ways of saying things with you.</p>${!learner ? button("new-session", "Start a new game", "primary") : ""}` : `<div class="result-actions">${!learner ? button("replay", "▶ Play Another Round", "primary", !s.connected.learner) + button("finish", "Finish", "secondary") : "<p>Your partner can start another round or finish.</p>"}</div>`}
+    ${switching ? `<p class="switch-copy">Take a breath. Both of you tap ready to begin.</p><div class="switch-actions">${button("ready", ready ? "✓ You’re ready — waiting for your partner" : "I’m ready", "primary", ready)}${!learner ? button("finish", "Finish", "secondary") : ""}</div>` : finished ? `<p>Your lesson call stays open. Take those new ways of saying things with you.</p>${!learner ? button("new-session", "Start a new game", "primary") : ""}` : `<div class="result-actions">${!learner ? button("replay", "▶ Play Another Round", "primary", !s.connected.learner) + button("finish", "Finish", "secondary") : "<p>Your partner can start another round or finish.</p>"}</div>`}
     ${!switching && s.review.length ? `<details class="review"><summary>Talk through ${s.review.length} unresolved ${s.review.length === 1 ? "card" : "cards"} <span>Optional</span></summary><div>${s.review.map((c) => `<article><strong>${escape(c.target)}</strong><small>${c.result === "oops" ? "Oops" : c.result === "skip" ? "Skipped" : "At the horn"}</small><p>${c.forbidden.map(escape).join(" · ")}</p></article>`).join("")}</div></details>` : ""}
-    ${!learner && switching ? button("replace-learner", "Replace learner link", "text-button small") + (!s.connected.learner ? `<div class="link-row"><input id="invite-link" aria-label="Learner invite link" readonly value="${escape(joinUrl())}">${button("copy", "Copy link", "primary")}</div>` : "") : ""}</div></section>`;
+    ${!learner && switching ? `<div class="switch-maintenance">${button("replace-learner", "Replace learner link", "text-button small")}${!s.connected.learner ? `<div class="link-row"><input id="invite-link" aria-label="Learner invite link" readonly value="${escape(joinUrl())}">${button("copy", "Copy link", "primary")}</div>` : ""}</div>` : ""}</div></section>`;
 }
 function render() {
   const s = state;

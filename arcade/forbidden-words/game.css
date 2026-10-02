@@ -672,16 +672,6 @@ body:before {
   font-size: 14px;
   position: relative;
 }
-.deal-arrow {
-  position: absolute;
-  right: -48px;
-  top: 0;
-  color: #628bb8;
-  font-size: 83px;
-  transform: rotate(38deg);
-  font-family: Georgia, serif;
-  font-weight: 400;
-}
 .card-area {
   align-self: center;
   text-align: center;
@@ -953,14 +943,6 @@ body:before {
   line-height: 1;
   width: 23px;
 }
-.resolutions kbd {
-  background: #ffffff45;
-  padding: 3px 7px;
-  font-size: 12px;
-  border-radius: 6px;
-  border: 1px solid #ffffff45;
-  font-family: inherit;
-}
 .correct {
   color: white;
   background: linear-gradient(#5db698, #31956f);
@@ -1174,6 +1156,45 @@ body:before {
   justify-content: center;
   margin-top: 16px;
 }
+.switch-panel {
+  padding-block: 22px;
+}
+.switch-panel .result-score {
+  margin: 8px 0 3px;
+}
+.switch-panel .result-score > strong {
+  font-size: 60px;
+}
+.switch-panel .best {
+  margin: 3px 0 7px;
+}
+.switch-panel .final-card {
+  margin: 9px 0;
+}
+.switch-copy {
+  margin: 9px 0 12px !important;
+}
+.switch-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.switch-actions .primary,
+.switch-actions .secondary {
+  min-width: 128px;
+}
+.switch-maintenance {
+  margin-top: 4px;
+}
+#app .switch-maintenance .text-button {
+  min-height: 32px;
+  margin-top: 3px;
+  padding-block: 5px;
+}
+.switch-maintenance .link-row {
+  margin: 8px 0 0;
+}
 .review {
   margin-top: 16px;
   text-align: left;
@@ -1231,9 +1252,10 @@ body:before {
 }
 #notice:not(:empty) {
   position: fixed;
-  bottom: 14px;
-  right: 16px;
-  max-width: min(400px, calc(100vw - 32px));
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: min(440px, calc(100vw - 32px));
   background: #102b48ed;
   border: 1px solid #fff3;
   color: white;
@@ -1242,8 +1264,12 @@ body:before {
   line-height: 1.5;
   padding: 13px 18px;
   box-shadow: 0 6px 25px #21496a33;
+  text-align: center;
   z-index: 20;
   pointer-events: none;
+}
+body:has(#notice:not(:empty)) .feedback {
+  bottom: 76px;
 }
 dialog {
   position: relative;
@@ -1312,6 +1338,13 @@ dialog li {
   font-size: 14px;
   line-height: 1.75;
   color: #58708c;
+}
+.shortcut-note {
+  display: block;
+  margin-top: 6px;
+  color: #6f85a0;
+  font-size: 12px;
+  line-height: 1.5;
 }
 dialog ol {
   padding-left: 21px;
@@ -1639,9 +1672,6 @@ dialog li {
     font-size: 11px;
     padding: 9px 12px;
     min-height: 44px;
-  }
-  .resolutions kbd {
-    display: none;
   }
   .resolutions button > span {
     font-size: 17px;
@@ -2046,6 +2076,11 @@ dialog li {
   .result-actions,
   .review {
     margin-top: 12px;
+  }
+}
+@media (hover: none) and (pointer: coarse) {
+  .shortcut-note {
+    display: none;
   }
 }
 @media (prefers-reduced-motion: reduce) {
