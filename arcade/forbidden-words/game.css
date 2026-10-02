@@ -193,10 +193,10 @@ body:before {
 .hero-deck {
   position: relative;
   max-width: 480px;
-  height: 385px;
   margin: 12px auto 0;
   display: grid;
-  place-items: center;
+  justify-items: center;
+  padding-bottom: 72px;
   perspective: 1000px;
 }
 .hero-deck .deck-object {
@@ -209,7 +209,7 @@ body:before {
   color: #4f6b91;
   font-size: 15px;
   letter-spacing: 0.2px;
-  margin: 20px 0 0;
+  margin: 0;
 }
 .spark {
   position: absolute;
@@ -1592,15 +1592,15 @@ dialog li {
     margin-top: 15px;
   }
   .hero-deck {
-    height: 245px;
     margin-top: 5px;
+    padding-bottom: 50px;
   }
   .hero-deck .deck-object {
     width: 145px;
     height: 190px;
   }
   .caption {
-    margin: 16px 0 0;
+    margin: 0;
     font-size: 12px;
   }
   .hero-deck .deck-tray {
@@ -1788,7 +1788,7 @@ dialog li {
     padding-top: 27px;
   }
   .hero-deck {
-    height: 215px;
+    padding-bottom: 44px;
   }
   .hero-deck .deck-object {
     height: 170px;
