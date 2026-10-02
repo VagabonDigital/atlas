@@ -86,7 +86,7 @@ body:before {
 #rules input {
   font: inherit;
 }
-#app button,
+#app button:not(.game-utility-button),
 #rules button:not(.atlas-modal-close) {
   cursor: pointer;
   border: 0;
@@ -96,21 +96,21 @@ body:before {
     box-shadow 0.15s,
     background 0.15s;
 }
-#app button:hover:not(:disabled),
+#app button:not(.game-utility-button):hover:not(:disabled),
 #rules button:not(.atlas-modal-close):hover:not(:disabled) {
   transform: translateY(-2px);
   filter: brightness(1.035);
 }
-#app button:active:not(:disabled),
+#app button:not(.game-utility-button):active:not(:disabled),
 #rules button:not(.atlas-modal-close):active:not(:disabled) {
   transform: translateY(1px);
 }
-#app button:disabled,
+#app button:not(.game-utility-button):disabled,
 #rules button:not(.atlas-modal-close):disabled {
   cursor: default;
   opacity: 0.5;
 }
-#app button:focus-visible,
+#app button:not(.game-utility-button):focus-visible,
 #app a:focus-visible,
 #app summary:focus-visible,
 #app input:focus-visible,
@@ -516,40 +516,93 @@ body:before {
   color: #6c86a5;
 }
 .utilities {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 0;
+  padding: 2px;
+  border: 1px solid rgba(54, 94, 137, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.42);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
-.quiet {
-  min-height: 36px;
-  background: var(--game-chrome-control-surface, #ffffff);
-  border: 1px solid var(--game-chrome-control-border, rgba(15, 25, 35, 0.1));
-  border-radius: 30px;
-  color: var(--game-chrome-control-muted, #647890);
-  padding: 7px 13px;
-  font-family: var(--game-chrome-font, "Manrope", Arial, sans-serif);
-  font-size: 12px;
-  box-shadow: var(--game-chrome-control-shadow, 0 2px 8px rgba(15, 25, 35, 0.08));
+.game-utility-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 6px 9px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: #607894;
+  font-family: var(--game-chrome-font, "DM Sans", Arial, sans-serif);
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1;
+  box-shadow: none;
+  cursor: pointer;
   transition:
+    background-color var(--game-chrome-motion, 0.18s cubic-bezier(0.4, 0, 0.2, 1)),
+    border-color var(--game-chrome-motion, 0.18s cubic-bezier(0.4, 0, 0.2, 1)),
+    color var(--game-chrome-motion, 0.18s cubic-bezier(0.4, 0, 0.2, 1));
+}
+.game-utility-button:hover:not(:disabled) {
+  border-color: rgba(54, 94, 137, 0.13);
+  background: rgba(255, 255, 255, 0.76);
+  color: #315a86;
+  transform: none;
+  filter: none;
+}
+.game-utility-button:active:not(:disabled) {
+  background: rgba(229, 239, 249, 0.8);
+  transform: none;
+}
+.game-utility-button:focus-visible,
+.pause-button:focus-visible {
+  outline: 2px solid #2a73c7;
+  outline-offset: 2px;
+}
+.help-button {
+  width: 32px;
+  min-width: 32px;
+  padding: 6px;
+  font-size: 15px;
+}
+.pause-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 1px solid rgba(7, 98, 222, 0.22);
+  border-radius: 10px;
+  background: rgba(7, 98, 222, 0.08);
+  color: #245f9f;
+  font-family: var(--game-chrome-font, "DM Sans", Arial, sans-serif);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: none;
+  cursor: pointer;
+  transition:
+    background-color var(--game-chrome-motion, 0.18s cubic-bezier(0.4, 0, 0.2, 1)),
     border-color var(--game-chrome-motion, 0.18s cubic-bezier(0.4, 0, 0.2, 1)),
     color var(--game-chrome-motion, 0.18s cubic-bezier(0.4, 0, 0.2, 1)),
     box-shadow var(--game-chrome-motion, 0.18s cubic-bezier(0.4, 0, 0.2, 1));
 }
-.quiet:hover:not(:disabled) {
-  border-color: var(--game-chrome-control-border-hover, rgba(15, 25, 35, 0.18));
-  color: var(--game-chrome-control-strong, #152235);
-  box-shadow: var(--game-chrome-control-shadow-hover, 0 8px 28px rgba(15, 25, 35, 0.12));
+.pause-button:hover:not(:disabled) {
+  border-color: rgba(7, 98, 222, 0.34);
+  background: rgba(7, 98, 222, 0.13);
+  color: #0d559f;
+  box-shadow: 0 2px 8px rgba(25, 83, 149, 0.11);
   transform: none;
   filter: none;
 }
-.quiet:active:not(:disabled) {
+.pause-button:active:not(:disabled) {
+  background: rgba(7, 98, 222, 0.17);
   transform: none;
-}
-.help-button {
-  width: 36px;
-  min-width: 36px;
-  padding: 7px;
-  font-size: 16px;
 }
 .learner-game-heading {
   display: grid;
@@ -1408,10 +1461,7 @@ dialog li {
     gap: 10px;
   }
   .utilities {
-    gap: 5px;
-  }
-  .quiet {
-    padding: 8px 12px;
+    gap: 0;
   }
   .game-heading .brand {
     font-size: 33px;
@@ -1497,16 +1547,10 @@ dialog li {
     flex: 0 0 auto;
     min-width: 0;
     justify-content: flex-end;
-    gap: 6px;
+    gap: 0;
   }
-  .utilities button {
+  .game-utility-button {
     font-size: 11px;
-    min-height: 34px;
-    padding: 6px 13px;
-  }
-  .utilities .help-button {
-    font-size: 15px;
-    min-width: 34px;
   }
   .board {
     grid-template-columns: minmax(0, 1fr) minmax(170px, 0.75fr);
@@ -2071,10 +2115,9 @@ dialog li {
     text-overflow: ellipsis;
   }
 
-  #fw-header-pause .quiet {
+  #fw-header-pause .pause-button {
     min-height: 38px;
     padding: 7px 11px;
-    white-space: nowrap;
   }
 
   .arcade-game-chrome-game-menu #fw-header-utilities {
@@ -2083,7 +2126,11 @@ dialog li {
     margin: 0 0 4px;
     padding: 0 0 5px;
     gap: 2px;
+    border: 0;
     border-bottom: 1px solid var(--game-chrome-control-border, rgba(15, 25, 35, 0.1));
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
     align-content: start;
     justify-content: stretch !important;
     justify-items: stretch;
@@ -2212,16 +2259,16 @@ dialog li {
     content: "▶";
   }
 
-  .learner-game-actions .quiet {
-    min-height: 34px;
-    padding: 6px 9px;
+  .learner-game-actions .game-utility-button {
+    min-height: 30px;
+    padding: 5px 8px;
     font-size: 10px;
   }
 
   .learner-game-actions .help-button {
-    width: 34px;
-    min-width: 34px;
-    padding: 6px;
+    width: 30px;
+    min-width: 30px;
+    padding: 5px;
   }
 }
 
