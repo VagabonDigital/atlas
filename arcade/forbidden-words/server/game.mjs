@@ -41,6 +41,7 @@ export function initialState(now) {
     feedback: null,
     ready: [],
     paused: null,
+    theme: "light",
     deadline: null,
     startsAt: null,
     late: null,
@@ -130,7 +131,15 @@ export function command(s, actor, input, now) {
     "The game has moved to another turn. Please try again.",
   );
   const tutor = actor === "tutor";
-  if (action === "replace-learner") {
+  if (action === "theme") {
+    requireThat(tutor, "Only the tutor can change the game theme.", 403);
+    requireThat(
+      input.theme === "light" || input.theme === "night",
+      "Invalid theme.",
+      400,
+    );
+    s.theme = input.theme;
+  } else if (action === "replace-learner") {
     requireThat(
       (tutor && !["active", "countdown"].includes(s.phase)) ||
         (tutor && s.paused),
@@ -248,6 +257,7 @@ export function view(s, actor, now, revision) {
     startsAt: s.startsAt,
     deadline: s.deadline,
     paused: s.paused,
+    theme: s.theme === "night" ? "night" : "light",
     ready: s.ready,
     remaining: s.pool.length - s.cursor,
     played: s.history.filter((x) => x.result !== "unfinished").length,
