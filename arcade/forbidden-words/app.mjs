@@ -9,6 +9,7 @@ const LOCAL =
   document.querySelector('meta[name="fw-local-verification"]')?.content ===
   "true";
 const REGISTRY_ID = "arcade:forbidden-words";
+const THEME_TRANSITION_MS = 280;
 const uuid = () => crypto.randomUUID();
 const randomToken = () =>
   [...crypto.getRandomValues(new Uint8Array(32))]
@@ -56,7 +57,10 @@ let lastKey = "",
   atlasSession;
 let sound = storage.get("fw:sound") === "on",
   audio,
-  retryDelay = 650;
+  retryDelay = 650,
+  themeTransitionTimer = null,
+  themeSyncing = false,
+  queuedTheme = null;
 const brand = '<span class="brand">Forbidden <em>Words</em><sup>✦</sup></span>';
 const rings = '<span class="rings" aria-hidden="true"><i></i><i></i></span>';
 const back = `<div class="card-back">${rings}</div>`;
@@ -67,6 +71,78 @@ const button = (action, label, cls = "", disabled = false) => {
 };
 function notify(message) {
   document.querySelector("#notice").textContent = message;
+}
+function normalizeTheme(mode) {
+  return mode === "night" ? "night" : "light";
+}
+function applyGameTheme(mode, animate = true) {
+  const next = normalizeTheme(mode);
+  const html = document.documentElement;
+  if (html.dataset.theme === next) return next;
+
+  const apply = () => {
+    html.dataset.theme = next;
+  };
+
+  if (
+    animate &&
+    typeof document.startViewTransition === "function" &&
+    !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+  ) {
+    document.startViewTransition(apply);
+    return next;
+  }
+
+  if (animate) {
+    html.classList.remove("theme-changing");
+    void html.offsetWidth;
+    html.classList.add("theme-changing");
+  }
+  apply();
+
+  if (animate) {
+    clearTimeout(themeTransitionTimer);
+    themeTransitionTimer = setTimeout(() => {
+      html.classList.remove("theme-changing");
+      themeTransitionTimer = null;
+    }, THEME_TRANSITION_MS + 100);
+  }
+
+  return next;
+}
+function tutorTheme() {
+  return normalizeTheme(
+    window.AtlasBridge?.readAppearanceMode?.() ||
+      document.documentElement.dataset.theme,
+  );
+}
+async function syncTutorTheme(mode) {
+  if (learner || LOCAL || !state) return;
+  const next = normalizeTheme(mode);
+  if (state.theme === next && !themeSyncing) return;
+
+  if (themeSyncing) {
+    queuedTheme = next;
+    return;
+  }
+
+  themeSyncing = true;
+  try {
+    await request("theme", {
+      theme: next,
+      round: state.round,
+      turn: state.turn,
+    });
+  } catch (error) {
+    console.warn("[Forbidden Words] theme sync failed:", error);
+  } finally {
+    themeSyncing = false;
+    const queued = queuedTheme;
+    queuedTheme = null;
+    if (queued && queued !== state?.theme) {
+      syncTutorTheme(queued);
+    }
+  }
 }
 function script(src) {
   return new Promise((resolve, reject) => {
@@ -212,8 +288,9 @@ async function request(action, extra = {}, commandId) {
   if (!state || data.state.revision >= state.revision) {
     state = data.state;
     render();
+    if (learner) applyGameTheme(state.theme);
   }
-  if (!learner && action !== "poll") syncAtlasContinuity(state);
+  if (!learner && !["poll", "theme"].includes(action)) syncAtlasContinuity(state);
   return state;
 }
 function headerUtilities() {
@@ -608,7 +685,7 @@ async function act(action) {
     storage.set(`fw:tutor:${owner}`, session);
     state = null;
     lastKey = "";
-    await request("create");
+    await request("create", { theme: tutorTheme() });
     schedulePoll();
     return;
   }
@@ -717,7 +794,7 @@ async function boot() {
       await request("join", { invite });
     } else {
       if (!owner && !(await setupTutor())) return;
-      await request("create");
+      await request("create", { theme: tutorTheme() });
     }
     schedulePoll();
   } catch (error) {
@@ -814,6 +891,10 @@ window.addEventListener("atlas:session-change", (event) => {
   atlasSession =
     event.detail?.session || window.AtlasBridge?.readActiveSession?.() || null;
   if (state) syncAtlasContinuity(state);
+});
+window.addEventListener("atlas:appearance-change", (event) => {
+  if (learner || LOCAL || !state) return;
+  syncTutorTheme(event.detail?.mode || tutorTheme());
 });
 setInterval(tick, 100);
 boot();
