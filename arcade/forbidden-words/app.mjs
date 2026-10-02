@@ -452,15 +452,17 @@ function updateControls() {
   )) {
     if (busy) el.disabled = true;
   }
-  if (
+  const partnerDisconnected =
     state &&
     !failed &&
-    !state.connected[learner ? "tutor" : "learner"] &&
-    state.phase !== "waiting" &&
-    state.phase !== "finished"
-  ) {
+    !state.connected[learner ? "tutor" : "learner"];
+  const timedPlay = state && ["countdown", "active"].includes(state.phase);
+
+  if (partnerDisconnected && timedPlay) {
     notify(
-      "Your partner is reconnecting. The clock continues unless the tutor pauses.",
+      state.paused
+        ? "Your partner is reconnecting. The turn is paused."
+        : "Your partner is reconnecting. The clock continues unless the tutor pauses.",
     );
   } else if (
     !failed &&
