@@ -1483,8 +1483,364 @@ dialog li {
     transform: translateY(100px) rotate(9deg) scale(0.85);
   }
 }
-[data-theme="night"] body {
-  background: linear-gradient(125deg, #b7cce2, #e3edf8 65%, #aec2db);
+/* ============================================================
+   FORBIDDEN WORDS · NIGHT
+   Same physical game world under cool low-light conditions.
+   Shared Arcade chrome keeps its own night tokens; everything
+   below belongs to Forbidden Words.
+   ============================================================ */
+html[data-theme="night"] {
+  color-scheme: dark;
+  --ink: #edf5ff;
+  --blue: #68adff;
+  --muted: #9bb3cf;
+}
+html[data-theme="night"] body {
+  background:
+    radial-gradient(ellipse at 48% 48%, rgba(52, 91, 128, 0.18), transparent 48%),
+    repeating-linear-gradient(
+      39deg,
+      transparent 0 180px,
+      rgba(137, 184, 226, 0.035) 180px 230px,
+      transparent 230px 330px
+    ),
+    radial-gradient(ellipse at 0 90%, #163653, transparent 62%),
+    linear-gradient(122deg, #081522, #0d2032 56%, #142c44);
+}
+html[data-theme="night"] body:before {
+  background:
+    radial-gradient(ellipse at 60% 70%, rgba(255, 111, 76, 0.46), transparent 58%),
+    radial-gradient(ellipse at 5% 90%, rgba(214, 101, 92, 0.24), transparent 42%),
+    linear-gradient(140deg, rgba(26, 49, 79, 0.72), rgba(71, 56, 90, 0.55) 55%, rgba(177, 79, 68, 0.48));
+}
+html[data-theme="night"] #landing-chrome .arcade-game-chrome-back {
+  color: #a4bbd4;
+}
+html[data-theme="night"] .premise,
+html[data-theme="night"] .caption,
+html[data-theme="night"] .role-caption > p:last-child,
+html[data-theme="night"] .deck-area > p {
+  color: #9eb7d3;
+}
+html[data-theme="night"] .spark {
+  color: #75adf6;
+  text-shadow: 0 2px 14px rgba(84, 155, 239, 0.34);
+}
+html[data-theme="night"] .spark.two {
+  color: #c19fc8;
+}
+html[data-theme="night"] .panel {
+  background: linear-gradient(145deg, rgba(22, 38, 56, 0.97), rgba(13, 26, 40, 0.95));
+  border-color: rgba(170, 205, 238, 0.13);
+  box-shadow:
+    0 24px 56px rgba(0, 0, 0, 0.38),
+    0 4px 12px rgba(0, 0, 0, 0.24),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+}
+html[data-theme="night"] .eyebrow {
+  color: #8eabd0;
+}
+html[data-theme="night"] .invitation > p:not(.eyebrow):not(.small-note),
+html[data-theme="night"] .connection p,
+html[data-theme="night"] .result-panel > p:not(.eyebrow),
+html[data-theme="night"] .best,
+html[data-theme="night"] .played-count {
+  color: #91a8c3;
+}
+html[data-theme="night"] .link-row {
+  background: #0e1c2b;
+  border-color: #29435f;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.24);
+}
+html[data-theme="night"] .link-row input,
+html[data-theme="night"] .pause-overlay input {
+  color: #c1d2e5;
+}
+html[data-theme="night"] .secondary {
+  background: #17293c;
+  border-color: #304a65;
+  color: #c4d5e8;
+}
+html[data-theme="night"] .connection {
+  background: linear-gradient(120deg, #162e47, #193753);
+}
+html[data-theme="night"] .connection-dot {
+  background: #6889ad;
+  box-shadow: 0 0 0 11px rgba(90, 134, 180, 0.18);
+}
+html[data-theme="night"] .connection-dot.online {
+  background: #45bf91;
+  box-shadow: 0 0 0 11px rgba(69, 191, 145, 0.15);
+}
+html[data-theme="night"] .entry-footer,
+html[data-theme="night"] .switch-maintenance {
+  border-color: #2a4158;
+}
+html[data-theme="night"] .entry-footer-action {
+  color: #87baff;
+}
+html[data-theme="night"] .entry-footer-action:hover,
+html[data-theme="night"] .entry-footer-action:focus-visible {
+  color: #b5d5ff;
+}
+html[data-theme="night"] .entry-rules,
+html[data-theme="night"] .entry-footer-separator {
+  color: #708ca9;
+}
+html[data-theme="night"] .deck-top,
+html[data-theme="night"] .deck-layer {
+  border-color: #d8e5f0;
+  background: #cad9e7;
+  box-shadow:
+    0 2px 0 #6b8199,
+    0 4px 0 #b9c7d5,
+    0 6px 0 #607890,
+    0 8px 0 #aebdcd,
+    0 10px 0 #526b85,
+    0 12px 0 #9faebe,
+    0 14px 0 #5e7590,
+    0 16px 0 #8397ad,
+    0 20px 18px rgba(0, 0, 0, 0.54);
+}
+html[data-theme="night"] .deck-tray {
+  background: linear-gradient(#29435b, #1b3148 68%, #0f2234 72%, #20384f);
+  border-color: rgba(164, 195, 222, 0.22);
+  box-shadow:
+    0 5px 0 #102b42,
+    0 9px 0 rgba(0, 0, 0, 0.28),
+    0 24px 34px rgba(0, 0, 0, 0.46);
+}
+html[data-theme="night"] .deck-shadow {
+  background: rgba(18, 79, 132, 0.36);
+}
+html[data-theme="night"] .card-back {
+  background:
+    repeating-linear-gradient(
+      45deg,
+      transparent 0 7px,
+      rgba(255, 255, 255, 0.025) 7px 8px,
+      transparent 8px 13px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent 0 7px,
+      rgba(255, 255, 255, 0.03) 7px 8px,
+      transparent 8px 13px
+    ),
+    linear-gradient(145deg, #4c7eaa, #214f78);
+  border-color: #5f8db4;
+  box-shadow:
+    inset 0 0 24px rgba(3, 31, 59, 0.72),
+    inset 0 2px 2px rgba(255, 255, 255, 0.24);
+}
+html[data-theme="night"] .game-heading,
+html[data-theme="night"] .learner-game-heading {
+  border-bottom-color: rgba(119, 158, 195, 0.16);
+  background: rgba(8, 21, 34, 0.86);
+}
+html[data-theme="night"] .round-label {
+  color: #a9c4df;
+}
+html[data-theme="night"] .round-label span {
+  color: #7594b3;
+}
+html[data-theme="night"] .utilities {
+  border-color: rgba(140, 180, 217, 0.13);
+  background: rgba(18, 38, 57, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+html[data-theme="night"] .game-utility-button {
+  color: #91a9c1;
+}
+html[data-theme="night"] .game-utility-button:hover:not(:disabled) {
+  border-color: rgba(139, 183, 224, 0.18);
+  background: rgba(92, 132, 170, 0.13);
+  color: #c2dbf1;
+}
+html[data-theme="night"] .game-utility-button:active:not(:disabled) {
+  background: rgba(91, 139, 183, 0.19);
+}
+html[data-theme="night"] .pause-button {
+  border-color: rgba(104, 173, 255, 0.26);
+  background: rgba(63, 133, 214, 0.12);
+  color: #91c1fb;
+}
+html[data-theme="night"] .pause-button:hover:not(:disabled) {
+  border-color: rgba(104, 173, 255, 0.38);
+  background: rgba(63, 133, 214, 0.2);
+  color: #c1ddff;
+}
+html[data-theme="night"] .active-card,
+html[data-theme="night"] .flying-card {
+  border-color: #304a63;
+  background: #13263a;
+  box-shadow:
+    0 18px 38px rgba(0, 0, 0, 0.42),
+    0 0 20px rgba(66, 145, 222, 0.18),
+    0 0 calc(var(--heat) * 40px) calc(var(--heat) * 9px) rgba(255, 179, 59, 0.62);
+}
+html[data-theme="night"] .card-face {
+  border-color: #304a63;
+  background:
+    linear-gradient(140deg, rgba(27, 45, 64, 0.97), rgba(15, 29, 44, 0.96)),
+    repeating-linear-gradient(38deg, #1d354e 0 120px, #14283c 120px 170px);
+  box-shadow: inset 0 0 calc(var(--heat) * 45px) rgba(255, 151, 69, 0.34);
+}
+html[data-theme="night"] .card-face .eyebrow {
+  color: #89a5c2;
+}
+html[data-theme="night"] .card-divider {
+  background: #38516a;
+}
+html[data-theme="night"] .avoid-label {
+  color: #d08f8c;
+}
+html[data-theme="night"] .card-face li {
+  color: #f3d7d5;
+  background: linear-gradient(90deg, #4a2d34, #563237);
+}
+html[data-theme="night"] .role-caption .eyebrow {
+  color: #70b1ff;
+}
+html[data-theme="night"] .role-caption .eyebrow span {
+  color: #7f9dbc;
+}
+html[data-theme="night"] .timer {
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.28));
+}
+html[data-theme="night"] .timer-track {
+  stroke: #2a4054;
+  filter: none;
+}
+html[data-theme="night"] .timer > div {
+  background: radial-gradient(#172a3d, #0d1d2d);
+  box-shadow:
+    inset 0 2px 8px rgba(0, 0, 0, 0.32),
+    0 0 0 1px #36516d;
+}
+html[data-theme="night"] .timer-symbol,
+html[data-theme="night"] .timer #timer-label {
+  color: #809bb7;
+}
+html[data-theme="night"] .timer strong {
+  color: hsl(
+    calc(207 - var(--heat) * 185)
+    calc(72% + var(--heat) * 18%)
+    calc(72% - var(--heat) * 12%)
+  );
+}
+html[data-theme="night"] .score-area {
+  border-color: #2e455b;
+}
+html[data-theme="night"] .score-label > span {
+  color: #95b4d3;
+}
+html[data-theme="night"] .score-label > strong {
+  color: #9bc6fb;
+}
+html[data-theme="night"] .score-label small {
+  color: #7894b0;
+}
+html[data-theme="night"] .pile > div {
+  background: #243b52;
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.42);
+}
+html[data-theme="night"] .correct {
+  background: linear-gradient(#4fab8b, #2e8365);
+  border-color: #5bae91;
+}
+html[data-theme="night"] .skip {
+  color: #d8e3ef;
+  background: linear-gradient(#263b4f, #1d3042);
+  border-color: #3d5368;
+}
+html[data-theme="night"] .oops {
+  color: #ff9a91;
+  background: linear-gradient(#4d2b30, #412428);
+  border-color: #744047;
+}
+html[data-theme="night"] .guesser-note {
+  background: #142f49;
+}
+html[data-theme="night"] .guesser-note > span,
+html[data-theme="night"] .guesser-note strong {
+  color: #78b8ff;
+}
+html[data-theme="night"] .guesser-note p {
+  color: #91aac5;
+}
+html[data-theme="night"] .feedback {
+  background: #17352e;
+  color: #a9e6d0;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.38);
+}
+html[data-theme="night"] .countdown-overlay,
+html[data-theme="night"] .pause-overlay {
+  background: rgba(5, 16, 27, 0.68);
+}
+html[data-theme="night"] .countdown-overlay > div {
+  background: rgba(17, 31, 46, 0.96);
+  border-color: rgba(151, 190, 227, 0.15);
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.48);
+}
+html[data-theme="night"] .countdown-overlay .eyebrow {
+  color: #8bc0ff;
+}
+html[data-theme="night"] .countdown-overlay strong {
+  color: #68adff;
+}
+html[data-theme="night"] .countdown-overlay p:last-child,
+html[data-theme="night"] .pause-overlay p {
+  color: #93abc5;
+}
+html[data-theme="night"] .pause-overlay input {
+  background: #0d1d2d;
+  border-color: #304a63;
+}
+html[data-theme="night"] .result-score > strong {
+  color: #68adff;
+}
+html[data-theme="night"] .result-score > span {
+  color: #9ab2cc;
+}
+html[data-theme="night"] .best strong {
+  color: #91bdf0;
+}
+html[data-theme="night"] .final-card {
+  background: #182e44;
+}
+html[data-theme="night"] .final-card > span {
+  color: #7895b2;
+}
+html[data-theme="night"] .final-card small {
+  color: #72c7a7;
+}
+html[data-theme="night"] dialog {
+  background: var(--atlas-modal-surface);
+  color: var(--atlas-modal-heading);
+  border-color: var(--atlas-modal-border);
+  box-shadow: var(--atlas-modal-shadow);
+}
+html[data-theme="night"] dialog p,
+html[data-theme="night"] dialog li {
+  color: var(--atlas-modal-text);
+}
+html[data-theme="night"] .shortcut-note {
+  color: var(--atlas-modal-muted);
+}
+html[data-theme="night"] dialog::backdrop {
+  background: var(--atlas-modal-overlay-bg);
+}
+html[data-theme="night"] #rules .atlas-modal-close:hover,
+html[data-theme="night"] #rules .atlas-modal-close:focus-visible {
+  border-color: rgba(199, 165, 202, 0.18);
+  background: rgba(199, 165, 202, 0.1);
+  color: #d9badc;
+}
+html[data-theme="night"] #rules .atlas-modal-close:active {
+  border-color: rgba(199, 165, 202, 0.24);
+  background: rgba(199, 165, 202, 0.16);
+  color: #edd7ef;
 }
 @media (min-width: 1500px) {
   .board {
