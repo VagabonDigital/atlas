@@ -2712,23 +2712,31 @@ html[data-theme="night"] #rules .atlas-modal-close:active {
   }
 
   .learner-game-heading {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto auto;
     min-height: 56px;
     padding: 0 10px;
     gap: 8px;
   }
 
   .learner-game-brand {
+    grid-column: 1;
     min-width: 0;
   }
 
-  .learner-game-heading .round-label {
+  .learner-game-heading > .round-label {
+    position: static;
+    grid-column: 2;
+    justify-self: end;
+    left: auto;
+    margin: 0;
+    transform: none;
     font-size: 9px;
     letter-spacing: 2px;
+    white-space: nowrap;
   }
 
   .learner-game-actions {
-    grid-column: 2;
+    grid-column: 3;
     min-width: 0;
     justify-self: end;
     justify-content: flex-end;
