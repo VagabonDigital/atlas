@@ -370,8 +370,14 @@ body:before {
 .entry-footer-actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 18px;
+  justify-content: center;
+  gap: 10px;
+}
+.entry-footer-separator {
+  color: #9aadc2;
+  font-size: 13px;
+  line-height: 1;
+  user-select: none;
 }
 .entry-footer-action {
   min-height: 0;
