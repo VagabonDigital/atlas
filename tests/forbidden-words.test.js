@@ -158,6 +158,7 @@ const fs = require("node:fs");
   assert.ok(gameCss.includes("scrollbar-color:"));
   assert.ok(gameCss.includes(".rules-scroll"));
   assert.ok(gameCss.includes(".rules-scroll::-webkit-scrollbar-button"));
+  assert.ok(gameCss.includes("margin-block: 10px;"));
   assert.ok(tutorPage.includes('class="atlas-modal-close rules-close"'));
   assert.ok(learnerPage.includes('class="atlas-modal-close rules-close"'));
   assert.ok(learnerPage.includes("../../shared/atlas-modal-theme.css"));
