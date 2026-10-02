@@ -34,9 +34,10 @@
     </main>
     <div id="notice" role="status" aria-live="polite"></div>
     <dialog id="rules" aria-labelledby="rules-title">
-      <button class="rules-close" data-action="close-rules" aria-label="Close rules">
+      <button class="atlas-modal-close rules-close" data-action="close-rules" aria-label="Close rules">
         ×
       </button>
+      <div class="rules-scroll">
       <p class="eyebrow">A game for two voices</p>
       <h2 id="rules-title">Find another way.</h2>
       <p>
@@ -73,6 +74,7 @@
         last card afterward.
       </p>
       <button class="primary" data-action="close-rules">Let’s play</button>
+      </div>
     </dialog>
     <div id="atlas-session-panel-root"></div>
     <script src="../../shared/atlas-bridge.js"></script>
