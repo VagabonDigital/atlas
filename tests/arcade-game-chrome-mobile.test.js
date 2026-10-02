@@ -47,8 +47,13 @@ assert.ok(
 );
 
 assert.ok(
-  chromeCss.includes('grid-template-areas:'),
-  "mounted game headers should use the shared compact mobile slot layout",
+  chromeCss.includes('grid-template-areas: "left context actions";'),
+  "mobile game context should stay on the header row immediately before Arcade actions",
+);
+
+assert.ok(
+  chromeCss.includes("grid-template-columns: minmax(0, 1fr) auto auto;"),
+  "mobile game headers should give the title flexible space while keeping context and overflow visible",
 );
 
 for (const path of [
