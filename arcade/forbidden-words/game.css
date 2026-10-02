@@ -80,7 +80,7 @@ body:before {
     linear-gradient(140deg, #425f95b5, #7e789dad 55%, #ff9a75b0);
   transition: opacity 0.4s linear;
 }
-#app button,
+#app button:not(.game-utility-button),
 #app input,
 #rules button,
 #rules input {
@@ -610,12 +610,13 @@ body:before {
   transform: none;
 }
 .learner-game-heading {
+  position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   min-height: 56px;
-  padding: 0 16px;
-  gap: 14px;
+  padding: 0 20px;
+  gap: 16px;
   border-bottom: 1px solid #c8dbeeaa;
   background: #f7fbfd99;
   backdrop-filter: blur(14px);
@@ -630,7 +631,15 @@ body:before {
   letter-spacing: -1.5px;
   text-overflow: ellipsis;
 }
+.learner-game-heading > .round-label {
+  position: absolute;
+  left: 50%;
+  margin: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
 .learner-game-actions {
+  grid-column: 2;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -2201,31 +2210,23 @@ dialog li {
   }
 
   .learner-game-heading {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    grid-template-areas: "brand round actions";
+    grid-template-columns: minmax(0, 1fr) auto;
     min-height: 56px;
     padding: 0 10px;
     gap: 8px;
   }
 
   .learner-game-brand {
-    grid-area: brand;
     min-width: 0;
   }
 
   .learner-game-heading .round-label {
-    grid-area: round;
-    margin: 0;
-    align-self: center;
-    justify-self: center;
-    font-size: 8px;
-    letter-spacing: 1.8px;
-    white-space: nowrap;
+    font-size: 9px;
+    letter-spacing: 2px;
   }
 
   .learner-game-actions {
-    grid-area: actions;
+    grid-column: 2;
     min-width: 0;
     justify-self: end;
     justify-content: flex-end;
@@ -2270,16 +2271,5 @@ dialog li {
     content: "▶";
   }
 
-  .learner-game-actions .game-utility-button {
-    min-height: 30px;
-    padding: 5px 8px;
-    font-size: 10px;
-  }
-
-  .learner-game-actions .help-button {
-    width: 30px;
-    min-width: 30px;
-    padding: 5px;
-  }
 }
 
