@@ -153,6 +153,7 @@ export async function handleForbiddenWords(
     if (route === "create") {
       if (learner) throw new GameError("Only a tutor can create a game.", 403);
       const state = initialState(0);
+      state.theme = body.theme === "night" ? "night" : "light";
       state.invite = token();
       await rpc("forbidden_words_create", {
         p_id: body.session,
