@@ -80,13 +80,13 @@ body:before {
     linear-gradient(140deg, #425f95b5, #7e789dad 55%, #ff9a75b0);
   transition: opacity 0.4s linear;
 }
-#app button:not(.game-utility-button),
+#app button:not(.game-utility-button):not(.entry-footer-action),
 #app input,
 #rules button,
 #rules input {
   font: inherit;
 }
-#app button:not(.game-utility-button),
+#app button:not(.game-utility-button):not(.entry-footer-action),
 #rules button:not(.atlas-modal-close) {
   cursor: pointer;
   border: 0;
@@ -96,21 +96,21 @@ body:before {
     box-shadow 0.15s,
     background 0.15s;
 }
-#app button:not(.game-utility-button):hover:not(:disabled),
+#app button:not(.game-utility-button):not(.entry-footer-action):hover:not(:disabled),
 #rules button:not(.atlas-modal-close):hover:not(:disabled) {
   transform: translateY(-2px);
   filter: brightness(1.035);
 }
-#app button:not(.game-utility-button):active:not(:disabled),
+#app button:not(.game-utility-button):not(.entry-footer-action):active:not(:disabled),
 #rules button:not(.atlas-modal-close):active:not(:disabled) {
   transform: translateY(1px);
 }
-#app button:not(.game-utility-button):disabled,
+#app button:not(.game-utility-button):not(.entry-footer-action):disabled,
 #rules button:not(.atlas-modal-close):disabled {
   cursor: default;
   opacity: 0.5;
 }
-#app button:not(.game-utility-button):focus-visible,
+#app button:not(.game-utility-button):not(.entry-footer-action):focus-visible,
 #app a:focus-visible,
 #app summary:focus-visible,
 #app input:focus-visible,
@@ -166,10 +166,10 @@ body:before {
   margin: 0 0 0 5px;
   transform: translateY(-3px);
 }
-body.learner .entry-footer {
-  grid-template-columns: auto 1fr;
+body[data-player="learner"] .entry-footer {
+  grid-template-columns: auto minmax(0, 1fr);
 }
-body.learner .entry-rules {
+body[data-player="learner"] .entry-rules {
   text-align: right;
 }
 .landing {
@@ -369,6 +369,7 @@ body.learner .entry-rules {
 }
 .entry-footer-action {
   min-height: 0;
+  cursor: pointer;
   margin: 0;
   padding: 5px 0;
   border: 0;
@@ -1793,7 +1794,8 @@ dialog li {
   .invitation > p:not(.eyebrow):not(.small-note) {
     font-size: 14px;
   }
-  .entry-footer {
+  .entry-footer,
+  body[data-player="learner"] .entry-footer {
     grid-template-columns: 1fr;
     gap: 8px;
     text-align: center;
@@ -1801,6 +1803,9 @@ dialog li {
   .entry-footer-action,
   .entry-footer-maintenance {
     justify-self: center;
+  }
+  body[data-player="learner"] .entry-rules {
+    text-align: center;
   }
 
   .game-heading-left {
