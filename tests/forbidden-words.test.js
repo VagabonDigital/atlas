@@ -141,10 +141,19 @@ const fs = require("node:fs");
   assert.ok(tutorPage.includes('id="arcade-game-return-root"'));
   assert.ok(tutorPage.includes('id="arcade-game-actions-root"'));
   assert.ok(client.includes("window.AtlasSessionPanel.mount"));
+  const setupTutorBlock = client.slice(
+    client.indexOf("async function setupTutor()"),
+    client.indexOf("async function request("),
+  );
+  assert.ok(!setupTutorBlock.includes("  window.ArcadeGameChrome.mountGame({\n    root: \"#playing-chrome\",\n    returnRoot: \"#arcade-game-return-root\",\n    actionsRoot: \"#arcade-game-actions-root\",\n  });\n  setupTutorMobileUtilities();\n"));
   assert.ok(client.includes('returnRoot: "#arcade-game-return-root"'));
   assert.ok(client.includes('actionsRoot: "#arcade-game-actions-root"'));
   assert.ok(tutorPage.includes('id="fw-header-pause"'));
   assert.ok(client.includes("setupTutorMobileUtilities"));
+  assert.ok(client.includes("function ensurePlayingChrome()"));
+  assert.ok(client.includes("if (waiting) return;\n  ensurePlayingChrome();"));
+  assert.ok(client.includes("playingChromeMounted = true;"));
+  assert.ok(gameCss.includes("#landing-chrome[hidden],\n#playing-chrome[hidden] {\n  display: none !important;"));
   assert.ok(client.includes("closeTutorMobileMenu"));
   assert.ok(client.includes('document.querySelector("#rules")?.addEventListener("click"'));
 
