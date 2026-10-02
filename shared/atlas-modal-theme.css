@@ -298,6 +298,7 @@ html[data-theme="night"] body[data-atlas-world="arcade"] {
    Quiet close treatment aligned with the Session panel.
    ============================================================ */
 
+.atlas-modal-close,
 .atlas-search-close,
 body[data-atlas-world="atlas"] #settings-modal .modal-close,
 body[data-atlas-world] .atlas-feedback-close,
@@ -320,6 +321,7 @@ body[data-atlas-world="compass"] .subject-artwork-studio-close {
     box-shadow: none;
 }
 
+.atlas-modal-close,
 .atlas-search-close,
 body[data-atlas-world="atlas"] #settings-modal .modal-close,
 body[data-atlas-world] .atlas-feedback-close,
