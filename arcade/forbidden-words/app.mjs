@@ -54,7 +54,8 @@ let lastKey = "",
   lastSync = 0,
   pollTimer,
   owner,
-  atlasSession;
+  atlasSession,
+  playingChromeMounted = false;
 let sound = storage.get("fw:sound") === "on",
   audio,
   retryDelay = 650,
@@ -190,6 +191,10 @@ function syncAtlasContinuity(s) {
   } catch {
     /* Continuity must never interrupt live play. */
   }
+}
+function ensurePlayingChrome() {
+  if (learner || playingChromeMounted || !window.ArcadeGameChrome) return;
+  playingChromeMounted = true;
 }
 async function setupTutor() {
   for (const src of [
@@ -358,6 +363,7 @@ function updateTutorHeader(s) {
   if (landingChrome) landingChrome.hidden = !waiting;
   if (playingChrome) playingChrome.hidden = waiting;
   if (waiting) return;
+  ensurePlayingChrome();
   const brandRoot = document.querySelector("#fw-header-brand");
   const roundRoot = document.querySelector("#fw-header-round");
   const utilitiesRoot = document.querySelector("#fw-header-utilities");
