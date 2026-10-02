@@ -12,6 +12,10 @@ const arcade = fs.readFileSync(
     'arcade/index.html',
     'utf8'
 );
+const atlas = fs.readFileSync(
+    'index.html',
+    'utf8'
+);
 const publicAccess = fs.readFileSync(
     'arcade/shared/arcade-public-access.js',
     'utf8'
@@ -52,6 +56,21 @@ assert.equal(
     games.length,
     4,
     'The Arcade catalogue includes Forbidden Words with authenticated hosting'
+);
+
+assert.match(
+    arcade,
+    /'arcade:forbidden-words': '\.\.\/assets\/hub\/forbidden-words\.png'/
+);
+
+assert.match(
+    atlas,
+    /'arcade:forbidden-words': '\.\/assets\/hub\/forbidden-words\.png'/
+);
+
+assert.doesNotMatch(
+    arcade + atlas,
+    /forbidden-words\.webp/
 );
 
 const accessById =
