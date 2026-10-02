@@ -548,7 +548,10 @@ function tone(frequency, duration) {
 async function act(action) {
   if (action === "rules") {
     closeTutorMobileMenu();
-    return document.querySelector("#rules").showModal();
+    const rules = document.querySelector("#rules");
+    rules.showModal();
+    requestAnimationFrame(syncRulesScrollbar);
+    return;
   }
   if (action === "close-rules") return document.querySelector("#rules").close();
   if (action === "sound") {
@@ -696,6 +699,49 @@ async function boot() {
     showEntryError(error);
   }
 }
+const rulesDialog = document.querySelector("#rules");
+const rulesScroller = rulesDialog?.querySelector(".rules-scroll");
+let rulesScrollbar;
+let rulesScrollbarThumb;
+
+function ensureRulesScrollbar() {
+  if (!rulesDialog || !rulesScroller || rulesScrollbar) return;
+  rulesScrollbar = document.createElement("div");
+  rulesScrollbar.className = "rules-scrollbar";
+  rulesScrollbar.setAttribute("aria-hidden", "true");
+  rulesScrollbarThumb = document.createElement("div");
+  rulesScrollbarThumb.className = "rules-scrollbar-thumb";
+  rulesScrollbar.append(rulesScrollbarThumb);
+  rulesDialog.append(rulesScrollbar);
+  rulesScroller.addEventListener("scroll", syncRulesScrollbar, { passive: true });
+}
+
+function syncRulesScrollbar() {
+  ensureRulesScrollbar();
+  if (!rulesScroller || !rulesScrollbar || !rulesScrollbarThumb) return;
+
+  const viewport = rulesScroller.clientHeight;
+  const content = rulesScroller.scrollHeight;
+  const overflow = content - viewport;
+
+  if (overflow <= 1) {
+    rulesScrollbar.classList.remove("is-visible");
+    return;
+  }
+
+  const track = rulesScrollbar.clientHeight;
+  const thumb = Math.max(34, track * (viewport / content));
+  const travel = Math.max(0, track - thumb);
+  const offset = overflow > 0 ? travel * (rulesScroller.scrollTop / overflow) : 0;
+
+  rulesScrollbarThumb.style.height = `${thumb}px`;
+  rulesScrollbarThumb.style.transform = `translateY(${offset}px)`;
+  rulesScrollbar.classList.add("is-visible");
+}
+
+ensureRulesScrollbar();
+window.addEventListener("resize", () => requestAnimationFrame(syncRulesScrollbar));
+
 document.addEventListener("click", (event) => {
   const el = event.target.closest("[data-action]");
   if (el && !el.disabled)
