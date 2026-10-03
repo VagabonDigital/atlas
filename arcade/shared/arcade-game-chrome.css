@@ -340,6 +340,60 @@ html[data-theme="night"] .arcade-game-chrome-game-menu {
 }
 
 /* ============================================================
+   SIMPLE THREE-ZONE GAME HEADERS
+   ============================================================ */
+
+/* Older single-screen games already expose three semantic pieces: Back +
+   identity in the left wrapper, live game state in the middle, and an empty
+   shared-actions slot on the right. When that exact structure is present,
+   split it into balanced navigation / identity / state zones. Headers with
+   genuine game-owned right-side utilities do not match this selector. */
+.arcade-game-chrome-host:has(
+  > .arcade-game-chrome-host-actions:empty
+) {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+}
+
+.arcade-game-chrome-host:has(
+  > .arcade-game-chrome-host-actions:empty
+) > .arcade-game-chrome-host-left {
+  display: contents !important;
+}
+
+.arcade-game-chrome-host:has(
+  > .arcade-game-chrome-host-actions:empty
+) > .arcade-game-chrome-host-left > #arcade-game-return-root {
+  grid-column: 1;
+  min-width: 0;
+  justify-self: start;
+}
+
+.arcade-game-chrome-host:has(
+  > .arcade-game-chrome-host-actions:empty
+) > .arcade-game-chrome-host-left > :not(#arcade-game-return-root) {
+  grid-column: 2;
+  min-width: 0;
+  justify-self: center;
+}
+
+.arcade-game-chrome-host:has(
+  > .arcade-game-chrome-host-actions:empty
+) > .arcade-game-chrome-host-context {
+  grid-column: 3;
+  min-width: 0;
+  justify-self: end;
+  justify-content: flex-end !important;
+}
+
+.arcade-game-chrome-host:has(
+  > .arcade-game-chrome-host-actions:empty
+) > .arcade-game-chrome-host-actions {
+  display: none !important;
+}
+
+/* ============================================================
    RIGHT UTILITY ROW
    ============================================================ */
 
@@ -568,6 +622,21 @@ html.theme-changing .arcade-game-chrome-game-icon-btn {
     justify-self: end;
     justify-content: flex-end !important;
     white-space: nowrap;
+  }
+
+  .arcade-game-chrome-host:has(
+    > .arcade-game-chrome-host-actions:empty
+  ) {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-areas: none;
+  }
+
+  .arcade-game-chrome-host:has(
+    > .arcade-game-chrome-host-actions:empty
+  ) > .arcade-game-chrome-host-context {
+    grid-area: auto !important;
+    grid-column: 3;
+    justify-self: end;
   }
 
   .arcade-game-chrome-game-direct {
