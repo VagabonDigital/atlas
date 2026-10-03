@@ -14,30 +14,40 @@ const tomorrow = fs.readFileSync(
   "arcade/tomorrow-got-weird/index.html",
   "utf8",
 );
+const forbiddenApp = fs.readFileSync(
+  "arcade/forbidden-words/app.mjs",
+  "utf8",
+);
 const forbiddenCss = fs.readFileSync(
   "arcade/forbidden-words/game.css",
+  "utf8",
+);
+const millionaire = fs.readFileSync(
+  "arcade/millionaire/app.mjs",
   "utf8",
 );
 
 assert.ok(
   chromeJs.includes("arcade-game-chrome-game-menu-toggle"),
-  "shared Arcade chrome should provide a mobile overflow trigger",
+  "shared Arcade chrome should retain the responsive menu capability for games that genuinely need it",
 );
 
 assert.ok(
-  chromeJs.includes("arcade-game-chrome-game-menu-session"),
-  "mobile overflow should preserve Session access",
+  chromeJs.includes("settings[control] !== true"),
+  "active Atlas management controls should be opt-in rather than default gameplay chrome",
 );
 
 assert.ok(
-  chromeJs.includes("arcade-game-chrome-game-menu-search"),
-  "mobile overflow should preserve Atlas Search access",
+  chromeJs.includes("settings.mobileMenu !== true"),
+  "an empty mobile menu shell should survive only when a game explicitly reuses it for game-owned utilities",
 );
 
-assert.ok(
-  chromeJs.includes("arcade-game-chrome-game-menu-appearance"),
-  "mobile overflow should preserve appearance access",
-);
+for (const control of ["session", "search", "appearance"]) {
+  assert.ok(
+    chromeJs.includes(`arcade-game-chrome-game-menu-${control}`),
+    `shared Arcade chrome should still support an explicitly requested ${control} control`,
+  );
+}
 
 assert.ok(
   chromeJs.includes("document.startViewTransition(apply)"),
@@ -68,7 +78,7 @@ assert.ok(
 
 assert.ok(
   chromeCss.includes(".arcade-game-chrome-game-direct"),
-  "desktop utility controls should collapse into the mobile overflow",
+  "explicit desktop utility controls should collapse into the mobile overflow when present",
 );
 
 assert.ok(
@@ -78,7 +88,7 @@ assert.ok(
 
 assert.ok(
   chromeCss.includes("grid-template-columns: minmax(0, 1fr) auto auto;"),
-  "mobile game headers should give the title flexible space while keeping context and overflow visible",
+  "mobile game headers should give the title flexible space while keeping context and actions visible",
 );
 
 assert.ok(
@@ -99,11 +109,29 @@ assert.ok(
   "Forbidden Words may keep its symmetric three-column header only above the shared mobile Chrome breakpoint",
 );
 
+assert.match(
+  forbiddenApp,
+  /ArcadeGameChrome\.mountGame\(\{[\s\S]*?session:\s*false,[\s\S]*?search:\s*false,[\s\S]*?appearance:\s*false,[\s\S]*?mobileMenu:\s*true/,
+  "Forbidden Words active play should remove Atlas management controls while retaining its game-owned mobile utility menu",
+);
+
+assert.match(
+  millionaire,
+  /ArcadeGameChrome\.mountLanding\(\{[^}]*appearance:\s*false[^}]*\}\)/,
+  "Millionaire entrance should keep its fixed theatrical appearance without an Atlas theme toggle",
+);
+assert.match(
+  millionaire,
+  /ArcadeGameChrome\.mountGame\(\{[^}]*session:\s*false,[^}]*search:\s*false,[^}]*appearance:\s*false[^}]*\}\)/,
+  "Millionaire active play should remain Back-only",
+);
+
 for (const path of [
   "arcade/would-you-rather/index.html",
   "arcade/truth-trap/index.html",
   "arcade/tomorrow-got-weird/index.html",
   "arcade/forbidden-words/app.mjs",
+  "arcade/millionaire/app.mjs",
 ]) {
   const source = fs.readFileSync(path, "utf8");
   assert.ok(
