@@ -114,45 +114,51 @@ dialog::-webkit-scrollbar-thumb:hover{
 }
 .show[data-screen="game"] .primary-slot p{font-size:clamp(12px,.92vw,15px)}
 
-/* Secondary utilities belong together visually. They stay quiet, but now read as
-   one deliberate bottom-right control stack rather than two unrelated labels. */
+/* Secondary utilities form one deliberate bottom-right control row. They share
+   a presentation language, but remain separate controls with clear spacing and
+   hierarchy instead of visually merging into a stack. */
 .show[data-screen="game"] .question-tools,
 .show[data-screen="game"] #sound{
-  min-width:118px;
-  min-height:32px;
+  min-height:34px;
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:6px 12px;
-  border:1px solid rgba(139,190,232,.22);
-  border-radius:999px;
-  background:rgba(2,10,24,.62);
+  padding:7px 13px;
+  border:1px solid rgba(139,190,232,.20);
+  border-radius:9px;
+  background:rgba(2,10,24,.68);
   color:#c6d9eb;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 4px 14px rgba(0,0,0,.18);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 4px 14px rgba(0,0,0,.16);
   backdrop-filter:blur(8px);
   -webkit-backdrop-filter:blur(8px);
   font-size:13px;
   letter-spacing:.035em;
   line-height:1;
-  transition:background .18s,border-color .18s,color .18s,box-shadow .18s;
+  transition:background .18s,border-color .18s,color .18s,box-shadow .18s,transform .18s;
 }
 .show[data-screen="game"] .question-tools:hover,
 .show[data-screen="game"] #sound:hover{
-  border-color:rgba(139,190,232,.42);
-  background:rgba(6,22,43,.82);
+  border-color:rgba(139,190,232,.40);
+  background:rgba(6,22,43,.86);
   color:#fff;
-  box-shadow:0 5px 18px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.05);
+  box-shadow:0 5px 18px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.05);
+  transform:translateY(-1px);
 }
 .show[data-screen="game"] .question-tools{
-  right:2.3%;
-  bottom:6.6%;
+  min-width:136px;
+  right:calc(2.3% + 102px);
+  bottom:2.2%;
 }
 .show[data-screen="game"] .show-footer{
-  bottom:2.1%;
+  left:auto;
   right:2.3%;
+  bottom:2.2%;
+  width:auto;
+  display:block;
 }
 .show[data-screen="game"] .show-footer #sound{
-  margin-left:auto;
+  min-width:94px;
+  margin:0;
 }
 
 @media (max-height: 760px){
@@ -161,5 +167,6 @@ dialog::-webkit-scrollbar-thumb:hover{
   .show[data-screen="game"] .answers{top:64.7%;height:15.2%}
   .show[data-screen="game"] .primary-slot{top:81.3%}
   .show[data-screen="game"] .lifeline-rail{top:23.5%;bottom:32%}
-  .show[data-screen="game"] .question-tools{bottom:6.4%}
+  .show[data-screen="game"] .question-tools,
+  .show[data-screen="game"] .show-footer{bottom:1.8%}
 }
