@@ -1706,7 +1706,8 @@
       'arcade:forbidden-words': '../assets/hub/forbidden-words.png',
       'arcade:would-you-rather': '../assets/hub/would-you-rather.webp',
       'arcade:truth-trap': '../assets/hub/truth-trap.webp',
-      'arcade:tomorrow-got-weird': '../assets/hub/tomorrow-got-weird.webp'
+      'arcade:tomorrow-got-weird': '../assets/hub/tomorrow-got-weird.webp',
+      'arcade:millionaire': './millionaire/assets/stage.png'
     };
     const GAME_CATALOGUE = ArcadeCatalog.getArcadeGames().sort(
       (a, b) => Object.keys(GAME_COVERS).indexOf(a.registryId) -
@@ -1795,6 +1796,15 @@
        complete or retire the game.
        ================================================================ */
     function getGameDeckState(game, state) {
+      // Millionaire records exposure and results, but does not resume active runs.
+      if (game.registryId === 'arcade:millionaire') {
+        return {
+          mode: 'unstarted',
+          actionLabel: state && state.lastResult ? 'Play again' : 'Play',
+          positionLabel: '10 questions',
+          progressPercent: 0
+        };
+      }
       const progress = state && typeof state === 'object'
         ? state.progress || {}
         : {};

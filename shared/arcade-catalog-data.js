@@ -13,6 +13,7 @@
     if (window.ArcadeCatalogData) return;
 
     const ARCADE_GAME_ART = {
+        millionaire: `<svg class="game-artwork" viewBox="0 0 180 150" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="90" cy="75" r="52" stroke="currentColor" stroke-width="2.5"/><path d="M90 27L100 65L138 75L100 85L90 123L80 85L42 75L80 65Z" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/></svg>`,
         forbidden: `<svg class="game-artwork" viewBox="0 0 180 150" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="36" y="22" width="76" height="110" rx="11" transform="rotate(-12 36 22)" stroke="currentColor" stroke-width="2"/><rect x="63" y="18" width="76" height="110" rx="11" fill="var(--card-bg, #eef5ff)" stroke="currentColor" stroke-width="2.5"/><path d="M80 47h43M81 70h40M81 86h40M81 102h40" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="m149 15 3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="currentColor"/></svg>`,
         tomorrow: `
             <svg class="game-artwork game-artwork--tomorrow"
@@ -228,6 +229,18 @@
     };
 
     const ARCADE_GAMES = [
+        {
+            registryId: 'arcade:millionaire',
+            publicAccess: 'full',
+            title: 'Millionaire',
+            premise: 'Ten questions. Three lifelines. Decide how far to climb toward a million.',
+            unitLabel: 'Questions',
+            total: 10,
+            artId: 'millionaire',
+            accent: '#d8ad49',
+            order: 5,
+            launchUrl: './millionaire/index.html'
+        },
         {
             registryId: 'arcade:forbidden-words',
             publicAccess: 'preview',
