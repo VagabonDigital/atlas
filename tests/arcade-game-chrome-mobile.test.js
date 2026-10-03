@@ -14,6 +14,18 @@ const tomorrow = fs.readFileSync(
   "arcade/tomorrow-got-weird/index.html",
   "utf8",
 );
+const truthTrap = fs.readFileSync(
+  "arcade/truth-trap/index.html",
+  "utf8",
+);
+const wouldYouRather = fs.readFileSync(
+  "arcade/would-you-rather/index.html",
+  "utf8",
+);
+const forbiddenIndex = fs.readFileSync(
+  "arcade/forbidden-words/index.html",
+  "utf8",
+);
 const forbiddenApp = fs.readFileSync(
   "arcade/forbidden-words/app.mjs",
   "utf8",
@@ -88,7 +100,50 @@ assert.ok(
 
 assert.ok(
   chromeCss.includes("grid-template-columns: minmax(0, 1fr) auto auto;"),
-  "mobile game headers should give the title flexible space while keeping context and actions visible",
+  "mobile utility headers should give the title flexible space while keeping context and actions visible",
+);
+
+assert.ok(
+  chromeCss.includes("> .arcade-game-chrome-host-actions:empty"),
+  "simple game headers should be detected from an actually empty right action slot rather than a game-specific name",
+);
+
+assert.ok(
+  chromeCss.includes(
+    "grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);",
+  ),
+  "simple three-part game headers should balance navigation, identity and live state around the viewport centre",
+);
+
+assert.ok(
+  chromeCss.includes(
+    "> .arcade-game-chrome-host-left > :not(#arcade-game-return-root)",
+  ),
+  "simple headers should separate game identity from the Back control without changing game-owned markup",
+);
+
+for (const [name, source] of [
+  ["Tomorrow Got Weird", tomorrow],
+  ["Truth Trap", truthTrap],
+  ["Would You Rather", wouldYouRather],
+]) {
+  assert.ok(
+    source.includes('class="header-left"') &&
+      source.includes('id="arcade-game-return-root"') &&
+      source.includes('class="header-center"'),
+    name + " should retain the simple Back / identity / state header structure",
+  );
+  assert.match(
+    source,
+    /class="header-right" id="arcade-game-actions-root"><\/div>/,
+    name + " should keep an empty right shared-action slot so the shared three-zone layout applies",
+  );
+}
+
+assert.match(
+  forbiddenIndex,
+  /class="game-heading-right"[\s\S]*?id="fw-header-utilities"[\s\S]*?id="fw-header-pause"[\s\S]*?id="arcade-game-actions-root"/,
+  "Forbidden Words should keep a real game-owned right utility zone rather than being forced into the simple three-zone layout",
 );
 
 assert.ok(
