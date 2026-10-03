@@ -54,8 +54,8 @@ const games =
 
 assert.equal(
     games.length,
-    4,
-    'The Arcade catalogue includes Forbidden Words with authenticated hosting'
+    5,
+    'The Arcade catalogue includes the five current shipped games'
 );
 
 assert.match(
@@ -84,6 +84,7 @@ const accessById =
 assert.deepEqual(
     accessById,
     {
+        'arcade:millionaire': 'full',
         'arcade:forbidden-words': 'preview',
         'arcade:tomorrow-got-weird':
             'preview',
@@ -92,7 +93,15 @@ assert.deepEqual(
         'arcade:would-you-rather':
             'preview'
     },
-    'Truth Trap must be the single fully playable anonymous game'
+    'Millionaire and Truth Trap are fully public; the other current Arcade games remain preview access'
+);
+
+assert.equal(
+    window.ArcadeCatalogData
+        .getArcadeGamePublicAccess(
+            'arcade:millionaire'
+        ),
+    'full'
 );
 
 assert.equal(
@@ -248,5 +257,5 @@ assert.match(
 );
 
 console.log(
-    'Stage 3.3 anonymous Arcade contract passed: real catalogue visible, Truth Trap fully public, other games preview their real intros, gameplay gates at Start, post-auth return unlocks the cover without auto-starting, and Search exposes preview context.'
+    'Stage 3.3 anonymous Arcade contract passed: the five-game catalogue is visible, Millionaire and Truth Trap are fully public, preview games expose their real intros, gameplay gates at Start, post-auth return unlocks the cover without auto-starting, and Search exposes preview context.'
 );

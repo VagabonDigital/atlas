@@ -198,6 +198,10 @@ function ensurePlayingChrome() {
     root: "#playing-chrome",
     returnRoot: "#arcade-game-return-root",
     actionsRoot: "#arcade-game-actions-root",
+    session: false,
+    search: false,
+    appearance: false,
+    mobileMenu: true,
   });
   setupTutorMobileUtilities();
   playingChromeMounted = true;
