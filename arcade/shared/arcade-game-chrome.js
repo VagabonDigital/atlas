@@ -8,8 +8,8 @@
    - fixed in-game Arcade return control
    - landing-screen session control
    - landing-screen appearance control
-   - session and appearance display updates
-   - responsive slot classes for mounted in-game headers
+   - optional in-game Atlas utilities when a game explicitly requests them
+   - responsive slot classes and optional mobile utility shell for mounted headers
 
    Does not own game content, progress, or state.
    ============================================================ */
@@ -737,7 +737,7 @@
       return;
     }
 
-    // Opt-outs preserve the established default for existing games.
+    // Landing controls preserve their established opt-out contract.
     if (settings.appearance === false) chrome.querySelector('.arcade-game-chrome-appearance')?.remove();
     if (settings.session === false) chrome.querySelector('.arcade-game-chrome-session')?.remove();
     root.insertBefore(chrome, root.firstChild);
@@ -810,16 +810,23 @@
       return;
     }
 
-    // Remove disabled controls from both direct and compact presentations.
+    // Active Atlas management controls are opt-in. Back to Arcade is the
+    // default shared gameplay chrome; game-owned utilities remain game-owned.
     ['session', 'search', 'appearance'].forEach(function (control) {
-      if (settings[control] === false) {
+      if (settings[control] !== true) {
         controls.querySelectorAll(
           '.arcade-game-chrome-game-' + control + ', ' +
           '.arcade-game-chrome-game-menu-' + control
         ).forEach(function (node) { node.remove(); });
       }
     });
-    if (!controls.querySelector('.arcade-game-chrome-game-menu-item')) {
+
+    // A game may explicitly reuse only the responsive menu shell for its own
+    // utilities. Otherwise no empty/global hamburger is rendered on mobile.
+    if (
+      !controls.querySelector('.arcade-game-chrome-game-menu-item') &&
+      settings.mobileMenu !== true
+    ) {
       controls.querySelector('.arcade-game-chrome-game-actions')?.remove();
     }
 
