@@ -1,5 +1,43 @@
 /* Post-launch visual refinement. Keep this file small and limited to deliberate live-game polish. */
 
+/* Millionaire is a fixed game board, not a document. Keep the primary surface
+   inside the viewport; any exceptional overflow belongs to the surface that
+   actually needs it (dialogs, Session, etc.). */
+html,
+body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  overscroll-behavior:none;
+}
+.show{
+  height:100dvh;
+  min-height:0;
+}
+@media (max-width:1100px){
+  .show{min-height:0}
+}
+
+/* Millionaire-owned overflow uses the same Arcade modal scrollbar contract as
+   shared Session/Search surfaces. */
+dialog{
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  scrollbar-color:var(--atlas-modal-scrollbar) transparent;
+}
+dialog::-webkit-scrollbar{width:10px}
+dialog::-webkit-scrollbar-track{background:transparent}
+dialog::-webkit-scrollbar-thumb{
+  border:3px solid transparent;
+  border-radius:999px;
+  background:var(--atlas-modal-scrollbar);
+  background-clip:padding-box;
+}
+dialog::-webkit-scrollbar-thumb:hover{
+  background:var(--atlas-modal-scrollbar-hover);
+  background-clip:padding-box;
+}
+
 /* The first production pass read slightly too close at common desktop lesson sizes.
    Ease the active board back without changing its fixed interaction geometry. */
 .show[data-screen="game"] .identity{
