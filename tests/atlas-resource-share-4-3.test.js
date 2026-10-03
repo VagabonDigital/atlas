@@ -117,7 +117,10 @@ function makeRuntime(
 
   assert.deepStrictEqual(
     Array.from(fullGames),
-    ['arcade:truth-trap']
+    [
+      'arcade:millionaire',
+      'arcade:truth-trap'
+    ]
   );
 }
 
