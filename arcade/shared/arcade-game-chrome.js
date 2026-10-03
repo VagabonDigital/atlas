@@ -33,7 +33,7 @@
       : 'arcade';
   }
 
-  function getLandingReturnDestination() {
+  function getLandingReturnDestination(returnTo) {
     const destinations = {
       atlas: {
         label: 'Back to Atlas',
@@ -51,7 +51,7 @@
       }
     };
 
-    return destinations[getLaunchSource()];
+    return destinations[VALID_SOURCES.includes(returnTo) ? returnTo : getLaunchSource()];
   }
 
   function getArcadeDestination() {
@@ -312,8 +312,8 @@
     }, 320);
   }
 
-  function getLandingMarkup() {
-    const destination = getLandingReturnDestination();
+  function getLandingMarkup(settings = {}) {
+    const destination = getLandingReturnDestination(settings.returnTo);
 
     return `
       <div class="arcade-game-chrome">
@@ -725,7 +725,7 @@
     }
 
     const host = document.createElement('div');
-    host.innerHTML = getLandingMarkup().trim();
+    host.innerHTML = getLandingMarkup(settings).trim();
 
     const chrome = host.firstElementChild;
 
@@ -733,6 +733,9 @@
       return;
     }
 
+    // Opt-outs preserve the established default for existing games.
+    if (settings.appearance === false) chrome.querySelector('.arcade-game-chrome-appearance')?.remove();
+    if (settings.session === false) chrome.querySelector('.arcade-game-chrome-session')?.remove();
     root.insertBefore(chrome, root.firstChild);
     mountedLandingRoots.add(root);
 
@@ -751,7 +754,7 @@
     if (backButton) {
       backButton.addEventListener('click', function () {
         runBeforeReturn(settings.onBeforeReturn);
-        window.location.href = getLandingReturnDestination().url;
+        window.location.href = getLandingReturnDestination(settings.returnTo).url;
       });
     }
 
@@ -801,6 +804,19 @@
 
     if (!controls) {
       return;
+    }
+
+    // Remove disabled controls from both direct and compact presentations.
+    ['session', 'search', 'appearance'].forEach(function (control) {
+      if (settings[control] === false) {
+        controls.querySelectorAll(
+          '.arcade-game-chrome-game-' + control + ', ' +
+          '.arcade-game-chrome-game-menu-' + control
+        ).forEach(function (node) { node.remove(); });
+      }
+    });
+    if (!controls.querySelector('.arcade-game-chrome-game-menu-item')) {
+      controls.querySelector('.arcade-game-chrome-game-actions')?.remove();
     }
 
     const returnTarget = getRoot(settings.returnRoot) || root;

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en" data-theme="night">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#030b20">
+  <meta name="description" content="One contestant. Ten questions. How far can you go? An Atlas Arcade game for one shared screen.">
+  <title>Millionaire · Atlas Arcade</title>
+  <link rel="icon" href="./assets/emblem.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../shared/atlas-session-panel.css">
+  <link rel="stylesheet" href="../shared/arcade-game-chrome.css">
+  <link rel="stylesheet" href="./millionaire.css">
+  <link rel="preload" as="image" href="./assets/stage.png">
+  <script src="../../shared/atlas-bridge.js"></script>
+</head>
+<body>
+  <main id="show" class="show" data-screen="entrance" aria-label="Millionaire game show">
+    <div class="stage" aria-hidden="true"></div>
+    <div class="atmosphere" aria-hidden="true"></div>
+    <div id="landing-chrome"></div>
+    <div id="game-chrome" hidden></div>
+    <header class="identity">
+      <p class="eyebrow"><span></span> Atlas Arcade <span></span></p>
+      <h1>Millionaire</h1>
+      <p class="tagline">How far can you go?</p>
+    </header>
+
+    <section id="entrance" class="entrance" aria-label="Welcome">
+      <p class="premise">One contestant. Ten questions. A million possibilities.</p>
+      <button id="start" class="primary entrance-start">Start Game <span aria-hidden="true">›</span></button>
+      <button id="how-to" class="outline">How to Play <span aria-hidden="true">›</span></button>
+      <div class="entrance-facts">
+        <div><span class="fact-icon" aria-hidden="true">◇</span><strong>10 questions</strong><small>Climb the ladder</small></div>
+        <div><span class="fact-icon gold" aria-hidden="true">✦</span><strong>Win up to</strong><small class="gold">1,000,000</small></div>
+        <div><span class="fact-icon" aria-hidden="true">◎</span><strong>3 lifelines</strong><small>Make them count</small></div>
+      </div>
+    </section>
+
+    <section id="board" hidden aria-label="Question board">
+      <div class="question-number"><span>Question</span> <strong id="question-number">1</strong> <span>of 10</span></div>
+      <aside class="lifeline-rail" aria-label="Lifelines">
+        <p class="rail-heading">Lifelines</p>
+        <button class="lifeline" data-lifeline="narrow"><span class="lifeline-icon" aria-hidden="true">2:4</span><span>Narrow It Down</span><small>Remove two answers</small></button>
+        <button class="lifeline" data-lifeline="host"><span class="lifeline-icon" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M9 7h22v18H20l-8 7v-7H9z"/><path d="M15 13h10M15 19h7"/></svg></span><span>Host’s Take</span><small>A second perspective</small></button>
+        <button class="lifeline" data-lifeline="new"><span class="lifeline-icon" aria-hidden="true">↻</span><span>New Question</span><small>A fresh possibility</small></button>
+        <div id="advice" class="advice" hidden></div>
+      </aside>
+      <aside class="stakes" aria-label="Prize progression and walking away">
+        <ol id="ladder" class="ladder" reversed></ol>
+        <p class="guarantee">Guaranteed <strong id="guaranteed">0</strong></p>
+        <div class="walk-slot">
+          <button id="walk" class="walk" hidden>Walk Away <strong id="bankable"></strong></button>
+          <div id="walk-confirm" class="walk-confirm" hidden>
+            <p>Bank <strong id="confirm-amount"></strong> and end this run?</p>
+            <button id="confirm-walk" class="small-gold">Walk away</button>
+            <button id="stay" class="quiet">Stay in the game</button>
+          </div>
+        </div>
+      </aside>
+      <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+      <div class="question-panel"><h2 id="question" tabindex="-1"></h2></div>
+      <div id="answers" class="answers" role="group" aria-label="Answer options">
+        <button class="answer" data-answer="0"><span class="letter">A:</span><span class="answer-text"></span><span class="answer-status" aria-hidden="true"></span></button>
+        <button class="answer" data-answer="1"><span class="letter">B:</span><span class="answer-text"></span><span class="answer-status" aria-hidden="true"></span></button>
+        <button class="answer" data-answer="2"><span class="letter">C:</span><span class="answer-text"></span><span class="answer-status" aria-hidden="true"></span></button>
+        <button class="answer" data-answer="3"><span class="letter">D:</span><span class="answer-text"></span><span class="answer-status" aria-hidden="true"></span></button>
+      </div>
+      <div class="primary-slot"><p id="decision-hint"></p><button id="primary" class="primary" hidden></button></div>
+      <button id="question-tools" class="question-tools quiet">Question care <span aria-hidden="true">· · ·</span></button>
+    </section>
+
+    <section id="summary" class="summary" aria-labelledby="summary-title" hidden>
+      <img src="./assets/emblem.svg" alt="" width="56" height="56">
+      <p id="summary-outcome" class="eyebrow"></p>
+      <h2 id="summary-title">Your result</h2>
+      <p id="summary-prize" class="summary-prize"></p>
+      <div class="summary-details"><p>Highest question <strong id="summary-highest"></strong></p><p>Best this session <strong id="summary-best"></strong></p></div>
+      <button id="again" class="primary">Play Again <span aria-hidden="true">›</span></button>
+      <button id="finish" class="outline">Finish</button>
+      <button id="summary-care" class="quiet">Report a factual error in the last question</button>
+    </section>
+    <footer class="show-footer"><span>One shared screen. Your decision.</span><button id="sound" class="quiet" aria-pressed="false">Sound on</button></footer>
+    <div id="celebration" class="celebration" aria-hidden="true"></div>
+  </main>
+  <dialog id="dialog" aria-labelledby="dialog-title"><div id="dialog-content"></div><button id="close-dialog" class="dialog-close" aria-label="Close dialog">×</button></dialog>
+  <div id="atlas-session-panel-root"></div>
+  <noscript>This game needs JavaScript enabled to play.</noscript>
+  <script src="../../shared/atlas-session-panel.js"></script>
+  <script src="../shared/arcade-game-chrome.js"></script>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>
