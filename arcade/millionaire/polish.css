@@ -1,0 +1,86 @@
+/* Post-launch visual refinement. Keep this file small and limited to deliberate live-game polish. */
+
+/* The first production pass read slightly too close at common desktop lesson sizes.
+   Ease the active board back without changing its fixed interaction geometry. */
+.show[data-screen="game"] .identity{
+  top:3.5%;
+  left:24%;
+  right:24%;
+}
+.show[data-screen="game"] .eyebrow{font-size:clamp(13px,1.5vw,23px)}
+.show[data-screen="game"] h1{font-size:clamp(36px,4.55vw,76px)}
+.show[data-screen="game"] .tagline{font-size:clamp(12px,1.42vw,21px)}
+
+.show[data-screen="game"] .question-number{
+  top:10.5%;
+  padding:8px 16px;
+  font-size:clamp(16px,1.55vw,24px);
+}
+
+.show[data-screen="game"] .lifeline-rail{
+  top:24%;
+  bottom:31.5%;
+  width:11.5%;
+  padding:10px 4px;
+}
+.show[data-screen="game"] .lifeline{font-size:clamp(13px,1.12vw,20px);gap:4px;padding:4px 1px}
+.show[data-screen="game"] .lifeline-icon{
+  width:clamp(48px,5.15vw,82px);
+  height:clamp(43px,4.55vw,69px);
+  font-size:clamp(23px,2.4vw,36px);
+}
+.show[data-screen="game"] .lifeline small{font-size:clamp(9px,.76vw,13px)}
+
+.show[data-screen="game"] .stakes{top:10.5%;width:15%}
+.show[data-screen="game"] .ladder{padding:8px 7px}
+.show[data-screen="game"] .ladder li{
+  min-height:clamp(22px,3.25vh,34px);
+  font-size:clamp(17px,1.55vw,25px);
+  padding:1px 8px;
+}
+.show[data-screen="game"] .guarantee{font-size:clamp(12px,.96vw,16px);margin:7px 3px}
+
+.show[data-screen="game"] .question-panel{
+  left:16.7%;
+  right:20.5%;
+  top:52.5%;
+  height:11.8%;
+  padding:10px 26px;
+}
+.show[data-screen="game"] .question-panel h2{font-size:clamp(22px,1.9vw,32px)}
+
+.show[data-screen="game"] .answers{
+  left:16.7%;
+  right:20.5%;
+  top:65.5%;
+  height:15.5%;
+  gap:9px 13px;
+}
+.show[data-screen="game"] .answer{
+  grid-template-columns:27px minmax(0,1fr) 23px;
+  gap:9px;
+  padding:7px 16px;
+  font-size:clamp(18px,1.62vw,27px);
+}
+
+.show[data-screen="game"] .primary-slot{
+  top:82.6%;
+  height:9%;
+  left:30%;
+  right:34%;
+}
+.show[data-screen="game"] .primary-slot .primary{
+  min-height:clamp(42px,5.6vh,62px);
+  padding:5px 20px;
+  font-size:clamp(19px,1.9vw,30px);
+}
+.show[data-screen="game"] .primary-slot p{font-size:clamp(12px,.92vw,15px)}
+.show[data-screen="game"] .question-tools{bottom:5.2%}
+
+@media (max-height: 760px){
+  .show[data-screen="game"] .identity{top:2.8%}
+  .show[data-screen="game"] .question-panel{top:51.5%;height:12%}
+  .show[data-screen="game"] .answers{top:64.7%;height:15.2%}
+  .show[data-screen="game"] .primary-slot{top:81.3%}
+  .show[data-screen="game"] .lifeline-rail{top:23.5%;bottom:32%}
+}
