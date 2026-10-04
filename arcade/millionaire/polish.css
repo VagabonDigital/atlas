@@ -170,3 +170,152 @@ dialog::-webkit-scrollbar-thumb:hover{
   .show[data-screen="game"] .question-tools,
   .show[data-screen="game"] .show-footer{bottom:1.8%}
 }
+
+/* Audiovisual direction: the same board progressively closes around the players
+   as the stakes rise. These are game-owned lighting states, not shared Arcade chrome. */
+.show[data-screen="game"]{
+  --av-stage-brightness:.86;
+  --av-stage-saturation:1.06;
+  --av-edge-darkness:.42;
+  --av-centre-light:.16;
+  --av-beam-opacity:.16;
+}
+.show[data-screen="game"] .stage{
+  filter:brightness(var(--av-stage-brightness)) saturate(var(--av-stage-saturation));
+  transform:scale(1.005);
+  transition:filter .75s ease,transform .75s ease;
+}
+.show[data-screen="game"]::before,
+.show[data-screen="game"]::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:-1;
+  transition:opacity .7s ease,background .7s ease,filter .7s ease;
+}
+.show[data-screen="game"]::before{
+  background:
+    radial-gradient(ellipse at 50% 61%,rgba(52,152,255,var(--av-centre-light)) 0%,rgba(15,72,154,.07) 34%,transparent 55%),
+    radial-gradient(ellipse at 50% 55%,transparent 34%,rgba(0,3,13,var(--av-edge-darkness)) 78%,rgba(0,2,9,.94) 100%);
+}
+.show[data-screen="game"]::after{
+  opacity:var(--av-beam-opacity);
+  background:
+    linear-gradient(111deg,transparent 0 35%,rgba(79,170,255,.24) 44%,transparent 52%),
+    linear-gradient(249deg,transparent 0 36%,rgba(137,93,255,.16) 45%,transparent 53%);
+  filter:blur(2px);
+}
+.show[data-pressure="middle"]{
+  --av-stage-brightness:.74;
+  --av-stage-saturation:1.02;
+  --av-edge-darkness:.58;
+  --av-centre-light:.18;
+  --av-beam-opacity:.14;
+}
+.show[data-pressure="pressure"]{
+  --av-stage-brightness:.58;
+  --av-stage-saturation:.92;
+  --av-edge-darkness:.74;
+  --av-centre-light:.19;
+  --av-beam-opacity:.10;
+}
+.show[data-pressure="final"]{
+  --av-stage-brightness:.43;
+  --av-stage-saturation:.78;
+  --av-edge-darkness:.88;
+  --av-centre-light:.22;
+  --av-beam-opacity:.06;
+}
+
+/* Commitment is the hinge. Selection stays readable; lock-in pulls the room inward. */
+.show[data-phase="locked"]{
+  --av-stage-brightness:.39;
+  --av-edge-darkness:.92;
+  --av-centre-light:.27;
+  --av-beam-opacity:.03;
+}
+.show[data-phase="locked"] .question-panel,
+.show[data-phase="locked"] .answer.selected{
+  box-shadow:0 0 28px rgba(70,157,255,.30),0 12px 42px rgba(0,0,0,.54),inset 0 0 28px rgba(23,93,178,.13);
+}
+.show[data-phase="locked"] .lifeline-rail,
+.show[data-phase="locked"] .stakes,
+.show[data-phase="locked"] .identity{
+  filter:brightness(.68) saturate(.78);
+  transition:filter .55s ease;
+}
+
+/* Reveal briefly opens the room again before the next question closes it down. */
+.show[data-phase="correct"],
+.show[data-phase="safety"]{
+  --av-stage-brightness:.93;
+  --av-edge-darkness:.28;
+  --av-centre-light:.28;
+  --av-beam-opacity:.24;
+}
+.show[data-phase="safety"]::before{
+  background:
+    radial-gradient(ellipse at 50% 60%,rgba(255,211,112,.24) 0%,rgba(49,141,241,.12) 38%,transparent 60%),
+    radial-gradient(ellipse at 50% 55%,transparent 40%,rgba(0,3,13,.30) 84%,rgba(0,2,9,.72) 100%);
+}
+.show[data-phase="incorrect"]{
+  --av-stage-brightness:.25;
+  --av-stage-saturation:.42;
+  --av-edge-darkness:.95;
+  --av-centre-light:.05;
+  --av-beam-opacity:0;
+}
+.show[data-phase="win"]{
+  --av-stage-brightness:1.02;
+  --av-stage-saturation:1.16;
+  --av-edge-darkness:.16;
+  --av-centre-light:.34;
+  --av-beam-opacity:.30;
+}
+.show[data-phase="win"]::before{
+  background:
+    radial-gradient(ellipse at 50% 56%,rgba(255,216,122,.34) 0%,rgba(84,166,255,.18) 38%,transparent 65%),
+    radial-gradient(ellipse at 50% 55%,transparent 46%,rgba(0,3,13,.18) 88%,rgba(0,2,9,.55) 100%);
+}
+
+/* Cues are brief punctuation on top of persistent state. */
+.show[data-show-cue="lock"]::before{animation:av-lock-pulse .72s ease-out}
+.show[data-show-cue="correct"]::before,
+.show[data-show-cue="safety"]::before{animation:av-release-pulse 1.05s ease-out}
+.show[data-show-cue="wrong"]::before{animation:av-collapse-pulse 1.25s ease-out}
+.show[data-show-cue="win"]::before{animation:av-win-pulse 1.4s ease-out}
+
+@keyframes av-lock-pulse{
+  0%{filter:brightness(1.22)}
+  30%{filter:brightness(.72)}
+  100%{filter:brightness(1)}
+}
+@keyframes av-release-pulse{
+  0%{filter:brightness(.88)}
+  34%{filter:brightness(1.55)}
+  100%{filter:brightness(1)}
+}
+@keyframes av-collapse-pulse{
+  0%{filter:brightness(1.05)}
+  28%{filter:brightness(.45)}
+  100%{filter:brightness(1)}
+}
+@keyframes av-win-pulse{
+  0%{filter:brightness(.9)}
+  24%{filter:brightness(1.7)}
+  55%{filter:brightness(1.2)}
+  100%{filter:brightness(1)}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .show[data-screen="game"] .stage,
+  .show[data-screen="game"]::before,
+  .show[data-screen="game"]::after,
+  .show[data-phase="locked"] .lifeline-rail,
+  .show[data-phase="locked"] .stakes,
+  .show[data-phase="locked"] .identity{
+    transition:none;
+  }
+  .show[data-show-cue]::before{animation:none}
+}

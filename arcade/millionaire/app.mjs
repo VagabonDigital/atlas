@@ -1,6 +1,7 @@
 import { Millionaire, PRIZES, band, resolved } from './game.mjs';
 import { QUESTIONS } from './questions.mjs';
 import { continuity } from './continuity.mjs';
+import { createShowDirector } from './show-director.mjs';
 
 const $ = selector => document.querySelector(selector);
 const all = selector => [...document.querySelectorAll(selector)];
@@ -10,27 +11,13 @@ const escape = text => String(text).replace(/[&<>"']/g, char => ({ '&':'&amp;', 
 const lockIcon = '<svg viewBox="0 0 24 28"><path d="M6 11V7a6 6 0 0112 0v4h2v15H4V11zm3 0h6V7a3 3 0 00-6 0zm2 6v5h2v-5z"/></svg>';
 const Bridge = window.AtlasBridge;
 let game, context, visitSeen = new Set(), visitResults = [], lastQuestion, lastPhase;
-let isInspection = false, muted = false, audioContext, dialogOrigin;
+let isInspection = false, muted = false, dialogOrigin;
 const storage = Bridge ? continuity(Bridge) : null;
+const showDirector = createShowDirector($('#show'));
 
 function playSound(kind) {
   if (muted) return;
-  try {
-    audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
-    void audioContext.resume();
-    const notes = { select:[330], lock:[196,147], correct:[392,494,587], safety:[392,494,587,784],
-      wrong:[220,165,110], win:[392,494,587,784,988,1175], lifeline:[440,554], next:[294,392] }[kind] || [];
-    notes.forEach((frequency, i) => {
-      const oscillator = audioContext.createOscillator();
-      const gain = audioContext.createGain();
-      const start = audioContext.currentTime + i * .11;
-      oscillator.type = 'sine'; oscillator.frequency.value = frequency;
-      gain.gain.setValueAtTime(0, start); gain.gain.linearRampToValueAtTime(.045, start + .02);
-      gain.gain.exponentialRampToValueAtTime(.001, start + .32);
-      oscillator.connect(gain).connect(audioContext.destination);
-      oscillator.start(start); oscillator.stop(start + .34);
-    });
-  } catch { /* State is always communicated visually. */ }
+  showDirector.cue(kind);
 }
 
 function onEvent(event) {
@@ -71,6 +58,7 @@ function start() {
 }
 
 function finish() {
+  showDirector.stop();
   game = null; visitSeen = new Set(); visitResults = []; lastQuestion = null; lastPhase = null;
   $('#show').dataset.screen = 'entrance'; $('#show').dataset.phase = ''; $('#show').dataset.pressure = '';
   $('#entrance').hidden = false; $('#board').hidden = true; $('#summary').hidden = true;
@@ -90,6 +78,7 @@ function render() {
   const open = game.isOpen();
   $('#show').dataset.screen = v.phase === 'summary' ? 'summary' : 'game';
   $('#show').dataset.phase = v.phase; $('#show').dataset.pressure = band(v.rung);
+  showDirector.sync({ band: band(v.rung), phase: v.phase });
   $('#entrance').hidden = true; $('#landing-chrome').hidden = true; $('#game-chrome').hidden = false;
   $('#board').hidden = v.phase === 'summary'; $('#summary').hidden = v.phase !== 'summary';
   $('#question-number').textContent = v.rung;
@@ -218,7 +207,13 @@ $('#walk').onclick = () => { game.walk(); render(); };
 $('#confirm-walk').onclick = () => { game.walk(true); render(); };
 $('#stay').onclick = () => { game.cancelWalk(); render(); };
 $('#question-tools').onclick = questionCare; $('#summary-care').onclick = questionCare;
-$('#sound').onclick = () => { muted = !muted; $('#sound').textContent = muted ? 'Sound off' : 'Sound on'; $('#sound').setAttribute('aria-pressed', String(muted)); if (!muted) playSound('select'); };
+$('#sound').onclick = () => {
+  muted = !muted;
+  showDirector.setMuted(muted);
+  $('#sound').textContent = muted ? 'Sound off' : 'Sound on';
+  $('#sound').setAttribute('aria-pressed', String(muted));
+  if (!muted) playSound('select');
+};
 $('#how-to').onclick = () => modal('Welcome to the show', `<p>One tutor is the <strong>Host</strong>. One learner is the <strong>Contestant</strong>. Share this screen; the Host operates it.</p>
   <h3>Your climb</h3><p>Answer ten questions to reach 1,000,000. There is no timer and no real money. Say what you think, change your mind, and ask for free wording clarification.</p>
   <ol><li>The Contestant chooses an answer. The Host selects it.</li><li>Ask “Final answer?” consistently. Click <strong>Lock Answer</strong> only after explicit commitment.</li><li>Pause for suspense, then the Host clicks <strong>Reveal Answer</strong>.</li></ol>
