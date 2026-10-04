@@ -27,6 +27,16 @@ function onEvent(event) {
   if (!isInspection) storage.record(context, event);
 }
 
+function persistRun() {
+  if (isInspection || !game || !context) return;
+  const snapshot = game.snapshot();
+  if (!snapshot) {
+    storage.clearRun(context.id);
+    return;
+  }
+  storage.saveRun(context.id, snapshot, game.publicView());
+}
+
 function modal(title, content, kind = '') {
   dialogOrigin = document.activeElement;
   $('#dialog').className = kind;
@@ -57,8 +67,9 @@ function start() {
   playSound('next'); render();
 }
 
-function finish() {
+function finish({ clearContinuity = true } = {}) {
   showDirector.stop();
+  if (clearContinuity && !isInspection && context) storage.clearRun(context.id);
   game = null; visitSeen = new Set(); visitResults = []; lastQuestion = null; lastPhase = null;
   $('#show').dataset.screen = 'entrance'; $('#show').dataset.phase = ''; $('#show').dataset.pressure = '';
   $('#entrance').hidden = false; $('#board').hidden = true; $('#summary').hidden = true;
@@ -94,7 +105,7 @@ function render() {
     const removed = v.hidden.includes(i);
     const correct = reveal && v.answer === i;
     const wrong = reveal && selected && v.answer !== i;
-    button.className = ['answer', selected && !reveal ? 'selected' : '', correct ? 'correct' : '', wrong ? 'wrong' : '', removed ? 'removed' : ''].filter(Boolean).join(' ');
+    button.className = ['answer', selected && !reveal ? 'selected ' : '', correct ? 'correct' : '', wrong ? 'wrong' : '', removed ? 'removed' : ''].filter(Boolean).join(' ');
     button.querySelector('.answer-text').textContent = removed ? '—' : v.question.options[i];
     button.querySelector('.answer-status').innerHTML = correct ? '✓' : wrong ? '×' : selected && v.phase === 'locked' ? lockIcon : '';
     button.disabled = removed || !(open || v.phase === 'hypothetical');
@@ -148,6 +159,7 @@ function render() {
   }
   if (lastPhase !== v.phase && v.phase === 'win') celebrate();
   lastPhase = v.phase;
+  persistRun();
 }
 
 function noReplacement() {
@@ -234,14 +246,30 @@ try {
     const { inspectState } = await import('./dev/inspect.mjs');
     game = inspectState(inspect); render();
     if (inspect === 'host') showAdviser();
-  } else storage.register();
+  } else {
+    storage.register();
+    context = storage.context();
+    const savedRun = storage.activeRun(context.id);
+    if (savedRun) {
+      game = new Millionaire(QUESTIONS, { seen: storage.seen(context.id), sessionSeen: savedRun.sessionSeen || [], onEvent });
+      if (game.restore(savedRun)) {
+        visitSeen = new Set(savedRun.sessionSeen || []);
+        lastQuestion = null;
+        window.AtlasSessionPanel?.close();
+        render();
+      } else {
+        game = null;
+        storage.clearRun(context.id);
+      }
+    }
+  }
   // Only the game is fixed dark. Never write over the tutor’s saved appearance.
   document.documentElement.dataset.theme = 'night';
   window.addEventListener('atlas:appearance-change', () => { document.documentElement.dataset.theme = 'night'; });
   window.addEventListener('atlas:persistence-scope-change', () => {
     if (isInspection) return;
     if ($('#dialog').open) closeModal();
-    finish(); context = null;
+    finish({ clearContinuity: false }); context = null;
     modal('Teaching context changed', '<p>The Atlas account context changed. Start a new run in the current session.</p>');
   });
 } catch (error) {
