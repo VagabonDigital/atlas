@@ -10,6 +10,7 @@ export function continuity(Bridge) {
     millionaire: data, ...extra
   });
   const runLabel = rung => `Question ${Math.max(1, Math.min(10, Number(rung) || 1))} of 10`;
+  const runTitle = rung => `Millionaire · ${runLabel(rung)}`;
   const runProgress = rung => ({ covered: Math.max(1, Math.min(10, Number(rung) || 1)), total: 10, openEnded: false });
 
   return {
@@ -34,6 +35,7 @@ export function continuity(Bridge) {
       const data = read(id);
       data.activeRun = snapshot;
       write(id, data, {
+        title: runTitle(view.rung),
         status: 'in-progress',
         progress: runProgress(view.rung),
         currentLabel: runLabel(view.rung),
@@ -47,10 +49,12 @@ export function continuity(Bridge) {
       data.activeRun = null;
       const complete = String(state.status || '').toLowerCase() === 'complete';
       write(id, data, complete ? {
+        title: 'Millionaire',
         status: 'complete',
         currentLabel: null,
         lastTouchedAt: Date.now()
       } : {
+        title: 'Millionaire',
         status: 'available',
         progress: { covered: 0, total: 10, openEnded: false },
         currentLabel: null,
@@ -76,6 +80,7 @@ export function continuity(Bridge) {
       const result = data.results.at(-1) || null;
       const finished = event.type === 'result';
       write(session.id, data, {
+        title: finished ? 'Millionaire' : runTitle(event.rung),
         status: finished ? 'complete' : 'in-progress',
         progress: finished
           ? { covered: 10, total: 10, openEnded: false }
