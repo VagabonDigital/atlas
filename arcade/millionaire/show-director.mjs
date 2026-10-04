@@ -12,6 +12,7 @@ export function createShowDirector(root) {
   let context = null;
   let master = null;
   let bedGain = null;
+  let cueGain = null;
   let low = null;
   let high = null;
   let lfo = null;
@@ -38,10 +39,11 @@ export function createShowDirector(root) {
       return true;
     }
 
+    const profile = PROFILES[currentBand];
     context = new AudioContextCtor();
     master = context.createGain();
     bedGain = context.createGain();
-    const cueGain = context.createGain();
+    cueGain = context.createGain();
     low = context.createOscillator();
     high = context.createOscillator();
     lfo = context.createOscillator();
@@ -53,6 +55,10 @@ export function createShowDirector(root) {
     low.type = 'triangle';
     high.type = 'sine';
     lfo.type = 'sine';
+    low.frequency.value = profile.root;
+    high.frequency.value = profile.upper;
+    lfo.frequency.value = profile.pulse;
+    lfoDepth.gain.value = profile.modulation;
 
     low.connect(bedGain);
     high.connect(bedGain);
@@ -65,7 +71,6 @@ export function createShowDirector(root) {
     high.start();
     lfo.start();
 
-    context.__millionaireCueGain = cueGain;
     applyBed(currentBand, currentPhase, .08);
     return true;
   }
@@ -90,7 +95,7 @@ export function createShowDirector(root) {
   }
 
   function tone(frequency, start, duration, gain = .025, type = 'sine') {
-    if (!context || !context.__millionaireCueGain) return;
+    if (!context || !cueGain) return;
     const oscillator = context.createOscillator();
     const envelope = context.createGain();
     oscillator.type = type;
@@ -98,13 +103,13 @@ export function createShowDirector(root) {
     envelope.gain.setValueAtTime(.0001, start);
     envelope.gain.exponentialRampToValueAtTime(gain, start + .025);
     envelope.gain.exponentialRampToValueAtTime(.0001, start + duration);
-    oscillator.connect(envelope).connect(context.__millionaireCueGain);
+    oscillator.connect(envelope).connect(cueGain);
     oscillator.start(start);
     oscillator.stop(start + duration + .03);
   }
 
   function sweep(from, to, start, duration, gain = .024, type = 'triangle') {
-    if (!context || !context.__millionaireCueGain) return;
+    if (!context || !cueGain) return;
     const oscillator = context.createOscillator();
     const envelope = context.createGain();
     oscillator.type = type;
@@ -113,7 +118,7 @@ export function createShowDirector(root) {
     envelope.gain.setValueAtTime(.0001, start);
     envelope.gain.exponentialRampToValueAtTime(gain, start + .025);
     envelope.gain.exponentialRampToValueAtTime(.0001, start + duration);
-    oscillator.connect(envelope).connect(context.__millionaireCueGain);
+    oscillator.connect(envelope).connect(cueGain);
     oscillator.start(start);
     oscillator.stop(start + duration + .03);
   }
