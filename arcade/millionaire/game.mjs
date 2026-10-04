@@ -21,7 +21,15 @@ export class Millionaire {
   }
   snapshot() {
     if (!this.state || !RESTORABLE_PHASES.has(this.state.phase)) return null;
-    return copy({ version: 1, state: this.state, sessionSeen: [...this.sessionSeen] });
+    const { question, ...state } = this.state;
+    return copy({
+      version: 1,
+      state: {
+        ...state,
+        question: question ? { id: question.id, options: question.options } : null
+      },
+      sessionSeen: [...this.sessionSeen]
+    });
   }
   restore(snapshot) {
     if (!snapshot || snapshot.version !== 1 || !snapshot.state || typeof snapshot.state !== 'object') return false;
@@ -29,9 +37,15 @@ export class Millionaire {
     const rung = Number(candidate.rung);
     const questionId = candidate.question?.id;
     if (!candidate.id || !Number.isInteger(rung) || rung < 1 || rung > 10 || !RESTORABLE_PHASES.has(candidate.phase)) return false;
-    if (!questionId || !this.bank.some(question => question.id === questionId)) return false;
-    if (!Array.isArray(candidate.question?.options) || candidate.question.options.length !== 4) return false;
-    if (!Number.isInteger(candidate.question.answer) || candidate.question.answer < 0 || candidate.question.answer > 3) return false;
+    const authored = this.bank.find(question => question.id === questionId);
+    if (!authored) return false;
+    const options = candidate.question?.options;
+    if (!Array.isArray(options) || options.length !== 4) return false;
+    if (!authored.options.every(option => options.includes(option))) return false;
+    const correctOption = authored.options[authored.answer];
+    const answer = options.indexOf(correctOption);
+    if (answer < 0) return false;
+    candidate.question = { ...authored, options, answer };
     this.state = candidate;
     this.sessionSeen = new Set(Array.isArray(snapshot.sessionSeen) ? snapshot.sessionSeen : []);
     this.sessionSeen.add(questionId);
