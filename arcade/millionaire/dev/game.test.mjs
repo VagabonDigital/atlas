@@ -64,6 +64,32 @@ test('unseen questions in the band take priority over previously exposed exact-r
   assert.equal(band(g.state.question.rung), 'opening');
 });
 
+test('active run snapshots restore exact play state without persisting answer keys', () => {
+  const g = create();
+  reach(g, 4);
+  assert.ok(g.lifeline('narrow'));
+  const selectable = [0,1,2,3].find(i => !g.state.hidden.includes(i));
+  assert.ok(g.select(selectable));
+  const before = g.publicView();
+  const hiddenAnswer = g.state.question.answer;
+  const snapshot = g.snapshot();
+  assert.equal(snapshot.state.question.answer, undefined);
+  assert.equal(snapshot.state.question.explanation, undefined);
+  assert.deepEqual(snapshot.state.question.options, before.question.options);
+
+  const restored = new Millionaire(QUESTIONS, { random: () => .37 });
+  assert.ok(restored.restore(snapshot));
+  const after = restored.publicView();
+  assert.equal(after.rung, before.rung);
+  assert.equal(after.phase, before.phase);
+  assert.equal(after.selected, before.selected);
+  assert.deepEqual(after.hidden, before.hidden);
+  assert.deepEqual(after.lifelines, before.lifelines);
+  assert.deepEqual(after.question.options, before.question.options);
+  assert.equal(restored.state.question.answer, hiddenAnswer);
+  assert.ok(restored.sessionSeen.has(restored.state.question.id));
+});
+
 test('Atlas continuity records both exposure scopes and removes a voided result', () => {
   const registry = { sessionStates: {} };
   const bridge = {
@@ -80,11 +106,19 @@ test('Atlas continuity records both exposure scopes and removes a voided result'
   assert.equal(registry.sessionStates.learner['arcade:millionaire'].millionaire.exposures[event.questionId].count, 1);
   assert.equal(registry.sessionStates.shared['arcade:millionaire'].millionaire.tutorExposures[event.questionId].count, 1);
   assert.ok(store.seen('another-learner').includes(event.questionId));
+  const activeSnapshot = { version: 1, state: { id: 'run' }, sessionSeen: [event.questionId] };
+  store.saveRun(session.id, activeSnapshot, { rung: 4 });
+  assert.deepEqual(store.activeRun(session.id), activeSnapshot);
+  assert.equal(registry.sessionStates.learner['arcade:millionaire'].title, 'Millionaire · Question 4 of 10');
+  assert.equal(registry.sessionStates.learner['arcade:millionaire'].currentLabel, 'Question 4 of 10');
+  assert.equal(registry.sessionStates.learner['arcade:millionaire'].progress.covered, 4);
   // URL creation in recent activity uses the browser location; supply that boundary here.
   const previousLocation = globalThis.location;
   globalThis.location = { href: 'http://localhost/arcade/millionaire/index.html' };
   try {
     store.record(session, { ...event, type: 'result', prize: 0, outcome: 'wrong answer', highest: 1 });
+    assert.equal(store.activeRun(session.id), null);
+    assert.equal(registry.sessionStates.learner['arcade:millionaire'].status, 'complete');
     store.record(session, { ...event, type: 'void-after-reveal', note: 'Incorrect key' });
     const state = registry.sessionStates.learner['arcade:millionaire'];
     assert.equal(state.lastResult, null);
