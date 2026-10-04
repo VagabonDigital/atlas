@@ -38,6 +38,7 @@ html[data-theme="night"] .atlas-main {
 .continue-cover img { position: absolute; inset: 0 0 -1px; width: 100%; height: calc(100% + 1px); object-fit: cover; }
 .continue-card--arcade .continue-cover { background: #232d50; }
 .continue-card--arcade .continue-cover img { object-fit: cover; }
+.continue-card--arcade:has(.continue-action[data-launch-url*="/arcade/millionaire/"]) .continue-cover:empty { background: #232d50 url('../assets/hub/millionaire.png') center / cover no-repeat; }
 .continue-content { position: relative; display: flex; flex-direction: column; justify-content: center; gap: 1.7rem; padding: 2rem 2.25rem; min-width: 0; }
 .continue-body { flex: 0 1 auto; }
 .continue-kicker { letter-spacing: .18em; font-size: .66rem; margin-bottom: .65rem; }
