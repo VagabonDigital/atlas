@@ -1,4 +1,4 @@
-// Authored seed bank, reviewed 2026-10-02. Four questions per prize rung.
+// Authored seed bank. Opening and first middle-rung outliers recalibrated 2026-10-04; remaining bank reviewed 2026-10-02.
 // Evidence is paraphrased; mathematical questions include a complete derivation.
 // Editorial difficulty is provisional and should be calibrated from outcome/void logs.
 const source = (title, url) => ({ title, url });
@@ -8,6 +8,7 @@ const S = {
   metric: source('NIST: metric prefixes', 'https://www.nist.gov/pml/owm/metric-si-prefixes'),
   sun: source('NASA: Sun facts', 'https://science.nasa.gov/sun/facts/'),
   mars: source('NASA: Mars facts', 'https://science.nasa.gov/mars/facts/'),
+  mercury: source('NASA: Mercury facts', 'https://science.nasa.gov/mercury/facts/'),
   wall: source('UNESCO: The Great Wall', 'https://whc.unesco.org/en/list/438/'),
   water: source('USGS: Water density', 'https://www.usgs.gov/water-science-school/science/water-density'),
   machu: source('UNESCO: Machu Picchu', 'https://whc.unesco.org/en/list/274/'),
@@ -32,23 +33,23 @@ const S = {
   planets: source('NASA: Planetary fact sheet', 'https://nssdc.gsfc.nasa.gov/planetary/factsheet/')
 };
 const rows = [
-  [1, 'general-knowledge', 'How many arms does a healthy adult octopus normally have?', ['Six', 'Eight', 'Ten', 'Twelve'], 1,
-    'An octopus has eight arms. Squid have eight arms plus two longer tentacles.', ['octopus'], 'Smithsonian distinguishes eight octopus arms from the ten appendages of squid.'],
-  [1, 'common-sense', 'A film starts at 3:00 and lasts one hour. When does it finish?', ['3:30', '4:00', '4:30', '5:00'], 1,
-    'One hour after 3:00 is 4:00.', ['time'], 'NIST defines an hour as 60 minutes; adding one hour gives 4:00.'],
-  [1, 'general-knowledge', 'Which of these produces its own light as a star?', ['The Moon', 'Earth', 'The Sun', 'Mars'], 2,
-    'The Sun is our solar system’s star. The Moon and planets reflect sunlight.', ['sun'], 'NASA identifies the Sun as the only star in the solar system. The other options are a moon and planets.'],
-  [1, 'comparison', 'Which bottle can hold the most water?', ['250 millilitres', '500 millilitres', '750 millilitres', '1 litre'], 3,
-    'One litre is 1,000 millilitres, more than any of the other amounts.', ['metric'], 'Milli means one-thousandth: compare 250, 500, 750 and 1000 millilitres.'],
+  [1, 'general-knowledge', 'How many hearts does an octopus have?', ['One', 'Two', 'Three', 'Four'], 2,
+    'An octopus has three hearts: two move blood through the gills and one pumps it around the body.', ['octopus'], 'Smithsonian describes cephalopods as having three hearts: two branchial hearts and one systemic heart.', 2],
+  [1, 'reasoning', 'A train leaves at 2:45 and the journey takes 90 minutes. When does it arrive?', ['3:45', '4:00', '4:15', '4:30'], 2,
+    'Ninety minutes is one hour and 30 minutes. From 2:45, that gives 4:15.', [], 'Direct proof: 2:45 + 60 minutes = 3:45, then +30 minutes = 4:15.', 2],
+  [1, 'comparison', 'Which planet is closest to Earth in size?', ['Mars', 'Venus', 'Mercury', 'Neptune'], 1,
+    'Venus is only slightly smaller than Earth, which is why the two planets are sometimes called twins.', ['venus', 'planets'], 'NASA gives Venus a mean radius about 95% of Earth’s, much closer in size than Mars, Mercury or Neptune.', 2],
+  [1, 'comparison', 'Which amount is the greatest?', ['950 millilitres', '1 litre', '1.05 litres', '900 millilitres'], 2,
+    '1.05 litres is 1,050 millilitres, so it is larger than 1 litre, 950 millilitres and 900 millilitres.', ['metric'], 'Milli means one-thousandth: convert the four choices to 950, 1000, 1050 and 900 millilitres.', 2],
 
-  [2, 'general-knowledge', 'Which planet is often called the Red Planet?', ['Venus', 'Mars', 'Jupiter', 'Saturn'], 1,
-    'Mars looks reddish because iron minerals in its surface have rusted.', ['mars'], 'NASA explicitly names Mars the Red Planet and attributes its colour to oxidised iron.'],
-  [2, 'general-knowledge', 'In which country is the Great Wall?', ['India', 'China', 'Japan', 'Egypt'], 1,
-    'The Great Wall stretches across northern China.', ['wall'], 'UNESCO lists the Great Wall under China; the other countries do not contain this property.'],
-  [2, 'common-sense', 'An ordinary ice cube is placed in a glass of fresh water. What normally happens?', ['It floats', 'It sinks to the bottom', 'It turns into salt', 'It boils immediately'], 0,
-    'Ordinary ice is less dense than liquid water, so it floats.', ['water'], 'USGS explains that ordinary ice floats because its density is lower than liquid water.'],
-  [2, 'reasoning', 'A cake is cut into four equal pieces. Two are eaten. How much is left?', ['One quarter', 'One half', 'Three quarters', 'The whole cake'], 1,
-    'Two of four equal pieces remain: half the cake.', [], 'Direct proof: (4 − 2) / 4 = 2/4 = 1/2. Each other fraction differs.'],
+  [2, 'general-knowledge', 'Which planet has the shortest year?', ['Mercury', 'Venus', 'Earth', 'Mars'], 0,
+    'Mercury completes one orbit of the Sun in about 88 Earth days, faster than any other planet.', ['mercury', 'planets'], 'NASA gives Mercury an orbital period of about 88 Earth days, shorter than Venus, Earth and Mars.', 2],
+  [2, 'reasoning', 'Why does ordinary ice float in liquid water?', ['Ice is less dense than liquid water', 'Surface tension holds the whole cube up', 'Ice always contains enough trapped air', 'Freezing removes some of the water’s mass'], 0,
+    'Ice is less dense than liquid water, so the same mass takes up more space and floats.', ['water'], 'USGS explains that ordinary ice floats because its density is lower than liquid water; freezing changes structure rather than removing mass.', 2],
+  [2, 'reasoning', 'A jacket costs €60 and is reduced by 25%. What is the sale price?', ['€35', '€40', '€45', '€50'], 2,
+    'Twenty-five percent of €60 is €15, so the reduced price is €45.', [], 'Direct proof: 0.25 × 60 = 15, and 60 − 15 = 45.', 2],
+  [2, 'general-knowledge', 'The Great Wall was developed mainly to defend Chinese states and empires against invasions from which direction?', ['North', 'South', 'East', 'West'], 0,
+    'The wall formed a defence system along China’s northern frontier against invasions from the north.', ['wall'], 'UNESCO describes the joined fortifications as a defence system against invasions from the north and places the Wall along the northern border.', 2],
 
   [3, 'general-knowledge', 'Which country is home to Machu Picchu?', ['Peru', 'Mexico', 'Spain', 'Brazil'], 0,
     'Machu Picchu is an Inca site high in the Peruvian Andes.', ['machu'], 'UNESCO locates the sanctuary in Peru and describes its Inca heritage.'],
@@ -59,12 +60,12 @@ const rows = [
   [3, 'comparison', 'Which has more mass: 1 kilogram of iron or 1 kilogram of feathers?', ['The iron', 'The feathers', 'They have equal mass', 'It depends on their shape'], 2,
     'Both have a mass of one kilogram. They take up very different amounts of space.', [], 'The prompt fixes both masses at exactly 1 kg; changing material or shape cannot change that equality.'],
 
-  [4, 'comparison', 'Which is the largest planet in our solar system?', ['Earth', 'Saturn', 'Jupiter', 'Neptune'], 2,
-    'Jupiter is the largest planet. Saturn is the second largest.', ['jupiter', 'planets'], 'NASA’s diameters rank Jupiter above Saturn, Neptune and Earth.'],
+  [4, 'comparison', 'Which planet is closest to Neptune in size?', ['Saturn', 'Uranus', 'Earth', 'Mars'], 1,
+    'Uranus and Neptune are similar in size, with Uranus only slightly larger in diameter.', ['planets'], 'NASA’s planetary fact sheet lists Uranus and Neptune with much closer diameters to each other than Saturn, Earth or Mars.', 2],
   [4, 'general-knowledge', 'The Suez Canal links the Mediterranean Sea to which sea?', ['Black Sea', 'Red Sea', 'Caspian Sea', 'Baltic Sea'], 1,
     'The canal crosses Egypt between the Mediterranean and the Red Sea.', ['suez'], 'The canal’s own authority identifies its two endpoints as the Mediterranean and Red Sea.'],
-  [4, 'comparison', 'Which share of a pizza is the largest?', ['One half', 'Two thirds', 'Three quarters', 'One third'], 2,
-    'Three quarters is 75%, larger than about 67%, 50% or 33%.', [], 'Convert to twelfths: 6/12, 8/12, 9/12 and 4/12. Nine twelfths is largest.'],
+  [4, 'reasoning', 'Which fraction is closest in value to two thirds?', ['Three fifths', 'Five eighths', 'Seven tenths', 'Three quarters'], 2,
+    'Seven tenths is 0.70, only about 0.033 away from two thirds, which is about 0.667.', [], 'Using 120ths: 2/3 = 80/120; 3/5 = 72/120, 5/8 = 75/120, 7/10 = 84/120, and 3/4 = 90/120. Seven tenths is closest.', 2],
   [4, 'general-knowledge', 'Why was the Taj Mahal originally built?', ['To defend a city', 'To remember an emperor’s wife', 'To store grain', 'To study the stars'], 1,
     'Shah Jahan commissioned it in memory of his wife Mumtaz Mahal.', ['taj'], 'UNESCO describes it as a mausoleum commissioned in memory of the emperor’s wife, not a fort, granary or observatory.'],
 
@@ -123,9 +124,9 @@ const rows = [
     'Earth is slightly denser on average than Mercury, despite Jupiter being far more massive.', ['planets'], 'NASA fact sheet in kg/m³: Earth 5514, Mercury 5429, Venus 5243, Jupiter 1326. Compare density, not total mass.']
 ];
 
-export const QUESTIONS = rows.map(([rung, family, prompt, options, answer, explanation, keys, evidence], index) => Object.freeze({
-  id: `millionaire-${String(index + 1).padStart(3, '0')}`, rung, family, prompt, options, answer, explanation,
+export const QUESTIONS = rows.map(([rung, family, prompt, options, answer, explanation, keys, evidence, revision = 1], index) => Object.freeze({
+  id: `millionaire-${String(index + 1).padStart(3, '0')}${revision > 1 ? `-v${revision}` : ''}`, rung, family, prompt, options, answer, explanation,
   difficulty: { rung, band: rung <= 3 ? 'opening' : rung <= 6 ? 'middle' : rung <= 9 ? 'pressure' : 'final', calibration: 'editorial' },
   sources: keys.map(key => S[key]), evidence,
-  reviewedAt: '2026-10-02', review: 'Key, distractors, plain English, cultural accessibility and single-answer check completed.'
+  reviewedAt: revision > 1 ? '2026-10-04' : '2026-10-02', review: 'Key, distractors, plain English, cultural accessibility and single-answer check completed.'
 }));
