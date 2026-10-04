@@ -4,6 +4,7 @@ export const PRIZES = [2000, 4000, 8000, 16000, 32000, 64000, 125000, 250000, 50
 export const band = rung => rung <= 3 ? 'opening' : rung <= 6 ? 'middle' : rung <= 9 ? 'pressure' : 'final';
 export const resolved = phase => ['correct', 'incorrect', 'safety', 'win', 'walk-reveal', 'summary'].includes(phase);
 const copy = value => structuredClone(value);
+const RESTORABLE_PHASES = new Set(['question', 'selected', 'locked', 'correct', 'safety', 'incorrect', 'win', 'walk-confirm', 'hypothetical', 'walk-reveal', 'adviser']);
 
 export class Millionaire {
   constructor(bank, { random = Math.random, seen = [], sessionSeen = [], onEvent = () => {} } = {}) {
@@ -17,6 +18,25 @@ export class Millionaire {
   emit(type, extra = {}) {
     this.onEvent({ type, runId: this.state?.id, questionId: this.state?.question?.id,
       rung: this.state?.rung, timestamp: Date.now(), ...extra });
+  }
+  snapshot() {
+    if (!this.state || !RESTORABLE_PHASES.has(this.state.phase)) return null;
+    return copy({ version: 1, state: this.state, sessionSeen: [...this.sessionSeen] });
+  }
+  restore(snapshot) {
+    if (!snapshot || snapshot.version !== 1 || !snapshot.state || typeof snapshot.state !== 'object') return false;
+    const candidate = copy(snapshot.state);
+    const rung = Number(candidate.rung);
+    const questionId = candidate.question?.id;
+    if (!candidate.id || !Number.isInteger(rung) || rung < 1 || rung > 10 || !RESTORABLE_PHASES.has(candidate.phase)) return false;
+    if (!questionId || !this.bank.some(question => question.id === questionId)) return false;
+    if (!Array.isArray(candidate.question?.options) || candidate.question.options.length !== 4) return false;
+    if (!Number.isInteger(candidate.question.answer) || candidate.question.answer < 0 || candidate.question.answer > 3) return false;
+    this.state = candidate;
+    this.sessionSeen = new Set(Array.isArray(snapshot.sessionSeen) ? snapshot.sessionSeen : []);
+    this.sessionSeen.add(questionId);
+    this.sessionSeen.forEach(id => this.seen.add(id));
+    return true;
   }
   available(rung, replacing = false) {
     let pool = this.bank.filter(q => !this.sessionSeen.has(q.id) && band(q.rung) === band(rung));
