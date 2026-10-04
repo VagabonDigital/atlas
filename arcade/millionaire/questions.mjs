@@ -1,4 +1,4 @@
-// Authored seed bank. Opening rungs recalibrated 2026-10-04; remaining bank reviewed 2026-10-02.
+// Authored seed bank. Opening and first middle-rung outliers recalibrated 2026-10-04; remaining bank reviewed 2026-10-02.
 // Evidence is paraphrased; mathematical questions include a complete derivation.
 // Editorial difficulty is provisional and should be calibrated from outcome/void logs.
 const source = (title, url) => ({ title, url });
@@ -60,12 +60,12 @@ const rows = [
   [3, 'comparison', 'Which has more mass: 1 kilogram of iron or 1 kilogram of feathers?', ['The iron', 'The feathers', 'They have equal mass', 'It depends on their shape'], 2,
     'Both have a mass of one kilogram. They take up very different amounts of space.', [], 'The prompt fixes both masses at exactly 1 kg; changing material or shape cannot change that equality.'],
 
-  [4, 'comparison', 'Which is the largest planet in our solar system?', ['Earth', 'Saturn', 'Jupiter', 'Neptune'], 2,
-    'Jupiter is the largest planet. Saturn is the second largest.', ['jupiter', 'planets'], 'NASA’s diameters rank Jupiter above Saturn, Neptune and Earth.'],
+  [4, 'comparison', 'Which planet is closest to Neptune in size?', ['Saturn', 'Uranus', 'Earth', 'Mars'], 1,
+    'Uranus and Neptune are similar in size, with Uranus only slightly larger in diameter.', ['planets'], 'NASA’s planetary fact sheet lists Uranus and Neptune with much closer diameters to each other than Saturn, Earth or Mars.', 2],
   [4, 'general-knowledge', 'The Suez Canal links the Mediterranean Sea to which sea?', ['Black Sea', 'Red Sea', 'Caspian Sea', 'Baltic Sea'], 1,
     'The canal crosses Egypt between the Mediterranean and the Red Sea.', ['suez'], 'The canal’s own authority identifies its two endpoints as the Mediterranean and Red Sea.'],
-  [4, 'comparison', 'Which share of a pizza is the largest?', ['One half', 'Two thirds', 'Three quarters', 'One third'], 2,
-    'Three quarters is 75%, larger than about 67%, 50% or 33%.', [], 'Convert to twelfths: 6/12, 8/12, 9/12 and 4/12. Nine twelfths is largest.'],
+  [4, 'reasoning', 'Which fraction is closest in value to two thirds?', ['Three fifths', 'Five eighths', 'Seven tenths', 'Three quarters'], 2,
+    'Seven tenths is 0.70, only about 0.033 away from two thirds, which is about 0.667.', [], 'Using 120ths: 2/3 = 80/120; 3/5 = 72/120, 5/8 = 75/120, 7/10 = 84/120, and 3/4 = 90/120. Seven tenths is closest.', 2],
   [4, 'general-knowledge', 'Why was the Taj Mahal originally built?', ['To defend a city', 'To remember an emperor’s wife', 'To store grain', 'To study the stars'], 1,
     'Shah Jahan commissioned it in memory of his wife Mumtaz Mahal.', ['taj'], 'UNESCO describes it as a mausoleum commissioned in memory of the emperor’s wife, not a fort, granary or observatory.'],
 
