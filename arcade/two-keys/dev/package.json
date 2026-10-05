@@ -1,0 +1,13 @@
+{
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.8",
+    "prettier": "3.6.2",
+    "supabase": "2.119.0"
+  },
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node serve.mjs",
+    "test": "node --test rules.test.mjs integration.test.mjs"
+  }
+}

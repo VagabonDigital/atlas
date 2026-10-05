@@ -26,4 +26,8 @@ jobs:
         run: |
           npm ci --ignore-scripts --prefix arcade/forbidden-words/dev
           npm test --prefix arcade/forbidden-words/dev
+      - name: Verify Two Keys missions, private seats and persistence
+        run: |
+          npm ci --ignore-scripts --prefix arcade/two-keys/dev
+          npm test --prefix arcade/two-keys/dev
 

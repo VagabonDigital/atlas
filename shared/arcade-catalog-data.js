@@ -13,6 +13,7 @@
     if (window.ArcadeCatalogData) return;
 
     const ARCADE_GAME_ART = {
+        twoKeys: '<svg class="game-artwork" viewBox="0 0 180 150" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="68" cy="70" r="33" stroke="currentColor" stroke-width="3"/><circle cx="111" cy="70" r="33" stroke="currentColor" stroke-width="3"/><path d="M68 103v22m43-22v22" stroke="currentColor" stroke-width="3"/></svg>',
         millionaire: `<svg class="game-artwork" viewBox="0 0 180 150" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="90" cy="75" r="52" stroke="currentColor" stroke-width="2.5"/><path d="M90 27L100 65L138 75L100 85L90 123L80 85L42 75L80 65Z" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/></svg>`,
         forbidden: `<svg class="game-artwork" viewBox="0 0 180 150" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="36" y="22" width="76" height="110" rx="11" transform="rotate(-12 36 22)" stroke="currentColor" stroke-width="2"/><rect x="63" y="18" width="76" height="110" rx="11" fill="var(--card-bg, #eef5ff)" stroke="currentColor" stroke-width="2.5"/><path d="M80 47h43M81 70h40M81 86h40M81 102h40" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="m149 15 3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="currentColor"/></svg>`,
         tomorrow: `
@@ -230,6 +231,18 @@
 
     const ARCADE_GAMES = [
         {
+            registryId: 'arcade:two-keys',
+            publicAccess: 'preview',
+            title: 'Two Keys',
+            premise: 'Two perspectives. One impossible job. Pull off four heists together.',
+            unitLabel: 'Missions',
+            total: 4,
+            artId: 'twoKeys',
+            accent: '#cfa65b',
+            order: 6,
+            launchUrl: './two-keys/index.html'
+        },
+        {
             registryId: 'arcade:millionaire',
             publicAccess: 'full',
             title: 'Millionaire',
@@ -292,6 +305,7 @@
     ];
 
     const ARCADE_GAME_SHARE_GRANTS = Object.freeze({
+        'arcade:two-keys': 'g1_tkCooperation',
         'arcade:forbidden-words': 'g1_fwConversation',
         'arcade:tomorrow-got-weird': 'g1_r7K2vM9xC4qT',
         'arcade:would-you-rather': 'g1_p4W8nD3yL6sV'

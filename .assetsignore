@@ -22,3 +22,7 @@ arcade/forbidden-words/dev/
 arcade/forbidden-words/README.md
 **/node_modules/
 
+
+arcade/two-keys/server/
+arcade/two-keys/dev/
+arcade/two-keys/README.md

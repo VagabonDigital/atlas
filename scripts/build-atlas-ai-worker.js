@@ -8,22 +8,23 @@ const paths = {
   worker: path.join(root, "shared", "worker.js"),
   cards: path.join(root, "arcade", "forbidden-words", "server", "cards.mjs"),
   game: path.join(root, "arcade", "forbidden-words", "server", "game.mjs"),
-  http: path.join(root, "arcade", "forbidden-words", "server", "http.mjs")
+  http: path.join(root, "arcade", "forbidden-words", "server", "http.mjs"),
 };
 
 const START =
   "/* BEGIN GENERATED FORBIDDEN WORDS BACKEND — npm run build:atlas-ai-worker */";
-const END =
-  "/* END GENERATED FORBIDDEN WORDS BACKEND */";
+const END = "/* END GENERATED FORBIDDEN WORDS BACKEND */";
 
 function read(file) {
-  return fs.readFileSync(file, "utf8");
+  return fs.readFileSync(file, "utf8").replace(/\r\n/g, "\n");
 }
 
 function stripModule(source, importRegex) {
   const matches = source.match(new RegExp(importRegex.source, "gm")) || [];
   if (matches.length !== 1) {
-    throw new Error(`Expected exactly one import match, found ${matches.length}.`);
+    throw new Error(
+      `Expected exactly one import match, found ${matches.length}.`,
+    );
   }
   return source
     .replace(new RegExp(importRegex.source, "m"), "")
@@ -35,19 +36,21 @@ function indent(source, spaces = 4) {
   const pad = " ".repeat(spaces);
   return source
     .split("\n")
-    .map(line => (line ? pad + line : ""))
+    .map((line) => (line ? pad + line : ""))
     .join("\n");
 }
 
 function generatedBlock() {
-  const cards = read(paths.cards).replace(/^export\s+/gm, "").trim();
+  const cards = read(paths.cards)
+    .replace(/^export\s+/gm, "")
+    .trim();
   const game = stripModule(
     read(paths.game),
-    /^import\s+\{\s*CARDS\s*\}\s+from\s+["']\.\/cards\.mjs["'];?\s*$/
+    /^import\s+\{\s*CARDS\s*\}\s+from\s+["']\.\/cards\.mjs["'];?\s*$/,
   );
   const http = stripModule(
     read(paths.http),
-    /^import\s+\{\s*initialState,\s*command,\s*view,\s*GameError\s*\}\s+from\s+["']\.\/game\.mjs["'];?\s*$/
+    /^import\s+\{\s*initialState,\s*command,\s*view,\s*GameError\s*\}\s+from\s+["']\.\/game\.mjs["'];?\s*$/,
   );
 
   return [
@@ -64,7 +67,7 @@ function generatedBlock() {
     "",
     "    return handleForbiddenWords;",
     "})();",
-    END
+    END,
   ].join("\n");
 }
 
@@ -74,14 +77,45 @@ function replaceGeneratedBlock(worker, block) {
 
   if (start < 0 || end < start) {
     throw new Error(
-      "shared/worker.js is missing the generated Forbidden Words backend markers."
+      "shared/worker.js is missing the generated Forbidden Words backend markers.",
     );
   }
 
   return worker.slice(0, start) + block + worker.slice(end + END.length);
 }
 
-const worker = read(paths.worker);
+const tkStart = "/* BEGIN GENERATED TWO KEYS BACKEND */";
+const tkEnd = "/* END GENERATED TWO KEYS BACKEND */";
+const tkGame = read(path.join(root, "arcade", "two-keys", "server", "game.mjs"))
+  .replace(/^export\s+/gm, "")
+  .trim();
+const tkHttp = stripModule(
+  read(path.join(root, "arcade", "two-keys", "server", "http.mjs")),
+  /^import\s+\{\s*initialState,\s*command,\s*view,\s*GameError\s*\}\s+from\s+["']\.\/game\.mjs["'];?\s*$/,
+);
+const tkBlock = [
+  tkStart,
+  "const handleTwoKeys = (() => {",
+  indent(tkGame),
+  indent(tkHttp),
+  "return handleTwoKeys;",
+  "})();",
+  tkEnd,
+].join("\n");
+let worker = read(paths.worker);
+const tkA = worker.indexOf(tkStart),
+  tkB = worker.indexOf(tkEnd);
+if (process.argv.includes("--check")) {
+  if (tkA < 0 || worker.slice(tkA, tkB + tkEnd.length) !== tkBlock) {
+    console.error("Two Keys backend is stale.");
+    process.exit(1);
+  }
+} else {
+  worker =
+    tkA < 0
+      ? tkBlock + "\n" + worker
+      : worker.slice(0, tkA) + tkBlock + worker.slice(tkB + tkEnd.length);
+}
 const block = generatedBlock();
 const currentStart = worker.indexOf(START);
 const currentEnd = worker.indexOf(END);
@@ -93,12 +127,12 @@ const currentBlock =
 if (process.argv.includes("--check")) {
   if (currentBlock !== block) {
     console.error(
-      "shared/worker.js Forbidden Words backend is stale. Run npm run build:atlas-ai-worker."
+      "shared/worker.js Forbidden Words backend is stale. Run npm run build:atlas-ai-worker.",
     );
     process.exit(1);
   }
 
-  console.log("Atlas AI Worker contains the current Forbidden Words backend.");
+  console.log("Atlas AI Worker contains the current Forbidden Words and Two Keys backends.");
   process.exit(0);
 }
 
