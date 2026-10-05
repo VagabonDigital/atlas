@@ -54,8 +54,8 @@ const games =
 
 assert.equal(
     games.length,
-    5,
-    'The Arcade catalogue includes the five current shipped games'
+    6,
+    'The Arcade catalogue includes the six current shipped games'
 );
 
 assert.match(
@@ -84,6 +84,7 @@ const accessById =
 assert.deepEqual(
     accessById,
     {
+        'arcade:two-keys': 'preview',
         'arcade:millionaire': 'full',
         'arcade:forbidden-words': 'preview',
         'arcade:tomorrow-got-weird':
@@ -257,5 +258,5 @@ assert.match(
 );
 
 console.log(
-    'Stage 3.3 anonymous Arcade contract passed: the five-game catalogue is visible, Millionaire and Truth Trap are fully public, preview games expose their real intros, gameplay gates at Start, post-auth return unlocks the cover without auto-starting, and Search exposes preview context.'
+    'Stage 3.3 anonymous Arcade contract passed: the six-game catalogue is visible, Millionaire and Truth Trap are fully public, preview games expose their real intros, gameplay gates at Start, post-auth return unlocks the cover without auto-starting, and Search exposes preview context.'
 );
