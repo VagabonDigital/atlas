@@ -238,6 +238,7 @@
             unitLabel: 'Missions',
             total: 4,
             artId: 'twoKeys',
+            coverImage: '/assets/hub/two-keys-cover.png',
             accent: '#cfa65b',
             order: 6,
             launchUrl: './two-keys/index.html'
@@ -250,6 +251,7 @@
             unitLabel: 'Questions',
             total: 10,
             artId: 'millionaire',
+            coverImage: '/assets/hub/millionaire.png',
             accent: '#d8ad49',
             order: 5,
             launchUrl: './millionaire/index.html'
@@ -348,6 +350,37 @@
 
     function getArcadeGameArt(artId) {
         return ARCADE_GAME_ART[artId] || '';
+    }
+
+    function hydrateAtlasArcadeCovers() {
+        try {
+            if (
+                typeof GAME_COVERS !== 'object' ||
+                !GAME_COVERS
+            ) {
+                return;
+            }
+
+            ARCADE_GAMES.forEach(game => {
+                if (
+                    game.coverImage &&
+                    !GAME_COVERS[game.registryId]
+                ) {
+                    GAME_COVERS[game.registryId] =
+                        game.coverImage;
+                }
+            });
+        } catch { }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener(
+            'DOMContentLoaded',
+            hydrateAtlasArcadeCovers,
+            { once: true }
+        );
+    } else {
+        hydrateAtlasArcadeCovers();
     }
 
     window.ArcadeCatalogData = {
