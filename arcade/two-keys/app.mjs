@@ -386,7 +386,7 @@ function header() {
   return `<header class="gamebar">${brand}<div class="position">${esc(state.roleName || "Operation room")}</div><div class="utilities">${status()}${button("help", "?", "icon", {}, false)}${button("menu", "☰", "icon", {}, false)}</div></header>`;
 }
 function hero() {
-  return `<div class="hero-art" aria-hidden="true"></div><div class="hero-copy"><p class="eyebrow">AN ATLAS COOPERATIVE ORIGINAL</p><h1>TWO<span>◇</span><b>KEYS</b></h1><p class="tagline">Some doors<br>take two.</p><p class="intro">Two perspectives. One impossible job.<br>Neither of you gets through alone.</p><div class="hero-meta"><span>02 PLAYERS</span><span>04 MISSIONS</span><span>6–12 MIN / JOB</span></div></div>`;
+  return `<div class="hero-art" aria-hidden="true"></div><div class="hero-copy"><p class="eyebrow">AN ATLAS COOPERATIVE ORIGINAL</p><h1>TWO<span>◇</span>KEYS</h1><p class="tagline">Some doors<br>take two.</p><p class="intro">Two perspectives. One impossible job.<br>Neither of you gets through alone.</p><div class="hero-meta"><span>02 PLAYERS</span><span>04 MISSIONS</span><span>6–12 MIN / JOB</span></div></div>`;
 }
 function library() {
   const list =
