@@ -1707,7 +1707,8 @@
       'arcade:would-you-rather': '../assets/hub/would-you-rather.webp',
       'arcade:truth-trap': '../assets/hub/truth-trap.webp',
       'arcade:tomorrow-got-weird': '../assets/hub/tomorrow-got-weird.webp',
-      'arcade:millionaire': '../assets/hub/millionaire.png'
+      'arcade:millionaire': '../assets/hub/millionaire.png',
+      'arcade:two-keys': '../assets/hub/two-keys-cover.png'
     };
     const GAME_CATALOGUE = ArcadeCatalog.getArcadeGames().sort(
       (a, b) => Object.keys(GAME_COVERS).indexOf(a.registryId) -
@@ -2255,7 +2256,7 @@
       if (
         !getStoredPresentationUserId() &&
         typeof Panel.openCreateLearner ===
-          'function'
+        'function'
       ) {
         Panel.openCreateLearner(trigger);
         return;
