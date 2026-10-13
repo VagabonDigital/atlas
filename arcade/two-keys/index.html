@@ -85,14 +85,24 @@
         vertical-align: middle;
       }
 
+      .hero-copy h1 {
+        display: flex;
+        align-items: center;
+        flex-wrap: nowrap;
+        white-space: nowrap;
+        line-height: 1;
+      }
+
       .hero-copy h1 span {
         display: inline-block;
+        flex: 0 0 auto;
+        align-self: center;
         width: clamp(50px, 3.7vw, 64px);
         height: clamp(50px, 3.7vw, 64px);
         margin: 0 0.14em;
         background: url("./assets/two-keys-mark.svg") center / contain no-repeat;
         font-size: 0;
-        vertical-align: -0.08em;
+        vertical-align: unset;
         transform: none;
       }
 
