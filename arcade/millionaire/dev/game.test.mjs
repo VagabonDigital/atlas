@@ -64,6 +64,16 @@ test('unseen questions in the band take priority over previously exposed exact-r
   assert.equal(band(g.state.question.rung), 'opening');
 });
 
+test('prior tutor exposure is a soft preference and never exhausts authored questions', () => {
+  const g = create({ seen: QUESTIONS.map(q => q.id) });
+  for (let rung = 1; rung <= 10; rung++) {
+    assert.equal(g.state.rung, rung);
+    correct(g);
+    if (rung < 10) assert.ok(g.continue());
+  }
+  assert.equal(g.state.phase, 'win');
+});
+
 test('active run snapshots restore exact play state without persisting answer keys', () => {
   const g = create();
   reach(g, 4);
@@ -126,4 +136,38 @@ test('Atlas continuity records both exposure scopes and removes a voided result'
     assert.equal(state.millionaire.events.find(e => e.type === 'result').voided, true);
     assert.ok(store.seen(session.id).includes(event.questionId));
   } finally { if (previousLocation === undefined) delete globalThis.location; else globalThis.location = previousLocation; }
+});
+
+test('session reset clears only that Millionaire session and preserves tutor-wide history', () => {
+  const registry = { sessionStates: {} };
+  const bridge = {
+    defaultSessionId: 'shared', readRegistry: () => structuredClone(registry),
+    upsertSessionState(id, key, value) {
+      registry.sessionStates[id] ||= {};
+      registry.sessionStates[id][key] = { ...registry.sessionStates[id][key], ...structuredClone(value) };
+    }, touchRecentActivity() {}
+  };
+  const store = continuity(bridge);
+  const questionId = QUESTIONS[0].id;
+  const exposure = { type: 'exposure', runId: 'run-a', questionId, rung: 1, timestamp: 1 };
+  store.record({ id: 'learner-a' }, exposure);
+  store.record({ id: 'learner-b' }, { ...exposure, runId: 'run-b', timestamp: 2 });
+  store.saveRun('learner-a', { version: 1, state: { id: 'run-a' }, sessionSeen: [questionId] }, { rung: 2 });
+
+  assert.equal(store.hasSessionData('learner-a'), true);
+  assert.equal(store.resetSession('learner-a'), true);
+
+  const reset = registry.sessionStates['learner-a']['arcade:millionaire'];
+  assert.deepEqual(reset.millionaire.exposures, {});
+  assert.deepEqual(reset.millionaire.events, []);
+  assert.deepEqual(reset.millionaire.results, []);
+  assert.equal(reset.millionaire.activeRun, null);
+  assert.equal(reset.status, 'available');
+  assert.equal(reset.progress.covered, 0);
+  assert.equal(reset.lastResult, null);
+  assert.equal(store.hasSessionData('learner-a'), false);
+
+  assert.equal(registry.sessionStates['learner-b']['arcade:millionaire'].millionaire.exposures[questionId].count, 1);
+  assert.equal(registry.sessionStates.shared['arcade:millionaire'].millionaire.tutorExposures[questionId].count, 2);
+  assert.ok(store.seen('learner-a').includes(questionId));
 });
