@@ -12,6 +12,113 @@
     <link rel="stylesheet" href="../../shared/atlas-session-panel.css" />
     <link rel="stylesheet" href="../../shared/atlas-search.css" />
     <link rel="stylesheet" href="game.css" />
+    <style>
+      /* Two Keys is an authored night experience. Keep shared Arcade chrome
+         subordinate to the heist cover instead of turning it into a toolbar. */
+      #landing-chrome .arcade-game-chrome-appearance {
+        display: none;
+      }
+
+      #landing-chrome .arcade-game-chrome-back,
+      #landing-chrome .arcade-game-chrome-session {
+        min-height: 32px;
+        box-shadow: none;
+        transform: none;
+      }
+
+      #landing-chrome .arcade-game-chrome-back {
+        top: 1.35rem;
+        left: 7%;
+        padding: 0.4rem 0.62rem;
+        border-color: rgba(255, 255, 255, 0.08);
+        background: rgba(8, 14, 20, 0.52);
+      }
+
+      #landing-chrome .arcade-game-chrome-actions {
+        top: 1.35rem;
+        right: 7%;
+      }
+
+      #landing-chrome .arcade-game-chrome-session {
+        height: 32px;
+        padding: 0.4rem 0.72rem;
+        border-color: rgba(255, 255, 255, 0.14);
+        background: rgba(8, 14, 20, 0.62);
+        color: rgba(231, 237, 241, 0.72);
+      }
+
+      #landing-chrome .arcade-game-chrome-back:hover,
+      #landing-chrome .arcade-game-chrome-session:hover {
+        border-color: rgba(217, 174, 102, 0.42);
+        background: rgba(15, 24, 32, 0.82);
+        color: #eef4f7;
+        box-shadow: none;
+      }
+
+      @media (min-width: 801px) {
+        .entrance {
+          min-height: 100svh;
+          padding: 72px 7% 26px;
+        }
+
+        .hero-copy {
+          min-height: 0;
+        }
+
+        .hero-copy h1 {
+          font-size: clamp(52px, 5vw, 78px);
+          margin: 12px 0 8px;
+        }
+
+        .tagline {
+          font-size: clamp(38px, 3.2vw, 50px);
+        }
+
+        .intro {
+          margin: 14px 0;
+        }
+
+        .hero-meta {
+          margin-top: 14px;
+        }
+
+        .library {
+          margin-top: 18px;
+        }
+
+        .section-title {
+          margin-bottom: 12px;
+        }
+
+        .mission-art {
+          height: 128px;
+        }
+      }
+
+      @media (min-width: 1600px) {
+        .entrance {
+          padding-top: 72px;
+        }
+
+        .hero-copy {
+          min-height: 0;
+        }
+
+        .mission-art {
+          height: 132px;
+        }
+      }
+
+      @media (max-width: 800px) {
+        #landing-chrome .arcade-game-chrome-back {
+          left: 20px;
+        }
+
+        #landing-chrome .arcade-game-chrome-actions {
+          right: 20px;
+        }
+      }
+    </style>
   </head>
   <body
     data-player="tutor"
@@ -27,6 +134,9 @@
       <div id="dialog-body"></div>
     </dialog>
     <script src="../../shared/atlas-bridge.js"></script>
+    <script>
+      document.documentElement.dataset.theme = "night";
+    </script>
     <script type="module" src="app.mjs"></script>
   </body>
 </html>
