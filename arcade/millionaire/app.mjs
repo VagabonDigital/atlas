@@ -135,7 +135,7 @@ function render() {
   switch (v.phase) {
     case 'question': hint = 'Take your time. Choose an answer.'; break;
     case 'selected': action = 'Lock Answer'; hint = '“Final answer?” · Lock only after commitment.'; break;
-    case 'locked': action = 'Reveal Answer'; hint = 'Answer locked. The Host controls the reveal.'; break;
+    case 'locked': action = 'Reveal Answer'; break;
     case 'correct': title = `${money(v.earned)} earned`; text = v.explanation; action = 'Continue'; break;
     case 'safety': title = `${money(v.secured)} guaranteed`; text = v.explanation; action = 'Continue'; break;
     case 'incorrect': title = `${money(v.prize)} · Your final result`; text = v.explanation; action = 'See Result'; break;
