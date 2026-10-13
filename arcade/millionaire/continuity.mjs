@@ -23,12 +23,35 @@ export function continuity(Bridge) {
     seen(id) {
       const registry = Bridge.readRegistry();
       const tutor = read(Bridge.defaultSessionId).tutorExposures;
-      // Existing learner states also cover tutor exposure predating the tutor index.
+      // Cross-session exposure is a soft preference only. Millionaire.available()
+      // falls back to previously exposed authored questions when fresh ones run out.
       return [...new Set([...Object.keys(tutor), ...Object.keys(read(id).exposures),
         ...Object.values(registry.sessionStates || {}).flatMap(states => Object.keys(states[REGISTRY_ID]?.millionaire?.exposures || {}))])];
     },
     activeRun(id) {
       return read(id).activeRun || null;
+    },
+    hasSessionData(id) {
+      if (!id) return false;
+      const data = read(id);
+      return Boolean(data.activeRun || data.events.length || data.results.length || Object.keys(data.exposures).length);
+    },
+    resetSession(id) {
+      if (!id) return false;
+      const current = read(id);
+      const data = empty();
+      // The default Atlas session also owns tutor-wide exposure history. Keep it:
+      // resetting one teaching session must never erase cross-session history.
+      data.tutorExposures = current.tutorExposures || {};
+      write(id, data, {
+        title: 'Millionaire',
+        status: 'available',
+        progress: { covered: 0, total: 10, openEnded: false },
+        currentLabel: null,
+        lastResult: null,
+        lastTouchedAt: Date.now()
+      });
+      return true;
     },
     saveRun(id, snapshot, view) {
       if (!id || !snapshot || !view) return;
