@@ -5,15 +5,159 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="referrer" content="no-referrer" />
     <title>Two Keys · Atlas Arcade</title>
-    <link
-      rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23080e14'/%3E%3Ccircle cx='24' cy='28' r='15' fill='none' stroke='%23d8ae66' stroke-width='3'/%3E%3Ccircle cx='43' cy='28' r='15' fill='none' stroke='%237eb7ce' stroke-width='3'/%3E%3C/svg%3E"
-    />
+    <link rel="icon" type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='5' y='5' width='90' height='90' rx='24' fill='%23DF572F'/%3E%3Ccircle cx='50' cy='28' r='9' fill='%23FFF1E9'/%3E%3Cpath d='M50 38V62' stroke='%23FFF1E9' stroke-width='8' stroke-linecap='round'/%3E%3Cpath d='M30 61H70L77 79H23L30 61Z' fill='%23FFF1E9'/%3E%3Ccircle cx='64' cy='69' r='4.2' fill='%23F2C6B5'/%3E%3C/svg%3E" />
     <link rel="stylesheet" href="../shared/arcade-game-chrome.css" />
     <link rel="stylesheet" href="../../shared/atlas-modal-theme.css" />
     <link rel="stylesheet" href="../../shared/atlas-session-panel.css" />
     <link rel="stylesheet" href="../../shared/atlas-search.css" />
     <link rel="stylesheet" href="game.css" />
+    <style>
+      /* Two Keys is an authored night experience. Its global controls live in
+         a quiet cinematic utility rail so they read as navigation, not content. */
+      #landing-chrome .arcade-game-chrome {
+        height: 72px;
+        inset: 0 0 auto;
+        background: linear-gradient(
+          180deg,
+          rgba(5, 10, 15, 0.82) 0%,
+          rgba(5, 10, 15, 0.58) 58%,
+          rgba(5, 10, 15, 0) 100%
+        );
+      }
+
+      #landing-chrome .arcade-game-chrome-appearance {
+        display: none;
+      }
+
+      #landing-chrome .arcade-game-chrome-back,
+      #landing-chrome .arcade-game-chrome-session {
+        min-height: 32px;
+        box-shadow: none;
+        transform: none;
+      }
+
+      #landing-chrome .arcade-game-chrome-back {
+        top: 1rem;
+        left: clamp(24px, 1.8vw, 32px);
+        padding: 0.42rem 0.5rem;
+        border-color: transparent;
+        background: transparent;
+        color: rgba(231, 237, 241, 0.66);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+      }
+
+      #landing-chrome .arcade-game-chrome-actions {
+        top: 1rem;
+        right: clamp(24px, 1.8vw, 32px);
+      }
+
+      #landing-chrome .arcade-game-chrome-session {
+        height: 32px;
+        padding: 0.4rem 0.72rem;
+        border-color: rgba(255, 255, 255, 0.12);
+        background: rgba(8, 14, 20, 0.5);
+        color: rgba(231, 237, 241, 0.72);
+      }
+
+      #landing-chrome .arcade-game-chrome-back:hover {
+        border-color: transparent;
+        background: rgba(255, 255, 255, 0.055);
+        color: #eef4f7;
+        box-shadow: none;
+      }
+
+      #landing-chrome .arcade-game-chrome-session:hover {
+        border-color: rgba(217, 174, 102, 0.4);
+        background: rgba(15, 24, 32, 0.78);
+        color: #eef4f7;
+        box-shadow: none;
+      }
+
+      @media (min-width: 801px) {
+        .entrance {
+          min-height: 100svh;
+          padding: 82px 7% 14px;
+        }
+
+        .hero-copy {
+          min-height: 0;
+          max-width: 680px;
+        }
+
+        .hero-copy > .eyebrow,
+        .hero-copy > .intro,
+        .section-title .eyebrow {
+          display: none;
+        }
+
+        .hero-copy h1 {
+          font-size: clamp(56px, 5vw, 78px);
+          margin: 0 0 12px;
+        }
+
+        .tagline {
+          font-size: clamp(40px, 3.2vw, 50px);
+          line-height: 1.02;
+        }
+
+        .hero-meta {
+          gap: 30px;
+          margin-top: 18px;
+          font-size: 10px;
+          letter-spacing: 1.8px;
+        }
+
+        .library {
+          margin-top: 18px;
+        }
+
+        .section-title {
+          margin-bottom: 12px;
+        }
+
+        .section-title h2 {
+          margin-top: 0;
+          font-size: 28px;
+        }
+
+        .mission-art {
+          height: 118px;
+        }
+
+        .library-foot {
+          display: none;
+        }
+      }
+
+      @media (min-width: 801px) and (min-height: 720px) {
+        .entrance {
+          height: 100svh;
+          overflow: hidden;
+        }
+      }
+
+      @media (min-width: 1600px) {
+        .hero-copy {
+          max-width: 720px;
+        }
+      }
+
+      @media (max-width: 800px) {
+        #landing-chrome .arcade-game-chrome {
+          height: 68px;
+        }
+
+        #landing-chrome .arcade-game-chrome-back {
+          left: 16px;
+        }
+
+        #landing-chrome .arcade-game-chrome-actions {
+          right: 16px;
+        }
+      }
+    </style>
   </head>
   <body
     data-player="tutor"
@@ -29,6 +173,9 @@
       <div id="dialog-body"></div>
     </dialog>
     <script src="../../shared/atlas-bridge.js"></script>
+    <script>
+      document.documentElement.dataset.theme = "night";
+    </script>
     <script type="module" src="app.mjs"></script>
   </body>
 </html>

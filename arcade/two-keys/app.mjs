@@ -252,34 +252,62 @@ async function request(action, extra = {}, id = crypto.randomUUID()) {
     }
   }
   render();
-  if (!learner && action !== "poll") continuity();
+  if (!learner && action !== "poll") continuity(action);
   return state;
 }
-function continuity() {
+function continuity(action = "") {
   try {
     const b = window.AtlasBridge,
       s = b?.readActiveSession?.();
     if (!s?.id) return;
+
+    const previousCovered = priorExposure.filter((m) => Number(m?.played) > 0).length;
+    const exposure = state.library.map((m) => {
+      const old = priorExposure.find((p) => p.id === m.id);
+      return {
+        id: m.id,
+        played: Math.max(m.played, old?.played || 0),
+        roles: [...new Set([...m.roles, ...(old?.roles || [])])],
+      };
+    });
+    const covered = exposure.filter((m) => Number(m.played) > 0).length;
+    const complete = covered >= 4;
+    const launchUrl = new URL("./index.html", location.href).href;
+
     b.upsertSessionState(s.id, "arcade:two-keys", {
       world: "arcade",
-      status: state.phase === "finished" ? "complete" : "in-progress",
-      launchUrl: location.href,
-      currentLabel: names[ids.indexOf(state.mission)] || "Mission library",
+      status: complete ? "complete" : covered > 0 ? "in-progress" : "available",
+      launchUrl,
+      currentLabel: complete
+        ? null
+        : names[ids.indexOf(state.mission)] ||
+          (covered > 0 ? `${covered} of 4 missions complete` : "Mission library"),
       progress: {
-        covered: state.library.filter((m) => m.played).length,
+        covered,
         total: 4,
+        openEnded: false,
       },
       twoKeysSession: session,
-      exposure: state.library.map((m) => {
-        const old = priorExposure.find((p) => p.id === m.id);
-        return {
-          id: m.id,
-          played: Math.max(m.played, old?.played || 0),
-          roles: [...new Set([...m.roles, ...(old?.roles || [])])],
-        };
-      }),
+      exposure,
       lastTouchedAt: Date.now(),
     });
+
+    if (
+      typeof b.touchRecentActivity === "function" &&
+      (action === "select" || action === "finish" || covered > previousCovered)
+    ) {
+      b.touchRecentActivity({
+        sessionId: s.id,
+        registryId: "arcade:two-keys",
+        world: "arcade",
+        type: "game",
+        title: "Two Keys",
+        action: covered > previousCovered ? "played" : "opened",
+        launchUrl,
+      });
+    }
+
+    priorExposure = exposure;
   } catch {}
 }
 async function act(action, extra = {}) {
@@ -612,6 +640,13 @@ try {
   if (authRequired) render();
   else {
     await request(learner ? "join" : "create", learner ? { invite } : {});
+    if (!learner && state.phase === "finished") {
+      const covered = state.library.reduce((count, mission) => {
+        const old = priorExposure.find((item) => item.id === mission.id);
+        return count + (Math.max(mission.played, old?.played || 0) > 0 ? 1 : 0);
+      }, 0);
+      if (covered < 4) await request("leave");
+    }
     poll();
   }
 } catch (e) {
