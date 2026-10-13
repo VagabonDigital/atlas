@@ -26,6 +26,7 @@
         line-height:1.03;
       }
       .show[data-screen="game"] .primary-slot{top:84%;height:9%}
+      .show[data-phase="adviser"] .primary-slot{left:22%;right:24%}
     }
     @media (min-width:761px) and (max-height:760px){
       .show[data-screen="game"] .question-panel{top:50.8%;height:11.8%}
@@ -37,6 +38,81 @@
       }
       .show[data-screen="game"] .primary-slot{top:84%;height:9%}
     }
+
+    /* Host's Take remains on the board. The contestant's pending choice stays
+       visible but quiet; the Host's temporary choice gets its own blue treatment. */
+    .show[data-phase="adviser"] .answer.contestant-choice{
+      border-color:rgba(248,207,108,.68);
+      box-shadow:inset 4px 0 0 rgba(248,207,108,.72),0 3px 12px #0008;
+    }
+    .show[data-phase="adviser"] .answer.host-pick{
+      border-color:#91dcff;
+      background:linear-gradient(110deg,#0b3654,#08253f 75%);
+      box-shadow:0 0 21px rgba(80,188,255,.38),inset 0 0 18px rgba(95,196,255,.10);
+    }
+    .show[data-phase="adviser"] .answer.host-pick.contestant-choice{
+      box-shadow:inset 4px 0 0 rgba(248,207,108,.72),0 0 21px rgba(80,188,255,.38),inset 0 0 18px rgba(95,196,255,.10);
+    }
+    .show[data-phase="adviser"] .answer.host-pick .answer-status{
+      color:#c8edff;
+      font-size:15px;
+    }
+    .host-mark{
+      display:grid;
+      width:24px;
+      height:24px;
+      place-items:center;
+      border:1px solid rgba(166,222,255,.78);
+      border-radius:50%;
+      font-family:var(--font);
+      font-size:13px;
+      font-weight:700;
+    }
+    .host-advice-controls{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+    }
+    .host-confidence{
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .host-confidence-label{
+      margin-right:2px;
+      color:#afc4da;
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .host-confidence button,
+    .host-submit{
+      min-height:36px;
+      padding:6px 12px;
+      border:1px solid rgba(125,188,232,.42);
+      border-radius:7px;
+      background:rgba(4,20,39,.88);
+      color:#d6e7f7;
+      font-size:13px;
+      line-height:1;
+    }
+    .host-confidence button:hover,
+    .host-confidence button[aria-pressed="true"]{
+      border-color:#8fdcff;
+      background:#123a59;
+      color:#fff;
+      box-shadow:0 0 13px rgba(66,177,244,.22);
+    }
+    .host-submit{
+      border-color:#d8b45e;
+      background:linear-gradient(110deg,#bc8121,#e0b54d);
+      color:#161208;
+      font-weight:600;
+    }
+    .host-submit:hover:not(:disabled){filter:brightness(1.08)}
+    .host-submit:disabled{opacity:.34;cursor:default}
 
     .show[data-screen="game"] .show-footer{display:flex;gap:8px;align-items:center}
     .show[data-screen="game"] #reset-session{
@@ -68,6 +144,12 @@
     }
     .show[data-screen="game"] .question-tools{right:calc(2.3% + 210px)}
     @media (max-width:760px) and (orientation:portrait){
+      .show[data-phase="adviser"] .primary-slot{top:78%;left:12px;right:12px;height:13%}
+      .host-advice-controls{flex-direction:column;gap:4px}
+      .host-confidence{width:100%;justify-content:center;gap:4px}
+      .host-confidence-label{display:none}
+      .host-confidence button{flex:1;min-height:29px;padding:5px 4px;font-size:10px}
+      .host-submit{width:100%;min-height:29px;padding:5px 8px;font-size:11px}
       .show[data-screen="game"] .show-footer{left:auto;right:12px;gap:5px}
       .show[data-screen="game"] #reset-session{min-height:30px;padding:6px 4px;font-size:10px}
       .show[data-screen="game"] .question-tools{left:12px;right:auto}
@@ -128,7 +210,19 @@
         <button class="answer" data-answer="2"><span class="letter">C:</span><span class="answer-text"></span><span class="answer-status" aria-hidden="true"></span></button>
         <button class="answer" data-answer="3"><span class="letter">D:</span><span class="answer-text"></span><span class="answer-status" aria-hidden="true"></span></button>
       </div>
-      <div class="primary-slot"><p id="decision-hint"></p><button id="primary" class="primary" hidden></button></div>
+      <div class="primary-slot">
+        <p id="decision-hint"></p>
+        <div id="host-advice-controls" class="host-advice-controls" hidden>
+          <div class="host-confidence" role="group" aria-label="Host confidence">
+            <span class="host-confidence-label">Confidence</span>
+            <button type="button" data-host-confidence="Unsure" aria-pressed="true">Unsure</button>
+            <button type="button" data-host-confidence="Fairly sure" aria-pressed="false">Fairly sure</button>
+            <button type="button" data-host-confidence="Very sure" aria-pressed="false">Very sure</button>
+          </div>
+          <button id="host-submit" class="host-submit" type="button" disabled>Return to contestant</button>
+        </div>
+        <button id="primary" class="primary" hidden></button>
+      </div>
       <button id="question-tools" class="question-tools quiet">Question care</button>
     </section>
 
