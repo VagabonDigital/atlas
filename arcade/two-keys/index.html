@@ -13,8 +13,19 @@
     <link rel="stylesheet" href="../../shared/atlas-search.css" />
     <link rel="stylesheet" href="game.css" />
     <style>
-      /* Two Keys is an authored night experience. Keep shared Arcade chrome
-         subordinate to the heist cover instead of turning it into a toolbar. */
+      /* Two Keys is an authored night experience. Its global controls live in
+         a quiet cinematic utility rail so they read as navigation, not content. */
+      #landing-chrome .arcade-game-chrome {
+        height: 72px;
+        inset: 0 0 auto;
+        background: linear-gradient(
+          180deg,
+          rgba(5, 10, 15, 0.82) 0%,
+          rgba(5, 10, 15, 0.58) 58%,
+          rgba(5, 10, 15, 0) 100%
+        );
+      }
+
       #landing-chrome .arcade-game-chrome-appearance {
         display: none;
       }
@@ -27,30 +38,39 @@
       }
 
       #landing-chrome .arcade-game-chrome-back {
-        top: 1.35rem;
-        left: clamp(20px, 1.6vw, 28px);
-        padding: 0.4rem 0.62rem;
-        border-color: rgba(255, 255, 255, 0.08);
-        background: rgba(8, 14, 20, 0.52);
+        top: 1rem;
+        left: clamp(24px, 1.8vw, 32px);
+        padding: 0.42rem 0.5rem;
+        border-color: transparent;
+        background: transparent;
+        color: rgba(231, 237, 241, 0.66);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
       }
 
       #landing-chrome .arcade-game-chrome-actions {
-        top: 1.35rem;
-        right: clamp(20px, 1.6vw, 28px);
+        top: 1rem;
+        right: clamp(24px, 1.8vw, 32px);
       }
 
       #landing-chrome .arcade-game-chrome-session {
         height: 32px;
         padding: 0.4rem 0.72rem;
-        border-color: rgba(255, 255, 255, 0.14);
-        background: rgba(8, 14, 20, 0.62);
+        border-color: rgba(255, 255, 255, 0.12);
+        background: rgba(8, 14, 20, 0.5);
         color: rgba(231, 237, 241, 0.72);
       }
 
-      #landing-chrome .arcade-game-chrome-back:hover,
+      #landing-chrome .arcade-game-chrome-back:hover {
+        border-color: transparent;
+        background: rgba(255, 255, 255, 0.055);
+        color: #eef4f7;
+        box-shadow: none;
+      }
+
       #landing-chrome .arcade-game-chrome-session:hover {
-        border-color: rgba(217, 174, 102, 0.42);
-        background: rgba(15, 24, 32, 0.82);
+        border-color: rgba(217, 174, 102, 0.4);
+        background: rgba(15, 24, 32, 0.78);
         color: #eef4f7;
         box-shadow: none;
       }
@@ -110,12 +130,16 @@
       }
 
       @media (max-width: 800px) {
+        #landing-chrome .arcade-game-chrome {
+          height: 68px;
+        }
+
         #landing-chrome .arcade-game-chrome-back {
-          left: 20px;
+          left: 16px;
         }
 
         #landing-chrome .arcade-game-chrome-actions {
-          right: 20px;
+          right: 16px;
         }
       }
     </style>
