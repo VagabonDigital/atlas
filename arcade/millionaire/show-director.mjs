@@ -17,13 +17,15 @@ const SOFT_PHASES = new Set(['walk-confirm', 'hypothetical', 'adviser']);
 
 // Tuned for a shared tutoring call, where speech must remain dominant.
 const MASTER_LEVEL = .46;
-const REAL_CUE_GAIN = { next: .40, correct: .52, wrong: .50 };
+const REAL_CUE_GAIN = { next: .40, correct: .52, wrong: .78 };
 const REAL_CUE_TAIL = {
   // Millionaire's "Let's Play" moment breathes before settling into the question bed.
   // Keep this long enough to feel ceremonial, but short enough not to fight tutor speech.
   next: { fadeAt: 3.7, stopAt: 4.6 },
   correct: { fadeAt: 2.35, stopAt: 2.95 },
-  wrong: { fadeAt: 3.0, stopAt: 3.65 }
+  // The failure cue is darker and less perceptually prominent than the correct sting.
+  // Give it enough level and tail to register clearly without raising the whole mix.
+  wrong: { fadeAt: 4.0, stopAt: 4.8 }
 };
 const ATMOSPHERE_LEVEL = {
   opening: .10,
