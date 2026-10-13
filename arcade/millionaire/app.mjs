@@ -7,7 +7,7 @@ const $ = selector => document.querySelector(selector);
 const all = selector => [...document.querySelectorAll(selector)];
 const money = n => Number(n).toLocaleString('en-US');
 const letters = ['A', 'B', 'C', 'D'];
-const escape = text => String(text).replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]));
+const escape = text => String(text).replace(/[&<>\"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '\"':'&quot;', "'":'&#39;' }[char]));
 const lockIcon = '<svg viewBox="0 0 24 28"><path d="M6 11V7a6 6 0 0112 0v4h2v15H4V11zm3 0h6V7a3 3 0 00-6 0zm2 6v5h2v-5z"/></svg>';
 const Bridge = window.AtlasBridge;
 let game, context, visitSeen = new Set(), visitResults = [], lastQuestion, lastPhase;
@@ -148,14 +148,12 @@ function render() {
   $('#feedback').innerHTML = title ? `<strong>${escape(title)}</strong><p>${escape(text)}${reveal && v.sources?.length ? `<a href="${escape(v.sources[0].url)}" target="_blank" rel="noopener noreferrer">Source ↗</a>` : ''}</p>` : '';
   $('#decision-hint').textContent = hint;
   $('#primary').textContent = action; $('#primary').hidden = !action;
-  $('#question-tools').disabled = ['walk-confirm', 'hypothetical', 'walk-reveal', 'adviser'].includes(v.phase);
+  $('#question-tools').hidden = reveal || ['walk-confirm', 'hypothetical', 'walk-reveal', 'adviser'].includes(v.phase);
   if (v.phase === 'summary') {
     $('#summary-outcome').textContent = v.outcome;
-    $('#summary-title').textContent = v.outcome === 'top prize' ? 'The million is yours.' : v.outcome === 'walked away' ? 'A decision worth keeping.' : 'Every decision took courage.';
     $('#summary-prize').textContent = money(v.prize);
     $('#summary-highest').textContent = `${v.rung} / 10`;
     $('#summary-best').textContent = money(Math.max(v.prize, ...visitResults.map(r => r.prize)));
-    $('#summary-care').hidden = v.outcome === 'walked away';
   }
   if (lastPhase !== v.phase && v.phase === 'win') celebrate();
   lastPhase = v.phase;
@@ -183,14 +181,10 @@ function showAdviser() {
 }
 
 function questionCare() {
-  const v = game.publicView(); const after = resolved(v.phase);
-  modal(after ? 'Correct a factual error' : 'Question care', `${after
-    ? '<p>Void only an incorrectly keyed answer or a demonstrable factual error. Disagreement about ambiguity after reveal does not overturn the result.</p><p>The pre-question prize and lifelines will be restored.</p>'
-    : '<p>Clarifying unfamiliar wording is free. Explain the wording without factual hints. Replace a recognised question or void one that cannot be played fairly.</p>'}
-    <label for="care-reason">Reason</label><select id="care-reason">${after ? '<option value="factual-error">Incorrect key / demonstrable factual error</option>' : '<option value="recognition">Recognised from prior Atlas play</option><option value="wording">Ambiguity / wording cannot be clarified fairly</option><option value="factual-concern">Factual concern</option>'}</select>
-    <label for="care-note">${after ? 'Describe the error and evidence (required)' : 'Brief note (optional)'}</label><textarea id="care-note" maxlength="1000"></textarea><p id="care-error" class="dialog-error" role="alert"></p><button id="replace-question" class="primary">${after ? 'Void & replace' : 'Replace Question'}</button><p class="note">A replacement stays in the same difficulty band and does not consume New Question.</p>`);
+  modal('Question care', `<p>Clarifying unfamiliar wording is free. Explain the wording without factual hints. Replace a recognised question or one that cannot be played fairly.</p>
+    <label for="care-reason">Reason</label><select id="care-reason"><option value="recognition">Recognised from prior Atlas play</option><option value="wording">Ambiguity / wording cannot be clarified fairly</option><option value="factual-concern">Factual concern</option></select>
+    <label for="care-note">Brief note (optional)</label><textarea id="care-note" maxlength="1000"></textarea><p id="care-error" class="dialog-error" role="alert"></p><button id="replace-question" class="primary">Replace Question</button><p class="note">A replacement stays in the same difficulty band and does not consume New Question.</p>`);
   $('#replace-question').onclick = () => {
-    if (after && !$('#care-note').value.trim()) { $('#care-error').textContent = 'Describe the factual error before voiding the result.'; $('#care-note').focus(); return; }
     const ok = game.replace($('#care-reason').value, $('#care-note').value.trim());
     closeModal();
     if (ok) { playSound('next'); render(); } else noReplacement();
@@ -218,7 +212,7 @@ $('#primary').onclick = () => {
 $('#walk').onclick = () => { game.walk(); render(); };
 $('#confirm-walk').onclick = () => { game.walk(true); render(); };
 $('#stay').onclick = () => { game.cancelWalk(); render(); };
-$('#question-tools').onclick = questionCare; $('#summary-care').onclick = questionCare;
+$('#question-tools').onclick = questionCare;
 $('#sound').onclick = () => {
   muted = !muted;
   showDirector.setMuted(muted);
@@ -231,7 +225,7 @@ $('#how-to').onclick = () => modal('Welcome to the show', `<p>One tutor is the <
   <ol><li>The Contestant chooses an answer. The Host selects it.</li><li>Ask “Final answer?” consistently. Click <strong>Lock Answer</strong> only after explicit commitment.</li><li>Pause for suspense, then the Host clicks <strong>Reveal Answer</strong>.</li></ol>
   <h3>Three lifelines · once each</h3><p><strong>Narrow It Down</strong> removes two wrong answers. <strong>Host’s Take</strong> invites the Host’s own answer and confidence, without showing the correct answer. <strong>New Question</strong> replaces the question within its difficulty band. Lifelines may be combined before lock-in.</p>
   <h3>Know the stakes</h3><p>Clearing Question 3 guarantees <strong>8,000</strong>; clearing Question 7 guarantees <strong>125,000</strong>. A wrong answer ends the run at the last safety level, or zero.</p><p>From Question 4, <strong>Walk Away</strong> banks the previous prize before lock-in. Then say what you would have answered and reveal it for closure.</p>
-  <h3>Keep it fair</h3><p>The Host stays neutral outside Host’s Take: probe reasoning without recommending an answer, lifeline or walk-away. Both players see the correct answer only at reveal.</p><p>Use <strong>Question care</strong> for recognised questions, unclear wording or factual concerns. After reveal, only a demonstrable factual error or incorrect key can void a question.</p>`);
+  <h3>Keep it fair</h3><p>The Host stays neutral outside Host’s Take: probe reasoning without recommending an answer, lifeline or walk-away. Both players see the correct answer only at reveal.</p><p>Before reveal, use <strong>Question care</strong> for recognised questions, unclear wording or factual concerns. A replacement stays in the same difficulty band and does not consume New Question.</p>`);
 
 try {
   if (!Bridge || !window.ArcadeGameChrome || !window.AtlasSessionPanel) throw new Error('Atlas shared runtime did not load.');
