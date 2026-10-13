@@ -416,8 +416,30 @@ function miniArt(id) {
   return `<span class="mini-scene ${id}">${id === "vault" ? "<i></i><i></i><i></i>" : id === "gallery" ? "<i></i><i></i><i></i><i></i>" : id === "zero" ? "<i>◇</i><i>◎</i><i>⋔</i>" : "<i></i><i></i><i></i><i></i>"}</span>`;
 }
 function briefing() {
-  const m = state.library.find((m) => m.id === state.mission);
-  return `<section class="briefing"><div class="hero-art"></div><div class="briefing-inner"><p class="eyebrow">THE BRIEF / ${esc(m.place)}</p><h1>${m.title}</h1><p class="brief-objective">${m.objective}</p><div class="role-pair"><article class="role-card"><small>YOUR POSITION</small><div class="role-illustration ${state.role === "A" ? "physical" : "remote"}">${miniArt(m.id)}</div><h2>${state.roleName}</h2><p>${state.role === "A" ? "You are inside. Inspect the objects. Your hands change their systems." : "You see the hidden systems. Your controls change their world."}</p></article><article class="role-card partner"><small>PARTNER POSITION</small><div class="abstract-key">◇</div><h2>${state.partnerRole}</h2><p>A different view of the same job.<br>Talk to connect the two.</p></article></div><div class="brief-actions">${button("ready", state.ready ? "✓ Ready · waiting for partner" : "I’m ready →", "primary", {}, state.ready)}${!learner ? button("swap", "Swap positions", "text") : ""}</div><p class="quiet">${state.partnerReady ? "Your partner is ready." : "Both players confirm before the mission begins."}</p>${!state.partnerConnected && !learner ? button("invite", "Share private invite ↗", "text") : ""}</div></section>`;
+  const m = state.library.find((m) => m.id === state.mission),
+    A = state.role === "A",
+    waitingFor = state.partnerRole || "partner",
+    headline = state.ready
+      ? state.partnerConnected
+        ? state.partnerReady
+          ? "Starting mission…"
+          : `Ready · waiting for ${waitingFor}`
+        : `Ready · waiting for ${waitingFor}`
+      : state.partnerReady
+        ? `${waitingFor} is ready`
+        : state.partnerConnected
+          ? "Ready when you are"
+          : `Waiting for ${waitingFor}`,
+    subline = state.ready
+      ? "Your position is ready."
+      : `Your position: ${state.roleName}`,
+    actions =
+      button("ready", state.ready ? "✓ Ready" : "Ready →", "primary", {}, state.ready) +
+      (!learner && !state.ready ? button("swap", "Swap positions", "text") : "") +
+      (!learner && !state.partnerConnected
+        ? button("invite", "Share private invite ↗", "text")
+        : "");
+  return `<section class="mission-view ${state.mission} ${A ? "physical-view" : "remote-view"}"><div class="mission-top"><div><p class="eyebrow">${esc(m.place)}</p><h1>${m.title}</h1></div><div class="step-label"><span>01 / 04</span><strong>${m.steps[0]}</strong></div></div><div class="world ${A ? "physical" : "remote"}">${scenery()}<div class="world-content" inert></div><div class="pause-veil"><span>◇</span><h2>${headline}</h2><p>${subline}</p><div class="brief-actions">${actions}</div></div></div></section>`;
 }
 function scenery() {
   return `<svg class="architecture" viewBox="0 0 1200 700" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="wall" x2="1" y2="1"><stop stop-color="#101d28"/><stop offset="1" stop-color="#04080d"/></linearGradient><linearGradient id="floor" x2="0" y2="1"><stop stop-color="#182b37"/><stop offset="1" stop-color="#05090d"/></linearGradient></defs><path d="M0 0H1200V700H0Z" fill="url(#wall)"/><path d="M0 700L340 430H860L1200 700" fill="url(#floor)"/><path d="M0 0L340 145H860L1200 0M340 145V430M860 145V430M0 700L340 430H860L1200 700" fill="none" stroke="#648399" stroke-opacity=".2"/><g stroke="#7091a4" stroke-opacity=".15">${[80, 250, 430, 600, 770, 950, 1120].map((x) => `<path d="M600 430L${x} 700"/>`).join("")}<path d="M250 500H950M160 570H1040M65 645H1135"/></g><g stroke="#a9d7e9" stroke-width="3"><path d="M90 42L335 145M865 145L1110 42" opacity=".6"/><path d="M25 105V460M1175 105V460" opacity=".2"/></g></svg>`;
