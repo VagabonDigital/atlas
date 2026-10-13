@@ -7,7 +7,7 @@ const $ = selector => document.querySelector(selector);
 const all = selector => [...document.querySelectorAll(selector)];
 const money = n => Number(n).toLocaleString('en-US');
 const letters = ['A', 'B', 'C', 'D'];
-const escape = text => String(text).replace(/[&<>\"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '\"':'&quot;', "'":'&#39;' }[char]));
+const escape = text => String(text).replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]));
 const lockIcon = '<svg viewBox="0 0 24 28"><path d="M6 11V7a6 6 0 0112 0v4h2v15H4V11zm3 0h6V7a3 3 0 00-6 0zm2 6v5h2v-5z"/></svg>';
 const Bridge = window.AtlasBridge;
 let game, context, visitSeen = new Set(), visitResults = [], lastQuestion, lastPhase;
@@ -35,6 +35,14 @@ function persistRun() {
     return;
   }
   storage.saveRun(context.id, snapshot, game.publicView());
+}
+
+function syncResetControl() {
+  const button = $('#reset-session');
+  if (!button) return;
+  if (isInspection || !storage) { button.hidden = true; return; }
+  const active = context || storage.context();
+  button.hidden = !active?.id || !storage.hasSessionData(active.id);
 }
 
 function modal(title, content, kind = '') {
@@ -75,6 +83,7 @@ function finish({ clearContinuity = true } = {}) {
   $('#entrance').hidden = false; $('#board').hidden = true; $('#summary').hidden = true;
   $('#landing-chrome').hidden = false; $('#game-chrome').hidden = true;
   $('#celebration').replaceChildren(); $('#feedback').replaceChildren(); $('#start').focus();
+  syncResetControl();
 }
 
 function celebrate() {
@@ -158,6 +167,7 @@ function render() {
   if (lastPhase !== v.phase && v.phase === 'win') celebrate();
   lastPhase = v.phase;
   persistRun();
+  syncResetControl();
 }
 
 function noReplacement() {
@@ -191,6 +201,20 @@ function questionCare() {
   };
 }
 
+function confirmResetSession() {
+  if (isInspection || !storage) return;
+  const target = context || storage.context();
+  if (!target?.id || !storage.hasSessionData(target.id)) return;
+  modal('Reset Millionaire session?', `<p>This clears the active run, question history, results and session best for <strong>${escape(target.name || 'this Atlas session')}</strong>.</p><p>Other Atlas sessions and tutor-wide question history are not changed. This cannot be undone.</p><div class="dialog-actions"><button class="outline" id="cancel-reset-session">Cancel</button><button class="primary" id="confirm-reset-session">Reset Session</button></div>`);
+  $('#cancel-reset-session').onclick = closeModal;
+  $('#confirm-reset-session').onclick = () => {
+    storage.resetSession(target.id);
+    closeModal();
+    context = target;
+    finish({ clearContinuity: false });
+  };
+}
+
 $('#start').onclick = start; $('#again').onclick = start; $('#finish').onclick = finish;
 all('[data-answer]').forEach(button => button.onclick = () => { if (game.select(Number(button.dataset.answer))) { playSound('select'); render(); } });
 all('[data-lifeline]').forEach(button => button.onclick = () => {
@@ -213,6 +237,7 @@ $('#walk').onclick = () => { game.walk(); render(); };
 $('#confirm-walk').onclick = () => { game.walk(true); render(); };
 $('#stay').onclick = () => { game.cancelWalk(); render(); };
 $('#question-tools').onclick = questionCare;
+$('#reset-session').onclick = confirmResetSession;
 $('#sound').onclick = () => {
   muted = !muted;
   showDirector.setMuted(muted);
@@ -256,6 +281,7 @@ try {
         storage.clearRun(context.id);
       }
     }
+    syncResetControl();
   }
   // Only the game is fixed dark. Never write over the tutor’s saved appearance.
   document.documentElement.dataset.theme = 'night';
@@ -264,6 +290,7 @@ try {
     if (isInspection) return;
     if ($('#dialog').open) closeModal();
     finish({ clearContinuity: false }); context = null;
+    syncResetControl();
     modal('Teaching context changed', '<p>The Atlas account context changed. Start a new run in the current session.</p>');
   });
 } catch (error) {
