@@ -57,7 +57,7 @@ dialog::-webkit-scrollbar-thumb:hover{
 
 .show[data-screen="game"] .lifeline-rail{
   top:24%;
-  bottom:31.5%;
+  bottom:23%;
   width:11.5%;
   padding:10px 4px;
 }
@@ -170,7 +170,7 @@ dialog::-webkit-scrollbar-thumb:hover{
   .show[data-screen="game"] .question-panel{top:51.5%;height:12%}
   .show[data-screen="game"] .answers{top:64.7%;height:15.2%}
   .show[data-screen="game"] .primary-slot{top:81.3%}
-  .show[data-screen="game"] .lifeline-rail{top:23.5%;bottom:32%}
+  .show[data-screen="game"] .lifeline-rail{top:23.5%;bottom:22.5%}
   .show[data-screen="game"] .question-tools,
   .show[data-screen="game"] .show-footer{bottom:1.8%}
 }
