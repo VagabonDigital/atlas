@@ -78,40 +78,52 @@
       @media (min-width: 801px) {
         .entrance {
           min-height: 100svh;
-          padding: 58px 7% 12px;
+          padding: 82px 7% 14px;
         }
 
         .hero-copy {
           min-height: 0;
+          max-width: 680px;
+        }
+
+        .hero-copy > .eyebrow,
+        .hero-copy > .intro,
+        .section-title .eyebrow {
+          display: none;
         }
 
         .hero-copy h1 {
-          font-size: clamp(52px, 4.7vw, 74px);
-          margin: 10px 0 6px;
+          font-size: clamp(56px, 5vw, 78px);
+          margin: 0 0 12px;
         }
 
         .tagline {
-          font-size: clamp(36px, 3vw, 46px);
-        }
-
-        .intro {
-          margin: 10px 0;
+          font-size: clamp(40px, 3.2vw, 50px);
+          line-height: 1.02;
         }
 
         .hero-meta {
-          margin-top: 10px;
+          gap: 30px;
+          margin-top: 18px;
+          font-size: 10px;
+          letter-spacing: 1.8px;
         }
 
         .library {
-          margin-top: 12px;
+          margin-top: 18px;
         }
 
         .section-title {
-          margin-bottom: 10px;
+          margin-bottom: 12px;
+        }
+
+        .section-title h2 {
+          margin-top: 0;
+          font-size: 28px;
         }
 
         .mission-art {
-          height: 116px;
+          height: 118px;
         }
 
         .library-foot {
@@ -119,17 +131,16 @@
         }
       }
 
-      @media (min-width: 1600px) {
+      @media (min-width: 801px) and (min-height: 720px) {
         .entrance {
-          padding-top: 58px;
+          height: 100svh;
+          overflow: hidden;
         }
+      }
 
+      @media (min-width: 1600px) {
         .hero-copy {
-          min-height: 0;
-        }
-
-        .mission-art {
-          height: 118px;
+          max-width: 720px;
         }
       }
 
