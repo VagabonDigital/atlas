@@ -12,12 +12,18 @@ const lockIcon = '<svg viewBox="0 0 24 28"><path d="M6 11V7a6 6 0 0112 0v4h2v15H
 const Bridge = window.AtlasBridge;
 let game, context, visitSeen = new Set(), visitResults = [], lastQuestion, lastPhase;
 let isInspection = false, muted = false, dialogOrigin;
+let hostDraftPick = null, hostDraftConfidence = 'Unsure';
 const storage = Bridge ? continuity(Bridge) : null;
 const showDirector = createShowDirector($('#show'));
 
 function playSound(kind) {
   if (muted) return;
   showDirector.cue(kind);
+}
+
+function resetHostDraft() {
+  hostDraftPick = null;
+  hostDraftConfidence = 'Unsure';
 }
 
 function onEvent(event) {
@@ -48,21 +54,19 @@ function syncResetControl() {
 function modal(title, content, kind = '') {
   dialogOrigin = document.activeElement;
   $('#dialog').className = kind;
-  $('#close-dialog').hidden = kind === 'adviser-dialog';
+  $('#close-dialog').hidden = false;
   $('#dialog-content').innerHTML = `<h2 id="dialog-title">${title}</h2>${content}`;
   if (!$('#dialog').open) $('#dialog').showModal();
 }
 function closeModal() { $('#dialog').close(); dialogOrigin?.focus(); }
 $('#close-dialog').addEventListener('click', closeModal);
-$('#dialog').addEventListener('click', e => { if (e.target === $('#dialog') && game?.publicView()?.phase !== 'adviser') closeModal(); });
-$('#dialog').addEventListener('cancel', e => {
-  if (game?.publicView()?.phase === 'adviser') e.preventDefault();
-});
+$('#dialog').addEventListener('click', e => { if (e.target === $('#dialog')) closeModal(); });
 
 function start() {
   const nextContext = storage.context();
   if (context && nextContext.id !== context.id) { visitSeen = new Set(); visitResults = []; }
   context = nextContext;
+  resetHostDraft();
   game = new Millionaire(QUESTIONS, { seen: storage.seen(context.id), sessionSeen: [...visitSeen], onEvent });
   if (!game.start()) {
     modal('A full show needs fresh questions', '<p>There are not enough fresh questions left for another complete run in this session.</p><p>Finish this session to return to the entrance. Previously seen questions remain recorded for future play.</p><button class="primary" id="end-session">Finish session</button>');
@@ -79,6 +83,7 @@ function finish({ clearContinuity = true } = {}) {
   showDirector.stop();
   if (clearContinuity && !isInspection && context) storage.clearRun(context.id);
   game = null; visitSeen = new Set(); visitResults = []; lastQuestion = null; lastPhase = null;
+  resetHostDraft();
   $('#show').dataset.screen = 'entrance'; $('#show').dataset.phase = ''; $('#show').dataset.pressure = '';
   $('#entrance').hidden = false; $('#board').hidden = true; $('#summary').hidden = true;
   $('#landing-chrome').hidden = false; $('#game-chrome').hidden = true;
@@ -96,6 +101,7 @@ function render() {
   const v = game.publicView();
   const reveal = resolved(v.phase);
   const open = game.isOpen();
+  const hostMode = v.phase === 'adviser';
   $('#show').dataset.screen = v.phase === 'summary' ? 'summary' : 'game';
   $('#show').dataset.phase = v.phase; $('#show').dataset.pressure = band(v.rung);
   showDirector.sync({ band: band(v.rung), phase: v.phase });
@@ -114,12 +120,14 @@ function render() {
     const removed = v.hidden.includes(i);
     const correct = reveal && v.answer === i;
     const wrong = reveal && selected && v.answer !== i;
-    button.className = ['answer', selected && !reveal ? 'selected ' : '', correct ? 'correct' : '', wrong ? 'wrong' : '', removed ? 'removed' : ''].filter(Boolean).join(' ');
+    const hostPicked = hostMode && hostDraftPick === i;
+    const contestantChoice = hostMode && selected;
+    button.className = ['answer', selected && !reveal && !hostMode ? 'selected' : '', contestantChoice ? 'contestant-choice' : '', hostPicked ? 'host-pick' : '', correct ? 'correct' : '', wrong ? 'wrong' : '', removed ? 'removed' : ''].filter(Boolean).join(' ');
     button.querySelector('.answer-text').textContent = removed ? '—' : v.question.options[i];
-    button.querySelector('.answer-status').innerHTML = correct ? '✓' : wrong ? '×' : selected && v.phase === 'locked' ? lockIcon : '';
-    button.disabled = removed || !(open || v.phase === 'hypothetical');
-    button.setAttribute('aria-pressed', String(selected));
-    button.setAttribute('aria-label', `${letters[i]}: ${removed ? 'Removed by Narrow It Down' : v.question.options[i]}${correct ? ', correct answer' : wrong ? ', incorrect answer' : selected && v.phase === 'locked' ? ', locked' : ''}`);
+    button.querySelector('.answer-status').innerHTML = correct ? '✓' : wrong ? '×' : hostPicked ? '<span class="host-mark">H</span>' : selected && v.phase === 'locked' ? lockIcon : '';
+    button.disabled = removed || !(open || v.phase === 'hypothetical' || hostMode);
+    button.setAttribute('aria-pressed', String(hostMode ? hostPicked : selected));
+    button.setAttribute('aria-label', `${letters[i]}: ${removed ? 'Removed by Narrow It Down' : v.question.options[i]}${correct ? ', correct answer' : wrong ? ', incorrect answer' : selected && v.phase === 'locked' ? ', locked' : ''}${contestantChoice ? ', contestant choice' : ''}${hostPicked ? ', Host choice' : ''}`);
   });
   all('[data-lifeline]').forEach(button => {
     const kind = button.dataset.lifeline;
@@ -152,11 +160,14 @@ function render() {
     case 'walk-confirm': hint = 'Your answer is still uncommitted.'; break;
     case 'hypothetical': title = `${money(v.prize)} banked`; text = 'What would you have answered? Your result is safe.'; action = 'Reveal Answer'; hint = 'Choose a hypothetical answer, or reveal without one.'; break;
     case 'walk-reveal': title = `${money(v.prize)} banked`; text = v.explanation; action = 'See Result'; break;
-    case 'adviser': hint = 'The Host is sharing a personal opinion.'; break;
+    case 'adviser': hint = 'Host’s Take · choose your answer, then confidence.'; break;
   }
   $('#feedback').innerHTML = title ? `<strong>${escape(title)}</strong><p>${escape(text)}${reveal && v.sources?.length ? `<a href="${escape(v.sources[0].url)}" target="_blank" rel="noopener noreferrer">Source ↗</a>` : ''}</p>` : '';
   $('#decision-hint').textContent = hint;
-  $('#primary').textContent = action; $('#primary').hidden = !action;
+  $('#primary').textContent = action; $('#primary').hidden = hostMode || !action;
+  $('#host-advice-controls').hidden = !hostMode;
+  all('[data-host-confidence]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.hostConfidence === hostDraftConfidence)));
+  $('#host-submit').disabled = !hostMode || hostDraftPick === null;
   $('#question-tools').hidden = reveal || ['walk-confirm', 'hypothetical', 'walk-reveal', 'adviser'].includes(v.phase);
   if (v.phase === 'summary') {
     $('#summary-outcome').textContent = v.outcome;
@@ -174,20 +185,6 @@ function noReplacement() {
   modal('No fresh replacement in this band', '<p>Every question in this difficulty band has already appeared in this session. The current question and lifelines have been kept unchanged.</p><p>You can return to the board, or finish this session without recording a result for this run.</p><div class="dialog-actions"><button class="outline" id="return-board">Return to board</button><button class="outline" id="end-session">Finish session</button></div>');
   $('#return-board').onclick = closeModal;
   $('#end-session').onclick = () => { closeModal(); finish(); };
-}
-
-function showAdviser() {
-  const v = game.publicView();
-  let pick = null;
-  modal('Host’s Take', `<p class="note">Reason aloud, choose your answer and give your confidence. The system has not revealed the answer.</p><div class="host-picks">${letters.map((letter,i) => `<button data-pick="${i}" aria-label="Host chooses ${letter}" aria-pressed="false" ${v.hidden.includes(i) ? 'disabled' : ''}>${letter}</button>`).join('')}</div><label for="confidence">How confident are you?</label><select id="confidence"><option>Unsure</option><option>Fairly sure</option><option>Very sure</option></select><button id="give-advice" class="primary" disabled>Return to contestant</button>`, 'adviser-dialog');
-  $('#close-dialog').hidden = true;
-  all('[data-pick]').forEach(button => button.onclick = () => {
-    pick = Number(button.dataset.pick); all('[data-pick]').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
-    $('#give-advice').disabled = false;
-  });
-  $('#give-advice').onclick = () => {
-    if (game.advise(pick, $('#confidence').value)) { $('#close-dialog').hidden = false; closeModal(); render(); }
-  };
 }
 
 function questionCare() {
@@ -216,11 +213,34 @@ function confirmResetSession() {
 }
 
 $('#start').onclick = start; $('#again').onclick = start; $('#finish').onclick = finish;
-all('[data-answer]').forEach(button => button.onclick = () => { if (game.select(Number(button.dataset.answer))) { playSound('select'); render(); } });
+all('[data-answer]').forEach(button => button.onclick = () => {
+  const index = Number(button.dataset.answer);
+  const phase = game?.publicView()?.phase;
+  if (phase === 'adviser') {
+    if (game.publicView().hidden.includes(index)) return;
+    hostDraftPick = index;
+    playSound('select');
+    render();
+    return;
+  }
+  if (game.select(index)) { playSound('select'); render(); }
+});
+all('[data-host-confidence]').forEach(button => button.onclick = () => {
+  if (game?.publicView()?.phase !== 'adviser') return;
+  hostDraftConfidence = button.dataset.hostConfidence;
+  render();
+});
+$('#host-submit').onclick = () => {
+  if (game?.advise(hostDraftPick, hostDraftConfidence)) {
+    resetHostDraft();
+    render();
+  }
+};
 all('[data-lifeline]').forEach(button => button.onclick = () => {
   const kind = button.dataset.lifeline;
   if (!game.lifeline(kind)) { if (kind === 'new') noReplacement(); return; }
-  playSound('lifeline'); render(); if (kind === 'host') showAdviser();
+  if (kind === 'host') resetHostDraft();
+  playSound('lifeline'); render();
 });
 $('#primary').onclick = () => {
   const phase = game.publicView().phase;
@@ -248,7 +268,7 @@ $('#sound').onclick = () => {
 $('#how-to').onclick = () => modal('Welcome to the show', `<p>One tutor is the <strong>Host</strong>. One learner is the <strong>Contestant</strong>. Share this screen; the Host operates it.</p>
   <h3>Your climb</h3><p>Answer ten questions to reach 1,000,000. There is no timer and no real money. Say what you think, change your mind, and ask for free wording clarification.</p>
   <ol><li>The Contestant chooses an answer. The Host selects it.</li><li>Ask “Final answer?” consistently. Click <strong>Lock Answer</strong> only after explicit commitment.</li><li>Pause for suspense, then the Host clicks <strong>Reveal Answer</strong>.</li></ol>
-  <h3>Three lifelines · once each</h3><p><strong>Narrow It Down</strong> removes two wrong answers. <strong>Host’s Take</strong> invites the Host’s own answer and confidence, without showing the correct answer. <strong>New Question</strong> replaces the question within its difficulty band. Lifelines may be combined before lock-in.</p>
+  <h3>Three lifelines · once each</h3><p><strong>Narrow It Down</strong> removes two wrong answers. <strong>Host’s Take</strong> lets the Host choose directly on the board, add confidence, then return control without revealing the answer. <strong>New Question</strong> replaces the question within its difficulty band. Lifelines may be combined before lock-in.</p>
   <h3>Know the stakes</h3><p>Clearing Question 3 guarantees <strong>8,000</strong>; clearing Question 7 guarantees <strong>125,000</strong>. A wrong answer ends the run at the last safety level, or zero.</p><p>From Question 4, <strong>Walk Away</strong> banks the previous prize before lock-in. Then say what you would have answered and reveal it for closure.</p>
   <h3>Keep it fair</h3><p>The Host stays neutral outside Host’s Take: probe reasoning without recommending an answer, lifeline or walk-away. Both players see the correct answer only at reveal.</p><p>Before reveal, use <strong>Question care</strong> for recognised questions, unclear wording or factual concerns. A replacement stays in the same difficulty band and does not consume New Question.</p>`);
 
@@ -264,7 +284,6 @@ try {
     context = storage.context();
     const { inspectState } = await import('./dev/inspect.mjs');
     game = inspectState(inspect); render();
-    if (inspect === 'host') showAdviser();
   } else {
     storage.register();
     context = storage.context();
