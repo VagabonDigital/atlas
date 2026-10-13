@@ -106,6 +106,32 @@
         transform: none;
       }
 
+      .initial-connection {
+        color: rgba(158, 175, 186, 0.82);
+      }
+
+      .initial-connection i {
+        background: var(--gold);
+        animation: connection-pulse 1.6s ease-in-out infinite;
+      }
+
+      @keyframes connection-pulse {
+        0%, 100% {
+          opacity: 0.35;
+          transform: scale(0.8);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.15);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .initial-connection i {
+          animation: none;
+        }
+      }
+
       @media (min-width: 801px) {
         .entrance {
           min-height: 100svh;
@@ -197,7 +223,33 @@
   >
     <div id="landing-chrome"></div>
     <div id="atlas-session-panel-root"></div>
-    <main id="app"><div class="loading">Connecting the two keys…</div></main>
+    <main id="app">
+      <section class="entrance" aria-busy="true">
+        <div class="hero-art" aria-hidden="true"></div>
+        <div class="hero-copy">
+          <p class="eyebrow">AN ATLAS COOPERATIVE ORIGINAL</p>
+          <h1>TWO<span>◇</span>KEYS</h1>
+          <p class="tagline">Some doors<br />take two.</p>
+          <p class="intro">Two perspectives. One impossible job.<br />Neither of you gets through alone.</p>
+          <div class="hero-meta">
+            <span>02 PLAYERS</span>
+            <span>04 MISSIONS</span>
+            <span>6–12 MIN / JOB</span>
+          </div>
+        </div>
+        <div class="library">
+          <div class="section-title">
+            <div>
+              <p class="eyebrow">CHOOSE YOUR NEXT JOB</p>
+              <h2>The mission files</h2>
+            </div>
+            <span class="connection initial-connection" role="status">
+              <i></i>Establishing connection…
+            </span>
+          </div>
+        </div>
+      </section>
+    </main>
     <p id="notice" role="status" aria-live="polite"></p>
     <dialog id="utility">
       <button class="close" data-action="close" aria-label="Close">×</button>
