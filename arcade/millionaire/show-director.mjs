@@ -6,7 +6,7 @@ const PROFILES = {
 };
 
 const AUDIO_ASSETS = {
-  pressureBed: './assets/audio/bed-pressure.mp3',
+  atmosphere: './assets/audio/bed-pressure.mp3',
   next: './assets/audio/cue-round-transition.mp3',
   correct: './assets/audio/cue-correct.mp3',
   wrong: './assets/audio/cue-wrong.mp3'
@@ -14,7 +14,21 @@ const AUDIO_ASSETS = {
 
 const RELEASE_PHASES = new Set(['correct', 'safety', 'incorrect', 'win', 'walk-reveal', 'summary']);
 const SOFT_PHASES = new Set(['walk-confirm', 'hypothetical', 'adviser']);
-const REAL_CUE_GAIN = { next: .66, correct: .96, wrong: .96 };
+
+// Tuned for a shared tutoring call, where speech must remain dominant.
+const MASTER_LEVEL = .46;
+const REAL_CUE_GAIN = { next: .40, correct: .52, wrong: .50 };
+const REAL_CUE_TAIL = {
+  next: { fadeAt: 1.8, stopAt: 2.35 },
+  correct: { fadeAt: 2.35, stopAt: 2.95 },
+  wrong: { fadeAt: 3.0, stopAt: 3.65 }
+};
+const ATMOSPHERE_LEVEL = {
+  opening: .10,
+  middle: .14,
+  pressure: .20,
+  final: .24
+};
 
 export function createShowDirector(root) {
   let context = null;
@@ -32,13 +46,14 @@ export function createShowDirector(root) {
 
   const media = {};
   const mediaGains = {};
+  const mediaTimers = {};
   const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
 
   Object.entries(AUDIO_ASSETS).forEach(([name, source]) => {
     const element = new Audio(new URL(source, import.meta.url).href);
     element.preload = 'auto';
     element.playsInline = true;
-    if (name === 'pressureBed') element.loop = true;
+    if (name === 'atmosphere') element.loop = true;
     media[name] = element;
   });
 
@@ -67,7 +82,7 @@ export function createShowDirector(root) {
     lfo = context.createOscillator();
     lfoDepth = context.createGain();
 
-    master.gain.value = muted ? .0001 : .86;
+    master.gain.value = muted ? .0001 : MASTER_LEVEL;
     synthBedGain.gain.value = .0001;
     cueGain.gain.value = 1;
     low.type = 'triangle';
@@ -87,7 +102,7 @@ export function createShowDirector(root) {
     Object.entries(media).forEach(([name, element]) => {
       const source = context.createMediaElementSource(element);
       const gain = context.createGain();
-      gain.gain.value = name === 'pressureBed' ? .0001 : 1;
+      gain.gain.value = name === 'atmosphere' ? .0001 : 1;
       source.connect(gain).connect(master);
       mediaGains[name] = gain;
     });
@@ -102,33 +117,32 @@ export function createShowDirector(root) {
   }
 
   function proceduralBedLevel(profile, phase) {
-    const locked = phase === 'locked';
-    const release = RELEASE_PHASES.has(phase);
-    const softened = SOFT_PHASES.has(phase);
-    if (release) return .0012;
-    if (softened) return profile.bed * .55;
-    if (locked) return profile.bed * 1.25;
-    return profile.bed;
-  }
-
-  function pressureBedLevel(phase) {
     if (RELEASE_PHASES.has(phase)) return .0001;
-    if (SOFT_PHASES.has(phase)) return .20;
-    if (phase === 'locked') return .54;
-    if (phase === 'selected') return .43;
-    return .34;
+    if (SOFT_PHASES.has(phase)) return profile.bed * .10;
+    if (phase === 'locked') return profile.bed * .20;
+    if (phase === 'selected') return profile.bed * .15;
+    return profile.bed * .10;
   }
 
-  function playPressureBed(fallbackLevel) {
-    const element = media.pressureBed;
+  function atmosphereLevel(band, phase) {
+    if (RELEASE_PHASES.has(phase)) return .0001;
+    const base = ATMOSPHERE_LEVEL[band] ?? ATMOSPHERE_LEVEL.opening;
+    if (SOFT_PHASES.has(phase)) return base * .40;
+    if (phase === 'locked') return base * 1.28;
+    if (phase === 'selected') return base * 1.10;
+    return base;
+  }
+
+  function playAtmosphere(fallbackLevel) {
+    const element = media.atmosphere;
     if (!element || element.paused === false) return;
     void element.play().catch(() => {
       if (synthBedGain) ramp(synthBedGain.gain, muted ? .0001 : fallbackLevel, .18);
     });
   }
 
-  function pausePressureBed(reset = false) {
-    const element = media.pressureBed;
+  function pauseAtmosphere(reset = false) {
+    const element = media.atmosphere;
     if (!element) return;
     element.pause();
     if (reset) element.currentTime = 0;
@@ -142,23 +156,24 @@ export function createShowDirector(root) {
     const profile = PROFILES[currentBand];
     const locked = currentPhase === 'locked';
     const release = RELEASE_PHASES.has(currentPhase);
-    const pitchLift = locked ? 1.035 : 1;
+    const pitchLift = locked ? 1.025 : 1;
     const fallbackLevel = proceduralBedLevel(profile, currentPhase);
-    const useRealPressureBed = currentBand === 'pressure' && !release;
 
     ramp(low.frequency, profile.root * pitchLift, seconds);
     ramp(high.frequency, profile.upper * pitchLift, seconds);
-    ramp(lfo.frequency, profile.pulse + (locked ? .18 : 0), seconds);
-    ramp(lfoDepth.gain, release ? .0001 : profile.modulation * (locked ? 1.25 : 1), seconds);
+    ramp(lfo.frequency, profile.pulse + (locked ? .12 : 0), seconds);
+    ramp(lfoDepth.gain, release ? .0001 : profile.modulation * .18, seconds);
+    ramp(synthBedGain.gain, muted || release ? .0001 : fallbackLevel, seconds);
 
-    if (useRealPressureBed) {
-      ramp(synthBedGain.gain, .0001, .22);
-      if (!muted) playPressureBed(fallbackLevel);
-      if (mediaGains.pressureBed) ramp(mediaGains.pressureBed.gain, muted ? .0001 : pressureBedLevel(currentPhase), seconds);
-    } else {
-      if (mediaGains.pressureBed) ramp(mediaGains.pressureBed.gain, .0001, .24);
-      pausePressureBed(release || currentBand !== 'pressure');
-      ramp(synthBedGain.gain, muted ? .0001 : fallbackLevel, seconds);
+    if (release || muted) {
+      if (mediaGains.atmosphere) ramp(mediaGains.atmosphere.gain, .0001, .16);
+      pauseAtmosphere();
+      return;
+    }
+
+    playAtmosphere(fallbackLevel);
+    if (mediaGains.atmosphere) {
+      ramp(mediaGains.atmosphere.gain, atmosphereLevel(currentBand, currentPhase), seconds);
     }
   }
 
@@ -176,28 +191,39 @@ export function createShowDirector(root) {
     oscillator.stop(start + duration + .03);
   }
 
-  function sweep(from, to, start, duration, gain = .024, type = 'triangle') {
-    if (!context || !cueGain) return;
-    const oscillator = context.createOscillator();
-    const envelope = context.createGain();
-    oscillator.type = type;
-    oscillator.frequency.setValueAtTime(from, start);
-    oscillator.frequency.exponentialRampToValueAtTime(to, start + duration);
-    envelope.gain.setValueAtTime(.0001, start);
-    envelope.gain.exponentialRampToValueAtTime(gain, start + .025);
-    envelope.gain.exponentialRampToValueAtTime(.0001, start + duration);
-    oscillator.connect(envelope).connect(cueGain);
-    oscillator.start(start);
-    oscillator.stop(start + duration + .03);
+  function stopAsset(kind, reset = true) {
+    const element = media[kind];
+    if (!element) return;
+    clearTimeout(mediaTimers[kind]);
+    delete mediaTimers[kind];
+    element.pause();
+    if (reset) element.currentTime = 0;
+  }
+
+  function stopOneShots(except) {
+    ['next', 'correct', 'wrong'].forEach(kind => {
+      if (kind !== except) stopAsset(kind);
+    });
   }
 
   function playAsset(kind) {
     const element = media[kind];
     const gain = mediaGains[kind];
-    if (!element || !gain) return false;
-    element.pause();
-    element.currentTime = 0;
-    gain.gain.setValueAtTime(REAL_CUE_GAIN[kind] || 1, context.currentTime);
+    if (!element || !gain || !context) return false;
+
+    stopOneShots(kind);
+    stopAsset(kind);
+    const now = context.currentTime;
+    gain.gain.cancelScheduledValues(now);
+    gain.gain.setValueAtTime(Math.max(.0001, REAL_CUE_GAIN[kind] || .45), now);
+
+    const tail = REAL_CUE_TAIL[kind];
+    if (tail) {
+      gain.gain.setValueAtTime(Math.max(.0001, REAL_CUE_GAIN[kind] || .45), now + tail.fadeAt);
+      gain.gain.exponentialRampToValueAtTime(.0001, now + tail.stopAt);
+      mediaTimers[kind] = setTimeout(() => stopAsset(kind), Math.ceil((tail.stopAt + .08) * 1000));
+    }
+
     void element.play().catch(() => {});
     return true;
   }
@@ -219,20 +245,22 @@ export function createShowDirector(root) {
 
     const now = context.currentTime + .015;
     if (kind === 'select') {
-      tone(523.25, now, .14, .012);
+      // Tiny tactile confirmation: felt more than heard.
+      tone(560, now, .09, .0065, 'triangle');
     } else if (kind === 'lock') {
-      sweep(196, 98, now, .52, .021, 'triangle');
-      tone(73.42, now + .08, .7, .014, 'sine');
+      // Temporary restrained commitment cue until the dedicated lock asset arrives.
+      tone(110, now, .22, .010, 'triangle');
+      tone(55, now + .045, .34, .0075, 'sine');
     } else if (kind === 'safety') {
       playAsset('correct');
-      tone(659.25, now + .24, .52, .013);
-      tone(880, now + .36, .62, .010);
+      tone(659.25, now + .20, .38, .0075);
+      tone(880, now + .30, .44, .006);
     } else if (kind === 'win') {
       playAsset('correct');
-      [392, 523.25, 659.25, 783.99].forEach((f, i) => tone(f, now + .22 + i * .11, .72, .018));
+      [392, 523.25, 659.25, 783.99].forEach((f, i) => tone(f, now + .18 + i * .10, .52, .010));
     } else if (kind === 'lifeline') {
-      tone(659.25, now, .28, .014);
-      tone(880, now + .09, .38, .011);
+      tone(659.25, now, .20, .0075);
+      tone(880, now + .07, .26, .006);
     }
   }
 
@@ -244,14 +272,15 @@ export function createShowDirector(root) {
   function setMuted(value) {
     muted = Boolean(value);
     if (!context || !master) return;
-    ramp(master.gain, muted ? .0001 : .86, .18);
-    if (muted) pausePressureBed();
+    ramp(master.gain, muted ? .0001 : MASTER_LEVEL, .18);
+    if (muted) pauseAtmosphere();
     else applyBed(currentBand, currentPhase, .2);
   }
 
   function stop() {
-    if (synthBedGain) ramp(synthBedGain.gain, .0001, .28);
-    if (mediaGains.pressureBed) ramp(mediaGains.pressureBed.gain, .0001, .18);
+    if (synthBedGain) ramp(synthBedGain.gain, .0001, .22);
+    if (mediaGains.atmosphere) ramp(mediaGains.atmosphere.gain, .0001, .16);
+    Object.keys(mediaTimers).forEach(kind => clearTimeout(mediaTimers[kind]));
     Object.values(media).forEach(element => {
       element.pause();
       element.currentTime = 0;
@@ -262,7 +291,7 @@ export function createShowDirector(root) {
   document.addEventListener('visibilitychange', () => {
     if (!context) return;
     if (document.hidden) {
-      pausePressureBed();
+      pauseAtmosphere();
       void context.suspend();
     } else if (!muted) {
       void context.resume().then(() => applyBed(currentBand, currentPhase, .2)).catch(() => {});
