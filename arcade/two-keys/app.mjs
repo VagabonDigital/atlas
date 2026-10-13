@@ -420,26 +420,20 @@ function briefing() {
     A = state.role === "A",
     waitingFor = state.partnerRole || "partner",
     headline = state.ready
-      ? state.partnerConnected
-        ? state.partnerReady
-          ? "Starting mission…"
-          : `Ready · waiting for ${waitingFor}`
-        : `Ready · waiting for ${waitingFor}`
+      ? `Ready · waiting for ${waitingFor}`
       : state.partnerReady
         ? `${waitingFor} is ready`
         : state.partnerConnected
-          ? "Ready when you are"
+          ? `${waitingFor} connected`
           : `Waiting for ${waitingFor}`,
-    subline = state.ready
-      ? "Your position is ready."
-      : `Your position: ${state.roleName}`,
+    detail = state.ready ? "Your position is ready." : `You are ${state.roleName}.`,
     actions =
       button("ready", state.ready ? "✓ Ready" : "Ready →", "primary", {}, state.ready) +
       (!learner && !state.ready ? button("swap", "Swap positions", "text") : "") +
       (!learner && !state.partnerConnected
         ? button("invite", "Share private invite ↗", "text")
         : "");
-  return `<section class="mission-view ${state.mission} ${A ? "physical-view" : "remote-view"}"><div class="mission-top"><div><p class="eyebrow">${esc(m.place)}</p><h1>${m.title}</h1></div><div class="step-label"><span>01 / 04</span><strong>${m.steps[0]}</strong></div></div><div class="world ${A ? "physical" : "remote"}">${scenery()}<div class="world-content" inert></div><div class="pause-veil"><span>◇</span><h2>${headline}</h2><p>${subline}</p><div class="brief-actions">${actions}</div></div></div></section>`;
+  return `<section class="mission-view setup-view ${state.mission} ${A ? "physical-view" : "remote-view"}"><div class="mission-top"><div><p class="eyebrow">${esc(m.place)}</p><h1>${m.title}</h1></div></div><div class="world ${A ? "physical" : "remote"}">${scenery()}<div class="world-content" inert style="min-height:530px;opacity:.18"></div><div style="position:absolute;left:18px;right:18px;bottom:18px;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px 16px;border:1px solid rgba(114,146,163,.28);background:rgba(7,16,25,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 12px 35px rgba(0,0,0,.28)"><div style="min-width:0;text-align:left"><strong style="display:block;font-size:14px;font-weight:600;color:#e7edf1">${headline}</strong><span style="display:block;margin-top:3px;font-size:11px;color:#9eafba">${detail}</span></div><div class="brief-actions" style="margin-left:auto;justify-content:flex-end;flex-wrap:wrap">${actions}</div></div></div></section>`;
 }
 function scenery() {
   return `<svg class="architecture" viewBox="0 0 1200 700" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="wall" x2="1" y2="1"><stop stop-color="#101d28"/><stop offset="1" stop-color="#04080d"/></linearGradient><linearGradient id="floor" x2="0" y2="1"><stop stop-color="#182b37"/><stop offset="1" stop-color="#05090d"/></linearGradient></defs><path d="M0 0H1200V700H0Z" fill="url(#wall)"/><path d="M0 700L340 430H860L1200 700" fill="url(#floor)"/><path d="M0 0L340 145H860L1200 0M340 145V430M860 145V430M0 700L340 430H860L1200 700" fill="none" stroke="#648399" stroke-opacity=".2"/><g stroke="#7091a4" stroke-opacity=".15">${[80, 250, 430, 600, 770, 950, 1120].map((x) => `<path d="M600 430L${x} 700"/>`).join("")}<path d="M250 500H950M160 570H1040M65 645H1135"/></g><g stroke="#a9d7e9" stroke-width="3"><path d="M90 42L335 145M865 145L1110 42" opacity=".6"/><path d="M25 105V460M1175 105V460" opacity=".2"/></g></svg>`;
