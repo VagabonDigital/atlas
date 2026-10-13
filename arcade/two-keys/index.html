@@ -28,7 +28,7 @@
 
       #landing-chrome .arcade-game-chrome-back {
         top: 1.35rem;
-        left: 7%;
+        left: clamp(20px, 1.6vw, 28px);
         padding: 0.4rem 0.62rem;
         border-color: rgba(255, 255, 255, 0.08);
         background: rgba(8, 14, 20, 0.52);
@@ -36,7 +36,7 @@
 
       #landing-chrome .arcade-game-chrome-actions {
         top: 1.35rem;
-        right: 7%;
+        right: clamp(20px, 1.6vw, 28px);
       }
 
       #landing-chrome .arcade-game-chrome-session {
@@ -58,7 +58,7 @@
       @media (min-width: 801px) {
         .entrance {
           min-height: 100svh;
-          padding: 72px 7% 26px;
+          padding: 58px 7% 24px;
         }
 
         .hero-copy {
@@ -66,38 +66,38 @@
         }
 
         .hero-copy h1 {
-          font-size: clamp(52px, 5vw, 78px);
-          margin: 12px 0 8px;
+          font-size: clamp(52px, 4.7vw, 74px);
+          margin: 10px 0 6px;
         }
 
         .tagline {
-          font-size: clamp(38px, 3.2vw, 50px);
+          font-size: clamp(36px, 3vw, 46px);
         }
 
         .intro {
-          margin: 14px 0;
+          margin: 10px 0;
         }
 
         .hero-meta {
-          margin-top: 14px;
+          margin-top: 10px;
         }
 
         .library {
-          margin-top: 18px;
+          margin-top: 12px;
         }
 
         .section-title {
-          margin-bottom: 12px;
+          margin-bottom: 10px;
         }
 
         .mission-art {
-          height: 128px;
+          height: 116px;
         }
       }
 
       @media (min-width: 1600px) {
         .entrance {
-          padding-top: 72px;
+          padding-top: 58px;
         }
 
         .hero-copy {
@@ -105,7 +105,7 @@
         }
 
         .mission-art {
-          height: 132px;
+          height: 118px;
         }
       }
 
