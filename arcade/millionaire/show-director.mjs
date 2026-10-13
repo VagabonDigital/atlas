@@ -5,13 +5,21 @@ const PROFILES = {
   final: { root: 65.41, upper: 98.0, bed: .014, pulse: .92, modulation: .0042 }
 };
 
+const AUDIO_ASSETS = {
+  pressureBed: './assets/audio/bed-pressure.mp3',
+  next: './assets/audio/cue-round-transition.mp3',
+  correct: './assets/audio/cue-correct.mp3',
+  wrong: './assets/audio/cue-wrong.mp3'
+};
+
 const RELEASE_PHASES = new Set(['correct', 'safety', 'incorrect', 'win', 'walk-reveal', 'summary']);
 const SOFT_PHASES = new Set(['walk-confirm', 'hypothetical', 'adviser']);
+const REAL_CUE_GAIN = { next: .66, correct: .96, wrong: .96 };
 
 export function createShowDirector(root) {
   let context = null;
   let master = null;
-  let bedGain = null;
+  let synthBedGain = null;
   let cueGain = null;
   let low = null;
   let high = null;
@@ -22,7 +30,17 @@ export function createShowDirector(root) {
   let currentPhase = 'question';
   let cueTimer = null;
 
+  const media = {};
+  const mediaGains = {};
   const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+
+  Object.entries(AUDIO_ASSETS).forEach(([name, source]) => {
+    const element = new Audio(new URL(source, import.meta.url).href);
+    element.preload = 'auto';
+    element.playsInline = true;
+    if (name === 'pressureBed') element.loop = true;
+    media[name] = element;
+  });
 
   function ramp(param, value, seconds = .35) {
     if (!context || !param) return;
@@ -42,15 +60,15 @@ export function createShowDirector(root) {
     const profile = PROFILES[currentBand];
     context = new AudioContextCtor();
     master = context.createGain();
-    bedGain = context.createGain();
+    synthBedGain = context.createGain();
     cueGain = context.createGain();
     low = context.createOscillator();
     high = context.createOscillator();
     lfo = context.createOscillator();
     lfoDepth = context.createGain();
 
-    master.gain.value = muted ? .0001 : .78;
-    bedGain.gain.value = .0001;
+    master.gain.value = muted ? .0001 : .86;
+    synthBedGain.gain.value = .0001;
     cueGain.gain.value = 1;
     low.type = 'triangle';
     high.type = 'sine';
@@ -60,13 +78,21 @@ export function createShowDirector(root) {
     lfo.frequency.value = profile.pulse;
     lfoDepth.gain.value = profile.modulation;
 
-    low.connect(bedGain);
-    high.connect(bedGain);
-    lfo.connect(lfoDepth).connect(bedGain.gain);
-    bedGain.connect(master);
+    low.connect(synthBedGain);
+    high.connect(synthBedGain);
+    lfo.connect(lfoDepth).connect(synthBedGain.gain);
+    synthBedGain.connect(master);
     cueGain.connect(master);
-    master.connect(context.destination);
 
+    Object.entries(media).forEach(([name, element]) => {
+      const source = context.createMediaElementSource(element);
+      const gain = context.createGain();
+      gain.gain.value = name === 'pressureBed' ? .0001 : 1;
+      source.connect(gain).connect(master);
+      mediaGains[name] = gain;
+    });
+
+    master.connect(context.destination);
     low.start();
     high.start();
     lfo.start();
@@ -75,23 +101,65 @@ export function createShowDirector(root) {
     return true;
   }
 
+  function proceduralBedLevel(profile, phase) {
+    const locked = phase === 'locked';
+    const release = RELEASE_PHASES.has(phase);
+    const softened = SOFT_PHASES.has(phase);
+    if (release) return .0012;
+    if (softened) return profile.bed * .55;
+    if (locked) return profile.bed * 1.25;
+    return profile.bed;
+  }
+
+  function pressureBedLevel(phase) {
+    if (RELEASE_PHASES.has(phase)) return .0001;
+    if (SOFT_PHASES.has(phase)) return .20;
+    if (phase === 'locked') return .54;
+    if (phase === 'selected') return .43;
+    return .34;
+  }
+
+  function playPressureBed(fallbackLevel) {
+    const element = media.pressureBed;
+    if (!element || element.paused === false) return;
+    void element.play().catch(() => {
+      if (synthBedGain) ramp(synthBedGain.gain, muted ? .0001 : fallbackLevel, .18);
+    });
+  }
+
+  function pausePressureBed(reset = false) {
+    const element = media.pressureBed;
+    if (!element) return;
+    element.pause();
+    if (reset) element.currentTime = 0;
+  }
+
   function applyBed(band, phase, seconds = .55) {
     currentBand = PROFILES[band] ? band : 'opening';
     currentPhase = phase || 'question';
-    if (!context || !low || !high || !lfo || !bedGain) return;
+    if (!context || !low || !high || !lfo || !synthBedGain) return;
 
     const profile = PROFILES[currentBand];
     const locked = currentPhase === 'locked';
     const release = RELEASE_PHASES.has(currentPhase);
-    const softened = SOFT_PHASES.has(currentPhase);
     const pitchLift = locked ? 1.035 : 1;
-    const level = release ? .0012 : softened ? profile.bed * .55 : locked ? profile.bed * 1.25 : profile.bed;
+    const fallbackLevel = proceduralBedLevel(profile, currentPhase);
+    const useRealPressureBed = currentBand === 'pressure' && !release;
 
     ramp(low.frequency, profile.root * pitchLift, seconds);
     ramp(high.frequency, profile.upper * pitchLift, seconds);
     ramp(lfo.frequency, profile.pulse + (locked ? .18 : 0), seconds);
     ramp(lfoDepth.gain, release ? .0001 : profile.modulation * (locked ? 1.25 : 1), seconds);
-    ramp(bedGain.gain, muted ? .0001 : level, seconds);
+
+    if (useRealPressureBed) {
+      ramp(synthBedGain.gain, .0001, .22);
+      if (!muted) playPressureBed(fallbackLevel);
+      if (mediaGains.pressureBed) ramp(mediaGains.pressureBed.gain, muted ? .0001 : pressureBedLevel(currentPhase), seconds);
+    } else {
+      if (mediaGains.pressureBed) ramp(mediaGains.pressureBed.gain, .0001, .24);
+      pausePressureBed(release || currentBand !== 'pressure');
+      ramp(synthBedGain.gain, muted ? .0001 : fallbackLevel, seconds);
+    }
   }
 
   function tone(frequency, start, duration, gain = .025, type = 'sine') {
@@ -123,6 +191,17 @@ export function createShowDirector(root) {
     oscillator.stop(start + duration + .03);
   }
 
+  function playAsset(kind) {
+    const element = media[kind];
+    const gain = mediaGains[kind];
+    if (!element || !gain) return false;
+    element.pause();
+    element.currentTime = 0;
+    gain.gain.setValueAtTime(REAL_CUE_GAIN[kind] || 1, context.currentTime);
+    void element.play().catch(() => {});
+    return true;
+  }
+
   function flash(kind, duration = 900) {
     if (!root) return;
     clearTimeout(cueTimer);
@@ -136,27 +215,24 @@ export function createShowDirector(root) {
     flash(kind, ['wrong', 'win', 'safety'].includes(kind) ? 1500 : 850);
     if (muted || !ensureAudio()) return;
 
+    if (['next', 'correct', 'wrong'].includes(kind) && playAsset(kind)) return;
+
     const now = context.currentTime + .015;
     if (kind === 'select') {
-      tone(523.25, now, .16, .016);
+      tone(523.25, now, .14, .012);
     } else if (kind === 'lock') {
-      sweep(196, 98, now, .52, .026, 'triangle');
-      tone(73.42, now + .08, .7, .018, 'sine');
-    } else if (kind === 'correct') {
-      [392, 523.25, 659.25].forEach((f, i) => tone(f, now + i * .095, .42, .022));
+      sweep(196, 98, now, .52, .021, 'triangle');
+      tone(73.42, now + .08, .7, .014, 'sine');
     } else if (kind === 'safety') {
-      [329.63, 440, 554.37, 659.25].forEach((f, i) => tone(f, now + i * .105, .55, .026));
-    } else if (kind === 'wrong') {
-      sweep(220, 82.41, now, .95, .03, 'sawtooth');
-      tone(110, now + .18, 1.05, .019, 'triangle');
+      playAsset('correct');
+      tone(659.25, now + .24, .52, .013);
+      tone(880, now + .36, .62, .010);
     } else if (kind === 'win') {
-      [261.63, 329.63, 392, 523.25, 659.25, 783.99].forEach((f, i) => tone(f, now + i * .11, .8, .027));
+      playAsset('correct');
+      [392, 523.25, 659.25, 783.99].forEach((f, i) => tone(f, now + .22 + i * .11, .72, .018));
     } else if (kind === 'lifeline') {
-      tone(659.25, now, .28, .018);
-      tone(880, now + .09, .38, .015);
-    } else if (kind === 'next') {
-      tone(196, now, .28, .014, 'triangle');
-      tone(293.66, now + .1, .34, .015);
+      tone(659.25, now, .28, .014);
+      tone(880, now + .09, .38, .011);
     }
   }
 
@@ -168,19 +244,29 @@ export function createShowDirector(root) {
   function setMuted(value) {
     muted = Boolean(value);
     if (!context || !master) return;
-    ramp(master.gain, muted ? .0001 : .78, .18);
-    if (!muted) applyBed(currentBand, currentPhase, .2);
+    ramp(master.gain, muted ? .0001 : .86, .18);
+    if (muted) pausePressureBed();
+    else applyBed(currentBand, currentPhase, .2);
   }
 
   function stop() {
-    if (bedGain) ramp(bedGain.gain, .0001, .28);
+    if (synthBedGain) ramp(synthBedGain.gain, .0001, .28);
+    if (mediaGains.pressureBed) ramp(mediaGains.pressureBed.gain, .0001, .18);
+    Object.values(media).forEach(element => {
+      element.pause();
+      element.currentTime = 0;
+    });
     if (root) delete root.dataset.showCue;
   }
 
   document.addEventListener('visibilitychange', () => {
     if (!context) return;
-    if (document.hidden) void context.suspend();
-    else if (!muted) void context.resume().then(() => applyBed(currentBand, currentPhase, .2)).catch(() => {});
+    if (document.hidden) {
+      pausePressureBed();
+      void context.suspend();
+    } else if (!muted) {
+      void context.resume().then(() => applyBed(currentBand, currentPhase, .2)).catch(() => {});
+    }
   });
 
   return { cue, sync, setMuted, stop };
