@@ -19,7 +19,9 @@ const SOFT_PHASES = new Set(['walk-confirm', 'hypothetical', 'adviser']);
 const MASTER_LEVEL = .46;
 const REAL_CUE_GAIN = { next: .40, correct: .52, wrong: .50 };
 const REAL_CUE_TAIL = {
-  next: { fadeAt: 1.8, stopAt: 2.35 },
+  // Millionaire's "Let's Play" moment breathes before settling into the question bed.
+  // Keep this long enough to feel ceremonial, but short enough not to fight tutor speech.
+  next: { fadeAt: 3.7, stopAt: 4.6 },
   correct: { fadeAt: 2.35, stopAt: 2.95 },
   wrong: { fadeAt: 3.0, stopAt: 3.65 }
 };
