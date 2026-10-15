@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">Family Feud</title>
+  <desc id="desc">A warm survey game stage with six hidden answer shutters.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#a9cdf6"/><stop offset="1" stop-color="#fff0da"/></linearGradient>
+    <linearGradient id="ivory" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff4df"/><stop offset="1" stop-color="#eacbab"/></linearGradient>
+    <linearGradient id="plum" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#67475d"/><stop offset="1" stop-color="#32172f"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#40223a" flood-opacity=".2"/></filter>
+  </defs>
+  <rect width="960" height="540" fill="url(#sky)"/>
+  <g opacity=".96">
+    <path d="M0 225 Q480 110 960 225 V540 H0Z" fill="#efd7b8"/>
+    <path d="M0 270 Q480 150 960 270" fill="none" stroke="#fff2df" stroke-width="38"/>
+    <path d="M0 344 Q480 220 960 344" fill="none" stroke="#f9e7cf" stroke-width="44"/>
+    <path d="M0 424 Q480 300 960 424" fill="none" stroke="#f4dfc5" stroke-width="50"/>
+  </g>
+  <g opacity=".9">
+    <g fill="#ff9a3d"><circle cx="86" cy="270" r="14"/><circle cx="201" cy="333" r="15"/><circle cx="780" cy="312" r="14"/><circle cx="868" cy="405" r="16"/></g>
+    <g fill="#aaa0f2"><circle cx="142" cy="297" r="14"/><circle cx="743" cy="360" r="15"/><circle cx="904" cy="284" r="14"/><circle cx="104" cy="405" r="16"/></g>
+    <g fill="#fff0dc"><circle cx="247" cy="287" r="14"/><circle cx="825" cy="355" r="15"/><circle cx="330" cy="399" r="16"/><circle cx="681" cy="400" r="16"/></g>
+  </g>
+  <g filter="url(#shadow)">
+    <path d="M286 78 Q286 48 326 48 H634 Q674 48 674 78 L702 452 H258Z" fill="url(#ivory)" stroke="#fff8eb" stroke-width="5"/>
+    <rect x="324" y="76" width="312" height="95" rx="42" fill="#3b1836" stroke="#efd3b2" stroke-width="8"/>
+    <text x="480" y="120" text-anchor="middle" fill="#fff0da" font-family="Arial,Helvetica,sans-serif" font-size="46" font-weight="900">FAMILY</text>
+    <text x="480" y="157" text-anchor="middle" fill="#fff0da" font-family="Arial,Helvetica,sans-serif" font-size="46" font-weight="900">FEUD</text>
+    <text x="480" y="199" text-anchor="middle" fill="#3b1836" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="800">DO YOU KNOW WHAT THE CROWD SAID?</text>
+    <g>
+      <rect x="320" y="222" width="320" height="34" rx="16" fill="url(#plum)"/>
+      <rect x="320" y="263" width="320" height="34" rx="16" fill="url(#plum)"/>
+      <rect x="320" y="304" width="320" height="34" rx="16" fill="url(#plum)"/>
+      <rect x="320" y="345" width="320" height="34" rx="16" fill="url(#plum)"/>
+      <rect x="320" y="386" width="320" height="34" rx="16" fill="url(#plum)"/>
+      <rect x="320" y="427" width="320" height="34" rx="16" fill="url(#plum)"/>
+      <g fill="#fff0da" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="800">
+        <text x="341" y="246">1</text><text x="341" y="287">2</text><text x="341" y="328">3</text><text x="341" y="369">4</text><text x="341" y="410">5</text><text x="341" y="451">6</text>
+      </g>
+    </g>
+  </g>
+  <rect x="332" y="482" width="296" height="45" rx="23" fill="#421d3a" stroke="#e7c7a8" stroke-width="4"/>
+  <text x="480" y="512" text-anchor="middle" fill="#fff2dc" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="800">START MATCH</text>
+</svg>
