@@ -9,19 +9,6 @@
   <link rel="stylesheet" href="../../shared/atlas-session-panel.css">
   <link rel="stylesheet" href="game.css">
   <style>
-    /* Scenic environment is a dedicated art layer. The legacy CSS-built arena
-       remains in the DOM only so game logic is untouched during this visual pass. */
-    .arena {
-      background: #f2d9b9 url('./stage.svg') center center / cover no-repeat !important;
-    }
-    .arena > .sky,
-    .arena > .architecture,
-    .arena > .garden,
-    .arena > .crowd,
-    .arena > .floor {
-      display: none !important;
-    }
-
     /* Restore the concept's taller survey-machine proportions in normal play. */
     .stage:not(.entrance) {
       width: min(1180px, 95vw);
