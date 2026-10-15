@@ -9,8 +9,68 @@
   <link rel="stylesheet" href="../../shared/atlas-session-panel.css">
   <link rel="stylesheet" href="game.css">
   <style>
-    /* Entrance-only composition: preserve the gameplay machine, but stage the
-       two contestants and start control as detached physical objects. */
+    /* Scenic environment is a dedicated art layer. The legacy CSS-built arena
+       remains in the DOM only so game logic is untouched during this visual pass. */
+    .arena {
+      background: #f2d9b9 url('./stage.svg') center center / cover no-repeat !important;
+    }
+    .arena > .sky,
+    .arena > .architecture,
+    .arena > .garden,
+    .arena > .crowd,
+    .arena > .floor {
+      display: none !important;
+    }
+
+    /* Restore the concept's taller survey-machine proportions in normal play. */
+    .stage:not(.entrance) {
+      width: min(1180px, 95vw);
+      height: calc(100dvh - 56px);
+      max-height: 870px;
+      margin: 48px auto 8px;
+    }
+    .stage:not(.entrance) .machine {
+      width: 82%;
+      height: min(612px, calc(100dvh - 250px));
+      max-height: none;
+      flex: 0 0 auto;
+      padding: 18px 27px 11px;
+    }
+    .stage:not(.entrance) .question {
+      height: 108px;
+      min-height: 108px;
+      flex: 0 0 108px;
+      margin-bottom: 12px;
+    }
+    .stage:not(.entrance) .board {
+      gap: 7px;
+      padding: 7px;
+    }
+    .stage:not(.entrance) .row {
+      border-radius: 20px;
+    }
+    .stage:not(.entrance) .rank,
+    .stage:not(.entrance) .answer,
+    .stage:not(.entrance) .value {
+      line-height: 1;
+    }
+    .stage:not(.entrance) .provenance {
+      margin-top: 9px;
+    }
+    .stage:not(.entrance) .console {
+      min-height: 150px;
+      padding: 16px 25px 14px;
+    }
+    .stage:not(.entrance) .feedback {
+      height: 28px;
+    }
+
+    /* Entrance composition: detached physical player pods and start control. */
+    .entrance .machine {
+      width: 64%;
+      max-height: 590px;
+      padding-top: 18px;
+    }
     .entrance .console {
       width: 78%;
       min-height: 112px;
@@ -49,10 +109,41 @@
       font-weight: 800;
       text-shadow: 0 1px rgba(255,255,255,.7);
     }
+
+    @media (max-height: 760px) {
+      .stage:not(.entrance) {
+        height: calc(100dvh - 52px);
+        margin-top: 46px;
+      }
+      .stage:not(.entrance) .machine {
+        height: calc(100dvh - 230px);
+        min-height: 455px;
+      }
+      .stage:not(.entrance) .question {
+        height: 88px;
+        min-height: 88px;
+        flex-basis: 88px;
+      }
+      .stage:not(.entrance) .board {
+        gap: 5px;
+        padding: 6px;
+      }
+      .stage:not(.entrance) .console {
+        min-height: 132px;
+        padding-top: 13px;
+        padding-bottom: 11px;
+      }
+      .stage:not(.entrance) .feedback {
+        height: 24px;
+      }
+    }
     @media (max-width: 1050px) {
       .entrance .console {
         width: 90%;
         gap: clamp(18px, 4vw, 48px);
+      }
+      .stage:not(.entrance) .machine {
+        width: 86%;
       }
     }
     @media (max-width: 700px) {
@@ -72,6 +163,12 @@
         width: 100%;
         font-size: 18px;
         padding: 11px 10px;
+      }
+      .stage:not(.entrance) {
+        width: 96vw;
+      }
+      .stage:not(.entrance) .machine {
+        width: 96%;
       }
     }
   </style>
