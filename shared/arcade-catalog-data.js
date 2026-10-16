@@ -244,19 +244,6 @@
             launchUrl: './family-feud/index.html'
         },
         {
-            registryId: 'arcade:two-keys',
-            publicAccess: 'preview',
-            title: 'Two Keys',
-            premise: 'Two perspectives. One impossible job. Pull off four heists together.',
-            unitLabel: 'Missions',
-            total: 4,
-            artId: 'twoKeys',
-            coverImage: '/assets/hub/two-keys-cover.png',
-            accent: '#cfa65b',
-            order: 6,
-            launchUrl: './two-keys/index.html'
-        },
-        {
             registryId: 'arcade:millionaire',
             publicAccess: 'full',
             title: 'Millionaire',
@@ -320,7 +307,6 @@
     ];
 
     const ARCADE_GAME_SHARE_GRANTS = Object.freeze({
-        'arcade:two-keys': 'g1_tkCooperation',
         'arcade:forbidden-words': 'g1_fwConversation',
         'arcade:tomorrow-got-weird': 'g1_r7K2vM9xC4qT',
         'arcade:would-you-rather': 'g1_p4W8nD3yL6sV'
@@ -365,6 +351,14 @@
         return ARCADE_GAME_ART[artId] || '';
     }
 
+    function retireRemovedArcadeGames() {
+        try {
+            window.AtlasBridge?.removeItem?.(
+                'arcade:two-keys'
+            );
+        } catch { }
+    }
+
     function hydrateAtlasArcadeCovers() {
         try {
             if (
@@ -386,15 +380,20 @@
         } catch { }
     }
 
+    function syncArcadeCatalogue() {
+        retireRemovedArcadeGames();
+        hydrateAtlasArcadeCovers();
+    }
+
     if (typeof document !== 'undefined') {
         if (document.readyState === 'loading') {
             document.addEventListener(
                 'DOMContentLoaded',
-                hydrateAtlasArcadeCovers,
+                syncArcadeCatalogue,
                 { once: true }
             );
         } else {
-            hydrateAtlasArcadeCovers();
+            syncArcadeCatalogue();
         }
     }
 
