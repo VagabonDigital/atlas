@@ -231,6 +231,19 @@
 
     const ARCADE_GAMES = [
         {
+            registryId: 'arcade:family-feud',
+            publicAccess: 'full',
+            title: 'Family Feud',
+            premise: 'Predict the crowd. Find the popular answers. Beat the person across from you.',
+            unitLabel: 'Rounds',
+            total: 3,
+            artId: 'familyFeud',
+            coverImage: '/assets/hub/family-feud.svg',
+            accent: '#ff902e',
+            order: 7,
+            launchUrl: './family-feud/index.html'
+        },
+        {
             registryId: 'arcade:two-keys',
             publicAccess: 'preview',
             title: 'Two Keys',

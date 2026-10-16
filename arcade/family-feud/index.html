@@ -8,6 +8,167 @@
   <link rel="stylesheet" href="../../shared/atlas-modal-theme.css">
   <link rel="stylesheet" href="../../shared/atlas-session-panel.css">
   <link rel="stylesheet" href="game.css">
+  <style>
+    /* Family Feud environment plate. Keep the procedural arena beneath as a fallback. */
+    .arena::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 7;
+      background: url('./assets/arena-background.png') center center / cover no-repeat;
+      pointer-events: none;
+    }
+
+    /* Restore the concept's taller survey-machine proportions in normal play. */
+    .stage:not(.entrance) {
+      width: min(1180px, 95vw);
+      height: calc(100dvh - 56px);
+      max-height: 870px;
+      margin: 48px auto 8px;
+    }
+    .stage:not(.entrance) .machine {
+      width: 82%;
+      height: min(612px, calc(100dvh - 250px));
+      max-height: none;
+      flex: 0 0 auto;
+      padding: 18px 27px 11px;
+    }
+    .stage:not(.entrance) .question {
+      height: 108px;
+      min-height: 108px;
+      flex: 0 0 108px;
+      margin-bottom: 12px;
+    }
+    .stage:not(.entrance) .board {
+      gap: 7px;
+      padding: 7px;
+    }
+    .stage:not(.entrance) .row {
+      border-radius: 20px;
+    }
+    .stage:not(.entrance) .rank,
+    .stage:not(.entrance) .answer,
+    .stage:not(.entrance) .value {
+      line-height: 1;
+    }
+    .stage:not(.entrance) .provenance {
+      margin-top: 9px;
+    }
+    .stage:not(.entrance) .console {
+      min-height: 150px;
+      padding: 16px 25px 14px;
+    }
+    .stage:not(.entrance) .feedback {
+      height: 28px;
+    }
+
+    /* Entrance composition: detached physical player pods and start control. */
+    .entrance .machine {
+      width: 64%;
+      max-height: 590px;
+      padding-top: 18px;
+    }
+    .entrance .console {
+      width: 78%;
+      min-height: 112px;
+      grid-template-columns: minmax(150px, 1fr) minmax(220px, 1.25fr) minmax(150px, 1fr);
+      gap: clamp(36px, 6vw, 86px);
+      align-items: center;
+      padding: 12px 0 4px;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    .entrance .contestant {
+      min-height: 72px;
+      border-width: 4px;
+      border-radius: 22px;
+      background: linear-gradient(145deg, rgba(255,249,239,.98), var(--tint));
+      box-shadow: inset 0 3px 7px rgba(113,80,57,.18), 0 5px 0 rgba(180,143,102,.55), 0 10px 22px rgba(78,50,48,.12);
+    }
+    .entrance .dock {
+      align-self: center;
+      min-height: 76px;
+      gap: 8px;
+    }
+    .entrance .primary {
+      min-width: 210px;
+      font-size: 24px;
+      padding: 13px 30px;
+      border: 3px solid #f7d9b8;
+      background: linear-gradient(180deg,#66445d,#30152d);
+      color: #fff0d9;
+      box-shadow: inset 0 2px 1px rgba(255,255,255,.18), 0 4px 0 #b48b65, 0 9px 18px rgba(61,31,51,.2);
+    }
+    .entrance .dock small {
+      color: #6b5065;
+      font-weight: 800;
+      text-shadow: 0 1px rgba(255,255,255,.7);
+    }
+
+    @media (max-height: 760px) {
+      .stage:not(.entrance) {
+        height: calc(100dvh - 52px);
+        margin-top: 46px;
+      }
+      .stage:not(.entrance) .machine {
+        height: calc(100dvh - 230px);
+        min-height: 455px;
+      }
+      .stage:not(.entrance) .question {
+        height: 88px;
+        min-height: 88px;
+        flex-basis: 88px;
+      }
+      .stage:not(.entrance) .board {
+        gap: 5px;
+        padding: 6px;
+      }
+      .stage:not(.entrance) .console {
+        min-height: 132px;
+        padding-top: 13px;
+        padding-bottom: 11px;
+      }
+      .stage:not(.entrance) .feedback {
+        height: 24px;
+      }
+    }
+    @media (max-width: 1050px) {
+      .entrance .console {
+        width: 90%;
+        gap: clamp(18px, 4vw, 48px);
+      }
+      .stage:not(.entrance) .machine {
+        width: 86%;
+      }
+    }
+    @media (max-width: 700px) {
+      .entrance .console {
+        width: 100%;
+        grid-template-columns: 1fr 1.25fr 1fr;
+        gap: 8px;
+        padding: 10px 2px 2px;
+      }
+      .entrance .contestant {
+        min-height: 60px;
+        border-width: 3px;
+        border-radius: 18px;
+      }
+      .entrance .primary {
+        min-width: 0;
+        width: 100%;
+        font-size: 18px;
+        padding: 11px 10px;
+      }
+      .stage:not(.entrance) {
+        width: 96vw;
+      }
+      .stage:not(.entrance) .machine {
+        width: 96%;
+      }
+    }
+  </style>
 </head>
 <body>
   <div id="landing-chrome"></div>
