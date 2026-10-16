@@ -169,8 +169,8 @@
       }
     }
 
-    /* Desktop entrance: fixed 16:9 composition with a guaranteed usable board. */
-    @media (min-width: 900px) and (min-height: 700px) {
+    /* Desktop cover: fixed 16:9 composition. Only entrance-state selectors live here. */
+    @media (min-width: 900px) {
       .stage.entrance {
         width: min(100vw, 177.78dvh);
         height: 100dvh;
@@ -190,10 +190,10 @@
         height: 82%;
         max-height: none;
         min-height: 0;
-        padding: 14px 20px 12px;
+        padding: clamp(8px,1.8dvh,14px) 20px clamp(8px,1.5dvh,12px);
         display: grid;
-        grid-template-rows: minmax(0, 1fr) clamp(250px, 34dvh, 320px);
-        row-gap: 10px;
+        grid-template-rows: minmax(0, 1fr) minmax(190px, 38%);
+        row-gap: clamp(5px,1.2dvh,10px);
         flex: none;
       }
       .entrance .question {
@@ -205,16 +205,16 @@
         margin: 0;
       }
       .entrance .question h1 {
-        font-size: clamp(54px, 7.2dvh, 84px);
+        font-size: clamp(42px, 7.2dvh, 84px);
         line-height: .84;
         letter-spacing: -3px;
-        padding: 11px 28px 17px;
-        margin-bottom: 9px;
-        border-width: 8px;
-        border-radius: 64px;
+        padding: clamp(7px,1.4dvh,11px) 28px clamp(10px,2.1dvh,17px);
+        margin-bottom: clamp(5px,1.1dvh,9px);
+        border-width: clamp(5px,.9dvh,8px);
+        border-radius: clamp(42px,7dvh,64px);
       }
       .entrance .question p {
-        font-size: clamp(18px, 2.35dvh, 25px);
+        font-size: clamp(16px, 2.35dvh, 25px);
         line-height: 1.1;
       }
       .entrance .board {
@@ -225,8 +225,8 @@
         flex: none;
         display: grid;
         grid-template-rows: repeat(6, minmax(0, 1fr));
-        gap: 7px;
-        padding: 7px;
+        gap: clamp(4px,.9dvh,7px);
+        padding: clamp(4px,.9dvh,7px);
         border-radius: 28px;
       }
       .entrance .row {
@@ -235,7 +235,7 @@
         border-radius: 19px;
       }
       .entrance .rank {
-        font-size: clamp(22px, 3dvh, 30px);
+        font-size: clamp(18px, 3dvh, 30px);
       }
       .entrance .provenance {
         display: none;
@@ -256,25 +256,25 @@
         margin: 0;
       }
       .entrance .contestant {
-        height: 104px;
+        height: clamp(64px, 13dvh, 104px);
         min-height: 0;
-        transform: translateY(16px);
+        transform: translateY(clamp(8px,2dvh,16px));
         border-radius: 28px;
       }
       .entrance .dock {
-        height: 92px;
+        height: clamp(58px, 11dvh, 92px);
         min-height: 0;
         align-self: start;
-        transform: translateY(66px);
-        gap: 8px;
+        transform: translateY(clamp(30px, 8dvh, 66px));
+        gap: clamp(4px,1dvh,8px);
       }
       .entrance .primary {
-        min-width: 270px;
-        font-size: 27px;
-        padding: 14px 34px;
+        min-width: clamp(190px, 27vw, 270px);
+        font-size: clamp(19px, 3dvh, 27px);
+        padding: clamp(9px,1.7dvh,14px) clamp(22px,3vw,34px);
       }
       .entrance .dock small {
-        font-size: 11px;
+        font-size: clamp(8px,1.25dvh,11px);
         letter-spacing: 1.4px;
       }
       .entrance .feedback {
