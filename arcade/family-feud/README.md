@@ -1,5 +1,7 @@
 # Family Feud
 
+![Family Feud cover](./assets/family-feud-cover.png)
+
 A complete shared-screen, three-round game. All Family Feud code lives here;
 navigation and the session panel are provided by the existing shared Arcade/Atlas owners.
 
