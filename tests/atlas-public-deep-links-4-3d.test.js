@@ -389,6 +389,7 @@ function testAnonymousBaselineAndScopedSharing() {
     assert.deepEqual(
         Array.from(fullGames),
         [
+            'arcade:family-feud',
             'arcade:millionaire',
             'arcade:truth-trap'
         ]
