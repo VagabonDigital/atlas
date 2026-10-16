@@ -118,6 +118,7 @@ function makeRuntime(
   assert.deepStrictEqual(
     Array.from(fullGames),
     [
+      'arcade:family-feud',
       'arcade:millionaire',
       'arcade:truth-trap'
     ]
