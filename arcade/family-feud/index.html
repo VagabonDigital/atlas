@@ -191,17 +191,19 @@
         max-height: none;
         min-height: 0;
         padding: clamp(8px,1.8dvh,14px) 20px clamp(8px,1.5dvh,12px);
-        display: grid;
-        grid-template-rows: minmax(0, 1fr) minmax(190px, 38%);
-        row-gap: clamp(5px,1.2dvh,10px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: stretch;
+        gap: clamp(14px, 2.2dvh, 22px);
         flex: none;
       }
       .entrance .question {
         min-height: 0;
         height: auto;
         flex: none;
-        overflow: hidden;
-        padding: 0 0 4px;
+        overflow: visible;
+        padding: 0;
         margin: 0;
       }
       .entrance .question h1 {
@@ -219,8 +221,8 @@
       }
       .entrance .board {
         width: 82%;
-        height: auto;
-        min-height: 0;
+        height: clamp(190px, 34dvh, 285px);
+        min-height: 190px;
         align-self: center;
         flex: none;
         display: grid;
