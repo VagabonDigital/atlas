@@ -61,13 +61,12 @@ function renderBoard(flash=-1){
 function renderDock(displayActive=state?.active){
   const dock=$('#dock');
   if(!state){dock.innerHTML=button('start','Start Match')+'<small>2 CONTESTANTS · 3 ROUNDS</small>';return;}
-  const round=`<p class="round">ROUND ${state.round+1} / 3</p>`;
   if(state.phase==='playing'){
-    dock.innerHTML=`<label for="answer" class="prediction">${esc(names[displayActive])}’s prediction</label><form id="answer-form" autocomplete="off"><input id="answer" name="prediction" aria-label="Your answer" placeholder="Your answer…" maxlength="180" autocomplete="off" autocapitalize="off" spellcheck="false" ${busy?'disabled':''} value="${esc(phrase)}"><div class="actions"><button class="primary submit" type="submit" ${busy?'disabled':''}>${busy?'Resolving…':'Submit Answer'}</button>${button('pass','Pass','secondary',busy)}</div></form>${round}`;
+    dock.innerHTML=`<label for="answer" class="prediction">${esc(names[displayActive])}’s prediction</label><form id="answer-form" autocomplete="off"><input id="answer" name="prediction" aria-label="Your answer" placeholder="Your answer…" maxlength="180" autocomplete="off" autocapitalize="off" spellcheck="false" ${busy?'disabled':''} value="${esc(phrase)}"><div class="actions"><button class="primary submit" type="submit" ${busy?'disabled':''}>${busy?'Resolving…':'Submit Answer'}</button>${button('pass','Pass','secondary',busy)}</div></form>`;
     $('#answer').addEventListener('input',e=>phrase=e.target.value);
     $('#answer-form').addEventListener('submit',e=>{e.preventDefault();void submit();});
-  }else if(state.phase==='missed') dock.innerHTML=`<p class="prediction">What did we miss?</p><div class="actions">${button('reveal','Reveal Next','primary',busy)}${button('reveal-all','Reveal All','secondary',busy)}</div>${round}`;
-  else if(state.phase==='roundEnd')dock.innerHTML=`<p class="prediction">Board complete</p>${button('next',state.round===2?'Final Result':'Next Round','primary',busy)}${round}`;
+  }else if(state.phase==='missed') dock.innerHTML=`<p class="prediction">What did we miss?</p><div class="actions">${button('reveal','Reveal Next','primary',busy)}${button('reveal-all','Reveal All','secondary',busy)}</div>`;
+  else if(state.phase==='roundEnd')dock.innerHTML=`<p class="prediction">Board complete</p>${button('next',state.round===2?'Final Result':'Next Round','primary',busy)}`;
   else dock.innerHTML=`<p class="prediction">${boards.filter(b=>!seen.includes(b.id)).length>=3?'Three unseen boards ready':'Replay includes previously played boards'}</p><div class="actions">${button('again','Play Again')}${button('finish','Finish','secondary')}</div><p class="round">MATCH COMPLETE</p>`;
 }
 function render({flash=-1,scores=state?.scores,active=state?.active}={}){
@@ -82,7 +81,7 @@ function rememberBoard(){
   try{localStorage.setItem('atlas:family-feud:seen',JSON.stringify(seen));}catch{}
 }
 async function openRound(){
-  busy=true;phrase='';message=`Round ${state.round+1}. ${names[state.starter]} starts.`;rememberBoard();render();
+  busy=true;phrase='';message='';rememberBoard();render();
   $('#stage').classList.add('opening');await pause(reduced()?150:850);$('#stage').classList.remove('opening');
   busy=false;renderDock();focusAnswer();
 }
