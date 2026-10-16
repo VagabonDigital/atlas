@@ -9,6 +9,16 @@
   <link rel="stylesheet" href="../../shared/atlas-session-panel.css">
   <link rel="stylesheet" href="game.css">
   <style>
+    /* Family Feud environment plate. Keep the procedural arena beneath as a fallback. */
+    .arena::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 7;
+      background: url('./assets/arena-background.png') center center / cover no-repeat;
+      pointer-events: none;
+    }
+
     /* Restore the concept's taller survey-machine proportions in normal play. */
     .stage:not(.entrance) {
       width: min(1180px, 95vw);
