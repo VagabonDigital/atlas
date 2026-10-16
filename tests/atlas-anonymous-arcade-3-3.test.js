@@ -84,7 +84,7 @@ const accessById =
 assert.deepEqual(
     accessById,
     {
-        'arcade:two-keys': 'preview',
+        'arcade:family-feud': 'full',
         'arcade:millionaire': 'full',
         'arcade:forbidden-words': 'preview',
         'arcade:tomorrow-got-weird':
@@ -94,7 +94,15 @@ assert.deepEqual(
         'arcade:would-you-rather':
             'preview'
     },
-    'Millionaire and Truth Trap are fully public; the other current Arcade games remain preview access'
+    'Family Feud, Millionaire and Truth Trap are fully public; the other current Arcade games remain preview access'
+);
+
+assert.equal(
+    window.ArcadeCatalogData
+        .getArcadeGamePublicAccess(
+            'arcade:family-feud'
+        ),
+    'full'
 );
 
 assert.equal(
@@ -258,5 +266,5 @@ assert.match(
 );
 
 console.log(
-    'Stage 3.3 anonymous Arcade contract passed: the six-game catalogue is visible, Millionaire and Truth Trap are fully public, preview games expose their real intros, gameplay gates at Start, post-auth return unlocks the cover without auto-starting, and Search exposes preview context.'
+    'Stage 3.3 anonymous Arcade contract passed: the six-game catalogue is visible, Family Feud, Millionaire and Truth Trap are fully public, preview games expose their real intros, gameplay gates at Start, post-auth return unlocks the cover without auto-starting, and Search exposes preview context.'
 );
