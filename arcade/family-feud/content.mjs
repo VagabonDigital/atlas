@@ -47,7 +47,7 @@ export const boards = [
     concept('Toast', 23, 'bread|toasted bread|toast and butter|buttered toast|bread and butter|a slice of toast', 'Bread or toast with spreads.', ['croissant','pancake']),
     concept('Cereal', 19, 'cereals|cornflakes|muesli|granola|breakfast cereal|a bowl of cereal', 'Ready-to-eat breakfast cereals.', ['porridge','oatmeal']),
     concept('Fruit', 12, 'banana|apple|orange|berries|fresh fruit|fruit salad|a banana|an apple', 'Whole or cut fruit, not fruit juice.', ['orange juice','jam']),
-    concept('Yogurt', 8, 'yoghurt|yoghurts|yogurts|greek yogurt|greek yoghurt|a pot of yogurt', 'Cultured dairy or plant yogurt.', ['milk','cheese']),
+    concept('Yogurt', 8, 'yoghurt|yogurts|yoghurts|greek yogurt|greek yoghurt|a pot of yogurt', 'Cultured dairy or plant yogurt.', ['milk','cheese']),
     concept('Porridge', 6, 'oatmeal|oats|hot oats|a bowl of porridge|cooked oats', 'Cooked oat porridge.', ['granola','cereal']),
   ]),
   board('late', 'Name a reason people arrive late to work.', [
@@ -57,5 +57,13 @@ export const boards = [
     concept('Car trouble', 10, 'car broke down|flat tyre|flat tire|car would not start|car wont start|car problems|dead car battery', 'Mechanical problems with a private vehicle.', ['traffic','bus broke down']),
     concept('Bad weather', 7, 'weather|rain|snow|storm|heavy rain|snowstorm|flooding|icy roads', 'Weather directly delaying the journey.', ['traffic']),
     concept('Childcare', 4, 'kids|children|school run|taking kids to school|babysitter was late|childcare problems|looking after children', 'Childcare or school drop-off delays.', ['pet care']),
+  ]),
+  board('transformation', 'Name something that can be transformed or passed on, but never truly disappears.', [
+    concept('Energy', 34, 'energy|heat|light|electrical energy|chemical energy|kinetic energy|potential energy', 'Energy in the ordinary conservation-of-energy sense; transformations between forms count.', ['electricity bill','power bill']),
+    concept('Matter', 21, 'matter|mass|material|atoms|molecules|physical stuff|substance', 'Physical matter or material changing form.', ['energy']),
+    concept('Life', 15, 'life|living things|soul|spirit|rebirth|reincarnation|atman|ātman|cycle of life', 'Life or self understood philosophically or religiously as continuity, rebirth or transformation; not a claim that biological life is a conserved physical quantity.', ['corpse','death']),
+    concept('Love', 11, 'love|affection|care|kindness|love for someone|love passed on', 'Love or affection understood as persisting through people, memory or action.', ['friendship']),
+    concept('Information', 8, 'information|data|knowledge|ideas|memory|memories|digital data', 'Information understood as something copied, transmitted or transformed.', ['secret']),
+    concept('Money', 6, 'money|cash|wealth|currency|funds|financial value', 'Money or economic value being transferred or changing hands in the everyday sense.', ['debt']),
   ]),
 ];
