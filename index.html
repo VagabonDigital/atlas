@@ -4393,6 +4393,7 @@
     const Bridge = window.AtlasBridge;
     const CompassCatalog = window.CompassCatalogData;
     const ArcadeCatalog = window.ArcadeCatalogData;
+    const ACTIVE_ARCADE_GAMES = ArcadeCatalog?.getArcadeGameMap?.() || {};
 
     // ---- Display labels (decoupled from storage) ----------------------
     const ATLAS_ID = 'atlas';
@@ -4620,6 +4621,13 @@
             state.world ||
             item.world ||
             String(state.registryId).split(':')[0];
+
+          if (
+            world === ARCADE_ID &&
+            !ACTIVE_ARCADE_GAMES[state.registryId]
+          ) {
+            return null;
+          }
 
           const status = String(state.status || '').toLowerCase();
           const progress = state.progress || {};
@@ -5413,7 +5421,10 @@
     }
 
     function getHubItemCover(item) {
-      if (item.world === ARCADE_ID) return GAME_COVERS[item.registryId] || '';
+      if (item.world === ARCADE_ID) {
+        return GAME_COVERS[item.registryId] ||
+          ACTIVE_ARCADE_GAMES[item.registryId]?.coverImage || '';
+      }
       if (item.world !== COMPASS_ID) return '';
 
       const owned = getOwnedHubSubjectSummary(item);
@@ -5452,6 +5463,7 @@
           const published = reg.items?.[activity.registryId] || {};
           const item = Object.assign({}, activity, state, published);
           item.world = item.world || String(activity.registryId).split(':')[0];
+          if (item.world === ARCADE_ID && !ACTIVE_ARCADE_GAMES[activity.registryId]) return [];
           if (!item.launchUrl || ![COMPASS_ID, ARCADE_ID].includes(item.world)) return [];
           const timestamp = Number(activity.timestamp);
           return [Object.assign(item, { timestamp: Number.isFinite(timestamp) && timestamp > 0 && timestamp <= 8640000000000000 ? timestamp : 0 })];
