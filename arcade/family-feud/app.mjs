@@ -85,8 +85,24 @@ async function openRound(){
   $('#stage').classList.add('opening');await pause(reduced()?150:850);$('#stage').classList.remove('opening');
   busy=false;renderDock();focusAnswer();
 }
+function recordAtlasPlay(){
+  try{
+    const bridge=window.AtlasBridge,session=bridge?.readActiveSession?.();
+    if(session?.id){
+      bridge.touchRecentActivity?.({
+        sessionId:session.id,
+        registryId:'arcade:family-feud',
+        world:'arcade',
+        type:'game',
+        title:'Family Feud',
+        launchUrl:new URL('./index.html',location.href).href
+      });
+    }
+    window.AtlasAnalytics?.arcadeGameStart?.('family-feud');
+  }catch{} // Recent activity must never interrupt a match.
+}
 async function start(){
-  if(busy)return;participantNames();state=createMatch(chooseBoards(boards,seen));await openRound();
+  if(busy)return;participantNames();state=createMatch(chooseBoards(boards,seen));recordAtlasPlay();await openRound();
 }
 function fly(index,player,value){
   if(reduced())return;
