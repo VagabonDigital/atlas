@@ -1708,7 +1708,7 @@
       'arcade:truth-trap': '../assets/hub/truth-trap.webp',
       'arcade:tomorrow-got-weird': '../assets/hub/tomorrow-got-weird.webp',
       'arcade:millionaire': '../assets/hub/millionaire.png',
-      'arcade:two-keys': '../assets/hub/two-keys-cover.png'
+      'arcade:family-feud': './family-feud/assets/family-feud-cover.png'
     };
     const GAME_CATALOGUE = ArcadeCatalog.getArcadeGames().sort(
       (a, b) => Object.keys(GAME_COVERS).indexOf(a.registryId) -
@@ -1797,13 +1797,22 @@
        complete or retire the game.
        ================================================================ */
     function getGameDeckState(game, state) {
-      // Millionaire records exposure and results, but does not resume active runs.
+      // Millionaire restores active runs, but completed shows start afresh.
       if (game.registryId === 'arcade:millionaire') {
+        const resumable = !!state?.millionaire?.activeRun;
+        const covered = Math.max(
+          1,
+          Math.min(10, Number(state?.progress?.covered) || 1)
+        );
         return {
-          mode: 'unstarted',
-          actionLabel: state && state.lastResult ? 'Play again' : 'Play',
-          positionLabel: '10 questions',
-          progressPercent: 0
+          mode: resumable ? 'in-progress' : 'unstarted',
+          actionLabel: resumable
+            ? 'Resume'
+            : state?.lastResult ? 'Play again' : 'Play',
+          positionLabel: resumable
+            ? covered + ' of 10 questions'
+            : '10 questions',
+          progressPercent: resumable ? covered * 10 : 0
         };
       }
       const progress = state && typeof state === 'object'
@@ -2214,7 +2223,7 @@
         !preview &&
         presentation.mode !== 'unstarted';
 
-      const cover = GAME_COVERS[game.registryId];
+      const cover = GAME_COVERS[game.registryId] || game.coverImage || '';
 
       const progressHtml = hasProgressBar
         ? '<span class="game-card-progress-track" aria-hidden="true">' +
