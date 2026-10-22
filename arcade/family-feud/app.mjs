@@ -133,7 +133,7 @@ function renderDock(displayActive=state?.active){
     dock.innerHTML=`<form id="answer-form" autocomplete="off"><input id="answer" name="prediction" aria-label="Your answer" placeholder="Your answer…" maxlength="180" autocomplete="off" autocapitalize="off" spellcheck="false" ${busy?'disabled':''} value="${esc(phrase)}"><div class="actions"><button class="primary submit" type="submit" ${busy||!phrase.trim()?'disabled':''}>${busy?'Resolving…':'Submit Answer'}</button>${button('pass','Pass','secondary',busy)}</div></form>`;
     $('#answer').addEventListener('input',e=>{phrase=e.target.value;const submitButton=$('#answer-form .submit');if(submitButton)submitButton.disabled=busy||!phrase.trim();});
     $('#answer-form').addEventListener('submit',e=>{e.preventDefault();void submit();});
-  }else if(state.phase==='missed') dock.innerHTML=`<p class="prediction">What did we miss?</p><div class="actions">${button('reveal','Reveal Next','primary',busy)}${button('reveal-all','Reveal All','secondary',busy)}</div>`;
+  }else if(state.phase==='missed') dock.innerHTML=`<div class="reveal-layout"><p class="prediction reveal-heading">What did we miss?</p><div class="actions reveal-actions">${button('reveal','Reveal Next','primary',busy)}${button('reveal-all','Reveal All','secondary',busy)}</div></div>`;
   else if(state.phase==='roundEnd')dock.innerHTML=`<p class="prediction">Board complete</p>${button('next',state.round===2?'Final Result':'Next Round','primary',busy)}`;
   else dock.innerHTML=`<p class="prediction">${boards.filter(b=>!seen.includes(b.id)).length>=3?'Three unseen boards ready':'Replay includes previously played boards'}</p><div class="actions">${button('again','Play Again')}${button('finish','Finish','secondary')}</div><p class="round">MATCH COMPLETE</p>`;
 }
@@ -213,11 +213,13 @@ async function submit(pass=false){
     renderPlayers(match.scores,previous);$(`#player-${result.player} .score`).classList.add('bump');
     await pause(reduced()?50:330);if(!stillCurrent())return;
   }else{
-    phrase='';message=result.out?`${names[result.player]} is out this round.`:pass?'Passed · +1 strike':'Not on the board · +1 strike';
+    phrase='';message=state.phase==='missed'?'':result.out?`${names[result.player]} is out this round.`:pass?'Passed · +1 strike':'Not on the board · +1 strike';
     tone('strike');render({active:previous});await pause(reduced()?80:350);
     if(!stillCurrent())return;
   }
-  busy=false;render();
+  busy=false;
+  if(state.phase!=='playing')message='';
+  render();
   if(state.phase==='playing'){if(state.active!==previous)tone('handoff');focusAnswer();}
   else $('#dock button')?.focus({preventScroll:true});
 }
@@ -227,7 +229,7 @@ $('#dock').addEventListener('click',async e=>{
   else if(action==='pass')await submit(true);
   else if(action==='reveal'||action==='reveal-all'){
     const missing=state.revealed.flatMap((r,i)=>r?[]:[i]),index=action==='reveal-all'?missing:missing[0];revealMissed(state,action==='reveal-all');saveMatch();
-    message=state.phase==='roundEnd'?'':'Unclaimed answer · 0 points';
+    message='';
     render({flash:index});$('#dock button')?.focus({preventScroll:true});
   }else if(action==='next'){
     nextRound(state);saveMatch();
