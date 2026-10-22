@@ -59,7 +59,14 @@ that readiness handshake if both already marked ready.
 Sessions expire after six hours. Expired records are inaccessible and are removed on
 subsequent session creation. There is no fixed round limit. Best score covers completed
 rounds in this session. The final unresolved card can be credited once by its previous
-Describer until the next turn/round begins. Finish ends play for both seats.
+Describer until the next turn/round begins. End Game is tutor-controlled and confirmed in the browser. It is available while
+waiting, at role switches/results, or during a paused countdown/active turn;
+live unpaused turns cannot be ended. Ending immediately closes the shared
+room for both seats, clears the current private card and paused clock, and
+does not allow that game to resume. The learner can observe the finished
+state, but a new seat cannot claim the finished invitation. Copy Link always
+copies the current invitation; Replace Learner Link instead rotates the
+invitation, revokes the existing seat and preserves game progress.
 
 ## Local verification
 
