@@ -205,6 +205,34 @@ try {
   } finally {
     globalThis.fetch = originalFetch;
   }
+  // Tutor-only termination must reach both seats and revoke future seat claims.
+  const waitingRoom = crypto.randomUUID();
+  const waitingCredential = token();
+  let waitingTutor = await call({ session: waitingRoom, action: "create" }, 200, true, "create");
+  await call({ session: waitingRoom, action: "join", credential: waitingCredential, invite: waitingTutor.invite });
+  await call({ session: waitingRoom, action: "finish", credential: waitingCredential }, 403);
+  waitingTutor = await call({ session: waitingRoom, action: "finish" }, 200, true);
+  assert.equal(waitingTutor.phase, "finished");
+  assert.equal((await call({ session: waitingRoom, action: "poll", credential: waitingCredential })).phase, "finished");
+  await call({ session: waitingRoom, action: "join", credential: token(), invite: waitingTutor.invite }, 403);
+
+  const pausedRoom = crypto.randomUUID();
+  const pausedCredential = token();
+  let pausedTutor = await call({ session: pausedRoom, action: "create" }, 200, true, "create");
+  await call({ session: pausedRoom, action: "join", credential: pausedCredential, invite: pausedTutor.invite });
+  pausedTutor = await call({ session: pausedRoom, action: "start" }, 200, true);
+  await call({ session: pausedRoom, action: "finish" }, 400, true); // live countdown cannot be ended
+  pausedTutor = await call({ session: pausedRoom, action: "pause" }, 200, true);
+  assert.ok(pausedTutor.paused);
+  pausedTutor = await call({ session: pausedRoom, action: "finish" }, 200, true);
+  assert.equal(pausedTutor.phase, "finished");
+  assert.equal(pausedTutor.paused, null);
+  assert.equal(pausedTutor.card, null);
+  const finishedLearner = await call({ session: pausedRoom, action: "poll", credential: pausedCredential });
+  assert.equal(finishedLearner.phase, "finished");
+  assert.equal(finishedLearner.card, null);
+  await call({ session: pausedRoom, action: "resume" }, 400, true);
+
   const denied = await handleForbiddenWords(
     new Request("https://api.test/forbidden-words/session", {
       method: "POST",
