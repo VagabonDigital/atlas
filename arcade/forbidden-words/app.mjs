@@ -656,6 +656,15 @@ function tone(frequency, duration) {
   oscillator.start();
   oscillator.stop(audio.currentTime + duration);
 }
+function confirmLearnerReplacement() {
+  const dialog = document.querySelector("#replace-learner-confirm");
+  if (!dialog || dialog.open) return Promise.resolve(false);
+  dialog.returnValue = "";
+  return new Promise((resolve) => {
+    dialog.addEventListener("close", () => resolve(dialog.returnValue === "replace"), { once: true });
+    dialog.showModal();
+  });
+}
 async function act(action) {
   if (action === "rules") {
     closeTutorMobileMenu();
@@ -707,13 +716,10 @@ async function act(action) {
     if (pending) return sendPending();
     return boot();
   }
-  if (
-    action === "replace-learner" &&
-    !confirm(
-      "Replace the learner link? The previous learner will lose access. Share the new link with your learner.",
-    )
-  )
-    return;
+  if (action === "replace-learner") {
+    if (!(await confirmLearnerReplacement())) return;
+    if (busy) return;
+  }
   pending = {
     action,
     id: uuid(),
