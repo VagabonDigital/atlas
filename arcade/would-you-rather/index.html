@@ -106,6 +106,12 @@
       -webkit-backdrop-filter: blur(14px);
     }
 
+    /* The Shared control sits over cooler art: balance its glass tint to
+       match the warmer Back and appearance controls in light mode. */
+    html[data-theme="light"] .arcade-game-chrome-session {
+      background: rgba(255, 246, 239, 0.95);
+    }
+
     html[data-theme="light"] .arcade-game-chrome-back:hover,
     html[data-theme="light"] .arcade-game-chrome-session:hover,
     html[data-theme="light"] .arcade-game-chrome-icon-btn:hover {
