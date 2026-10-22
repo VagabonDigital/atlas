@@ -465,6 +465,37 @@
         height: 46px;
       }
     }
+    /* Status is part of the controls, not a floating footer on the arena. */
+    .dock #dock-controls {
+      width: 100%;
+      min-width: 0;
+    }
+    .stage:not(.entrance) .dock > .feedback {
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      min-height: 26px;
+      margin: 0;
+      padding: 2px 6px;
+      background: none;
+      border-radius: 0;
+      text-shadow: none;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.2;
+      overflow-wrap: anywhere;
+    }
+    .stage:not(.entrance) .dock > .feedback:empty {
+      visibility: hidden;
+    }
+    @media (max-width: 700px) {
+      .stage:not(.entrance) .dock > .feedback {
+        min-height: 24px;
+        font-size: 13px;
+        line-height: 1.15;
+        padding: 2px 3px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -480,10 +511,9 @@
     </section>
     <section class="console" aria-label="Contestants and answer controls">
       <div id="player-0" class="contestant player-a"></div>
-      <div id="dock" class="dock"></div>
+      <div id="dock" class="dock"><div id="dock-controls"></div><div id="feedback" class="feedback" role="status" aria-live="polite" aria-atomic="true"></div></div>
       <div id="player-1" class="contestant player-b"></div>
     </section>
-    <div id="feedback" class="feedback" role="status" aria-live="polite" aria-atomic="true"></div>
   </main>
   <div id="atlas-session-panel-root"></div>
   <script src="../../shared/atlas-bridge.js"></script>
