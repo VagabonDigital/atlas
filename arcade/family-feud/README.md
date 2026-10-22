@@ -37,7 +37,7 @@ Technical failures preserve the exact entry and turn for retry.
 ## Verification
 
 ```sh
-node --test arcade/family-feud/dev/rules.test.mjs
+node --test arcade/family-feud/dev/rules.test.mjs arcade/family-feud/dev/continuity.test.mjs
 node arcade/family-feud/dev/browser-check.cjs
 ```
 
@@ -46,7 +46,8 @@ Playwright module path if it is not on Node's module path, and optionally
 `FF_BROWSER` to an installed Chromium executable. Run the local server first.
 Screenshots are written to `dev/evidence/` (ignored).
 
-The focused checks cover all authored aliases, representative paraphrases and
+The focused checks cover save/restore, refresh, learner-session switching,
+all three rounds, completion and replay as well as authored aliases, paraphrases,
 typos, unrelated neighbours, concept collisions, elimination and solo continuation,
 starter rules, scoring, all-found and missed-board endings, complete three-round
 play, replay, win/draw, Finish, and an injected one-shot resolver failure/retry.
