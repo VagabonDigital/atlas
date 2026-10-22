@@ -275,7 +275,7 @@ const fs = require("node:fs");
   assert.ok(gameCss.includes(".deck-area {"));
   assert.ok(gameCss.includes("row-gap: 66px;"));
   assert.ok(gameCss.includes(".hero-deck {"));
-  assert.ok(gameCss.includes("padding-bottom: clamp(34px, 5.8svh, 56px);"));
+  assert.ok(gameCss.includes("padding-bottom: clamp(68px, 8.5svh, 82px);"));
   assert.ok(!gameCss.includes("height: 385px;"));
   assert.ok(gameCss.includes(".deck-area .deck-object {"));
   assert.ok(gameCss.includes("margin: 0;"));
