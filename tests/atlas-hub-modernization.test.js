@@ -115,7 +115,7 @@ for (const file of ['shared/atlas-structured-subject.js', 'shared/compass-catalo
   vm.runInContext(fs.readFileSync(file, 'utf8'), context);
 }
 window.AtlasStructuredSubject = context.AtlasStructuredSubject;
-Object.assign(context, { AtlasStructuredSubject: context.AtlasStructuredSubject, CompassCatalog: window.CompassCatalogData, ArcadeCatalog: window.ArcadeCatalogData });
+Object.assign(context, { AtlasStructuredSubject: context.AtlasStructuredSubject, CompassCatalog: window.CompassCatalogData, ArcadeCatalog: window.ArcadeCatalogData, ACTIVE_ARCADE_GAMES: window.ArcadeCatalogData.getArcadeGameMap() });
 vm.runInContext(html.slice(html.indexOf('    function getContinueItem('), html.indexOf('    // ================================================================\n    // APPEARANCE')), context);
 vm.runInContext(html.slice(html.indexOf('    const GAME_COVERS'), html.indexOf('    function toggleContinueRecapFromButton')), context);
 const sourceTravel = window.CompassCatalogData.getCompassCatalogMap()['compass:travel-exploration'];
@@ -125,6 +125,14 @@ registry.items[travel.registryId] = sourceTravel;
 registry.items[arcade.registryId] = arcade;
 registry.sessionStates.yasmin = { [travel.registryId]: travel, [arcade.registryId]: arcade };
 assert.equal(context.getContinueItem(registry, 'yasmin').registryId, arcade.registryId);
+registry.sessionStates.yasmin['arcade:two-keys'] = {
+  registryId: 'arcade:two-keys', world: 'arcade',
+  launchUrl: '/arcade/two-keys/', status: 'in-progress',
+  progress: { covered: 2, total: 6 }, lastTouchedAt: 500
+};
+assert.equal(context.getContinueItem(registry, 'yasmin').registryId, arcade.registryId,
+  'Retired Arcade games must not displace a playable Continue card');
+delete registry.sessionStates.yasmin['arcade:two-keys'];
 assert.equal(context.getContinueItem(registry, 'default'), null, 'Shared must not inherit named-learner continuity');
 arcade.status = 'complete';
 assert.equal(context.getContinueItem(registry, 'yasmin').registryId, travel.registryId);
