@@ -55,6 +55,8 @@ let lastKey = "",
   pollTimer,
   owner,
   atlasSession,
+  gameLearnerId = null,
+  roomEpoch = 0,
   playingChromeMounted = false;
 let sound = storage.get("fw:sound") === "on",
   audio,
@@ -176,16 +178,68 @@ function showTutorLandingChrome() {
   if (landingChrome) landingChrome.hidden = false;
   if (playingChrome) playingChrome.hidden = true;
 }
+// Only the selected Atlas learner may own this tab's tutor room. Room IDs
+// are browser bookmarks, not authorization: the Worker enforces the bound ID.
+const roomKey = (ownerId, learnerId) =>
+  `fw:tutor:${ownerId}:atlas:${learnerId}`;
+const legacyKey = (ownerId) => `fw:tutor:${ownerId}`;
+const legacyClaimKey = (ownerId) => `fw:tutor:${ownerId}:legacy-claimed`;
+function selectedAtlasLearner() {
+  return window.AtlasBridge?.readActiveSession?.() || null;
+}
+function showNoLearnerRoom() {
+  showTutorLandingChrome();
+  const previous = storage.get(legacyKey(owner));
+  const canRecover = previous && !storage.get(legacyClaimKey(owner));
+  const name = escape(atlasSession?.name || "this learner");
+  app.innerHTML = `<section class="landing"><div class="landing-identity">${brand}<p class="premise">Describe the word. <br>Lose the obvious language.</p><div class="hero-deck">${deck}</div><p class="caption">Two voices. One clock. Find another way.</p></div><div class="invitation panel"><p class="eyebrow">ATLAS LEARNER</p><h1>${name}</h1><p>No Forbidden Words game is linked to this learner yet. Existing games for other learners stay where they are.</p>${button("new-session", "Create game for this learner", "primary start-button")}${canRecover ? `<div class="room-recovery"><p>Played before this update? An older game is saved without an Atlas learner.</p>${button("recover-legacy", "Link older game to this learner", "text-button")}</div>` : ""}</div></section>`;
+}
+function selectTutorRoom(next) {
+  if (!owner || learner || !next?.id) return;
+  if (next.id === gameLearnerId) {
+    atlasSession = next; // Rename/refresh; never reassign the room.
+    return;
+  }
+  roomEpoch++;
+  clearTimeout(pollTimer);
+  pending = null;
+  busy = false;
+  failed = false;
+  retryDelay = 650;
+  state = null;
+  lastKey = "";
+  lastNonce = null;
+  lastPhase = null;
+  lastFeedback = null;
+  notify("");
+  atlasSession = next;
+  gameLearnerId = next.id;
+  session = storage.get(roomKey(owner, gameLearnerId));
+  if (session) void boot();
+  else showNoLearnerRoom();
+}
+function confirmLegacyRecovery() {
+  const dialog = document.querySelector("#recover-legacy-confirm");
+  if (!dialog || dialog.open) return Promise.resolve(false);
+  dialog.returnValue = "";
+  const name = dialog.querySelector("#recover-legacy-name");
+  if (name) name.textContent = atlasSession?.name || "this learner";
+  return new Promise(resolve => {
+    dialog.addEventListener("close", () => resolve(dialog.returnValue === "recover"), { once: true });
+    dialog.showModal();
+  });
+}
+class RoomChanged extends Error {}
+
 function syncAtlasContinuity(s) {
-  if (learner || LOCAL || !s || !window.AtlasBridge) return;
+  if (learner || LOCAL || !s || !window.AtlasBridge || !gameLearnerId) return;
   try {
-    atlasSession = window.AtlasBridge.readActiveSession?.() || atlasSession;
-    if (!atlasSession?.id) return;
+    if (window.AtlasBridge.readActiveSession?.()?.id !== gameLearnerId) return;
     const started = s.phase !== "waiting";
     const finished = s.phase === "finished";
     const round = Math.max(1, Number(s.round) || 1);
     const launchUrl = new URL("./index.html", location.href).href;
-    window.AtlasBridge.upsertSessionState(atlasSession.id, REGISTRY_ID, {
+    window.AtlasBridge.upsertSessionState(gameLearnerId, REGISTRY_ID, {
       world: "arcade",
       status: finished ? "complete" : started ? "in-progress" : "available",
       launchUrl,
@@ -197,7 +251,7 @@ function syncAtlasContinuity(s) {
     });
     if (started) {
       window.AtlasBridge.touchRecentActivity({
-        sessionId: atlasSession.id,
+        sessionId: gameLearnerId,
         registryId: REGISTRY_ID,
         title: "Forbidden Words",
         launchUrl,
@@ -261,13 +315,17 @@ async function setupTutor() {
     }
     owner = auth.user.id;
   } else owner = "local-verification";
-  if (!LOCAL) atlasSession = window.AtlasBridge?.readActiveSession?.() || null;
-  session = storage.get(`fw:tutor:${owner}`) || uuid();
-  storage.set(`fw:tutor:${owner}`, session);
+  // The session panel can select learners during setup; resolve the final
+  // selection only after Atlas account and session chrome are ready.
+  atlasSession = selectedAtlasLearner();
+  if (!atlasSession?.id) throw new Error("Select an Atlas learner to host a game.");
+  gameLearnerId = atlasSession.id;
+  session = storage.get(roomKey(owner, gameLearnerId));
   return true;
 }
 async function request(action, extra = {}, commandId) {
   const requestSession = session;
+  const requestEpoch = roomEpoch;
   let auth = "";
   if (!learner) {
     if (LOCAL) auth = "local-verification";
@@ -278,6 +336,8 @@ async function request(action, extra = {}, commandId) {
       auth = current.access_token;
     }
   }
+  if (requestSession !== session || requestEpoch !== roomEpoch)
+    throw new RoomChanged();
   const start = performance.now();
   const response = await fetch(
     `${API}${action === "create" ? "create" : "session"}`,
@@ -291,6 +351,7 @@ async function request(action, extra = {}, commandId) {
         session: requestSession,
         action,
         id: commandId || uuid(),
+        ...(!learner && gameLearnerId ? { atlasSessionId: gameLearnerId } : {}),
         ...(learner ? { credential } : {}),
         ...extra,
       }),
@@ -299,7 +360,8 @@ async function request(action, extra = {}, commandId) {
     },
   );
   const data = await response.json();
-  if (requestSession !== session) return state;
+  if (requestSession !== session || requestEpoch !== roomEpoch)
+    throw new RoomChanged();
   if (!response.ok) {
     const e = new Error(data.error || "Could not reach the game.");
     e.status = response.status;
@@ -728,12 +790,51 @@ async function act(action) {
       "arcade:forbidden-words",
     );
   if (action === "new-session") {
+    if (learner || !owner || !gameLearnerId) return;
+    roomEpoch++;
+    clearTimeout(pollTimer);
     session = uuid();
-    storage.set(`fw:tutor:${owner}`, session);
+    storage.set(roomKey(owner, gameLearnerId), session);
+    state = null;
+    pending = null;
+    lastKey = "";
+    lastNonce = null;
+    await boot();
+    return;
+  }
+  if (action === "recover-legacy") {
+    if (learner || !owner || !gameLearnerId || session ||
+        storage.get(legacyClaimKey(owner))) return;
+    const targetLearnerId = gameLearnerId;
+    const legacyRoom = storage.get(legacyKey(owner));
+    if (!legacyRoom || !(await confirmLegacyRecovery())) return;
+    if (targetLearnerId !== gameLearnerId || session) return;
+    const recoveryEpoch = ++roomEpoch;
+    clearTimeout(pollTimer);
+    session = legacyRoom;
     state = null;
     lastKey = "";
-    await request("create", { theme: tutorTheme() });
-    schedulePoll();
+    try {
+      // Read legacy room as its authenticated tutor, before explicit binding.
+      await request("poll", { atlasSessionId: null });
+      if (recoveryEpoch !== roomEpoch) return;
+      await request("bind-learner", {
+        atlasSessionId: targetLearnerId, round: state.round, turn: state.turn,
+      });
+      if (recoveryEpoch !== roomEpoch) return;
+      storage.set(roomKey(owner, targetLearnerId), legacyRoom);
+      storage.set(legacyClaimKey(owner), targetLearnerId);
+      lastKey = "";
+      render();
+      schedulePoll();
+    } catch (error) {
+      if (recoveryEpoch !== roomEpoch || error instanceof RoomChanged) return;
+      session = null;
+      state = null;
+      lastKey = "";
+      showNoLearnerRoom();
+      notify(error.message, { duration: 6000 });
+    }
     return;
   }
   if (busy) return;
@@ -756,6 +857,7 @@ async function act(action) {
 }
 async function sendPending() {
   if (!pending) return;
+  const pendingEpoch = roomEpoch;
   busy = true;
   updateControls();
   const operation = pending;
@@ -765,6 +867,7 @@ async function sendPending() {
       { card: operation.card, round: operation.round, turn: operation.turn },
       operation.id,
     );
+    if (pendingEpoch !== roomEpoch) return;
     pending = null;
     notify(
       operation.action === "replace-learner"
@@ -772,6 +875,7 @@ async function sendPending() {
         : "",
     );
   } catch (error) {
+    if (pendingEpoch !== roomEpoch || error instanceof RoomChanged) return;
     notify(error.message, {
       persistent: !error.status || error.status >= 500,
       duration: 5000,
@@ -781,14 +885,17 @@ async function sendPending() {
       failed = true;
     }
   } finally {
-    busy = false;
-    lastKey = "";
-    if (state) render();
-    schedulePoll();
+    if (pendingEpoch === roomEpoch) {
+      busy = false;
+      lastKey = "";
+      if (state) render();
+      schedulePoll();
+    }
   }
 }
 function schedulePoll() {
   clearTimeout(pollTimer);
+  if (!session) return;
   pollTimer = setTimeout(poll, state?.phase === "finished" ? 3000 : retryDelay);
 }
 function showEntryError(error) {
@@ -803,6 +910,8 @@ function showEntryError(error) {
   notify("");
 }
 async function poll() {
+  if (!session) return;
+  const pollEpoch = roomEpoch;
   if (busy) return schedulePoll();
   try {
     if (pending) {
@@ -811,12 +920,14 @@ async function poll() {
     }
     const wasDisconnected = failed;
     await request("poll");
+    if (pollEpoch !== roomEpoch) return;
     const partnerMissing =
       state &&
       ["countdown", "active"].includes(state.phase) &&
       !state.connected[learner ? "tutor" : "learner"];
     if (wasDisconnected && !partnerMissing) notify("Connected again.");
   } catch (error) {
+    if (pollEpoch !== roomEpoch || error instanceof RoomChanged) return;
     if ([401, 403, 410].includes(error.status)) {
       showEntryError(error);
       return;
@@ -826,10 +937,11 @@ async function poll() {
     notify(error.message, { persistent: true });
     updateControls();
   }
-  schedulePoll();
+  if (pollEpoch === roomEpoch) schedulePoll();
 }
 async function boot() {
   clearTimeout(pollTimer);
+  const bootEpoch = roomEpoch;
   try {
     if (learner) {
       if (!session)
@@ -843,10 +955,13 @@ async function boot() {
       await request("join", { invite });
     } else {
       if (!owner && !(await setupTutor())) return;
+      if (bootEpoch !== roomEpoch) return;
+      if (!session) return showNoLearnerRoom();
       await request("create", { theme: tutorTheme() });
     }
-    schedulePoll();
+    if (bootEpoch === roomEpoch) schedulePoll();
   } catch (error) {
+    if (bootEpoch !== roomEpoch || error instanceof RoomChanged) return;
     showEntryError(error);
   }
 }
@@ -937,9 +1052,9 @@ document.addEventListener("visibilitychange", () => {
 });
 window.addEventListener("atlas:session-change", (event) => {
   if (learner || LOCAL) return;
-  atlasSession =
-    event.detail?.session || window.AtlasBridge?.readActiveSession?.() || null;
-  if (state) syncAtlasContinuity(state);
+  const next = window.AtlasBridge?.readActiveSession?.() || event.detail?.session;
+  if (owner) selectTutorRoom(next);
+  else atlasSession = next;
 });
 window.addEventListener("atlas:appearance-change", (event) => {
   if (learner || LOCAL || !state) return;
