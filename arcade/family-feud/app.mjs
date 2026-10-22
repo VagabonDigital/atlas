@@ -6,6 +6,13 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 const pause=ms=>new Promise(r=>setTimeout(r,ms));
 const reduced=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 const REGISTRY_ID='arcade:family-feud';
+// The illustration is the intended arena. CSS hides the older procedural art
+// during loading; reveal it only if the illustration cannot be fetched.
+if(typeof Image!=='undefined'){
+  const arenaPlate=new Image();
+  arenaPlate.onerror=()=>$('.arena')?.classList.add('arena-fallback');
+  arenaPlate.src=new URL('./assets/arena-background.png',location.href).href;
+}
 let state=null,busy=false,phrase='',message='',muted=true,audio=null,names=['Player 1','Player 2'];
 let matchSessionId=null,matchGeneration=0,sessionLoaded=false;
 let seen=[];

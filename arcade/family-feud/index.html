@@ -20,8 +20,13 @@
   <link rel="stylesheet" href="../../shared/atlas-modal-theme.css">
   <link rel="stylesheet" href="../../shared/atlas-session-panel.css">
   <link rel="stylesheet" href="game.css">
+  <link rel="preload" as="image" href="./assets/arena-background.png" fetchpriority="high">
   <style>
-    /* Family Feud environment plate. Keep the procedural arena beneath as a fallback. */
+    /* Show one arena, never the temporary procedural stadium while the
+       illustrated plate is loading. Restore the original procedural stadium
+       only when its replacement image genuinely fails. */
+    .arena > * { visibility: hidden; }
+    .arena.arena-fallback > * { visibility: visible; }
     .arena::before {
       content: '';
       position: absolute;
