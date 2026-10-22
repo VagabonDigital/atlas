@@ -150,10 +150,17 @@ export async function handleForbiddenWords(
     } else if (!TOKEN.test(body.credential))
       throw new GameError("Invalid learner credential.", 403);
     const credentialHash = learner ? await hash(body.credential) : null;
+    const atlasSessionId = typeof body.atlasSessionId === "string"
+      ? body.atlasSessionId
+      : null;
+    if (!learner && atlasSessionId !== null &&
+        !/^[a-zA-Z0-9_-]{1,160}$/.test(atlasSessionId))
+      throw new GameError("Invalid Atlas learner context.", 400);
     if (route === "create") {
       if (learner) throw new GameError("Only a tutor can create a game.", 403);
       const state = initialState(0);
       state.theme = body.theme === "night" ? "night" : "light";
+      state.atlasSessionId = atlasSessionId;
       state.invite = token();
       await rpc("forbidden_words_create", {
         p_id: body.session,
@@ -194,6 +201,17 @@ export async function handleForbiddenWords(
         }
       } else if (row.owner !== owner)
         throw new GameError("This game belongs to another tutor.", 403);
+      if (!learner && s.atlasSessionId && s.atlasSessionId !== atlasSessionId)
+        throw new GameError(
+          "This room belongs to a different Atlas learner. Return to that learner to continue.",
+          409,
+        );
+      if (!learner && !s.atlasSessionId && atlasSessionId &&
+          route !== "create" && body.action !== "bind-learner")
+        throw new GameError(
+          "This older room must be explicitly linked to an Atlas learner first.",
+          409,
+        );
       const input =
         route === "create" || body.action === "join"
           ? { action: "poll" }
