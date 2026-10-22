@@ -345,6 +345,11 @@ body:before {
 .invite-link-row .primary {
   align-self: stretch;
 }
+/* This button sits flush inside a clipped link field: hover feedback must
+   change colour, not lift the button through the container's top edge. */
+#app .landing .invite-link-row button.primary:is(:hover, :active):not(:disabled) {
+  transform: none;
+}
 .link-row input {
   min-width: 0;
   width: 100%;
