@@ -237,7 +237,9 @@
     }
 
     if (menu) {
+      const restoreFocus = menu.contains(document.activeElement);
       menu.hidden = true;
+      if (restoreFocus) toggle?.focus();
     }
   }
 
@@ -578,7 +580,6 @@
             type="button"
             aria-label="More game controls"
             title="More"
-            aria-haspopup="menu"
             aria-expanded="false"
           >
             <svg
@@ -599,13 +600,13 @@
 
           <div
             class="arcade-game-chrome-game-menu"
-            role="menu"
+            role="group"
+            aria-label="Game controls"
             hidden
           >
             <button
               class="arcade-game-chrome-game-menu-item arcade-game-chrome-game-menu-session"
               type="button"
-              role="menuitem"
             >
               <svg
                 width="15"
@@ -635,7 +636,6 @@
             <button
               class="arcade-game-chrome-game-menu-item arcade-game-chrome-game-menu-search"
               type="button"
-              role="menuitem"
               data-atlas-search
             >
               <svg
@@ -665,7 +665,6 @@
             <button
               class="arcade-game-chrome-game-menu-item arcade-game-chrome-game-menu-appearance"
               type="button"
-              role="menuitem"
             >
               <svg
                 class="arcade-game-chrome-appearance-icon arcade-game-chrome-appearance-icon--moon"

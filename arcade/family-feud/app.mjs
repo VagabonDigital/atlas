@@ -18,7 +18,18 @@ let matchSessionId=null,matchGeneration=0,sessionLoaded=false;
 let seen=[];
 try{seen=JSON.parse(localStorage.getItem('atlas:family-feud:seen')||'[]');if(!Array.isArray(seen))seen=[];}catch{}
 window.ArcadeGameChrome?.mountLanding({root:'#landing-chrome',appearance:false});
-window.ArcadeGameChrome?.mountGame({root:'#game-chrome',returnRoot:'#return-slot',onBeforeReturn:()=>saveMatch()});
+window.ArcadeGameChrome?.mountGame({root:'#game-chrome',returnRoot:'#return-slot',actionsRoot:'#game-utilities',onBeforeReturn:()=>saveMatch()});
+// The cover utilities share one row; the same sound button follows gameplay.
+const soundButton = $('#sound');
+$('#landing-chrome .arcade-game-chrome-actions')?.append(soundButton);
+try { muted = localStorage.getItem('atlas:family-feud:sound') !== 'on'; } catch {}
+function updateSoundControl() {
+  soundButton.textContent = muted ? 'Sound off' : 'Sound on';
+  soundButton.setAttribute('aria-label', 'Sound');
+  soundButton.setAttribute('aria-pressed', String(!muted));
+  soundButton.title = muted ? 'Turn sound on' : 'Turn sound off';
+}
+updateSoundControl();
 window.AtlasSessionPanel?.mount({root:'#atlas-session-panel-root',initialView:'manage'});
 function participantNames(){
   // The bridge exposes a named learner session, not an authoritative tutor name.
@@ -107,7 +118,12 @@ function tone(kind){
     });
   }catch{} // Audio must never interrupt a turn.
 }
-$('#sound').addEventListener('click',()=>{muted=!muted;$('#sound').textContent=muted?'Sound off':'Sound on';$('#sound').setAttribute('aria-pressed',String(!muted));if(!muted)tone('handoff');});
+soundButton.addEventListener('click',()=>{
+  muted=!muted;
+  try { localStorage.setItem('atlas:family-feud:sound', muted ? 'off' : 'on'); } catch {}
+  updateSoundControl();
+  if(!muted)tone('handoff');
+});
 function lightCrowd(value,owner){
   const color=owner===0?'#ffab48':owner===1?'#b5a6ff':'#fff0b5';
   // One fixed field, proportional illuminated fraction; no running simulation.
@@ -146,6 +162,8 @@ function renderDock(displayActive=state?.active){
 }
 function render({flash=-1,scores=state?.scores,active=state?.active}={}){
   $('#stage').classList.toggle('entrance',!state);$('#landing-chrome').hidden=!!state;$('#game-chrome').hidden=!state;
+  const soundSlot = state ? $('#game-utilities') : $('#landing-chrome .arcade-game-chrome-actions');
+  if (soundSlot && soundButton.parentElement !== soundSlot) soundSlot.append(soundButton);
   document.documentElement.style.setProperty('--active',active===1?'#9990ed':'#ff902e');
   $('#heading').innerHTML=state?`<span class="round-kicker">${state.phase==='final'?'MATCH COMPLETE':`ROUND ${state.round+1} OF 3`}</span><h1>${state.phase==='final'?'You met the crowd.':esc(state.boards[state.round].question)}</h1>`:'<h1>FAMILY<br>FEUD</h1><p>You know your answer.<br>Do you know everyone else’s?</p>';
   renderBoard(flash);renderPlayers(scores,active);renderDock(active);$('#feedback').textContent=message;

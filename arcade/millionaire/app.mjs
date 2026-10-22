@@ -11,10 +11,19 @@ const escape = text => String(text).replace(/[&<>"']/g, char => ({ '&':'&amp;', 
 const lockIcon = '<svg viewBox="0 0 24 28"><path d="M6 11V7a6 6 0 0112 0v4h2v15H4V11zm3 0h6V7a3 3 0 00-6 0zm2 6v5h2v-5z"/></svg>';
 const Bridge = window.AtlasBridge;
 let game, context, visitSeen = new Set(), visitResults = [], lastQuestion, lastPhase;
-let isInspection = false, muted = false, dialogOrigin;
+let isInspection = false, muted = true, dialogOrigin;
 let hostDraftPick = null, hostDraftConfidence = 'Unsure';
 const storage = Bridge ? continuity(Bridge) : null;
 const showDirector = createShowDirector($('#show'));
+try { muted = localStorage.getItem('atlas:millionaire:sound') !== 'on'; } catch {}
+function updateSoundControl() {
+  showDirector.setMuted(muted);
+  $('#sound').textContent = muted ? 'Sound off' : 'Sound on';
+  $('#sound').setAttribute('aria-label', 'Sound');
+  $('#sound').setAttribute('aria-pressed', String(!muted));
+  $('#sound').title = muted ? 'Turn sound on' : 'Turn sound off';
+}
+updateSoundControl();
 
 function playSound(kind) {
   if (muted) return;
@@ -260,9 +269,8 @@ $('#question-tools').onclick = questionCare;
 $('#reset-session').onclick = confirmResetSession;
 $('#sound').onclick = () => {
   muted = !muted;
-  showDirector.setMuted(muted);
-  $('#sound').textContent = muted ? 'Sound off' : 'Sound on';
-  $('#sound').setAttribute('aria-pressed', String(muted));
+  try { localStorage.setItem('atlas:millionaire:sound', muted ? 'off' : 'on'); } catch {}
+  updateSoundControl();
   if (!muted) playSound('select');
 };
 $('#how-to').onclick = () => modal('Welcome to the show', `<p>One tutor is the <strong>Host</strong>. One learner is the <strong>Contestant</strong>. Share this screen; the Host operates it.</p>

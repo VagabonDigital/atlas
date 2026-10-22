@@ -320,7 +320,7 @@ async function request(action, extra = {}, commandId) {
 function headerUtilities() {
   const soundLabel = sound ? "Sound on" : "Sound off";
   const soundAction = sound ? "Turn sound off" : "Turn sound on";
-  return `<button class="game-utility-button sound-button" data-action="sound" aria-label="${soundAction}" title="${soundAction}"><span class="utility-icon" aria-hidden="true">♪</span><span class="utility-label">${soundLabel}</span></button><button class="game-utility-button help-button" data-action="rules" aria-label="How to play" title="How to play"><span class="utility-icon" aria-hidden="true">?</span><span class="utility-label utility-rule-label">How to play</span></button>`;
+  return `<button class="game-utility-button sound-button arcade-game-chrome-utility" type="button" data-action="sound" aria-label="Sound" aria-pressed="${sound}" title="${soundAction}"><span class="utility-label">${soundLabel}</span></button><button class="game-utility-button help-button" data-action="rules" aria-label="How to play" title="How to play"><span class="utility-icon" aria-hidden="true">?</span><span class="utility-label utility-rule-label">How to play</span></button>`;
 }
 function headerPause(s) {
   if (!["active", "countdown"].includes(s.phase)) return "";
@@ -333,8 +333,10 @@ function headerPause(s) {
 function closeTutorMobileMenu() {
   const menu = document.querySelector(".arcade-game-chrome-game-menu");
   const toggle = document.querySelector(".arcade-game-chrome-game-menu-toggle");
+  const restoreFocus = menu?.contains(document.activeElement);
   if (menu) menu.hidden = true;
   if (toggle) toggle.setAttribute("aria-expanded", "false");
+  if (restoreFocus) toggle?.focus();
 }
 function setupTutorMobileUtilities() {
   const utilities = document.querySelector("#fw-header-utilities");
@@ -351,11 +353,9 @@ function setupTutorMobileUtilities() {
     if (media.matches) {
       menu.insertBefore(utilities, menu.firstChild);
       utilities.classList.add("mobile-menu-utilities");
-      utilities.querySelectorAll("button").forEach((el) => el.setAttribute("role", "menuitem"));
     } else {
       marker.after(utilities);
       utilities.classList.remove("mobile-menu-utilities");
-      utilities.querySelectorAll("button").forEach((el) => el.removeAttribute("role"));
       closeTutorMobileMenu();
     }
   };
@@ -389,7 +389,12 @@ function updateTutorHeader(s) {
   const pauseRoot = document.querySelector("#fw-header-pause");
   if (brandRoot) brandRoot.innerHTML = brand;
   if (roundRoot) roundRoot.textContent = `ROUND ${s.round || 1}`;
-  if (utilitiesRoot) utilitiesRoot.innerHTML = headerUtilities();
+  if (utilitiesRoot && utilitiesRoot.innerHTML !== headerUtilities()) {
+    const focusedAction = utilitiesRoot.contains(document.activeElement)
+      ? document.activeElement.dataset.action : null;
+    utilitiesRoot.innerHTML = headerUtilities();
+    if (focusedAction) utilitiesRoot.querySelector(`[data-action="${focusedAction}"]`)?.focus({ preventScroll: true });
+  }
   if (pauseRoot) pauseRoot.innerHTML = headerPause(s);
 }
 function landing(s) {
@@ -655,6 +660,13 @@ function tick() {
   }
   updateControls();
 }
+function unlockSound() {
+  if (!sound) return;
+  try {
+    audio ||= new AudioContext();
+    if (audio.state === "suspended") void audio.resume().catch(() => {});
+  } catch { /* This device can continue playing silently. */ }
+}
 function tone(frequency, duration) {
   if (!sound || !audio) return;
   const oscillator = audio.createOscillator(),
@@ -677,6 +689,8 @@ function confirmLearnerReplacement() {
   });
 }
 async function act(action) {
+  // A remembered preference still needs a user gesture after reloading.
+  if (action !== "sound") unlockSound();
   if (action === "rules") {
     closeTutorMobileMenu();
     const rules = document.querySelector("#rules");
@@ -689,10 +703,10 @@ async function act(action) {
     closeTutorMobileMenu();
     sound = !sound;
     storage.set("fw:sound", sound ? "on" : "off");
-    audio ||= new AudioContext();
-    await audio.resume();
     lastKey = "";
     render();
+    // Preference and accessible state still update if audio is unavailable.
+    unlockSound();
     return;
   }
   if (action === "copy") {
