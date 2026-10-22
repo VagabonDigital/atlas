@@ -165,12 +165,16 @@ export function command(s, actor, input, now) {
     s.paused = null;
   } else if (action === "finish") {
     requireThat(
-      tutor && ["waiting", "switch", "results"].includes(s.phase),
-      "Finish between turns or rounds.",
+      tutor &&
+        (["waiting", "switch", "results"].includes(s.phase) ||
+          (["active", "countdown"].includes(s.phase) && !!s.paused)),
+      "End the game while waiting, between rounds, or after pausing the turn.",
     );
     s.phase = "finished";
     s.card = null;
     s.paused = null;
+    s.late = null;
+    s.ready = [];
   } else {
     requireThat(!s.paused, "The tutor has paused the game.");
     if (action === "start" || action === "replay") {
