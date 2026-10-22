@@ -45,7 +45,7 @@ const {pathToFileURL}=require('node:url');
  const active=()=>page.locator('.contestant.active .name').innerText();
  await fits();assert.deepEqual(await page.locator('.answer').allTextContents(),Array(6).fill(''));
  const b=await board(),before=await active();
- await answer('keys or phone');assert.match(await page.locator('#feedback').innerText(),/clearer/);assert.equal(await active(),before);
+ await answer('keys or phone');assert.match(await page.locator('#feedback').innerText(),/one specific answer/);assert.equal(await active(),before);
  await ready();await page.getByRole('textbox',{name:'Your answer'}).fill(b.concepts[0].aliases[1]);await page.getByRole('button',{name:'Submit Answer',exact:true}).click();
  await page.locator('.just-revealed').waitFor();await page.waitForTimeout(200);await page.screenshot({path:path.join(dir,'reveal-in-motion-1024.png')});await ready();assert.equal(await page.locator('.revealed').count(),1);
  const checkpoint=await matchRecord();
@@ -65,8 +65,8 @@ const {pathToFileURL}=require('node:url');
  assert.equal(await page.locator('.revealed').count(),1);
  assert.equal((await matchRecord()).familyFeud.boardIds[0],b.id);
  assert.notEqual(otherSession,originalSession);
- await answer(b.concepts[0].label);assert.match(await page.locator('#feedback').innerText(),/Already found/);assert.equal(await active(),after);
- await answer('a quantum teleportation machine');assert.match(await page.locator('#feedback').innerText(),/Not on this board/);
+ await answer(b.concepts[0].label);assert.match(await page.locator('#feedback').innerText(),/Already on the board/);assert.equal(await active(),after);
+ await answer('a quantum teleportation machine');assert.match(await page.locator('#feedback').innerText(),/Not on the board/);
  // One contestant is eliminated first; the remaining contestant can still score.
  for(let i=0;i<4;i++){await page.getByRole('button',{name:'Pass',exact:true}).click();await page.waitForTimeout(750);}
  assert.equal(await page.locator('.contestant.out').count(),1);await answer(b.concepts[1].label);assert.equal(await page.locator('.revealed').count(),2);
@@ -106,7 +106,7 @@ const {pathToFileURL}=require('node:url');
  await page.screenshot({path:path.join(dir,'entrance-reduced-1280.png')});await fits();
  await page.getByRole('button',{name:'Start Match',exact:true}).click();await ready();const retry=await board(),same=await active();
  const exact='  '+retry.concepts[0].label+'!  ';await answer(exact);
- assert.match(await page.locator('#feedback').innerText(),/Couldn’t resolve/);assert.equal(await page.locator('#answer').inputValue(),exact);assert.equal(await active(),same);assert.equal(await page.locator('.strike.used').count(),0);
+ assert.match(await page.locator('#feedback').innerText(),/Couldn’t check/);assert.equal(await page.locator('#answer').inputValue(),exact);assert.equal(await active(),same);assert.equal(await page.locator('.strike.used').count(),0);
  await page.screenshot({path:path.join(dir,'resolver-retry-1280.png')});
  await page.getByRole('button',{name:'Submit Answer',exact:true}).click();await ready();assert.equal(await page.locator('.revealed').count(),1);await fits();
  assert.deepEqual(errors,[]);
