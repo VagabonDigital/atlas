@@ -431,6 +431,41 @@
         font-size: 11px;
       }
     }
+    /* Match the successful 90%-browser-zoom gameplay composition at
+       normal zoom. Scale the stage only; leave navigation and arena art intact.
+       Compensate the height to keep six survey rows generously sized. */
+    @media (min-width: 1000px) and (min-height: 700px) {
+      .stage:not(.entrance) {
+        zoom: .9;
+        height: calc(111.111dvh - 64px);
+        margin-top: 56px;
+        grid-template-rows: minmax(0, 1fr) auto 28px;
+      }
+      /* At native zoom the 760px compact breakpoint can activate even
+         though the 90%-zoom reference uses the normal desktop layout. */
+      .stage:not(.entrance) .question {
+        height: 108px;
+        min-height: 108px;
+        flex-basis: 108px;
+      }
+      .stage:not(.entrance) .board {
+        gap: 7px;
+        padding: 7px;
+      }
+      .stage:not(.entrance) .console {
+        min-height: 170px;
+        padding: 17px 25px 16px;
+      }
+      .stage:not(.entrance) .feedback {
+        height: 28px;
+      }
+      .stage:not(.entrance) #answer-form input {
+        height: 52px;
+      }
+      .stage:not(.entrance) #answer-form .actions button {
+        height: 46px;
+      }
+    }
   </style>
 </head>
 <body>
