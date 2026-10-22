@@ -1636,10 +1636,10 @@ html[data-theme="night"] {
 }
 html[data-theme="night"] body {
 background:
-    radial-gradient(ellipse 76% 90% at 47% 40%, rgba(39, 94, 148, 0.26), transparent 69%),
-    radial-gradient(ellipse 72% 68% at -10% 112%, rgba(25, 102, 191, 0.32), transparent 68%),
-    radial-gradient(ellipse 60% 68% at 108% 105%, rgba(25, 85, 141, 0.24), transparent 75%),
-    linear-gradient(120deg, #07111f 2%, #0a1e35 54%, #08182b 100%);
+    radial-gradient(ellipse 63% 57% at 49% 31%, rgba(23, 83, 151, .27), transparent 79%),
+    radial-gradient(ellipse 70% 68% at 3% 102%, rgba(20, 74, 155, .36), transparent 78%),
+    radial-gradient(ellipse 70% 74% at 108% 97%, rgba(15, 77, 143, .22), transparent 78%),
+    linear-gradient(128deg, #050e1f 1%, #091a31 48%, #081629 100%);
 }
 html[data-theme="night"] body:before {
 background:
@@ -1648,23 +1648,13 @@ background:
     linear-gradient(140deg, rgba(26, 49, 79, 0.72), rgba(71, 56, 90, 0.55) 55%, rgba(177, 79, 68, 0.48));
 }
 html[data-theme="night"] body::after {
-  /* Behind the page chrome and cards; subtle CSS arcs, no extra image asset. */
+/* Game-owned vector artwork: blue sweeping curves and light grain. */
   content: "";
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background:
-    radial-gradient(ellipse 76% 135% at -26% 151%,
-      transparent 63%, rgba(61, 133, 230, 0.15) 63.2%,
-      rgba(20, 80, 163, 0.12) 75%, transparent 75.2%),
-    radial-gradient(ellipse 76% 94% at 128% -32%,
-      transparent 67%, rgba(60, 130, 207, 0.10) 67.4%,
-      rgba(30, 76, 142, 0.06) 81%, transparent 81.4%),
-    radial-gradient(circle at 6% 25%, rgba(141, 199, 255, 0.24) 0 1px, transparent 2px),
-    radial-gradient(circle at 31% 80%, rgba(132, 193, 253, 0.13) 0 1px, transparent 2px),
-    radial-gradient(circle at 88% 38%, rgba(132, 193, 253, 0.14) 0 1px, transparent 2px);
-  opacity: 0.8;
+  background: url("./night-atmosphere.svg") center / cover no-repeat;
 }
 
 html[data-theme="night"] #landing-chrome .arcade-game-chrome-back {
@@ -1834,26 +1824,73 @@ html[data-theme="night"] .pause-button:hover:not(:disabled) {
 }
 html[data-theme="night"] .active-card,
 html[data-theme="night"] .flying-card {
-border-width: 7px;
-  border-color: transparent;
+border-color: transparent;
   background:
-    linear-gradient(155deg, #122a46, #0a1a30) padding-box,
-    linear-gradient(138deg, #8bc8ff 2%, #3b6f9e 28%, #234263 57%, #d1a98e 100%) border-box;
+    linear-gradient(151deg, #10263f, #07182b) padding-box,
+    linear-gradient(133deg, #8acbff, #20517e 45%, #3a7cb6 75%, #afdbfb) border-box;
   box-shadow:
-    0 19px 38px rgba(0, 0, 0, 0.56),
-    0 0 26px rgba(54, 142, 233, 0.27),
-    0 0 52px rgba(31, 101, 172, 0.15),
-    0 0 calc(var(--heat) * 40px) calc(var(--heat) * 9px) rgba(255, 179, 59, 0.62);
+    0 20px 41px rgba(0, 0, 0, .59),
+    0 0 12px rgba(138, 207, 255, .60),
+    0 0 30px rgba(40, 144, 237, .42),
+    0 0 64px rgba(17, 79, 153, .29),
+    0 0 calc(var(--heat) * 40px) calc(var(--heat) * 9px) rgba(255, 179, 59, .62);
 }
+
+/* Animate only the rim overlay, never the card itself: the existing
+   deal animation must remain independent. The static border is the fallback. */
+@property --fw-rim-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes fw-rim-orbit {
+  to { --fw-rim-angle: 360deg; }
+}
+html[data-theme="night"] .active-card {
+  border-width: 5px;
+}
+html[data-theme="night"] .active-card::before {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  z-index: 2;
+  border-radius: inherit;
+  padding: 5px;
+  pointer-events: none;
+  background: conic-gradient(from var(--fw-rim-angle),
+    #4e87c1 0deg, #93d8ff 26deg, #efffff 44deg, #51b9fc 67deg,
+    #164775 103deg, #2b517a 152deg, #77a9f3 197deg,
+    #24496e 239deg, #74caff 286deg, #d9f3ff 307deg,
+    #3372b1 329deg, #4e87c1 360deg);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  animation: fw-rim-orbit 18s linear infinite;
+}
+html[data-theme="night"] .active-card::after {
+  content: "";
+  position: absolute;
+  inset: 11px;
+  z-index: 1;
+  border-radius: 17px;
+  border: 1px solid rgba(219, 228, 238, .93);
+  box-shadow: inset 0 0 0 1px rgba(8, 42, 75, .46), 0 0 10px rgba(122, 193, 255, .28);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme="night"] .active-card::before { animation: none; }
+}
+
 html[data-theme="night"] .card-face {
-border-color: rgba(87, 131, 182, 0.60);
+border-color: rgba(38, 87, 129, .43);
   background:
-    radial-gradient(ellipse at 50% 3%, rgba(44, 82, 120, 0.24), transparent 61%),
-    linear-gradient(155deg, #172c49, #0c1e33 73%, #102239);
+    radial-gradient(ellipse at 50% -10%, rgba(40, 98, 151, .34), transparent 73%),
+    linear-gradient(155deg, #142b47 0%, #0a1d33 73%, #0c1c33);
   box-shadow:
-    inset 0 1px 0 rgba(229, 246, 255, 0.18),
-    inset 0 0 26px rgba(4, 13, 35, 0.34),
-    inset 0 0 calc(var(--heat) * 45px) rgba(255, 151, 69, 0.34);
+    inset 0 1px 0 rgba(211, 241, 255, .10),
+    inset 0 0 22px rgba(4, 13, 35, .38),
+    inset 0 0 calc(var(--heat) * 45px) rgba(255, 151, 69, .34);
 }
 html[data-theme="night"] .card-face h1 {
   color: #f3f8ff;

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1728 862" preserveAspectRatio="xMidYMid slice">
+<defs>
+  <linearGradient id="waveLeft" x1="0" y1="0" x2="1" y2="1">
+    <stop stop-color="#4188e6" stop-opacity=".02"/>
+    <stop offset=".32" stop-color="#3877d5" stop-opacity=".17"/>
+    <stop offset=".70" stop-color="#326fce" stop-opacity=".30"/>
+    <stop offset="1" stop-color="#143f94" stop-opacity=".03"/>
+  </linearGradient>
+  <linearGradient id="waveLower" x1="0" y1=".45" x2="1" y2=".45">
+    <stop stop-color="#307dde" stop-opacity=".38"/>
+    <stop offset=".48" stop-color="#2656ae" stop-opacity=".22"/>
+    <stop offset="1" stop-color="#2c67be" stop-opacity=".01"/>
+  </linearGradient>
+  <linearGradient id="waveRight" x1="0" y1="0" x2="1" y2="1">
+    <stop stop-color="#24489b" stop-opacity="0"/>
+    <stop offset=".55" stop-color="#397fd8" stop-opacity=".16"/>
+    <stop offset="1" stop-color="#3078ce" stop-opacity=".25"/>
+  </linearGradient>
+  <linearGradient id="glimmer" x1="0" y1="0" x2="1" y2="0">
+    <stop stop-color="#7aceff" stop-opacity=".01"/>
+    <stop offset=".3" stop-color="#71bdff" stop-opacity=".4"/>
+    <stop offset="1" stop-color="#3d8ee7" stop-opacity=".03"/>
+  </linearGradient>
+  <radialGradient id="leftAura"><stop stop-color="#255fbc" stop-opacity=".23"/><stop offset="1" stop-color="#082451" stop-opacity="0"/></radialGradient>
+  <radialGradient id="centralAura"><stop stop-color="#367cca" stop-opacity=".17"/><stop offset="1" stop-color="#367cca" stop-opacity="0"/></radialGradient>
+  <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency=".5" numOctaves="2" seed="4" stitchTiles="stitch"/></filter>
+</defs>
+<ellipse cx="260" cy="580" rx="620" ry="520" fill="url(#leftAura)"/>
+<ellipse cx="900" cy="295" rx="570" ry="430" fill="url(#centralAura)"/>
+<path d="M -235 52 C -10 76 118 195 247 308 C 385 428 518 509 745 609 C 586 531 502 448 391 299 C 274 128 99 -48 -235 -86 Z" fill="url(#waveLeft)"/>
+<path d="M -224 50 C 40 89 156 241 261 320 C 421 461 577 545 749 609" fill="none" stroke="url(#glimmer)" stroke-width="2.1"/>
+<path d="M -225 461 C -39 510 60 624 207 683 C 402 766 604 774 836 897 L 541 1039 C 356 836 123 822 -225 712 Z" fill="url(#waveLower)"/>
+<path d="M -226 461 C -43 514 68 621 207 683 C 431 785 610 763 838 898" fill="none" stroke="url(#glimmer)" stroke-width="2" opacity=".66"/>
+<path d="M 10 734 C 212 802 304 850 505 924" stroke="#6bb8ff" stroke-width="1.2" opacity=".1" fill="none"/>
+<path d="M 1042 952 C 1196 816 1333 728 1517 643 C 1648 584 1746 549 1890 492 L 1886 837 C 1731 763 1634 748 1507 793 C 1345 850 1226 934 1176 1054 Z" fill="url(#waveRight)"/>
+<path d="M 1041 952 C 1217 807 1373 710 1517 643 C 1645 586 1788 539 1890 492" stroke="#4b9aee" stroke-opacity=".18" stroke-width="1.6" fill="none"/>
+<path d="M 1197 -160 C 1410 8 1612 98 1864 142 L 1894 241 C 1570 210 1324 83 1124 -108 Z" fill="#2866c2" opacity=".075"/>
+<g fill="#9bcfff">
+<circle cx="103" cy="208" r="1.7" opacity=".46"/><circle cx="394" cy="174" r=".7" opacity=".19"/>
+<circle cx="540" cy="702" r="1.2" opacity=".25"/><circle cx="986" cy="82" r=".8" opacity=".21"/>
+<circle cx="1600" cy="216" r="1.1" opacity=".17"/><circle cx="1525" cy="627" r="1.2" opacity=".18"/>
+<circle cx="1129" cy="711" r=".9" opacity=".21"/><circle cx="686" cy="105" r="1" opacity=".11"/>
+<circle cx="1316" cy="96" r=".9" opacity=".20"/><circle cx="174" cy="488" r=".6" opacity=".18"/>
+</g>
+<rect width="1728" height="862" opacity=".027" filter="url(#noise)" style="mix-blend-mode:screen"/>
+</svg>

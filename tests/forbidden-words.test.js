@@ -131,6 +131,24 @@ const fs = require("node:fs");
     "arcade/forbidden-words/game.css",
     "utf8",
   );
+  const nightArtwork = fs.readFileSync(
+    "arcade/forbidden-words/night-atmosphere.svg",
+    "utf8",
+  );
+  assert.ok(nightArtwork.includes('viewBox="0 0 1728 862"'));
+  assert.ok(nightArtwork.includes('<path'));
+  assert.ok(!/<script\b|https?:\/\//i.test(nightArtwork.replace('http://www.w3.org/2000/svg', '')));
+  assert.ok(gameCss.includes('background: url("./night-atmosphere.svg") center / cover no-repeat;'));
+  assert.ok(gameCss.includes("@keyframes fw-rim-orbit"));
+  assert.ok(gameCss.includes('html[data-theme="night"] .active-card::before {'));
+  assert.ok(gameCss.includes('html[data-theme="night"] .active-card::after {'));
+  assert.ok(gameCss.includes("-webkit-mask-composite: xor;"));
+  assert.ok(gameCss.includes("mask-composite: exclude;"));
+  assert.ok(gameCss.includes("@media (prefers-reduced-motion: reduce)"));
+  assert.ok(gameCss.includes(".dealing {\n  animation: deal"));
+  // The animated border must not override .dealing on the card itself.
+  const nightCardRule = gameCss.match(/html\[data-theme="night"\] \.active-card \{([^}]*)\}/);
+  assert.ok(nightCardRule && !nightCardRule[1].includes("animation:"));
   // Exercise the actual browser notice helper with controlled timeouts.
   const noticeSource = client.slice(
     client.indexOf("let noticeTimeout;"),
