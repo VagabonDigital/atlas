@@ -393,7 +393,7 @@ function landing(s) {
           <div class="entry-footer-actions">
             ${button("rules", "How to play", "entry-footer-action")}
             ${s ? '<span class="entry-footer-separator" aria-hidden="true">·</span>' : ""}
-            ${s ? `<details class="invite-tools"><summary>Link options</summary>${button("replace-learner", "Replace learner link", "entry-footer-action entry-footer-maintenance")}</details>` : ""}
+            ${s ? button("replace-learner", "Replace learner link", "entry-footer-action entry-footer-maintenance") : ""}
           </div>
         </div>`}
     </div></section>`;
