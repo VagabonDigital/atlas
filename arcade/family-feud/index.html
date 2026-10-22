@@ -342,6 +342,95 @@
         gap: 6px;
       }
     }
+    /* Keep the survey machine compact; give the controls their own room. */
+    @media (min-width: 701px) {
+      .stage:not(.entrance) .machine {
+        max-width: 840px;
+      }
+      .stage:not(.entrance) .console {
+        min-height: 170px;
+        padding: 17px 25px 16px;
+      }
+    }
+
+    /* The active player badge already makes turn ownership clear. */
+    .stage:not(.entrance) .dock:has(#answer-form) > .prediction {
+      display: none;
+    }
+    .stage:not(.entrance) #answer-form {
+      gap: 10px;
+    }
+    .stage:not(.entrance) #answer-form input {
+      height: 52px;
+      border-radius: 23px;
+      font-size: 17px;
+    }
+    .stage:not(.entrance) #answer-form input:focus-visible {
+      outline: 2px solid #67465d;
+      outline-offset: 2px;
+    }
+    .stage:not(.entrance) #answer-form .actions {
+      gap: 10px;
+      align-items: stretch;
+    }
+    .stage:not(.entrance) #answer-form .actions button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 46px;
+      white-space: nowrap;
+    }
+    .stage:not(.entrance) #answer-form .actions .secondary {
+      min-width: 84px;
+      padding: 8px 15px;
+      border: 2px solid #c7a6a1;
+      border-radius: 23px;
+      font-size: 14px;
+      background: linear-gradient(180deg,#fffaf4,#edddcc);
+    }
+
+    @media (max-height: 760px) and (min-width: 701px) {
+      .stage:not(.entrance) .console {
+        min-height: 154px;
+        padding-top: 13px;
+        padding-bottom: 12px;
+      }
+      .stage:not(.entrance) #answer-form input {
+        height: 48px;
+      }
+      .stage:not(.entrance) #answer-form .actions button {
+        height: 43px;
+      }
+    }
+    @media (max-width: 700px) {
+      .stage:not(.entrance) .console {
+        min-height: 151px;
+        padding: 12px 9px 11px;
+      }
+      .stage:not(.entrance) #answer-form {
+        gap: 7px;
+      }
+      .stage:not(.entrance) #answer-form input {
+        height: 45px;
+        font-size: 14px;
+      }
+      .stage:not(.entrance) #answer-form .actions {
+        gap: 5px;
+      }
+      .stage:not(.entrance) #answer-form .actions button {
+        height: 40px;
+      }
+      .stage:not(.entrance) #answer-form .actions .primary {
+        padding: 8px 4px;
+        font-size: 12px;
+      }
+      .stage:not(.entrance) #answer-form .actions .secondary {
+        min-width: 46px;
+        padding: 8px 5px;
+        border-width: 1px;
+        font-size: 11px;
+      }
+    }
   </style>
 </head>
 <body>
