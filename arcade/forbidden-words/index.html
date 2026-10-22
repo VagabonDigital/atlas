@@ -89,6 +89,20 @@
       <button class="primary" data-action="close-rules">Let’s play</button>
       </div>
     </dialog>
+    <dialog id="replace-learner-confirm" aria-labelledby="replace-learner-title" aria-describedby="replace-learner-description">
+      <div class="fw-confirm-inner">
+        <p class="eyebrow">GAME INVITATION</p>
+        <h2 id="replace-learner-title">Replace learner link?</h2>
+        <p id="replace-learner-description">
+          Your current learner will lose access. The game and score stay the
+          same. Share the new link with your replacement learner.
+        </p>
+        <form method="dialog" class="fw-confirm-actions">
+          <button class="secondary" value="cancel" autofocus>Keep current link</button>
+          <button class="primary" value="replace">Replace link</button>
+        </form>
+      </div>
+    </dialog>
     <div id="atlas-session-panel-root"></div>
     <script src="../../shared/atlas-bridge.js"></script>
     <script type="module" src="./app.mjs"></script>
