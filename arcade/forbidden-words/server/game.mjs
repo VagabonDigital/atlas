@@ -46,6 +46,7 @@ export function initialState(now) {
     startsAt: null,
     late: null,
     learnerHash: null,
+    atlasSessionId: null,
     seen: { tutor: now, learner: 0 },
     receipts: [],
     rate: {},
@@ -131,7 +132,16 @@ export function command(s, actor, input, now) {
     "The game has moved to another turn. Please try again.",
   );
   const tutor = actor === "tutor";
-  if (action === "theme") {
+  if (action === "bind-learner") {
+    requireThat(tutor && !s.atlasSessionId, "This game already belongs to an Atlas learner.", 409);
+    requireThat(
+      typeof input.atlasSessionId === "string" &&
+        /^[a-zA-Z0-9_-]{1,160}$/.test(input.atlasSessionId),
+      "Invalid Atlas learner context.",
+      400,
+    );
+    s.atlasSessionId = input.atlasSessionId;
+  } else if (action === "theme") {
     requireThat(tutor, "Only the tutor can change the game theme.", 403);
     requireThat(
       input.theme === "light" || input.theme === "night",
@@ -165,12 +175,16 @@ export function command(s, actor, input, now) {
     s.paused = null;
   } else if (action === "finish") {
     requireThat(
-      tutor && ["waiting", "switch", "results"].includes(s.phase),
-      "Finish between turns or rounds.",
+      tutor &&
+        (["waiting", "switch", "results"].includes(s.phase) ||
+          (["active", "countdown"].includes(s.phase) && !!s.paused)),
+      "End the game while waiting, between rounds, or after pausing the turn.",
     );
     s.phase = "finished";
     s.card = null;
     s.paused = null;
+    s.late = null;
+    s.ready = [];
   } else {
     requireThat(!s.paused, "The tutor has paused the game.");
     if (action === "start" || action === "replay") {
@@ -288,6 +302,7 @@ export function view(s, actor, now, revision) {
       s.phase !== "finished" && s.late.describer === actor && !s.late.credited;
     result.finalNonce = s.late.nonce;
   }
+  if (actor === "tutor") result.atlasSessionId = s.atlasSessionId || null;
   if (["results", "finished"].includes(s.phase)) {
     result.review = s.history
       .filter((x) => x.result !== "correct")
