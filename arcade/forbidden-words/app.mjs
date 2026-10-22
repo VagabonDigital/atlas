@@ -381,22 +381,20 @@ function landing(s) {
   const joined = s?.connected.learner;
   app.innerHTML = `<section class="landing"><div class="landing-identity">${brand}<p class="premise">Describe the word. <br>Lose the obvious language.</p><div class="hero-deck">${deck}<span class="spark one">✦</span><span class="spark two">✧</span></div><p class="caption">Two voices. One clock. Find another way.</p></div>
     <div class="invitation panel"><p class="eyebrow">${learner ? "YOU’RE IN" : "BETTER TOGETHER"}</p><h1>${learner ? "Your partner goes first." : "Invite your learner"}</h1>
-    <p>${learner ? "Keep your lesson call open. Listen to the clues and guess out loud." : "Share a private link. Keep the conversation in your lesson call."}</p>
-    ${!learner && s ? `<div class="link-row"><input id="invite-link" aria-label="Learner invite link" readonly value="${escape(joinUrl())}">${button("copy", "Copy link", "primary")}</div>` : ""}
-    <div class="connection"><span class="connection-dot ${joined ? "online" : ""}"></span><div><strong>${learner ? "Connected to the game" : joined ? "Your learner is here" : s ? "Waiting for your learner…" : "Ready for a live lesson?"}</strong><p>${learner ? "Your partner will start the round." : joined ? "You describe first. Your learner guesses." : s ? "They can join on a phone or laptop." : "Sign in to Atlas to host your game."}</p></div></div>
-    ${learner ? "" : button(s ? "start" : "sign-in", s ? "▶ Start Round" : "Sign in to host", "primary start-button", s && !joined)}
+    <p>${learner ? "Listen to the clues and guess aloud." : "Send a private game invitation to your learner."}</p>
+    ${!learner && s ? `<div class="link-row invite-link-row"><span class="invite-link-label" aria-hidden="true">↗ &nbsp; Private game link</span><input id="invite-link" class="invite-link-input" aria-label="Learner invite link" readonly value="${escape(joinUrl())}">${button("copy", "Copy link", "primary")}</div>` : ""}
+    <div class="connection"><span class="connection-dot ${joined ? "online" : ""}"></span><div><strong>${learner ? "Connected to the game" : joined ? "Your learner is here" : s ? "Waiting for your learner…" : "Ready for a live lesson?"}</strong><p>${learner ? "Your tutor will start the round." : joined ? "You can start the first round." : s ? "They’ll appear here when connected." : "Sign in to create your private game."}</p></div></div>
+    ${learner ? "" : !s ? button("sign-in", "Sign in to host", "primary start-button") : joined ? button("start", "▶ Start Round", "primary start-button") : ""}
     ${learner
       ? `<div class="entry-footer learner-entry-footer">
           ${button("rules", "How to play", "entry-footer-action")}
-          <p class="entry-rules">2 minutes each · Four forbidden words · Shared score</p>
         </div>`
       : `<div class="entry-footer tutor-entry-footer">
           <div class="entry-footer-actions">
             ${button("rules", "How to play", "entry-footer-action")}
             ${s ? '<span class="entry-footer-separator" aria-hidden="true">·</span>' : ""}
-            ${s ? button("replace-learner", "Replace learner link", "entry-footer-action entry-footer-maintenance") : ""}
+            ${s ? `<details class="invite-tools"><summary>Link options</summary>${button("replace-learner", "Replace learner link", "entry-footer-action entry-footer-maintenance")}</details>` : ""}
           </div>
-          <p class="entry-rules">2 minutes each · Four forbidden words · Shared score</p>
         </div>`}
     </div></section>`;
 }
@@ -682,8 +680,10 @@ async function act(action) {
       await navigator.clipboard.writeText(joinUrl());
       notify("Learner link copied.");
     } catch {
-      document.querySelector("#invite-link")?.select();
-      notify("Select and copy the learner link.");
+      const input = document.querySelector("#invite-link");
+      input?.closest(".invite-link-row")?.classList.add("manual-copy");
+      input?.select();
+      notify("Copy unavailable automatically. Select the link and press Ctrl+C (or Command+C).");
     }
     return;
   }
