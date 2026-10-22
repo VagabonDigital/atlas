@@ -208,12 +208,13 @@ body:before {
 }
 .landing {
   display: grid;
-  grid-template-columns: 1.18fr 1fr;
-  gap: 55px;
+  grid-template-columns: minmax(0, 1.18fr) minmax(0, 1fr);
+  gap: clamp(22px, 3.2vw, 55px);
   align-items: center;
+  box-sizing: border-box;
   max-width: 1450px;
-  min-height: calc(100vh - 100px);
-  padding: 45px 65px 60px;
+  min-height: calc(100svh - 72px);
+  padding: clamp(18px, 3svh, 42px) clamp(24px, 3.7vw, 65px);
   margin: auto;
 }
 .landing-identity {
@@ -221,27 +222,28 @@ body:before {
   align-self: center;
 }
 .landing .brand {
-  font-size: clamp(44px, 5vw, 80px);
-  letter-spacing: -3.8px;
+  font-size: clamp(44px, min(4.8vw, 7.6svh), 72px);
+  letter-spacing: -3px;
 }
 .premise {
-  font-size: clamp(18px, 1.55vw, 25px);
-  line-height: 1.5;
+  font-size: clamp(18px, 1.45vw, 23px);
+  line-height: 1.38;
   color: #25518b;
-  margin: 23px 0 0;
+  margin: 14px 0 0;
 }
 .hero-deck {
   position: relative;
   max-width: 480px;
-  margin: 12px auto 0;
+  margin: 8px auto 0;
   display: grid;
   justify-items: center;
-  padding-bottom: 72px;
+  padding-bottom: clamp(34px, 5.8svh, 56px);
   perspective: 1000px;
 }
 .hero-deck .deck-object {
-  width: 235px;
-  height: 310px;
+  width: clamp(155px, min(16vw, 26svh), 218px);
+  height: auto;
+  aspect-ratio: 235 / 310;
   transform: rotateX(22deg) rotateZ(-8deg);
   filter: drop-shadow(12px 28px 24px #1b68ac40);
 }
@@ -277,7 +279,7 @@ body:before {
     inset 0 0 0 7px #ffffff38;
 }
 .invitation {
-  padding: 38px 32px;
+  padding: clamp(22px, 3.4svh, 36px) clamp(22px, 2.1vw, 32px);
 }
 .eyebrow {
   font-family: "Manrope", Arial, sans-serif;
@@ -294,9 +296,9 @@ body:before {
 }
 .invitation > p:not(.eyebrow):not(.small-note) {
   color: var(--muted);
-  line-height: 1.65;
+  line-height: 1.45;
   font-size: 16px;
-  margin: 0 0 26px;
+  margin: 0 0 18px;
 }
 .link-row {
   display: flex;
@@ -307,6 +309,41 @@ body:before {
   box-shadow: 0 3px 12px #4578b10a;
   overflow: hidden;
   margin-bottom: 24px;
+}
+.landing .invite-link-row {
+  position: relative;
+  min-height: 54px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.invite-link-label {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 16px;
+  color: #4d6585;
+  font-size: 14px;
+  font-weight: 600;
+}
+.landing .invite-link-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  opacity: 0;
+}
+.landing .invite-link-row.manual-copy .invite-link-label {
+  display: none;
+}
+.landing .invite-link-row.manual-copy .invite-link-input {
+  position: static;
+  flex: 1;
+  width: 100%;
+  height: auto;
+  padding: 12px;
+  opacity: 1;
+}
+.invite-link-row .primary {
+  align-self: stretch;
 }
 .link-row input {
   min-width: 0;
@@ -349,12 +386,12 @@ body:before {
 }
 .connection {
   display: flex;
-  gap: 18px;
+  gap: 16px;
   align-items: center;
   background: linear-gradient(120deg, #e4efff, #eaf2ff);
-  padding: 25px 20px;
+  padding: clamp(14px, 2svh, 20px) 17px;
   border-radius: 18px;
-  margin: 26px 0;
+  margin: 16px 0;
 }
 .connection strong {
   font-size: 17px;
@@ -393,8 +430,8 @@ body:before {
   font-size: 12px;
 }
 .entry-footer {
-  margin-top: 22px;
-  padding-top: 18px;
+  margin-top: 17px;
+  padding-top: 13px;
   border-top: 1px solid #e0e9f3;
 }
 .learner-entry-footer {
@@ -451,6 +488,38 @@ body:before {
 }
 .entry-footer-maintenance {
   font-weight: 600;
+}
+.invite-tools {
+  position: relative;
+  color: #285b9b;
+  font-size: 13px;
+  font-weight: 700;
+}
+.invite-tools summary {
+  cursor: pointer;
+  padding: 5px 0;
+  list-style: none;
+}
+.invite-tools summary::-webkit-details-marker {
+  display: none;
+}
+.invite-tools summary::after {
+  content: " ▾";
+  font-size: 11px;
+}
+.invite-tools[open] summary::after {
+  content: " ▴";
+}
+.invite-tools .entry-footer-maintenance {
+  display: block;
+  padding: 9px 0 4px;
+  font-size: 12px;
+}
+html[data-theme="night"] .invite-link-label {
+  color: #c1d2e5;
+}
+html[data-theme="night"] .invite-tools {
+  color: #87baff;
 }
 .loading {
   padding: 120px;
@@ -2783,3 +2852,46 @@ html[data-theme="night"] #rules .atlas-modal-close:active {
 
 }
 
+
+
+/* Tablet-width covers stack before the wordmark collides with the panel.
+   Mobile rules below 760px remain the existing game's responsibility. */
+@media (min-width: 761px) and (max-width: 980px) {
+  .landing {
+    grid-template-columns: 1fr;
+    max-width: 620px;
+    min-height: 0;
+    gap: 18px;
+    padding: 24px 28px 46px;
+  }
+  .landing .brand {
+    font-size: clamp(42px, 6vw, 58px);
+  }
+  .hero-deck .deck-object {
+    width: 165px;
+  }
+  .hero-deck {
+    padding-bottom: 34px;
+  }
+}
+@media (min-width: 981px) and (max-height: 660px) {
+  .landing .brand {
+    font-size: clamp(41px, min(4vw, 7svh), 57px);
+  }
+  .hero-deck .deck-object {
+    width: clamp(128px, 20svh, 175px);
+  }
+  .hero-deck {
+    padding-bottom: 35px;
+  }
+  .landing {
+    padding-block: 12px;
+  }
+  .invitation {
+    padding-block: 18px;
+  }
+  .connection {
+    margin-block: 12px;
+    padding-block: 12px;
+  }
+}
