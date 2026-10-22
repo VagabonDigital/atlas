@@ -115,6 +115,27 @@ const fs = require("node:fs");
   advance(s, s.deadline);
   act("tutor", "finish", s.deadline + 1);
   assert.equal(s.phase, "finished");
+  // Immutable Atlas ownership lives in the same server state as the room.
+  const scopedGame = initialState(40000);
+  const bind = (actor, atlasSessionId, id = crypto.randomUUID()) =>
+    command(scopedGame, actor, {
+      action: "bind-learner", id, round: scopedGame.round,
+      turn: scopedGame.turn, atlasSessionId,
+    }, 40010);
+  assert.equal(view(scopedGame, "learner", 40000, 0).atlasSessionId, undefined);
+  assert.throws(() => bind("learner", "session-alex"), /already belongs/);
+  bind("tutor", "session-alex");
+  assert.equal(scopedGame.atlasSessionId, "session-alex");
+  assert.equal(view(scopedGame, "tutor", 40010, 1).atlasSessionId, "session-alex");
+  assert.equal(view(scopedGame, "learner", 40010, 1).atlasSessionId, undefined);
+  assert.throws(() => bind("tutor", "session-blair"), /already belongs/);
+  assert.equal(scopedGame.atlasSessionId, "session-alex");
+  const invalidGame = initialState(40000);
+  assert.throws(() => command(invalidGame, "tutor", {
+    action: "bind-learner", id: crypto.randomUUID(),
+    round: 0, turn: 0, atlasSessionId: "../wrong",
+  }, 40010), /Invalid Atlas learner context/);
+
   const tutorPage = fs.readFileSync(
     "arcade/forbidden-words/index.html",
     "utf8",
@@ -201,6 +222,53 @@ const fs = require("node:fs");
   assert.ok(tutorPage.includes('id="arcade-game-return-root"'));
   assert.ok(tutorPage.includes('id="arcade-game-actions-root"'));
   assert.ok(client.includes("window.AtlasSessionPanel.mount"));
+  // Exercise room selection with a fake Atlas Bridge; no network required.
+  const vm = require("node:vm");
+  const ownershipSnippet = client.slice(
+    client.indexOf("// Only the selected Atlas learner may own"),
+    client.indexOf("function syncAtlasContinuity(s)"),
+  );
+  assert.ok(ownershipSnippet.startsWith("// Only"));
+  const bookmarks = new Map([["fw:tutor:test-owner:atlas:session-alex", "room-alex"]]);
+  const selected = { id: "session-alex", name: "Alex" };
+  const harness = {
+    owner: "test-owner", learner: false, gameLearnerId: "session-alex",
+    session: "room-alex", atlasSession: selected, roomEpoch: 0,
+    state: { phase: "active" }, pending: { action: "skip" }, busy: true,
+    failed: false, retryDelay: 650, lastKey: "cached",
+    lastNonce: "secret", lastPhase: "active", lastFeedback: null,
+    pollTimer: 1, app: { innerHTML: "" }, brand: "Brand", deck: "Deck",
+    window: { AtlasBridge: { readActiveSession: () => selected } },
+    storage: {
+      get: key => bookmarks.get(key) || null,
+      set: (key, value) => bookmarks.set(key, value),
+    },
+    clearTimeout: () => {}, notify: () => {}, showTutorLandingChrome: () => {},
+    escape: value => String(value), button: (action) => action,
+    boot: () => { harness.boots++; }, boots: 0,
+  };
+  vm.runInNewContext(ownershipSnippet + ";this.change = selectTutorRoom;", harness);
+  harness.change({ id: "session-blair", name: "Blair" });
+  assert.equal(harness.session, null);
+  assert.equal(harness.pending, null);
+  assert.equal(harness.state, null);
+  assert.equal(harness.boots, 0);
+  assert.equal(harness.roomEpoch, 1);
+  assert.ok(harness.app.innerHTML.includes("Blair"));
+  assert.equal(bookmarks.get("fw:tutor:test-owner:atlas:session-alex"), "room-alex");
+  harness.change({ id: "session-alex", name: "Alex" });
+  assert.equal(harness.session, "room-alex");
+  assert.equal(harness.boots, 1);
+  assert.equal(harness.roomEpoch, 2);
+  harness.change({ id: "session-alex", name: "Alex renamed" });
+  assert.equal(harness.roomEpoch, 2);
+  assert.equal(harness.boots, 1);
+  assert.ok(!client.includes("storage.set(\`fw:tutor:\${owner}\`, session)"));
+  assert.ok(client.includes('if (requestSession !== session || requestEpoch !== roomEpoch)'));
+  assert.ok(client.includes("if (window.AtlasBridge.readActiveSession?.()?.id !== gameLearnerId) return;"));
+  assert.ok(tutorPage.includes('id="recover-legacy-confirm"'));
+  assert.ok(!learnerPage.includes('id="recover-legacy-confirm"'));
+
   const setupTutorBlock = client.slice(
     client.indexOf("async function setupTutor()"),
     client.indexOf("async function request("),
@@ -253,7 +321,7 @@ const fs = require("node:fs");
   assert.ok(client.includes('function confirmLearnerReplacement()'));
   assert.ok(client.includes('dialog.returnValue === "replace"'));
   assert.ok(!client.includes('!confirm('));
-  assert.ok(gameCss.includes("#replace-learner-confirm {"));
+  assert.ok(gameCss.includes("#replace-learner-confirm,\n#recover-legacy-confirm {"));
   assert.ok(learnerPage.includes('class="atlas-modal-close rules-close"'));
   assert.ok(gameCss.includes("background: rgba(49, 90, 134, 0.07);"));
   assert.ok(learnerPage.includes("../../shared/atlas-modal-theme.css"));
