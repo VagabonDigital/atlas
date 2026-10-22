@@ -5,18 +5,86 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pause=ms=>new Promise(r=>setTimeout(r,ms));
 const reduced=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+const REGISTRY_ID='arcade:family-feud';
 let state=null,busy=false,phrase='',message='',muted=true,audio=null,names=['Player 1','Player 2'];
+let matchSessionId=null,matchGeneration=0,sessionLoaded=false;
 let seen=[];
 try{seen=JSON.parse(localStorage.getItem('atlas:family-feud:seen')||'[]');if(!Array.isArray(seen))seen=[];}catch{}
 window.ArcadeGameChrome?.mountLanding({root:'#landing-chrome',appearance:false});
-window.ArcadeGameChrome?.mountGame({root:'#game-chrome',returnRoot:'#return-slot'});
+window.ArcadeGameChrome?.mountGame({root:'#game-chrome',returnRoot:'#return-slot',onBeforeReturn:()=>saveMatch()});
 window.AtlasSessionPanel?.mount({root:'#atlas-session-panel-root',initialView:'manage'});
 function participantNames(){
   // The bridge exposes a named learner session, not an authoritative tutor name.
   // Keep the other contestant's fallback rather than interpreting account data.
   try{const session=window.AtlasBridge?.readActiveSession();names=['Player 1',session?.id!=='default'&&session?.name?.trim()?session.name.trim():'Player 2'];}catch{names=['Player 1','Player 2'];}
 }
-window.addEventListener('atlas:session-change',()=>{if(!state){participantNames();render();}});
+// AtlasBridge owns session identity; Family Feud owns the match snapshot.
+function readSnapshot(sessionId){
+  if(!sessionId)return null;
+  try{
+    const record=window.AtlasBridge?.readRegistry?.()?.sessionStates?.[sessionId]?.[REGISTRY_ID];
+    if(!record||record.status==='complete')return null;
+    const saved=record.familyFeud;
+    if(!saved||saved.version!==1||!Array.isArray(saved.boardIds)||saved.boardIds.length!==3)return null;
+    const selected=saved.boardIds.map(id=>boards.find(board=>board.id===id));
+    if(selected.some(board=>!board)||new Set(saved.boardIds).size!==3)return null;
+    const pair=(value,max=Infinity)=>Array.isArray(value)&&value.length===2&&value.every(n=>Number.isInteger(n)&&n>=0&&n<=max);
+    const player=n=>n===0||n===1;
+    if(!Number.isInteger(saved.round)||saved.round<0||saved.round>2||
+      !player(saved.starter)||!player(saved.active)||
+      !pair(saved.scores)||!pair(saved.contribution)||!pair(saved.strikes,3)||
+      !['playing','missed','roundEnd'].includes(saved.phase)||
+      !Array.isArray(saved.revealed)||saved.revealed.length!==6||
+      !saved.revealed.every(entry=>entry===null||(entry&&typeof entry==='object'&&
+        (entry.owner===null||player(entry.owner)))))return null;
+    const restoredNames=Array.isArray(saved.names)&&saved.names.length===2&&
+      saved.names.every(name=>typeof name==='string'&&name.length<=120)
+      ? saved.names : null;
+    return {
+      match:{boards:selected,round:saved.round,starter:saved.starter,active:saved.active,
+        scores:[...saved.scores],contribution:[...saved.contribution],
+        strikes:[...saved.strikes],revealed:saved.revealed.map(entry=>entry?{owner:entry.owner}:null),
+        phase:saved.phase},
+      names:restoredNames
+    };
+  }catch{return null;}
+}
+function saveMatch(){
+  if(!state||!matchSessionId||!window.AtlasBridge?.upsertSessionState)return;
+  const complete=state.phase==='final';
+  const snapshot=complete?null:{
+    version:1,boardIds:state.boards.map(board=>board.id),
+    round:state.round,starter:state.starter,active:state.active,
+    scores:[...state.scores],contribution:[...state.contribution],strikes:[...state.strikes],
+    revealed:state.revealed.map(entry=>entry?{owner:entry.owner}:null),
+    phase:state.phase,names:[...names]
+  };
+  try{
+    window.AtlasBridge.upsertSessionState(matchSessionId,REGISTRY_ID,{
+      world:'arcade',type:'game',title:'Family Feud',
+      status:complete?'complete':'in-progress',
+      progress:{covered:complete?3:state.round+1,total:3,openEnded:false},
+      currentLabel:complete?'Match complete':`Round ${state.round+1} of 3`,
+      familyFeud:snapshot,
+      launchUrl:new URL('./index.html',location.href).href,
+      lastTouchedAt:Date.now()
+    });
+  }catch{} // Persistence failure must not interrupt a match.
+}
+function loadActiveMatch(){
+  const nextSession=window.AtlasBridge?.readActiveSession?.()||null;
+  const nextId=nextSession?.id||null;
+  if(sessionLoaded&&nextId===matchSessionId)return;
+  ++matchGeneration;sessionLoaded=true;matchSessionId=nextId;
+  const restored=readSnapshot(matchSessionId);
+  state=restored?.match||null;
+  busy=false;phrase='';message='';
+  $('#stage').classList.remove('opening');
+  participantNames();
+  if(restored?.names)names=restored.names;
+  render();
+}
+window.addEventListener('atlas:session-change',loadActiveMatch);
 participantNames();
 $('#crowd').innerHTML=Array.from({length:5},(_,r)=>`<div class="terrace" style="--tilt:${r%2?.5:-.5}deg">${Array.from({length:20},()=>'<i class="pebble"></i>').join('')}</div>`).join('');
 function tone(kind){
@@ -81,17 +149,20 @@ function rememberBoard(){
   try{localStorage.setItem('atlas:family-feud:seen',JSON.stringify(seen));}catch{}
 }
 async function openRound(){
+  const generation=matchGeneration,match=state;
   busy=true;phrase='';message='';rememberBoard();render();
-  $('#stage').classList.add('opening');await pause(reduced()?150:850);$('#stage').classList.remove('opening');
+  $('#stage').classList.add('opening');await pause(reduced()?150:850);
+  if(generation!==matchGeneration||state!==match)return;
+  $('#stage').classList.remove('opening');
   busy=false;renderDock();focusAnswer();
 }
 function recordAtlasPlay(){
   try{
-    const bridge=window.AtlasBridge,session=bridge?.readActiveSession?.();
-    if(session?.id){
-      bridge.touchRecentActivity?.({
-        sessionId:session.id,
-        registryId:'arcade:family-feud',
+    const bridge=window.AtlasBridge;
+    if(matchSessionId){
+      bridge?.touchRecentActivity?.({
+        sessionId:matchSessionId,
+        registryId:REGISTRY_ID,
         world:'arcade',
         type:'game',
         title:'Family Feud',
@@ -102,7 +173,7 @@ function recordAtlasPlay(){
   }catch{} // Recent activity must never interrupt a match.
 }
 async function start(){
-  if(busy)return;participantNames();state=createMatch(chooseBoards(boards,seen));recordAtlasPlay();await openRound();
+  if(busy)return;participantNames();state=createMatch(chooseBoards(boards,seen));saveMatch();recordAtlasPlay();await openRound();
 }
 function fly(index,player,value){
   if(reduced())return;
@@ -114,13 +185,18 @@ function fly(index,player,value){
 async function submit(pass=false){
   if(busy||state?.phase!=='playing')return;
   if(!pass&&!phrase.trim()){message='Say one answer aloud, then enter it here.';$('#feedback').textContent=message;focusAnswer();return;}
-  busy=true;const exact=phrase,previous=state.active,scores=[...state.scores];
+  busy=true;const match=state,generation=matchGeneration;
+  const stillCurrent=()=>generation===matchGeneration&&state===match;
+  const exact=phrase,previous=state.active,scores=[...state.scores];
   message=pass?`${names[previous]} passes.`:`“${exact}”`;renderDock();$('#feedback').textContent=message;
   const began=performance.now();let resolution;
-  try{resolution=pass?{kind:'pass'}:await resolveAnswer(state.boards[state.round],exact);}
+  try{resolution=pass?{kind:'pass'}:await resolveAnswer(match.boards[match.round],exact);}
   catch{resolution={kind:'error'};}
+  if(!stillCurrent())return;
   await pause(Math.max(0,320-(performance.now()-began)));
-  const result=applyResolution(state,resolution);
+  if(!stillCurrent())return;
+  const result=applyResolution(match,resolution);
+  if(!['error','ambiguous','already'].includes(result.kind))saveMatch();
   if(result.kind==='error'){
     message='Couldn’t resolve that answer. No strike. Please retry.'; // Preserve exact phrase and turn.
   }else if(result.kind==='ambiguous'){
@@ -131,12 +207,15 @@ async function submit(pass=false){
     phrase='';message=`${state.boards[state.round].concepts[result.index].label} · ${result.value} points for ${names[result.player]}.`;
     render({flash:result.index,scores,active:previous});tone('success');lightCrowd(result.value,result.player);
     // Reveal, then transfer, then advance the score and turn light.
-    await pause(reduced()?80:260);fly(result.index,result.player,result.value);await pause(reduced()?80:400);
-    renderPlayers(state.scores,previous);$(`#player-${result.player} .score`).classList.add('bump');
-    await pause(reduced()?50:330);
+    await pause(reduced()?80:260);if(!stillCurrent())return;
+    fly(result.index,result.player,result.value);await pause(reduced()?80:400);
+    if(!stillCurrent())return;
+    renderPlayers(match.scores,previous);$(`#player-${result.player} .score`).classList.add('bump');
+    await pause(reduced()?50:330);if(!stillCurrent())return;
   }else{
     phrase='';message=`${pass?'Passed. One strike.':'Not on this board.'}${result.out?` ${names[result.player]}: Out this round.`:''}`;
     tone('strike');render({active:previous});await pause(reduced()?80:350);
+    if(!stillCurrent())return;
   }
   busy=false;render();
   if(state.phase==='playing'){if(state.active!==previous)tone('handoff');focusAnswer();}
@@ -147,13 +226,13 @@ $('#dock').addEventListener('click',async e=>{
   if(action==='start'||action==='again')await start();
   else if(action==='pass')await submit(true);
   else if(action==='reveal'||action==='reveal-all'){
-    const missing=state.revealed.flatMap((r,i)=>r?[]:[i]),index=action==='reveal-all'?missing:missing[0];revealMissed(state,action==='reveal-all');
+    const missing=state.revealed.flatMap((r,i)=>r?[]:[i]),index=action==='reveal-all'?missing:missing[0];revealMissed(state,action==='reveal-all');saveMatch();
     message=state.phase==='roundEnd'?'Every answer is now visible. Unclaimed answers earn no points.':'Unclaimed answer — no points awarded.';
     render({flash:index});$('#dock button')?.focus({preventScroll:true});
   }else if(action==='next'){
-    nextRound(state);
+    nextRound(state);saveMatch();
     if(state.phase==='final'){message=winner(state)===null?'Equal scores. A shared finish.':`${names[winner(state)]} predicted the crowd best.`;render();tone('final');lightCrowd(75,winner(state));$('#dock button')?.focus({preventScroll:true});}
     else await openRound();
   }else if(action==='finish')location.href=new URL('../index.html',location.href).href;
 });
-render();
+loadActiveMatch();
