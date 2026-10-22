@@ -70,8 +70,23 @@ const button = (action, label, cls = "", disabled = false) => {
   const shortcut = { correct: "1", skip: "2", oops: "3" }[action];
   return `<button class="${cls}" data-action="${action}" ${shortcut ? `aria-keyshortcuts="${shortcut}"` : ""} ${disabled ? "disabled" : ""}>${label}</button>`;
 };
-function notify(message) {
-  document.querySelector("#notice").textContent = message;
+let noticeTimeout;
+let noticePersistent = false;
+function notify(message, { persistent = false, duration = 3000 } = {}) {
+  const notice = document.querySelector("#notice");
+  // Connection and presence notices can be evaluated every tick. Do not
+  // repeatedly re-render an unchanged persistent warning.
+  if (persistent && noticePersistent && notice.textContent === message) return;
+  clearTimeout(noticeTimeout);
+  noticeTimeout = null;
+  noticePersistent = persistent && Boolean(message);
+  notice.textContent = message;
+  if (message && !persistent) {
+    noticeTimeout = setTimeout(() => {
+      notice.textContent = "";
+      noticeTimeout = null;
+    }, duration);
+  }
 }
 function normalizeTheme(mode) {
   return mode === "night" ? "night" : "light";
@@ -513,13 +528,7 @@ function render() {
     ["switch", "results"].includes(s.phase)
   ) {
     tone(180, 0.5);
-    notify("Time’s up!");
   }
-  if (
-    ["countdown", "active", "finished"].includes(s.phase) &&
-    document.querySelector("#notice").textContent === "Time’s up!"
-  )
-    notify("");
   if (
     s.feedback?.nonce &&
     s.feedback.nonce !== lastFeedback &&
@@ -569,6 +578,7 @@ function updateControls() {
       state.paused
         ? "Your partner is reconnecting. The turn is paused."
         : "Your partner is reconnecting. The clock continues unless the tutor pauses.",
+      { persistent: true },
     );
   } else if (
     !failed &&
@@ -640,6 +650,7 @@ function tick() {
     failed = true;
     notify(
       "Reconnecting… Your turn clock continues. Actions will return when connected.",
+      { persistent: true },
     );
   }
   updateControls();
@@ -694,7 +705,7 @@ async function act(action) {
       input?.removeAttribute("aria-hidden");
       input?.removeAttribute("tabindex");
       input?.select();
-      notify("Copy unavailable automatically. Select the link and press Ctrl+C (or Command+C).");
+      notify("Copy unavailable automatically. Select the link and press Ctrl+C (or Command+C).", { duration: 7000 });
     }
     return;
   }
@@ -747,7 +758,10 @@ async function sendPending() {
         : "",
     );
   } catch (error) {
-    notify(error.message);
+    notify(error.message, {
+      persistent: !error.status || error.status >= 500,
+      duration: 5000,
+    });
     if (error.status && error.status < 500) pending = null;
     else {
       failed = true;
@@ -781,11 +795,13 @@ async function poll() {
       await sendPending();
       return;
     }
+    const wasDisconnected = failed;
     await request("poll");
-    if (
-      document.querySelector("#notice").textContent.startsWith("Reconnecting")
-    )
-      notify("Connected again.");
+    const partnerMissing =
+      state &&
+      ["countdown", "active"].includes(state.phase) &&
+      !state.connected[learner ? "tutor" : "learner"];
+    if (wasDisconnected && !partnerMissing) notify("Connected again.");
   } catch (error) {
     if ([401, 403, 410].includes(error.status)) {
       showEntryError(error);
@@ -793,7 +809,7 @@ async function poll() {
     }
     failed = true;
     retryDelay = Math.min(5000, retryDelay * 2);
-    notify(error.message);
+    notify(error.message, { persistent: true });
     updateControls();
   }
   schedulePoll();

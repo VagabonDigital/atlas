@@ -131,6 +131,47 @@ const fs = require("node:fs");
     "arcade/forbidden-words/game.css",
     "utf8",
   );
+  // Exercise the actual browser notice helper with controlled timeouts.
+  const noticeSource = client.slice(
+    client.indexOf("let noticeTimeout;"),
+    client.indexOf("function normalizeTheme(mode)"),
+  );
+  assert.ok(noticeSource.startsWith("let noticeTimeout;"));
+  const noticeEl = { textContent: "" };
+  const noticeTimers = new Map();
+  let nextNoticeTimerId = 0;
+  const notice = new Function("document", "setTimeout", "clearTimeout",
+    `${noticeSource}\nreturn notify;`)(
+    { querySelector: () => noticeEl },
+    (callback, duration) => {
+      const id = ++nextNoticeTimerId;
+      noticeTimers.set(id, { callback, duration });
+      return id;
+    },
+    (id) => noticeTimers.delete(id),
+  );
+  notice("Learner link copied.");
+  assert.equal(noticeEl.textContent, "Learner link copied.");
+  assert.equal([...noticeTimers.values()][0].duration, 3000);
+  const firstNoticeTimerId = [...noticeTimers.keys()][0];
+  const firstNoticeTimer = noticeTimers.get(firstNoticeTimerId);
+  noticeTimers.delete(firstNoticeTimerId);
+  firstNoticeTimer.callback();
+  assert.equal(noticeEl.textContent, "");
+  notice("Reconnecting…", { persistent: true });
+  assert.equal(noticeTimers.size, 0);
+  assert.equal(noticeEl.textContent, "Reconnecting…");
+  notice("Reconnecting…", { persistent: true });
+  assert.equal(noticeTimers.size, 0);
+  notice("Connected again.");
+  assert.equal(noticeEl.textContent, "Connected again.");
+  assert.equal([...noticeTimers.values()][0].duration, 3000);
+  notice("Manual copying needed", { duration: 7000 });
+  assert.equal([...noticeTimers.values()][0].duration, 7000);
+  notice("");
+  assert.equal(noticeEl.textContent, "");
+  assert.equal(noticeTimers.size, 0);
+  assert.ok(!client.includes('notify("Time’s up!")'));
   assert.ok(
     tutorPage.includes(
       'data-player="tutor" data-atlas-world="arcade" data-atlas-surface="content"',
