@@ -127,11 +127,11 @@ function renderBoard(flash=-1){
   }).join('');
 }
 function renderDock(displayActive=state?.active){
-  const dock=$('#dock');
+  const dock=$('#dock-controls');
   if(!state){dock.innerHTML=button('start','Start Match')+'<small>2 CONTESTANTS · 3 ROUNDS</small>';return;}
   if(state.phase==='playing'){
-    dock.innerHTML=`<label for="answer" class="prediction">${esc(names[displayActive])}’s prediction</label><form id="answer-form" autocomplete="off"><input id="answer" name="prediction" aria-label="Your answer" placeholder="Your answer…" maxlength="180" autocomplete="off" autocapitalize="off" spellcheck="false" ${busy?'disabled':''} value="${esc(phrase)}"><div class="actions"><button class="primary submit" type="submit" ${busy?'disabled':''}>${busy?'Resolving…':'Submit Answer'}</button>${button('pass','Pass','secondary',busy)}</div></form>`;
-    $('#answer').addEventListener('input',e=>phrase=e.target.value);
+    dock.innerHTML=`<form id="answer-form" autocomplete="off"><input id="answer" name="prediction" aria-label="Your answer" placeholder="Your answer…" maxlength="180" autocomplete="off" autocapitalize="off" spellcheck="false" ${busy?'disabled':''} value="${esc(phrase)}"><div class="actions"><button class="primary submit" type="submit" ${busy||!phrase.trim()?'disabled':''}>${busy?'Resolving…':'Submit Answer'}</button>${button('pass','Pass','secondary',busy)}</div></form>`;
+    $('#answer').addEventListener('input',e=>{phrase=e.target.value;e.target.form.querySelector('.submit').disabled=busy||!phrase.trim();});
     $('#answer-form').addEventListener('submit',e=>{e.preventDefault();void submit();});
   }else if(state.phase==='missed') dock.innerHTML=`<p class="prediction">What did we miss?</p><div class="actions">${button('reveal','Reveal Next','primary',busy)}${button('reveal-all','Reveal All','secondary',busy)}</div>`;
   else if(state.phase==='roundEnd')dock.innerHTML=`<p class="prediction">Board complete</p>${button('next',state.round===2?'Final Result':'Next Round','primary',busy)}`;
@@ -184,11 +184,11 @@ function fly(index,player,value){
 }
 async function submit(pass=false){
   if(busy||state?.phase!=='playing')return;
-  if(!pass&&!phrase.trim()){message='Say one answer aloud, then enter it here.';$('#feedback').textContent=message;focusAnswer();return;}
+  if(!pass&&!phrase.trim()){focusAnswer();return;}
   busy=true;const match=state,generation=matchGeneration;
   const stillCurrent=()=>generation===matchGeneration&&state===match;
   const exact=phrase,previous=state.active,scores=[...state.scores];
-  message=pass?`${names[previous]} passes.`:`“${exact}”`;renderDock();$('#feedback').textContent=message;
+  message='';renderDock();$('#feedback').textContent='';
   const began=performance.now();let resolution;
   try{resolution=pass?{kind:'pass'}:await resolveAnswer(match.boards[match.round],exact);}
   catch{resolution={kind:'error'};}
@@ -198,13 +198,13 @@ async function submit(pass=false){
   const result=applyResolution(match,resolution);
   if(!['error','ambiguous','already'].includes(result.kind))saveMatch();
   if(result.kind==='error'){
-    message='Couldn’t resolve that answer. No strike. Please retry.'; // Preserve exact phrase and turn.
+    message='Couldn’t check that answer. Try again — no strike.'; // Preserve exact phrase and turn.
   }else if(result.kind==='ambiguous'){
-    message='Make that a little clearer. Give one answer. No strike.';
+    message='Try one specific answer · no strike.';
   }else if(result.kind==='already'){
-    phrase='';message='Already found. Your turn — try another answer.';
+    phrase='';message='Already on the board · no strike. Try another.';
   }else if(result.kind==='match'){
-    phrase='';message=`${state.boards[state.round].concepts[result.index].label} · ${result.value} points for ${names[result.player]}.`;
+    phrase='';message=`${state.boards[state.round].concepts[result.index].label} · +${result.value} points`;
     render({flash:result.index,scores,active:previous});tone('success');lightCrowd(result.value,result.player);
     // Reveal, then transfer, then advance the score and turn light.
     await pause(reduced()?80:260);if(!stillCurrent())return;
@@ -213,7 +213,7 @@ async function submit(pass=false){
     renderPlayers(match.scores,previous);$(`#player-${result.player} .score`).classList.add('bump');
     await pause(reduced()?50:330);if(!stillCurrent())return;
   }else{
-    phrase='';message=`${pass?'Passed. One strike.':'Not on this board.'}${result.out?` ${names[result.player]}: Out this round.`:''}`;
+    phrase='';message=result.out?`${names[result.player]} is out this round.`:pass?'Passed · +1 strike':'Not on the board · +1 strike';
     tone('strike');render({active:previous});await pause(reduced()?80:350);
     if(!stillCurrent())return;
   }
@@ -227,11 +227,11 @@ $('#dock').addEventListener('click',async e=>{
   else if(action==='pass')await submit(true);
   else if(action==='reveal'||action==='reveal-all'){
     const missing=state.revealed.flatMap((r,i)=>r?[]:[i]),index=action==='reveal-all'?missing:missing[0];revealMissed(state,action==='reveal-all');saveMatch();
-    message=state.phase==='roundEnd'?'Every answer is now visible. Unclaimed answers earn no points.':'Unclaimed answer — no points awarded.';
+    message=state.phase==='roundEnd'?'':'Unclaimed answer · 0 points';
     render({flash:index});$('#dock button')?.focus({preventScroll:true});
   }else if(action==='next'){
     nextRound(state);saveMatch();
-    if(state.phase==='final'){message=winner(state)===null?'Equal scores. A shared finish.':`${names[winner(state)]} predicted the crowd best.`;render();tone('final');lightCrowd(75,winner(state));$('#dock button')?.focus({preventScroll:true});}
+    if(state.phase==='final'){message='';render();tone('final');lightCrowd(75,winner(state));$('#dock button')?.focus({preventScroll:true});}
     else await openRound();
   }else if(action==='finish')location.href=new URL('../index.html',location.href).href;
 });
