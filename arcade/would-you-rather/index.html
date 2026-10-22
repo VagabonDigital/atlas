@@ -89,6 +89,29 @@
       --hdr-bg: rgba(245, 243, 255, 0.94);
       --intro-bg: rgba(255, 255, 255, 0.82);
       --intro-border: rgba(45, 30, 90, 0.14);
+
+      /* Light-mode cover chrome should recede into the illustrated backdrop. */
+      --game-chrome-cover-surface: rgba(255, 250, 246, 0.83);
+      --game-chrome-cover-hover: rgba(255, 253, 250, 0.95);
+      --game-chrome-cover-text: #403047;
+      --game-chrome-cover-focus: #593b71;
+    }
+
+    html[data-theme="light"] .arcade-game-chrome-back,
+    html[data-theme="light"] .arcade-game-chrome-session,
+    html[data-theme="light"] .arcade-game-chrome-icon-btn {
+      border-color: rgba(63, 45, 76, 0.18);
+      box-shadow: 0 3px 16px rgba(47, 30, 62, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    html[data-theme="light"] .arcade-game-chrome-back:hover,
+    html[data-theme="light"] .arcade-game-chrome-session:hover,
+    html[data-theme="light"] .arcade-game-chrome-icon-btn:hover {
+      background: var(--game-chrome-cover-hover);
+      color: var(--game-chrome-cover-text);
+      border-color: rgba(63, 45, 76, 0.26);
     }
 
     /* ============================================================
