@@ -165,8 +165,9 @@ export function command(s, actor, input, now) {
     s.paused = null;
   } else if (action === "finish") {
     requireThat(
-      tutor && ["waiting", "switch", "results"].includes(s.phase),
-      "Finish between turns or rounds.",
+      tutor && (["waiting", "switch", "results"].includes(s.phase) ||
+        (["active", "countdown"].includes(s.phase) && s.paused)),
+      "Pause the current turn before ending the game.",
     );
     s.phase = "finished";
     s.card = null;
