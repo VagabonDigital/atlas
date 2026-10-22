@@ -408,7 +408,7 @@ function landing(s) {
           <div class="entry-footer-actions">
             ${button("rules", "How to play", "entry-footer-action")}
             ${s ? '<span class="entry-footer-separator" aria-hidden="true">·</span>' : ""}
-            ${s ? button("replace-learner", "Replace learner link", "entry-footer-action entry-footer-maintenance") : ""}
+            ${s ? button("replace-learner", "Replace learner link", "entry-footer-action entry-footer-maintenance") + '<span class="entry-footer-separator" aria-hidden="true">·</span>' + button("finish", "End game", "entry-footer-action end-game-action") : ""}
           </div>
         </div>`}
     </div></section>`;
@@ -454,7 +454,7 @@ function board(s) {
       ${describer ? `<div class="resolutions">${button("correct", "Correct", "correct")}${button("skip", "Skip", "skip")}${button("oops", "I said one!", "oops")}</div>` : '<div class="guesser-note"><span>◌</span><div><strong>GUESSER</strong><p>Listen. Ask questions. <br>Follow the clues.</p></div></div>'}
     </aside></section><div class="feedback" aria-live="polite">${feedbackText(s)}</div>
     ${s.phase === "countdown" ? '<div class="countdown-overlay"><div><p class="eyebrow">GET READY</p><strong id="countdown-number">3</strong><p>Your card. Your voice. Go.</p></div></div>' : ""}
-    ${s.paused ? `<div class="pause-overlay"><div class="panel"><p class="eyebrow">TAKE YOUR TIME</p><h2>Turn paused.</h2><p>The clock is safe. Pick up when you’re ready.</p>${!learner ? button("resume", "▶ Resume turn", "primary") + button("replace-learner", "Replace learner link", "text-button") + `<input aria-label="Learner invite link" readonly value="${escape(joinUrl())}">` : "<p>Your tutor will resume the game.</p>"}</div></div>` : ""}`;
+    ${s.paused ? `<div class="pause-overlay"><div class="panel"><p class="eyebrow">TAKE YOUR TIME</p><h2>Turn paused.</h2><p>The clock is safe. Pick up when you’re ready.</p>${!learner ? `<div class="pause-actions">${button("resume", "▶ Resume turn", "primary")}${button("finish", "End game", "secondary end-game-button")}</div><div class="pause-invitation"><p class="pause-invite-label">Current learner link</p><div class="link-row invite-link-row"><span class="invite-link-label" aria-hidden="true">↗ &nbsp; Current link</span><input id="invite-link" class="invite-link-input" aria-label="Current learner link" aria-hidden="true" tabindex="-1" readonly value="${escape(joinUrl())}">${button("copy", "Copy link", "primary")}</div><p class="pause-invite-note">Your learner’s existing browser can reconnect. Replacing the link revokes their access, but keeps this game’s score.</p>${button("replace-learner", "Replace learner link", "text-button pause-replace-link")}</div>` : "<p>Your tutor will resume the game.</p>"}</div></div>` : ""}`;
 }
 function feedbackText(s) {
   return !s.feedback
@@ -476,7 +476,7 @@ function between(s) {
     <div class="result-score"><strong>${s.score}</strong><span>shared ${s.score === 1 ? "point" : "points"}${switching ? " so far" : ""}</span></div>
     ${s.best !== null ? `<p class="best">Session best <strong>${s.best}</strong>${!switching && s.score === s.best ? " ✦" : ""}</p>` : ""}
     ${s.finalCard && !finished ? `<div class="final-card"><span>At the horn</span><strong>${escape(s.finalCard.target)}</strong>${s.finalCard.credited ? "<small>✓ Credited</small>" : s.canCredit ? button("late-correct", "They said it before the horn · +1", "text-button") : ""}</div>` : ""}
-    ${switching ? `<p class="switch-copy">${ready ? "Waiting for your partner to get ready." : "Take a breath. Both of you tap ready to begin."}</p><div class="switch-actions">${button("ready", ready ? "✓ Ready" : "I’m ready", "primary", ready)}${!learner ? button("finish", "Finish", "secondary") : ""}</div>` : finished ? `<p>Your lesson call stays open. Take those new ways of saying things with you.</p>${!learner ? button("new-session", "Start a new game", "primary") : ""}` : `<div class="result-actions">${!learner ? button("replay", "▶ Play Another Round", "primary", !s.connected.learner) + button("finish", "Finish", "secondary") : "<p>Your partner can start another round or finish.</p>"}</div>`}
+    ${switching ? `<p class="switch-copy">${ready ? "Waiting for your partner to get ready." : "Take a breath. Both of you tap ready to begin."}</p><div class="switch-actions">${button("ready", ready ? "✓ Ready" : "I’m ready", "primary", ready)}${!learner ? button("finish", "End game", "secondary end-game-button") : ""}</div>` : finished ? `<p>Your lesson call stays open. Take those new ways of saying things with you.</p>${!learner ? button("new-session", "Start a new game", "primary") : ""}` : `<div class="result-actions">${!learner ? button("replay", "▶ Play Another Round", "primary", !s.connected.learner) + button("finish", "End game", "secondary end-game-button") : "<p>Your partner can start another round or finish.</p>"}</div>`}
     ${!switching && s.review.length ? `<details class="review"><summary>Talk through ${s.review.length} unresolved ${s.review.length === 1 ? "card" : "cards"} <span>Optional</span></summary><div>${s.review.map((c) => `<article><strong>${escape(c.target)}</strong><small>${c.result === "oops" ? "Oops" : c.result === "skip" ? "Skipped" : "At the horn"}</small><p>${c.forbidden.map(escape).join(" · ")}</p></article>`).join("")}</div></details>` : ""}
     ${!learner && switching ? `<div class="switch-maintenance">${button("replace-learner", "Replace learner link", "text-button small")}${!s.connected.learner ? `<div class="link-row"><input id="invite-link" aria-label="Learner invite link" readonly value="${escape(joinUrl())}">${button("copy", "Copy link", "primary")}</div>` : ""}</div>` : ""}</div></section>`;
 }
@@ -563,7 +563,7 @@ function updateControls() {
       Date.now() + offset >= state?.deadline;
   }
   for (const el of document.querySelectorAll(
-    '[data-action="start"],[data-action="replay"],[data-action="ready"],[data-action="late-correct"]',
+    '[data-action="start"],[data-action="replay"],[data-action="ready"],[data-action="late-correct"],[data-action="finish"],[data-action="replace-learner"],[data-action="resume"]',
   )) {
     if (busy) el.disabled = true;
   }
@@ -676,6 +676,15 @@ function confirmLearnerReplacement() {
     dialog.showModal();
   });
 }
+function confirmEndGame() {
+  const dialog = document.querySelector("#end-game-confirm");
+  if (!dialog || dialog.open) return Promise.resolve(false);
+  dialog.returnValue = "";
+  return new Promise((resolve) => {
+    dialog.addEventListener("close", () => resolve(dialog.returnValue === "end"), { once: true });
+    dialog.showModal();
+  });
+}
 async function act(action) {
   if (action === "rules") {
     closeTutorMobileMenu();
@@ -729,6 +738,10 @@ async function act(action) {
   }
   if (action === "replace-learner") {
     if (!(await confirmLearnerReplacement())) return;
+    if (busy) return;
+  }
+  if (action === "finish") {
+    if (learner || !(await confirmEndGame())) return;
     if (busy) return;
   }
   pending = {
