@@ -494,37 +494,8 @@ body:before {
 .entry-footer-maintenance {
   font-weight: 600;
 }
-.invite-tools {
-  position: relative;
-  color: #285b9b;
-  font-size: 13px;
-  font-weight: 700;
-}
-.invite-tools summary {
-  cursor: pointer;
-  padding: 5px 0;
-  list-style: none;
-}
-.invite-tools summary::-webkit-details-marker {
-  display: none;
-}
-.invite-tools summary::after {
-  content: " ▾";
-  font-size: 11px;
-}
-.invite-tools[open] summary::after {
-  content: " ▴";
-}
-.invite-tools .entry-footer-maintenance {
-  display: block;
-  padding: 9px 0 4px;
-  font-size: 12px;
-}
 html[data-theme="night"] .invite-link-label {
   color: #c1d2e5;
-}
-html[data-theme="night"] .invite-tools {
-  color: #87baff;
 }
 .loading {
   padding: 120px;
