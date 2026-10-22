@@ -131,7 +131,7 @@ function renderDock(displayActive=state?.active){
   if(!state){dock.innerHTML=button('start','Start Match')+'<small>2 CONTESTANTS · 3 ROUNDS</small>';return;}
   if(state.phase==='playing'){
     dock.innerHTML=`<form id="answer-form" autocomplete="off"><input id="answer" name="prediction" aria-label="Your answer" placeholder="Your answer…" maxlength="180" autocomplete="off" autocapitalize="off" spellcheck="false" ${busy?'disabled':''} value="${esc(phrase)}"><div class="actions"><button class="primary submit" type="submit" ${busy||!phrase.trim()?'disabled':''}>${busy?'Resolving…':'Submit Answer'}</button>${button('pass','Pass','secondary',busy)}</div></form>`;
-    $('#answer').addEventListener('input',e=>{phrase=e.target.value;e.target.form.querySelector('.submit').disabled=busy||!phrase.trim();});
+    $('#answer').addEventListener('input',e=>{phrase=e.target.value;const submitButton=$('#answer-form .submit');if(submitButton)submitButton.disabled=busy||!phrase.trim();});
     $('#answer-form').addEventListener('submit',e=>{e.preventDefault();void submit();});
   }else if(state.phase==='missed') dock.innerHTML=`<p class="prediction">What did we miss?</p><div class="actions">${button('reveal','Reveal Next','primary',busy)}${button('reveal-all','Reveal All','secondary',busy)}</div>`;
   else if(state.phase==='roundEnd')dock.innerHTML=`<p class="prediction">Board complete</p>${button('next',state.round===2?'Final Result':'Next Round','primary',busy)}`;
