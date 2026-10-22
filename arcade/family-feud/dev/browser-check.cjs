@@ -18,6 +18,7 @@ const {pathToFileURL}=require('node:url');
  const creamChrome=await chromeAppearance();
  await page.locator('.arcade-game-chrome-back').hover();
  assert.equal(await page.locator('.arcade-game-chrome-back').evaluate(el=>getComputedStyle(el).color),'rgb(66, 36, 60)');
+ await page.mouse.move(800,500);
  await page.evaluate(()=>window.AtlasBridge.setAppearanceMode('night'));
  assert.equal(await page.evaluate(()=>window.AtlasBridge.readAppearanceMode()),'night');
  assert.equal(await page.locator('html').getAttribute('data-theme'),'light');
