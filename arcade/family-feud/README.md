@@ -53,6 +53,24 @@ play, replay, win/draw, Finish, and an injected one-shot resolver failure/retry.
 Browser inspection covers 1280×720 and 1024×768, muted and reduced-motion operation.
 The game has no debug controls, answer reveal shortcuts, or hidden text in shutter DOM.
 
-Match state is in memory; reloading starts over. Only seen board IDs are stored.
-Sound starts off and can be enabled with the top-right control. Keyboard Enter
-submits; all other actions use standard focusable buttons. No human judging role.
+## Atlas Continue
+
+Starting a match creates a versioned Family Feud snapshot under the active Atlas
+learner session in the existing AtlasBridge registry. Continue becomes eligible
+immediately. The snapshot preserves board IDs, round, current contestant, starting
+contestant, scores, round contributions, strikes, revealed answers and contestant
+names. Answers, passes, board reveals and round transitions checkpoint the match.
+Refreshing the page or returning through Atlas restores the same unfinished match,
+including its current playing, missed-board or round-end controls.
+
+Changing the active Atlas learner session loads that learner's own match (or the
+start screen when none exists); pending answer animations cannot apply results
+across learner sessions. The final result marks the match complete, clears the
+resumable snapshot and removes Continue eligibility. Recent Activity remains, and
+Play Again starts a fresh three-round match. This uses AtlasBridge's existing
+browser-local continuity, not cross-device or server-side game storage.
+
+Previously seen board IDs continue to be stored in browser-local storage to
+prefer fresh boards in later matches. Sound starts off and can be enabled with
+the top-right control. Keyboard Enter submits; all other actions use standard
+focusable buttons. No human judging role.
