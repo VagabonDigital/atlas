@@ -19,6 +19,7 @@ const {pathToFileURL}=require('node:url');
  await page.locator('.arcade-game-chrome-back').hover();
  assert.equal(await page.locator('.arcade-game-chrome-back').evaluate(el=>getComputedStyle(el).color),'rgb(66, 36, 60)');
  await page.mouse.move(800,500);
+ await page.waitForTimeout(250); // Allow the cover hover transition to settle before comparing colours.
  await page.evaluate(()=>window.AtlasBridge.setAppearanceMode('night'));
  assert.equal(await page.evaluate(()=>window.AtlasBridge.readAppearanceMode()),'night');
  assert.equal(await page.locator('html').getAttribute('data-theme'),'light');
