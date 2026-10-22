@@ -1635,23 +1635,38 @@ html[data-theme="night"] {
   --muted: #9bb3cf;
 }
 html[data-theme="night"] body {
-  background:
-    radial-gradient(ellipse at 48% 48%, rgba(52, 91, 128, 0.18), transparent 48%),
-    repeating-linear-gradient(
-      39deg,
-      transparent 0 180px,
-      rgba(137, 184, 226, 0.035) 180px 230px,
-      transparent 230px 330px
-    ),
-    radial-gradient(ellipse at 0 90%, #163653, transparent 62%),
-    linear-gradient(122deg, #081522, #0d2032 56%, #142c44);
+background:
+    radial-gradient(ellipse 76% 90% at 47% 40%, rgba(39, 94, 148, 0.26), transparent 69%),
+    radial-gradient(ellipse 72% 68% at -10% 112%, rgba(25, 102, 191, 0.32), transparent 68%),
+    radial-gradient(ellipse 60% 68% at 108% 105%, rgba(25, 85, 141, 0.24), transparent 75%),
+    linear-gradient(120deg, #07111f 2%, #0a1e35 54%, #08182b 100%);
 }
 html[data-theme="night"] body:before {
-  background:
+background:
     radial-gradient(ellipse at 60% 70%, rgba(255, 111, 76, 0.46), transparent 58%),
     radial-gradient(ellipse at 5% 90%, rgba(214, 101, 92, 0.24), transparent 42%),
     linear-gradient(140deg, rgba(26, 49, 79, 0.72), rgba(71, 56, 90, 0.55) 55%, rgba(177, 79, 68, 0.48));
 }
+html[data-theme="night"] body::after {
+  /* Behind the page chrome and cards; subtle CSS arcs, no extra image asset. */
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 76% 135% at -26% 151%,
+      transparent 63%, rgba(61, 133, 230, 0.15) 63.2%,
+      rgba(20, 80, 163, 0.12) 75%, transparent 75.2%),
+    radial-gradient(ellipse 76% 94% at 128% -32%,
+      transparent 67%, rgba(60, 130, 207, 0.10) 67.4%,
+      rgba(30, 76, 142, 0.06) 81%, transparent 81.4%),
+    radial-gradient(circle at 6% 25%, rgba(141, 199, 255, 0.24) 0 1px, transparent 2px),
+    radial-gradient(circle at 31% 80%, rgba(132, 193, 253, 0.13) 0 1px, transparent 2px),
+    radial-gradient(circle at 88% 38%, rgba(132, 193, 253, 0.14) 0 1px, transparent 2px);
+  opacity: 0.8;
+}
+
 html[data-theme="night"] #landing-chrome .arcade-game-chrome-back {
   color: #a4bbd4;
 }
@@ -1676,6 +1691,14 @@ html[data-theme="night"] .panel {
     0 4px 12px rgba(0, 0, 0, 0.24),
     inset 0 0 0 1px rgba(255, 255, 255, 0.025);
 }
+html[data-theme="night"] .dashboard.panel {
+  background: linear-gradient(145deg, rgba(20, 43, 69, 0.94), rgba(11, 24, 44, 0.96));
+  border-color: rgba(106, 152, 197, 0.31);
+  box-shadow:
+    0 25px 60px rgba(0, 0, 0, 0.43),
+    inset 0 1px 0 rgba(205, 229, 255, 0.075);
+}
+
 html[data-theme="night"] .eyebrow {
   color: #8eabd0;
 }
@@ -1811,32 +1834,49 @@ html[data-theme="night"] .pause-button:hover:not(:disabled) {
 }
 html[data-theme="night"] .active-card,
 html[data-theme="night"] .flying-card {
-  border-color: #304a63;
-  background: #13263a;
+border-width: 7px;
+  border-color: transparent;
+  background:
+    linear-gradient(155deg, #122a46, #0a1a30) padding-box,
+    linear-gradient(138deg, #8bc8ff 2%, #3b6f9e 28%, #234263 57%, #d1a98e 100%) border-box;
   box-shadow:
-    0 18px 38px rgba(0, 0, 0, 0.42),
-    0 0 20px rgba(66, 145, 222, 0.18),
+    0 19px 38px rgba(0, 0, 0, 0.56),
+    0 0 26px rgba(54, 142, 233, 0.27),
+    0 0 52px rgba(31, 101, 172, 0.15),
     0 0 calc(var(--heat) * 40px) calc(var(--heat) * 9px) rgba(255, 179, 59, 0.62);
 }
 html[data-theme="night"] .card-face {
-  border-color: #304a63;
+border-color: rgba(87, 131, 182, 0.60);
   background:
-    linear-gradient(140deg, rgba(27, 45, 64, 0.97), rgba(15, 29, 44, 0.96)),
-    repeating-linear-gradient(38deg, #1d354e 0 120px, #14283c 120px 170px);
-  box-shadow: inset 0 0 calc(var(--heat) * 45px) rgba(255, 151, 69, 0.34);
+    radial-gradient(ellipse at 50% 3%, rgba(44, 82, 120, 0.24), transparent 61%),
+    linear-gradient(155deg, #172c49, #0c1e33 73%, #102239);
+  box-shadow:
+    inset 0 1px 0 rgba(229, 246, 255, 0.18),
+    inset 0 0 26px rgba(4, 13, 35, 0.34),
+    inset 0 0 calc(var(--heat) * 45px) rgba(255, 151, 69, 0.34);
 }
+html[data-theme="night"] .card-face h1 {
+  color: #f3f8ff;
+  text-shadow: 0 1px 15px rgba(143, 207, 255, 0.20);
+}
+
 html[data-theme="night"] .card-face .eyebrow {
   color: #89a5c2;
 }
 html[data-theme="night"] .card-divider {
-  background: #38516a;
+background: linear-gradient(90deg, transparent, rgba(137, 179, 223, 0.48), transparent);
 }
 html[data-theme="night"] .avoid-label {
-  color: #d08f8c;
+color: #e8a2bb;
 }
 html[data-theme="night"] .card-face li {
-  color: #f3d7d5;
-  background: linear-gradient(90deg, #4a2d34, #563237);
+color: #fff1f6;
+  background: linear-gradient(160deg, #70344f 0%, #55243e 60%, #351c36 100%);
+  border: 1px solid #a9567f;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 214, 237, 0.21),
+    inset 0 -2px 6px rgba(26, 9, 32, 0.27),
+    0 4px 8px rgba(3, 12, 31, 0.28);
 }
 html[data-theme="night"] .role-caption .eyebrow {
   color: #70b1ff;
@@ -1845,17 +1885,17 @@ html[data-theme="night"] .role-caption .eyebrow span {
   color: #7f9dbc;
 }
 html[data-theme="night"] .timer {
-  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.28));
+filter: drop-shadow(0 0 10px rgba(27, 128, 219, 0.18));
 }
 html[data-theme="night"] .timer-track {
-  stroke: #2a4054;
+stroke: #254b74;
   filter: none;
 }
 html[data-theme="night"] .timer > div {
-  background: radial-gradient(#172a3d, #0d1d2d);
+background: radial-gradient(#172d47, #09182a);
   box-shadow:
     inset 0 2px 8px rgba(0, 0, 0, 0.32),
-    0 0 0 1px #36516d;
+    0 0 0 1px rgba(61, 97, 134, 0.24);
 }
 html[data-theme="night"] .timer-symbol,
 html[data-theme="night"] .timer #timer-label {
@@ -1885,18 +1925,22 @@ html[data-theme="night"] .pile > div {
   box-shadow: 0 3px 7px rgba(0, 0, 0, 0.42);
 }
 html[data-theme="night"] .correct {
-  background: linear-gradient(#4fab8b, #2e8365);
-  border-color: #5bae91;
+color: #f0fff8;
+  background: linear-gradient(180deg, #3ab38d, #1d7b63);
+  border-color: #58cfa8;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 6px 12px rgba(0, 0, 0, 0.18);
 }
 html[data-theme="night"] .skip {
-  color: #d8e3ef;
-  background: linear-gradient(#263b4f, #1d3042);
-  border-color: #3d5368;
+color: #e8f2ff;
+  background: linear-gradient(180deg, #345573, #203650);
+  border-color: #567fa6;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 6px 12px rgba(0, 0, 0, 0.18);
 }
 html[data-theme="night"] .oops {
-  color: #ff9a91;
-  background: linear-gradient(#4d2b30, #412428);
-  border-color: #744047;
+color: #fff1f2;
+  background: linear-gradient(180deg, #aa485b, #703046);
+  border-color: #d17487;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.23), 0 6px 12px rgba(0, 0, 0, 0.18);
 }
 html[data-theme="night"] .guesser-note {
   background: #142f49;
