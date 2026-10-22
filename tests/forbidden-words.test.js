@@ -115,6 +115,25 @@ const fs = require("node:fs");
   advance(s, s.deadline);
   act("tutor", "finish", s.deadline + 1);
   assert.equal(s.phase, "finished");
+  // A tutor can end an in-progress game after deliberately pausing it;
+  // a learner cannot force a termination and an unpaused turn is protected.
+  const interrupted = initialState(now);
+  interrupted.learnerHash = "test";
+  interrupted.seen.learner = now;
+  const interrupt = (actor, action, time) =>
+    command(interrupted, actor, {
+      action, id: crypto.randomUUID(),
+      round: interrupted.round, turn: interrupted.turn
+    }, time);
+  interrupt("tutor", "start", now);
+  assert.throws(() => interrupt("tutor", "finish", now + 1), /Pause the current turn/);
+  assert.throws(() => interrupt("learner", "finish", now + 1), /Pause the current turn/);
+  interrupt("tutor", "pause", now + 2);
+  assert.throws(() => interrupt("learner", "finish", now + 3), /Pause the current turn/);
+  interrupt("tutor", "finish", now + 4);
+  assert.equal(interrupted.phase, "finished");
+  assert.equal(interrupted.paused, null);
+  assert.equal(interrupted.card, null);
   const tutorPage = fs.readFileSync(
     "arcade/forbidden-words/index.html",
     "utf8",
@@ -142,6 +161,14 @@ const fs = require("node:fs");
   assert.ok(tutorPage.includes('id="arcade-game-return-root"'));
   assert.ok(tutorPage.includes('id="arcade-game-actions-root"'));
   assert.ok(client.includes("window.AtlasSessionPanel.mount"));
+  assert.ok(client.includes("function tutorSessionKey()"));
+  assert.ok(client.includes('atlasSession?.id || "default"'));
+  assert.ok(client.includes("restoreTutorRoom();"));
+  assert.ok(client.includes("function confirmGameAction("));
+  assert.ok(!client.includes("!confirm("));
+  assert.ok(client.includes('button("finish", "End game", "entry-footer-action entry-footer-maintenance")'));
+  assert.ok(gameCss.includes("@media (min-width: 761px) and (max-height: 900px)"));
+  assert.ok(gameCss.includes(".game-confirm-actions"));
   const setupTutorBlock = client.slice(
     client.indexOf("async function setupTutor()"),
     client.indexOf("async function request("),
