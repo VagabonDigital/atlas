@@ -2783,3 +2783,166 @@ html[data-theme="night"] #rules .atlas-modal-close:active {
 
 }
 
+
+
+/* Accessible destructive-action dialog; shares the existing Atlas modal theme. */
+.game-confirm {
+  width: min(100% - 32px, 460px);
+}
+.game-confirm-content {
+  padding: clamp(22px, 4vw, 36px);
+}
+.game-confirm .eyebrow {
+  margin-bottom: 12px;
+}
+.game-confirm h2 {
+  font-family: "Manrope", Arial, sans-serif;
+  font-size: clamp(24px, 4vw, 30px);
+  line-height: 1.2;
+  letter-spacing: -0.7px;
+}
+.game-confirm p:not(.eyebrow) {
+  margin: 14px 0 24px;
+  line-height: 1.55;
+}
+.game-confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.game-confirm-actions button {
+  min-height: 44px;
+  cursor: pointer;
+}
+.paused-end-button {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+}
+html[data-theme="night"] .game-confirm p:not(.eyebrow) {
+  color: var(--atlas-modal-text);
+}
+@media (max-width: 520px) {
+  .game-confirm-actions {
+    flex-direction: column-reverse;
+  }
+  .game-confirm-actions button {
+    width: 100%;
+  }
+  .entry-footer-actions {
+    flex-wrap: wrap;
+    row-gap: 3px;
+  }
+}
+
+/* Short desktop/laptop covers: respect viewport height without sacrificing
+   mobile scrolling or squeezing the live game screens. */
+@media (min-width: 761px) and (max-height: 900px) {
+  #app {
+    min-height: calc(100dvh - 72px);
+  }
+  .landing {
+    min-height: calc(100dvh - 72px);
+    box-sizing: border-box;
+    padding: clamp(14px, 2.3vh, 25px) clamp(24px, 3.7vw, 65px);
+    gap: clamp(20px, 3vw, 45px);
+  }
+  .landing .brand {
+    font-size: clamp(43px, 4vw, 66px);
+    letter-spacing: -2.8px;
+  }
+  .premise {
+    margin-top: 13px;
+    font-size: clamp(17px, 1.35vw, 22px);
+    line-height: 1.35;
+  }
+  .hero-deck {
+    margin-top: 6px;
+    padding-bottom: 46px;
+  }
+  .hero-deck .deck-object {
+    width: 180px;
+    height: 240px;
+  }
+  .hero-deck .deck-tray {
+    bottom: -32px;
+    left: -19px;
+    right: -19px;
+    height: 86px;
+  }
+  .hero-deck .spark {
+    font-size: 40px;
+  }
+  .caption {
+    font-size: 13px;
+  }
+  .invitation {
+    padding: 25px 28px;
+  }
+  .invitation .eyebrow {
+    margin-bottom: 11px;
+  }
+  .invitation h1 {
+    font-size: 25px;
+    margin-bottom: 9px;
+  }
+  .invitation > p:not(.eyebrow):not(.small-note) {
+    margin-bottom: 16px;
+    line-height: 1.45;
+  }
+  .link-row {
+    margin-bottom: 16px;
+  }
+  .link-row input {
+    padding: 12px 14px;
+  }
+  .connection {
+    margin: 17px 0;
+    padding: 17px;
+  }
+  .entry-footer {
+    margin-top: 13px;
+    padding-top: 12px;
+  }
+  .start-button {
+    font-size: 17px;
+  }
+}
+@media (min-width: 761px) and (max-height: 690px) {
+  .landing {
+    padding-block: 10px;
+  }
+  .landing .brand {
+    font-size: clamp(39px, 3.5vw, 55px);
+  }
+  .premise {
+    margin-top: 9px;
+    font-size: 17px;
+  }
+  .hero-deck {
+    padding-bottom: 32px;
+  }
+  .hero-deck .deck-object {
+    width: 145px;
+    height: 190px;
+  }
+  .hero-deck .deck-tray {
+    bottom: -25px;
+    height: 68px;
+  }
+  .invitation {
+    padding: 18px 23px;
+  }
+  .connection {
+    margin: 10px 0;
+    padding: 12px 15px;
+  }
+  .entry-footer {
+    margin-top: 10px;
+    padding-top: 8px;
+  }
+  .invitation > p:not(.eyebrow):not(.small-note) {
+    margin-bottom: 12px;
+  }
+}
