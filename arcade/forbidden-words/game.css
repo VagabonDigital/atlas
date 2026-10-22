@@ -2993,3 +2993,37 @@ html[data-theme="night"] #rules .atlas-modal-close:active {
     padding-block: 12px;
   }
 }
+
+/* The cover sits on a pale surface; keep the shared hover equally legible. */
+#landing-chrome {
+  --game-chrome-cover-surface: #ffffffeb;
+  --game-chrome-cover-hover: #fff;
+  --game-chrome-cover-text: #355c89;
+  --game-chrome-cover-focus: #2a73c7;
+}
+html[data-theme="night"] #landing-chrome {
+  --game-chrome-cover-surface: #122639;
+  --game-chrome-cover-hover: #203d56;
+  --game-chrome-cover-text: #c2dbf1;
+  --game-chrome-cover-focus: #80c3ff;
+}
+#landing-chrome .arcade-game-chrome-back,
+#landing-chrome .arcade-game-chrome-session,
+#landing-chrome .arcade-game-chrome-icon-btn {
+  background: var(--game-chrome-cover-surface);
+  color: var(--game-chrome-cover-text);
+  border-color: var(--game-chrome-control-border);
+}
+#landing-chrome .arcade-game-chrome-back:hover,
+#landing-chrome .arcade-game-chrome-session:hover,
+#landing-chrome .arcade-game-chrome-icon-btn:hover { background: var(--game-chrome-cover-hover); }
+.game-utility-button.sound-button {
+  min-height: 38px;
+  font: 500 .78rem/1 var(--game-chrome-font);
+  color: #355c89;
+}
+@media (max-width: 820px) {
+  .game-utility-button.sound-button { min-height: 44px; }
+}
+
+.arcade-game-chrome-game-menu .sound-button .utility-label { grid-column: 1 / -1; }

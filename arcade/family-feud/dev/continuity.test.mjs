@@ -29,7 +29,8 @@ function fixture() {
           addEventListener(type, fn) { events.set(type, [...events.get(type) || [], fn]); },
           emit(type, event) { for (const fn of events.get(type) || []) fn(event); },
           querySelector(selector) { return node(key + ' ' + selector); },
-          focus() {}, setAttribute() {}, remove() {},
+          append(child) { child.parentElement = this; },
+          focus() {}, setAttribute(name, value) { this[name] = value; }, remove() {},
           getBoundingClientRect() { return { left: 0, top: 0 }; }
         });
       }
@@ -71,6 +72,8 @@ function fixture() {
     runInNewContext(appSource, context, { filename: 'family-feud/app.mjs' });
     return {
       game: context.testGame,
+      sound: () => node('#sound'),
+      toggleSound: () => node('#sound').emit('click'),
       switchTo(session) {
         active = session;
         for (const fn of listeners.get('atlas:session-change') || []) fn();
@@ -87,6 +90,18 @@ function fixture() {
   return { launch, state: session => registry.sessionStates[session]?.['arcade:family-feud'],
     recent: () => registry.recentActivity };
 }
+
+test('sound defaults off and remembers enabled and disabled choices across reloads', () => {
+  const f = fixture();
+  let app = f.launch();
+  assert.equal(app.sound()['aria-pressed'], 'false');
+  app.toggleSound();
+  app = f.launch();
+  assert.equal(app.sound()['aria-pressed'], 'true');
+  assert.equal(app.sound()['aria-label'], 'Sound');
+  app.toggleSound();
+  assert.equal(f.launch().sound()['aria-pressed'], 'false');
+});
 
 test('Family Feud snapshots restore across reload, remain learner-specific, and retire on completion', async () => {
   const f = fixture();
