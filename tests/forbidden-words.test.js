@@ -379,7 +379,7 @@ const fs = require("node:fs");
   assert.ok(!gameCss.includes(".invite-tools {"));
   assert.ok(client.includes('joined ? button("start", "▶ Start Round"'));
   assert.ok(gameCss.includes("min-height: calc(100svh - 72px);"));
-  assert.ok(gameCss.includes(".landing .invite-link-input {"));
+  assert.ok(gameCss.includes(".landing .invite-link-input,\n.pause-overlay .invite-link-input {"));
   assert.ok(client.includes('entry-footer-action entry-footer-maintenance'));
   assert.ok(!client.includes("ⓘ How to Play"));
   assert.ok(!client.includes('class="waiting-label"'));
