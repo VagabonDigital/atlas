@@ -627,6 +627,34 @@
         grid-template-columns: 1fr;
       }
     }
+    /* Cover details belong to the game machine, not beneath Start Match.
+       Keep gameplay stage sizing and the survey provenance untouched. */
+    .stage:not(.entrance) .cover-meta {
+      display: none;
+    }
+    .stage.entrance .cover-meta {
+      align-self: center;
+      margin: 0;
+      text-align: center;
+      color: #614257;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 1.6px;
+      line-height: 1.2;
+      text-shadow: 0 1px #fff8;
+    }
+    @media (min-width: 900px) {
+      .stage.entrance .machine {
+        gap: clamp(14px, 1.9dvh, 19px);
+      }
+    }
+    @media (max-width: 700px) {
+      .stage.entrance .board { margin-bottom: 8px; }
+      .stage.entrance .cover-meta {
+        font-size: 11px;
+        letter-spacing: 1.2px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -639,6 +667,7 @@
       <div id="heading" class="question"></div>
       <div id="board" class="board" role="group" aria-label="Ranked responses"></div>
       <p class="provenance">ILLUSTRATIVE BOARDS · NOT SURVEY DATA</p>
+      <p class="cover-meta">2 PLAYERS · 3 ROUNDS</p>
     </section>
     <section class="console" aria-label="Contestants and answer controls">
       <div id="player-0" class="contestant player-a"></div>

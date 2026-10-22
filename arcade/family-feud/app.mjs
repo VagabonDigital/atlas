@@ -135,7 +135,7 @@ function renderBoard(flash=-1){
 }
 function renderDock(displayActive=state?.active){
   const dock=$('#dock-controls');
-  if(!state){dock.innerHTML=button('start','Start Match')+'<small>2 CONTESTANTS · 3 ROUNDS</small>';return;}
+  if(!state){dock.innerHTML=button('start','Start Match');return;}
   if(state.phase==='playing'){
     dock.innerHTML=`<form id="answer-form" autocomplete="off"><input id="answer" name="prediction" aria-label="Your answer" placeholder="Your answer…" maxlength="180" autocomplete="off" autocapitalize="off" spellcheck="false" ${busy?'disabled':''} value="${esc(phrase)}"><div class="actions"><button class="primary submit" type="submit" ${busy||!phrase.trim()?'disabled':''}>${busy?'Resolving…':'Submit Answer'}</button>${button('pass','Pass','secondary',busy)}</div></form>`;
     $('#answer').addEventListener('input',e=>{phrase=e.target.value;const submitButton=$('#answer-form .submit');if(submitButton)submitButton.disabled=busy||!phrase.trim();});
