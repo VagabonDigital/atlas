@@ -282,8 +282,12 @@ const fs = require("node:fs");
   assert.ok(modalTheme.includes(".atlas-modal-close:hover,"));
   assert.ok(modalTheme.includes(".atlas-modal-close:focus-visible,"));
   assert.ok(tutorPage.includes('id="landing-chrome" hidden'));
-  assert.ok(tutorPage.includes("fill='%234F7772'"));
-  assert.ok(learnerPage.includes("fill='%234F7772'"));
+  const faviconHref = (html) =>
+    html.match(/<link rel="icon" type="image\/svg\+xml"\s+href="([^"]+)"/)?.[1];
+  const arcadeFavicon = faviconHref(fs.readFileSync("arcade/index.html", "utf8"));
+  assert.ok(arcadeFavicon);
+  assert.equal(faviconHref(tutorPage), arcadeFavicon);
+  assert.equal(faviconHref(learnerPage), arcadeFavicon);
   assert.ok(client.includes("showTutorLandingChrome"));
   assert.ok(!gameCss.includes("position: absolute;\n    left: 50%;\n    top: 50%;\n    grid-area: auto !important;"));
   assert.ok(!learnerPage.includes("arcade-game-chrome"));
