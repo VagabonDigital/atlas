@@ -307,6 +307,41 @@
         display: none;
       }
     }
+    /* Gameplay: give the stage's grid its full available column width.
+       Without this explicit track, the auto column shrinks around the dock. */
+    .stage:not(.entrance) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    /* Spacious in-play composition, without enlarging answer typography. */
+    @media (min-width: 701px) {
+      .stage:not(.entrance) {
+        max-height: 800px;
+      }
+      .stage:not(.entrance) .machine {
+        width: 82%;
+        max-width: 950px;
+      }
+      .stage:not(.entrance) .console {
+        width: min(100%, 1080px);
+        grid-template-columns: minmax(0, .9fr) minmax(0, 2.1fr) minmax(0, .9fr);
+        gap: 16px;
+      }
+    }
+
+    /* Optical baseline correction: move only the glyphs, not row backgrounds. */
+    .stage:not(.entrance) .rank,
+    .stage:not(.entrance) .answer,
+    .stage:not(.entrance) .value {
+      padding-bottom: .12em;
+    }
+
+    @media (max-width: 700px) {
+      .stage:not(.entrance) .console {
+        grid-template-columns: minmax(0, .8fr) minmax(0, 2.2fr) minmax(0, .8fr);
+        gap: 6px;
+      }
+    }
   </style>
 </head>
 <body>
