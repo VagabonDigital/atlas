@@ -103,6 +103,17 @@
         </form>
       </div>
     </dialog>
+    <dialog id="recover-legacy-confirm" aria-labelledby="recover-legacy-title" aria-describedby="recover-legacy-description">
+      <div class="fw-confirm-inner">
+        <p class="eyebrow">OLDER GAME</p>
+        <h2 id="recover-legacy-title">Link this game to <span id="recover-legacy-name">this learner</span>?</h2>
+        <p id="recover-legacy-description">This game was created before learner ownership was added. Only continue if it belongs to the selected learner. Linking is permanent; its invitation and score will stay with this learner.</p>
+        <form method="dialog" class="fw-confirm-actions">
+          <button class="secondary" value="cancel" autofocus>Keep unassigned</button>
+          <button class="primary" value="recover">Link this game</button>
+        </form>
+      </div>
+    </dialog>
     <div id="atlas-session-panel-root"></div>
     <script src="../../shared/atlas-bridge.js"></script>
     <script type="module" src="./app.mjs"></script>
