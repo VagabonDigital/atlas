@@ -125,18 +125,22 @@ const fs = require("node:fs");
       command(game, actor, {
         action, id: crypto.randomUUID(), round: game.round, turn: game.turn,
       }, when);
+    let actionTime = at + 100;
     if (phase !== "waiting") {
       endAction("tutor", "start", at);
-      if (phase === "active") advance(game, at + 3001);
+      if (phase === "active") {
+        actionTime = at + 3100;
+        advance(game, actionTime);
+      }
       assert.throws(
-        () => endAction("tutor", "finish", at + 3100),
+        () => endAction("tutor", "finish", actionTime),
         /End the game while waiting/,
       );
-      endAction("tutor", "pause", at + 3101);
+      endAction("tutor", "pause", actionTime + 1);
       assert.ok(game.paused);
     }
-    assert.throws(() => endAction("learner", "finish", at + 3102));
-    endAction("tutor", "finish", at + 3103);
+    assert.throws(() => endAction("learner", "finish", actionTime + 2));
+    endAction("tutor", "finish", actionTime + 3);
     assert.equal(game.phase, "finished");
     assert.equal(game.card, null);
     assert.equal(game.paused, null);
