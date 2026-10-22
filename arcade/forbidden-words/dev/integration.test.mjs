@@ -226,27 +226,39 @@ try {
   }, 200, true);
   assert.equal(scopedTutor.atlasSessionId, "session-alex");
   await call({ session: scopedRoom, action: "poll", credential: scopedCredential }, 200);
+  const seatRotation = await call({
+    session: scopedRoom, action: "replace-learner",
+    atlasSessionId: "session-alex",
+  }, 200, true);
+  assert.equal(seatRotation.atlasSessionId, "session-alex");
+  assert.notEqual(seatRotation.invite, scopeInvite);
+  await call({ session: scopedRoom, action: "poll", credential: scopedCredential }, 403);
+  const newSeat = await call({
+    session: scopedRoom, action: "join", credential: token(),
+    invite: seatRotation.invite,
+  });
+  assert.equal(newSeat.atlasSessionId, undefined);
 
   // Legacy rooms are never silently attributed. Explicit tutor binding is
   // atomic, permanent, and visible only on the authenticated tutor projection.
   const legacyRoom = crypto.randomUUID();
   let olderTutor = await call({ session: legacyRoom, action: "create" }, 200, true, "create");
   assert.equal(olderTutor.atlasSessionId, null);
-  await call({ session: legacyRoom, action: "poll", atlasSessionId: "session-alex" }, 409, true);
+  await call({ session: legacyRoom, action: "poll", atlasSessionId: "session-blair" }, 409, true);
   olderTutor = await call({
     session: legacyRoom, action: "bind-learner",
-    atlasSessionId: "session-alex",
+    atlasSessionId: "session-blair",
   }, 200, true);
-  assert.equal(olderTutor.atlasSessionId, "session-alex");
+  assert.equal(olderTutor.atlasSessionId, "session-blair");
   await call({
     session: legacyRoom, action: "bind-learner",
     atlasSessionId: "session-alex",
-  }, 409, true);
-  await call({
-    session: legacyRoom, action: "poll", atlasSessionId: "session-blair",
   }, 409, true);
   await call({
     session: legacyRoom, action: "poll", atlasSessionId: "session-alex",
+  }, 409, true);
+  await call({
+    session: legacyRoom, action: "poll", atlasSessionId: "session-blair",
   }, 200, true);
   const denied = await handleForbiddenWords(
     new Request("https://api.test/forbidden-words/session", {
