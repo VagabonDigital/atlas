@@ -382,7 +382,7 @@ function landing(s) {
   app.innerHTML = `<section class="landing"><div class="landing-identity">${brand}<p class="premise">Describe the word. <br>Lose the obvious language.</p><div class="hero-deck">${deck}<span class="spark one">✦</span><span class="spark two">✧</span></div><p class="caption">Two voices. One clock. Find another way.</p></div>
     <div class="invitation panel"><p class="eyebrow">${learner ? "YOU’RE IN" : "BETTER TOGETHER"}</p><h1>${learner ? "Your partner goes first." : "Invite your learner"}</h1>
     <p>${learner ? "Listen to the clues and guess aloud." : "Send a private game invitation to your learner."}</p>
-    ${!learner && s ? `<div class="link-row invite-link-row"><span class="invite-link-label" aria-hidden="true">↗ &nbsp; Private game link</span><input id="invite-link" class="invite-link-input" aria-label="Learner invite link" readonly value="${escape(joinUrl())}">${button("copy", "Copy link", "primary")}</div>` : ""}
+    ${!learner && s ? `<div class="link-row invite-link-row"><span class="invite-link-label" aria-hidden="true">↗ &nbsp; Private game link</span><input id="invite-link" class="invite-link-input" aria-label="Learner invite link" aria-hidden="true" tabindex="-1" readonly value="${escape(joinUrl())}">${button("copy", "Copy link", "primary")}</div>` : ""}
     <div class="connection"><span class="connection-dot ${joined ? "online" : ""}"></span><div><strong>${learner ? "Connected to the game" : joined ? "Your learner is here" : s ? "Waiting for your learner…" : "Ready for a live lesson?"}</strong><p>${learner ? "Your tutor will start the round." : joined ? "You can start the first round." : s ? "They’ll appear here when connected." : "Sign in to create your private game."}</p></div></div>
     ${learner ? "" : !s ? button("sign-in", "Sign in to host", "primary start-button") : joined ? button("start", "▶ Start Round", "primary start-button") : ""}
     ${learner
@@ -682,6 +682,8 @@ async function act(action) {
     } catch {
       const input = document.querySelector("#invite-link");
       input?.closest(".invite-link-row")?.classList.add("manual-copy");
+      input?.removeAttribute("aria-hidden");
+      input?.removeAttribute("tabindex");
       input?.select();
       notify("Copy unavailable automatically. Select the link and press Ctrl+C (or Command+C).");
     }
