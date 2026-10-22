@@ -139,6 +139,20 @@ assert.equal(context.getContinueItem(registry, 'yasmin').registryId, travel.regi
 arcade.status = 'in-progress'; arcade.progress.covered = 0;
 assert.equal(context.getContinueItem(registry, 'yasmin').registryId, travel.registryId, 'An opened game is not meaningful progress');
 
+// A started Family Feud match is resumable immediately, and its final result is not.
+const feud = {
+  registryId: 'arcade:family-feud', world: 'arcade', title: 'Family Feud',
+  launchUrl: '/arcade/family-feud/', status: 'in-progress',
+  progress: { covered: 1, total: 3 }, lastTouchedAt: 350
+};
+registry.items[feud.registryId] = feud;
+registry.sessionStates.yasmin[feud.registryId] = feud;
+assert.equal(context.getContinueItem(registry, 'yasmin').registryId, feud.registryId);
+feud.status = 'complete'; feud.progress.covered = 3;
+assert.equal(context.getContinueItem(registry, 'yasmin').registryId, travel.registryId);
+delete registry.items[feud.registryId];
+delete registry.sessionStates.yasmin[feud.registryId];
+
 const languageOnly = {
   ...sourceTravel,
   registryId: 'compass:language-only',
