@@ -115,6 +115,39 @@ const fs = require("node:fs");
   advance(s, s.deadline);
   act("tutor", "finish", s.deadline + 1);
   assert.equal(s.phase, "finished");
+  // End Game is a tutor-only room termination. Live play must be paused first.
+  for (const phase of ["waiting", "countdown", "active"]) {
+    const at = 200000;
+    const game = initialState(at);
+    game.learnerHash = "existing-learner";
+    game.seen.learner = at;
+    const endAction = (actor, action, when) =>
+      command(game, actor, {
+        action, id: crypto.randomUUID(), round: game.round, turn: game.turn,
+      }, when);
+    if (phase !== "waiting") {
+      endAction("tutor", "start", at);
+      if (phase === "active") advance(game, at + 3001);
+      assert.throws(
+        () => endAction("tutor", "finish", at + 3100),
+        /End the game while waiting/,
+      );
+      endAction("tutor", "pause", at + 3101);
+      assert.ok(game.paused);
+    }
+    assert.throws(() => endAction("learner", "finish", at + 3102));
+    endAction("tutor", "finish", at + 3103);
+    assert.equal(game.phase, "finished");
+    assert.equal(game.card, null);
+    assert.equal(game.paused, null);
+    assert.equal(game.late, null);
+    assert.deepEqual(game.ready, []);
+    assert.equal(view(game, "learner", at + 3104, 1).phase, "finished");
+    assert.equal(view(game, "learner", at + 3104, 1).card, null);
+    advance(game, at + 200000);
+    assert.equal(game.phase, "finished");
+    assert.throws(() => endAction("tutor", "finish", at + 200001));
+  }
   const tutorPage = fs.readFileSync(
     "arcade/forbidden-words/index.html",
     "utf8",
@@ -246,6 +279,19 @@ const fs = require("node:fs");
   assert.ok(client.includes("requestAnimationFrame(syncRulesScrollbar)"));
   assert.ok(tutorPage.includes('class="atlas-modal-close rules-close"'));
   assert.ok(tutorPage.includes('id="replace-learner-confirm"'));
+  assert.ok(tutorPage.includes('id="end-game-confirm"'));
+  assert.ok(tutorPage.includes('value="end"'));
+  assert.ok(!learnerPage.includes('id="end-game-confirm"'));
+  assert.ok(client.includes("function confirmEndGame()"));
+  assert.ok(client.includes('dialog.returnValue === "end"'));
+  assert.ok(client.includes('button("finish", "End game", "entry-footer-action end-game-action")'));
+  assert.ok(client.includes('button("finish", "End game", "secondary end-game-button")'));
+  assert.ok(client.includes('class="pause-invitation"'));
+  assert.ok(client.includes('id="invite-link" class="invite-link-input"'));
+  assert.ok(gameCss.includes(".pause-actions {"));
+  assert.ok(gameCss.includes(".pause-invitation {"));
+  assert.ok(gameCss.includes("#end-game-confirm {"));
+
   assert.ok(tutorPage.includes('method="dialog" class="fw-confirm-actions"'));
   assert.ok(tutorPage.includes('value="cancel" autofocus'));
   assert.ok(tutorPage.includes('value="replace"'));
