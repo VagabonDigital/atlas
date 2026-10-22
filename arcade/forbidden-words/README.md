@@ -59,7 +59,46 @@ that readiness handshake if both already marked ready.
 Sessions expire after six hours. Expired records are inaccessible and are removed on
 subsequent session creation. There is no fixed round limit. Best score covers completed
 rounds in this session. The final unresolved card can be credited once by its previous
-Describer until the next turn/round begins. Finish ends play for both seats.
+Describer until the next turn/round begins. End Game is tutor-controlled and confirmed in the browser. It is available while
+waiting, at role switches/results, or during a paused countdown/active turn;
+live unpaused turns cannot be ended. Ending immediately closes the shared
+room for both seats, clears the current private card and paused clock, and
+does not allow that game to resume. The learner can observe the finished
+state, but a new seat cannot claim the finished invitation. Copy Link always
+copies the current invitation; Replace Learner Link instead rotates the
+invitation, revokes the existing seat and preserves game progress.
+
+## Atlas learner ownership
+
+Tutor rooms are bound to an immutable Atlas learner session ID in the
+server-owned game state. The tutor's authenticated request must carry the
+matching learner ID for every request; the Worker rejects a mismatch. The
+learner seat never receives the Atlas learner ID. Replacing the invited
+participant is **not** changing the Atlas learner context and keeps the room's
+learner ID, score and progress unchanged.
+
+The tutor browser stores a room reference under the account **and** Atlas
+learner ID. On selection change, the game stops polling the previous room,
+ignores in-flight responses from the previous selection, and resumes only the
+room bookmarked for the newly selected learner. It never ends the previous
+room or silently creates a replacement. A learner without a recorded room sees
+an explicit Create Game action. Returning to a learner on the same browser
+restores that learner's room while it remains valid (rooms still expire after
+six hours). Different browsers do not share these local bookmarks; a future
+cross-device room discovery feature would need a separate authenticated
+server lookup.
+
+Existing pre-ownership rooms stored under `fw:tutor:<owner>` are deliberately
+**not** attributed to whichever learner happens to be selected during an
+upgrade. A tutor can explicitly confirm a one-time legacy-room link to the
+selected learner. The Worker enforces that it can only be bound once and
+permanently. Ambiguous network responses are recovered by checking the same
+room and learner ID before saving the scoped bookmark. Existing unassigned
+rooms remain accessible to older clients during phased deployment.
+
+The existing server quota (three unfinished rooms per owner) still applies;
+switching learners alone never consumes a room. Account ownership/authorisation,
+seat restrictions, timer rules, and privacy projections are unchanged.
 
 ## Local verification
 
