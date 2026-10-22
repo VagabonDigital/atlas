@@ -465,6 +465,17 @@
         height: 46px;
       }
     }
+    /* Preserve the entrance button-and-caption stack after adding a stable
+       gameplay controls wrapper. No feedback is shown on the entrance. */
+    .stage.entrance #dock-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .stage.entrance .dock > .feedback {
+      display: none;
+    }
     /* Status is part of the controls, not a floating footer on the arena. */
     .dock #dock-controls {
       width: 100%;
