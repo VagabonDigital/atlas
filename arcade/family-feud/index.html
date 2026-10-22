@@ -564,6 +564,67 @@
         font-size: 12px;
       }
     }
+    /* Board-complete and post-match actions use the same deliberate
+       centred composition as active play and answer reveals. */
+    .stage:not(.entrance) .phase-layout {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      min-width: 0;
+    }
+    .stage:not(.entrance) .phase-heading {
+      margin: 0;
+      font-size: 14px;
+      letter-spacing: 1.5px;
+      line-height: 1.2;
+      font-weight: 800;
+      white-space: normal;
+      overflow: visible;
+    }
+    .stage:not(.entrance) .phase-actions {
+      display: grid;
+      width: 100%;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 12px;
+    }
+    .stage:not(.entrance) .phase-actions button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-width: 0;
+      min-height: 50px;
+      padding: 10px 12px;
+      border-radius: 25px;
+      font-size: 17px;
+      white-space: nowrap;
+    }
+    .stage:not(.entrance) .phase-end-actions {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .stage:not(.entrance) .phase-actions .secondary {
+      border: 2px solid #bda0a0;
+      background: linear-gradient(180deg, #fffaf4, #ead9c8);
+      font-weight: 800;
+    }
+    @media (max-width: 700px) {
+      .stage:not(.entrance) .phase-layout { gap: 7px; }
+      .stage:not(.entrance) .phase-heading {
+        font-size: 11px;
+        letter-spacing: .5px;
+      }
+      .stage:not(.entrance) .phase-actions { gap: 5px; }
+      .stage:not(.entrance) .phase-actions button {
+        min-height: 40px;
+        font-size: 12px;
+        padding: 7px 4px;
+      }
+      .stage:not(.entrance) .phase-end-actions {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>

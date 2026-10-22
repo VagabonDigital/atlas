@@ -74,12 +74,24 @@ const {pathToFileURL}=require('node:url');
  await page.getByRole('button',{name:'Pass',exact:true}).click();await page.getByRole('button',{name:'Reveal Next',exact:true}).waitFor();
  await page.getByRole('button',{name:'Reveal Next',exact:true}).click();assert.equal(await page.locator('.unclaimed').count(),1);
  await page.getByRole('button',{name:'Reveal All',exact:true}).click();await fits();
+ // The round-complete call to action must fill and centre within the control dock.
+ const nextGeometry=await page.evaluate(()=>{
+  const dock=document.querySelector('#dock-controls').getBoundingClientRect();
+  const action=document.querySelector('[data-action="next"]').getBoundingClientRect();
+  return {widthRatio:action.width/dock.width,centreOffset:Math.abs((action.left+action.width/2)-(dock.left+dock.width/2))};
+ });
+ assert.ok(nextGeometry.widthRatio>=.9&&nextGeometry.centreOffset<=2,JSON.stringify(nextGeometry));
  await page.waitForTimeout(450);await page.screenshot({path:path.join(dir,'round-complete-1024.png')});
  for(let r=1;r<3;r++){
   await page.getByRole('button',{name:'Next Round',exact:true}).click();await ready();const current=await board();
   for(const c of current.concepts)await answer(c.label);
  }
  await page.getByRole('button',{name:'Final Result',exact:true}).click();assert.match(await page.locator('#board h2').innerText(),/wins|draw/);await fits();
+ const replayGeometry=await page.evaluate(()=>{
+  const buttons=[...document.querySelectorAll('.phase-end-actions button')].map(el=>el.getBoundingClientRect());
+  return {widths:buttons.map(b=>b.width),heightDifference:Math.abs(buttons[0].height-buttons[1].height)};
+ });
+ assert.ok(Math.abs(replayGeometry.widths[0]-replayGeometry.widths[1])<=2&&replayGeometry.heightDifference<=2,JSON.stringify(replayGeometry));
  assert.equal((await matchRecord()).status,'complete');
  assert.equal((await matchRecord()).familyFeud,null);
  await page.screenshot({path:path.join(dir,'final-1024.png')});

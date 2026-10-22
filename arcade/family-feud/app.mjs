@@ -134,8 +134,8 @@ function renderDock(displayActive=state?.active){
     $('#answer').addEventListener('input',e=>{phrase=e.target.value;const submitButton=$('#answer-form .submit');if(submitButton)submitButton.disabled=busy||!phrase.trim();});
     $('#answer-form').addEventListener('submit',e=>{e.preventDefault();void submit();});
   }else if(state.phase==='missed') dock.innerHTML=`<div class="reveal-layout"><p class="prediction reveal-heading">What did we miss?</p><div class="actions reveal-actions">${button('reveal','Reveal Next','primary',busy)}${button('reveal-all','Reveal All','secondary',busy)}</div></div>`;
-  else if(state.phase==='roundEnd')dock.innerHTML=`<p class="prediction">Board complete</p>${button('next',state.round===2?'Final Result':'Next Round','primary',busy)}`;
-  else dock.innerHTML=`<p class="prediction">${boards.filter(b=>!seen.includes(b.id)).length>=3?'Three unseen boards ready':'Replay includes previously played boards'}</p><div class="actions">${button('again','Play Again')}${button('finish','Finish','secondary')}</div><p class="round">MATCH COMPLETE</p>`;
+  else if(state.phase==='roundEnd')dock.innerHTML=`<div class="phase-layout"><p class="prediction phase-heading">Board complete</p><div class="actions phase-actions">${button('next',state.round===2?'Final Result':'Next Round','primary',busy)}</div></div>`;
+  else dock.innerHTML=`<div class="phase-layout"><div class="actions phase-actions phase-end-actions">${button('again','Play Again')}${button('finish','Finish','secondary')}</div></div>`;
 }
 function render({flash=-1,scores=state?.scores,active=state?.active}={}){
   $('#stage').classList.toggle('entrance',!state);$('#landing-chrome').hidden=!!state;$('#game-chrome').hidden=!state;
