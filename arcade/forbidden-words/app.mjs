@@ -565,7 +565,9 @@ function updateControls() {
   for (const el of document.querySelectorAll(
     '[data-action="start"],[data-action="replay"],[data-action="ready"],[data-action="late-correct"],[data-action="finish"],[data-action="replace-learner"],[data-action="resume"]',
   )) {
-    if (busy) el.disabled = true;
+    if (["finish", "replace-learner", "resume"].includes(el.dataset.action))
+      el.disabled = busy || failed;
+    else if (busy) el.disabled = true;
   }
   const partnerDisconnected =
     state &&
