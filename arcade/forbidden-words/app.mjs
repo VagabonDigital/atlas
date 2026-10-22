@@ -773,9 +773,17 @@ async function sendPending() {
     schedulePoll();
   }
 }
+function pollInterval() {
+  // Preserve live play responsiveness without continuously polling idle tabs.
+  if (document.hidden) return 6000;
+  if (["active", "countdown"].includes(state?.phase)) return 650;
+  if (["switch", "results"].includes(state?.phase)) return 1500;
+  return 3000;
+}
 function schedulePoll() {
   clearTimeout(pollTimer);
-  pollTimer = setTimeout(poll, state?.phase === "finished" ? 3000 : retryDelay);
+  if (!state || state.phase === "finished") return;
+  pollTimer = setTimeout(poll, failed ? retryDelay : pollInterval());
 }
 function showEntryError(error) {
   state = null;
@@ -912,11 +920,12 @@ document.addEventListener("keydown", (event) => {
   }
 });
 window.addEventListener("online", () => {
+  if (!state || state.phase === "finished") return;
   clearTimeout(pollTimer);
   poll();
 });
 document.addEventListener("visibilitychange", () => {
-  if (!document.hidden && state) {
+  if (!document.hidden && state && state.phase !== "finished") {
     clearTimeout(pollTimer);
     poll();
   }
