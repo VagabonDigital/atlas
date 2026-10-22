@@ -210,7 +210,7 @@ try {
   const waitingCredential = token();
   let waitingTutor = await call({ session: waitingRoom, action: "create" }, 200, true, "create");
   await call({ session: waitingRoom, action: "join", credential: waitingCredential, invite: waitingTutor.invite });
-  await call({ session: waitingRoom, action: "finish", credential: waitingCredential }, 403);
+  await call({ session: waitingRoom, action: "finish", credential: waitingCredential }, 409);
   waitingTutor = await call({ session: waitingRoom, action: "finish" }, 200, true);
   assert.equal(waitingTutor.phase, "finished");
   assert.equal((await call({ session: waitingRoom, action: "poll", credential: waitingCredential })).phase, "finished");
@@ -221,7 +221,7 @@ try {
   let pausedTutor = await call({ session: pausedRoom, action: "create" }, 200, true, "create");
   await call({ session: pausedRoom, action: "join", credential: pausedCredential, invite: pausedTutor.invite });
   pausedTutor = await call({ session: pausedRoom, action: "start" }, 200, true);
-  await call({ session: pausedRoom, action: "finish" }, 400, true); // live countdown cannot be ended
+  await call({ session: pausedRoom, action: "finish" }, 409, true); // live countdown cannot be ended
   pausedTutor = await call({ session: pausedRoom, action: "pause" }, 200, true);
   assert.ok(pausedTutor.paused);
   pausedTutor = await call({ session: pausedRoom, action: "finish" }, 200, true);
@@ -231,7 +231,7 @@ try {
   const finishedLearner = await call({ session: pausedRoom, action: "poll", credential: pausedCredential });
   assert.equal(finishedLearner.phase, "finished");
   assert.equal(finishedLearner.card, null);
-  await call({ session: pausedRoom, action: "resume" }, 400, true);
+  await call({ session: pausedRoom, action: "resume" }, 409, true);
 
   const denied = await handleForbiddenWords(
     new Request("https://api.test/forbidden-words/session", {
