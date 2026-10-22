@@ -1481,7 +1481,11 @@
         const normalized = mode === 'night' ? 'night' : 'light';
 
         if (typeof document !== 'undefined' && document.documentElement) {
-            document.documentElement.dataset.theme = normalized;
+            // Some Arcade games have a deliberately fixed visual identity.
+            // Keep the saved Atlas preference intact for other pages.
+            const fixedTheme = document.documentElement.dataset.atlasFixedTheme;
+            document.documentElement.dataset.theme =
+                fixedTheme === 'light' || fixedTheme === 'night' ? fixedTheme : normalized;
         }
 
         return normalized;

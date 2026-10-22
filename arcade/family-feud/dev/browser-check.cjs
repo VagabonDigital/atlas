@@ -12,6 +12,22 @@ const {pathToFileURL}=require('node:url');
  const url='http://127.0.0.1:4177/arcade/family-feud/';
  await page.goto(url);
  await page.getByRole('button',{name:'Start Match',exact:true}).waitFor();
+ // The global Atlas preference may be night, but this game is always cream.
+ const chromeAppearance=()=>page.evaluate(()=>['.arcade-game-chrome-back','.arcade-game-chrome-session','#sound']
+  .map(selector=>{const style=getComputedStyle(document.querySelector(selector));return {background:style.backgroundColor,color:style.color};}));
+ const creamChrome=await chromeAppearance();
+ await page.locator('.arcade-game-chrome-back').hover();
+ assert.equal(await page.locator('.arcade-game-chrome-back').evaluate(el=>getComputedStyle(el).color),'rgb(66, 36, 60)');
+ await page.mouse.move(800,500);
+ await page.waitForTimeout(250); // Allow the cover hover transition to settle before comparing colours.
+ await page.evaluate(()=>window.AtlasBridge.setAppearanceMode('night'));
+ assert.equal(await page.evaluate(()=>window.AtlasBridge.readAppearanceMode()),'night');
+ assert.equal(await page.locator('html').getAttribute('data-theme'),'light');
+ assert.deepEqual(await chromeAppearance(),creamChrome);
+ await page.reload();
+ await page.getByRole('button',{name:'Start Match',exact:true}).waitFor();
+ assert.equal(await page.locator('html').getAttribute('data-theme'),'light');
+ assert.deepEqual(await chromeAppearance(),creamChrome);
  await page.screenshot({path:path.join(dir,'entrance-1280.png')});
  console.log('entrance',await page.evaluate(()=>({height:innerHeight,scroll:document.documentElement.scrollHeight,stage:document.querySelector('#stage').getBoundingClientRect().toJSON()})));
  await page.setViewportSize({width:1024,height:768});await page.screenshot({path:path.join(dir,'entrance-1024.png')});

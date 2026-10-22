@@ -26,3 +26,11 @@
 @media (max-width: 820px) { #game-chrome { inset: 0 6px auto; } }
 
 #landing-chrome { --game-chrome-cover-focus: #42243c; }
+
+/* Family Feud has a fixed cream appearance, including interactive chrome. */
+#landing-chrome .arcade-game-chrome-back:hover,
+#landing-chrome .arcade-game-chrome-session:hover {
+  background: var(--game-chrome-cover-hover);
+  color: var(--game-chrome-cover-text);
+  border-color: #42243c33;
+}
