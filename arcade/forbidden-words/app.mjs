@@ -367,6 +367,12 @@ async function request(action, extra = {}, commandId) {
     e.status = response.status;
     throw e;
   }
+  // Never show or record an old, unassigned or mislabelled room as the
+  // selected Atlas learner, even if a stale browser bookmark points to it.
+  if (!learner && gameLearnerId &&
+      data.state.atlasSessionId !== gameLearnerId &&
+      !(action === "poll" && extra.atlasSessionId === null))
+    throw new Error("This room is not linked to the selected Atlas learner.");
   offset = data.state.serverNow + (performance.now() - start) / 2 - Date.now();
   lastSync = Date.now();
   failed = false;
@@ -829,6 +835,20 @@ async function act(action) {
       schedulePoll();
     } catch (error) {
       if (recoveryEpoch !== roomEpoch || error instanceof RoomChanged) return;
+      // A dropped response after a successful bind is ambiguous. Probe the
+      // same room with this learner ID before discarding the recovery.
+      try {
+        await request("poll", { atlasSessionId: targetLearnerId });
+        if (recoveryEpoch !== roomEpoch) return;
+        storage.set(roomKey(owner, targetLearnerId), legacyRoom);
+        storage.set(legacyClaimKey(owner), targetLearnerId);
+        lastKey = "";
+        render();
+        schedulePoll();
+        return;
+      } catch {
+        if (recoveryEpoch !== roomEpoch) return;
+      }
       session = null;
       state = null;
       lastKey = "";
@@ -1051,7 +1071,7 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 window.addEventListener("atlas:session-change", (event) => {
-  if (learner || LOCAL) return;
+  if (learner) return;
   const next = window.AtlasBridge?.readActiveSession?.() || event.detail?.session;
   if (owner) selectTutorRoom(next);
   else atlasSession = next;
