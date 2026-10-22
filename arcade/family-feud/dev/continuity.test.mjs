@@ -131,6 +131,7 @@ test('Family Feud snapshots restore across reload, remain learner-specific, and 
     page = f.launch();
     assert.equal(page.game.state.phase, 'roundEnd');
     page.click('next');
+    await new Promise(resolve => setImmediate(resolve)); // Let the round-opening animation finish.
     if (round < 2) assert.equal(page.game.state.round, round + 1);
   }
 
