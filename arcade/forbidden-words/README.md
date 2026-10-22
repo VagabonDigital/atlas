@@ -27,6 +27,16 @@ first learner claims the seat with a separate 256-bit browser credential. Only i
 SHA-256 hash is persisted as the seat identity. An invite cannot claim a second seat.
 Retrying a claim with the same credential is safe. A tutor may replace a lost learner
 seat between turns or while paused, rotating the invitation and revoking the old seat.
+Replacing the seat keeps the same game and score. Ending the game is a distinct,
+confirmed action: it is available before a round, between rounds, or after the tutor
+pauses an active turn, and marks the game finished for both players.
+
+The tutor browser stores separate session IDs for each selected Atlas learner
+session. Changing the active Atlas learner loads or creates that learner's own room
+instead of attaching the previous game to a new learner's continuity. The previous
+learner's room is not automatically deleted or reassigned and remains independently
+accessible if its saved session is reselected before the six-hour expiry. Legacy
+per-tutor browser room IDs are intentionally not reused across learner contexts.
 
 All browser commands go through the backend. The table and RPC functions have no
 `anon`, `authenticated`, or PUBLIC read/write/execute grants. RLS is enabled. The
@@ -48,7 +58,9 @@ most twenty retained sessions per owner.
 
 A turn starts at database time + 3 seconds and ends exactly 120 seconds later. Clients
 render from that deadline and a measured server-time offset. Polling every 650 ms
-synchronizes scores and roles; timer rendering is local and continuous. A paused turn
+synchronizes scores and roles during live play; it slows to 1.5–3 seconds outside
+live play, to 6 seconds in hidden tabs and stops at game completion. Timer
+rendering is local and continuous. A paused turn
 stores remaining duration. Disconnection does not reset or silently pause the clock.
 Browser actions disable while connection is stale; uncertain commands retry with the
 same ID. Reload restores the same seat, card, score and deadline. Expired/revoked seats
