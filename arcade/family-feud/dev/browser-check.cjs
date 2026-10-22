@@ -18,6 +18,15 @@ const {pathToFileURL}=require('node:url');
  assert.equal(await page.evaluate(()=>document.documentElement.scrollHeight),768);await page.setViewportSize({width:1280,height:720});
  await page.getByRole('button',{name:'Start Match',exact:true}).click();
  await page.getByRole('textbox',{name:'Your answer'}).waitFor();
+ const matchRecord=()=>page.evaluate(()=>{
+  const bridge=window.AtlasBridge,session=bridge.readActiveSession();
+  return bridge.readRegistry().sessionStates?.[session.id]?.['arcade:family-feud']||null;
+ });
+ assert.equal((await matchRecord()).status,'in-progress');
+ assert.equal((await matchRecord()).progress.covered,1);
+ const firstQuestion=await page.locator('#heading h1').innerText();
+ await page.reload();await page.getByRole('textbox',{name:'Your answer'}).waitFor();
+ assert.equal(await page.locator('#heading h1').innerText(),firstQuestion);
  await page.waitForFunction(()=>!document.querySelector('#answer').disabled);
  await page.screenshot({path:path.join(dir,'gameplay-1280.png')});
  console.log('gameplay',await page.evaluate(()=>({height:innerHeight,scroll:document.documentElement.scrollHeight,question:document.querySelector('#heading').innerText})));
@@ -39,8 +48,23 @@ const {pathToFileURL}=require('node:url');
  await answer('keys or phone');assert.match(await page.locator('#feedback').innerText(),/clearer/);assert.equal(await active(),before);
  await ready();await page.getByRole('textbox',{name:'Your answer'}).fill(b.concepts[0].aliases[1]);await page.getByRole('button',{name:'Submit Answer',exact:true}).click();
  await page.locator('.just-revealed').waitFor();await page.waitForTimeout(200);await page.screenshot({path:path.join(dir,'reveal-in-motion-1024.png')});await ready();assert.equal(await page.locator('.revealed').count(),1);
+ const checkpoint=await matchRecord();
+ assert.equal(checkpoint.familyFeud.revealed.filter(Boolean).length,1);
+ await page.reload();await ready();
+ assert.equal(await page.locator('.revealed').count(),1);
+ assert.equal((await matchRecord()).familyFeud.scores.reduce((a,b)=>a+b),b.concepts[0].value);
  await page.screenshot({path:path.join(dir,'correct-reveal-1024.png')});
  const after=await active();assert.notEqual(after,before);
+ const originalSession=await page.evaluate(()=>window.AtlasBridge.readActiveSession().id);
+ const otherSession=await page.evaluate(()=>window.AtlasBridge.createSession('Family Feud E2E learner B').id);
+ await page.getByRole('button',{name:'Start Match',exact:true}).waitFor();
+ assert.equal(await page.locator('.revealed').count(),0);
+ await page.getByRole('button',{name:'Start Match',exact:true}).click();await ready();
+ assert.equal((await matchRecord()).status,'in-progress');
+ await page.evaluate(id=>window.AtlasBridge.setActiveSession(id),originalSession);await ready();
+ assert.equal(await page.locator('.revealed').count(),1);
+ assert.equal((await matchRecord()).familyFeud.boardIds[0],b.id);
+ assert.notEqual(otherSession,originalSession);
  await answer(b.concepts[0].label);assert.match(await page.locator('#feedback').innerText(),/Already found/);assert.equal(await active(),after);
  await answer('a quantum teleportation machine');assert.match(await page.locator('#feedback').innerText(),/Not on this board/);
  // One contestant is eliminated first; the remaining contestant can still score.
@@ -56,6 +80,8 @@ const {pathToFileURL}=require('node:url');
   for(const c of current.concepts)await answer(c.label);
  }
  await page.getByRole('button',{name:'Final Result',exact:true}).click();assert.match(await page.locator('#board h2').innerText(),/wins|draw/);await fits();
+ assert.equal((await matchRecord()).status,'complete');
+ assert.equal((await matchRecord()).familyFeud,null);
  await page.screenshot({path:path.join(dir,'final-1024.png')});
  await page.getByRole('button',{name:'Play Again',exact:true}).click();await ready();
  // Entire second match with passes gives a draw; unseen boards are preferred.
@@ -69,6 +95,9 @@ const {pathToFileURL}=require('node:url');
  assert.match(await page.locator('#board h2').innerText(),/draw/);assert.ok(!second.includes(b.id));
  await page.screenshot({path:path.join(dir,'draw-1024.png')});
  await page.getByRole('button',{name:'Finish',exact:true}).click();await page.waitForURL('**/arcade/index.html');
+ await page.goto(url);
+ await page.getByRole('button',{name:'Start Match',exact:true}).waitFor();
+ assert.equal((await matchRecord()).status,'complete');
  // Inject a single resolver outage at the module boundary, never via a game UI control.
  await page.route('**/family-feud/engine.mjs',async route=>{
   const response=await route.fetch();let text=await response.text();text=text.replace('export function resolveAnswer(board, phrase) {','let failOnce=true; export function resolveAnswer(board, phrase) { if(failOnce){failOnce=false;throw new Error("Test outage");}');await route.fulfill({response,body:text});
