@@ -310,7 +310,8 @@ body:before {
   overflow: hidden;
   margin-bottom: 24px;
 }
-.landing .invite-link-row {
+.landing .invite-link-row,
+.pause-overlay .invite-link-row {
   position: relative;
   min-height: 54px;
   align-items: center;
@@ -324,17 +325,20 @@ body:before {
   font-size: 14px;
   font-weight: 600;
 }
-.landing .invite-link-input {
+.landing .invite-link-input,
+.pause-overlay .invite-link-input {
   position: absolute;
   width: 1px;
   height: 1px;
   padding: 0;
   opacity: 0;
 }
-.landing .invite-link-row.manual-copy .invite-link-label {
+.landing .invite-link-row.manual-copy .invite-link-label,
+.pause-overlay .invite-link-row.manual-copy .invite-link-label {
   display: none;
 }
-.landing .invite-link-row.manual-copy .invite-link-input {
+.landing .invite-link-row.manual-copy .invite-link-input,
+.pause-overlay .invite-link-row.manual-copy .invite-link-input {
   position: static;
   flex: 1;
   width: 100%;
@@ -347,7 +351,8 @@ body:before {
 }
 /* This button sits flush inside a clipped link field: hover feedback must
    change colour, not lift the button through the container's top edge. */
-#app .landing .invite-link-row button.primary:is(:hover, :active):not(:disabled) {
+#app .landing .invite-link-row button.primary:is(:hover, :active):not(:disabled),
+#app .pause-overlay .invite-link-row button.primary:is(:hover, :active):not(:disabled) {
   transform: none;
 }
 .link-row input {
@@ -1195,13 +1200,63 @@ html[data-theme="night"] .invite-link-label {
   color: #587397;
   line-height: 1.6;
 }
+.pause-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 22px;
+}
+.pause-actions button {
+  min-width: min(175px, 100%);
+}
+.pause-invitation {
+  border-top: 1px solid #d9e5f4;
+  margin-top: 22px;
+  padding-top: 17px;
+  text-align: left;
+}
+.pause-invitation .pause-invite-label {
+  color: #3c587a;
+  font-size: 13px;
+  font-weight: 800;
+  margin: 0 0 9px;
+}
+.pause-invitation .invite-link-row {
+  min-height: 51px;
+  margin-bottom: 9px;
+}
+.pause-invitation .invite-link-label {
+  font-size: 13px;
+}
+.pause-invitation .pause-invite-note {
+  font-size: 12px;
+  line-height: 1.55;
+  margin: 0 0 5px;
+}
+#app .pause-replace-link {
+  margin: 0;
+  padding: 8px 0;
+}
+#app .end-game-action {
+  color: #9a4b56;
+}
+#app .end-game-button {
+  color: #9a4b56;
+  border-color: #e4c4c9;
+}
 .pause-overlay input {
-  width: 100%;
   border: 1px solid #d4e2f2;
   border-radius: 8px;
-  padding: 10px;
   font-size: 11px;
   color: #54759c;
+}
+.pause-overlay .invite-link-input {
+  border: 0;
+  border-radius: 0;
+}
+.pause-overlay .invite-link-row.manual-copy .invite-link-input {
+  border-right: 1px solid #d4e2f2;
 }
 .between {
   display: grid;
@@ -1430,19 +1485,22 @@ dialog {
   background: #f8fbff;
   color: #1c3555;
 }
-#replace-learner-confirm {
+#replace-learner-confirm,
+#end-game-confirm {
   width: min(460px, calc(100% - 32px));
 }
 .fw-confirm-inner {
   padding: clamp(24px, 4vw, 34px);
 }
-#replace-learner-confirm h2 {
+#replace-learner-confirm h2,
+#end-game-confirm h2 {
   font-family: "Manrope", Arial, sans-serif;
   font-size: clamp(23px, 4vw, 28px);
   line-height: 1.25;
   letter-spacing: -0.7px;
 }
-#replace-learner-description {
+#replace-learner-description,
+#end-game-description {
   margin: 16px 0 27px;
   line-height: 1.6;
 }
@@ -2016,6 +2074,27 @@ html[data-theme="night"] .pause-overlay p {
 html[data-theme="night"] .pause-overlay input {
   background: #0d1d2d;
   border-color: #304a63;
+}
+html[data-theme="night"] .pause-overlay .invite-link-row {
+  background: #0e1c2b;
+  border-color: #29435f;
+}
+html[data-theme="night"] .pause-overlay .invite-link-input {
+  background: transparent;
+}
+html[data-theme="night"] .pause-invitation {
+  border-color: #304a63;
+}
+html[data-theme="night"] .pause-invite-label {
+  color: #bdd5ef;
+}
+html[data-theme="night"] #app .end-game-action,
+html[data-theme="night"] #app .end-game-button {
+  color: #e9a5b3;
+}
+html[data-theme="night"] #app .end-game-button {
+  background: #18263a;
+  border-color: #664455;
 }
 html[data-theme="night"] .result-score > strong {
   color: #68adff;
