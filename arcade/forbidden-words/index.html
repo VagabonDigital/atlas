@@ -103,6 +103,20 @@
         </form>
       </div>
     </dialog>
+    <dialog id="end-game-confirm" aria-labelledby="end-game-title" aria-describedby="end-game-description">
+      <div class="fw-confirm-inner">
+        <p class="eyebrow">END SHARED GAME</p>
+        <h2 id="end-game-title">End this game for both players?</h2>
+        <p id="end-game-description">
+          This closes the current game for you and your learner. You can start
+          a fresh game afterwards, but this one cannot be resumed.
+        </p>
+        <form method="dialog" class="fw-confirm-actions">
+          <button class="secondary" value="cancel" autofocus>Keep playing</button>
+          <button class="primary" value="end">End game</button>
+        </form>
+      </div>
+    </dialog>
     <div id="atlas-session-panel-root"></div>
     <script src="../../shared/atlas-bridge.js"></script>
     <script type="module" src="./app.mjs"></script>
