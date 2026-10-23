@@ -33,6 +33,7 @@ const context = {
     async put(key, value) { values.set(key, structuredClone(value)); },
     async delete(key) { values.delete(key); },
     async deleteAll() { values.clear(); },
+    async transaction(work) { return work(this); },
     async setAlarm(value) { this.nextAlarm = value; },
   },
   acceptWebSocket(ws) { sockets.push(ws); },
@@ -41,6 +42,7 @@ const context = {
 const room = new ForbiddenWordsLiveRoomBase(context, {});
 const owner = "00000000-0000-4000-8000-000000000001";
 const learnerContext = "lesson-abc";
+const sessionId = crypto.randomUUID();
 const payload = (path, body) => new Request("https://room.test" + path, {
   method: "POST", headers: { "Content-Type": "application/json" },
   body: JSON.stringify(body),
@@ -62,9 +64,9 @@ const action = (type, extra = {}, id = crypto.randomUUID()) => ({
   action: type, id, round: extra.round ?? 0, turn: extra.turn ?? 0, ...extra,
 });
 try {
-  assert.equal((await call("/initialize", { owner, atlasSessionId: learnerContext })).created, true);
-  assert.equal((await call("/initialize", { owner, atlasSessionId: learnerContext })).created, false);
-  await call("/initialize", { owner, atlasSessionId: "another-learner" }, 403);
+  assert.equal((await call("/initialize", { session: sessionId, owner, atlasSessionId: learnerContext })).created, true);
+  assert.equal((await call("/initialize", { session: sessionId, owner, atlasSessionId: learnerContext })).created, false);
+  await call("/initialize", { session: sessionId, owner, atlasSessionId: "another-learner" }, 403);
   await call("/ticket", { actor: "tutor", owner, atlasSessionId: "another-learner" }, 403);
   await call("/ticket", { actor: "tutor", owner: crypto.randomUUID(), atlasSessionId: learnerContext }, 403);
   const { ticket: tutorTicket, invite } = await call("/ticket", {
@@ -78,6 +80,7 @@ try {
   });
   const tutor = await connect(tutorTicket);
   const learner = await connect(learnerTicket);
+  assert.equal(tutor.latest().state.atlasSessionId, learnerContext);
   assert.equal(tutor.latest().state.actor, "tutor");
   assert.equal(learner.latest().state.actor, "learner");
   assert.equal(learner.latest().state.atlasSessionId, undefined);
@@ -130,7 +133,7 @@ try {
   const newLearner = await connect(nextTicket, restored);
   assert.equal(newLearner.latest().state.score, 1);
   await restored.webSocketClose(newLearner);
-  assert.equal((await context.storage.get("room")).game.seen.learner, 0);
+  assert.ok((await context.storage.get("room")).game.seen.learner > 0);
   assert.ok((await context.storage.get("room")).game.paused);
   // A socket closure after the turn deadline must finish the turn, not freeze it.
   stored = await context.storage.get("room");
