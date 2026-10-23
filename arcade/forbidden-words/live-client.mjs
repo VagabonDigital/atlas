@@ -145,7 +145,7 @@ export class ForbiddenWordsLiveClient {
     }, delay);
   }
   startHeartbeat() {
-    this.stopHeartbeat();
+    clearInterval(this.heartbeatTimer);
     this.heartbeatTimer = setInterval(() => this.heartbeat(), 4000);
     this.heartbeat();
   }
