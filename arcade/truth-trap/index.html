@@ -211,7 +211,9 @@
 
     body {
       min-height: 100svh;
-      overflow-x: hidden;
+      /* clip hides lateral spill without creating a scroll container.
+         overflow-x:hidden was defeating the sticky game header/strip. */
+      overflow-x: clip;
       background: var(--bg);
       color: var(--ink);
       font-family: var(--font-body);
