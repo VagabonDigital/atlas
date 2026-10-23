@@ -1,5 +1,5 @@
-// DEVELOPMENT CONTENT ONLY. No respondents were surveyed; these values are illustrative.
-// Replace a complete board/codebook together when genuine survey data is available.
+// Legacy illustrative boards stay available only for restoring old saved matches.
+// New matches use the sourced Season 26 boards at the end of this file.
 const concept = (label, value, aliases, boundary, excluded = []) => ({
   label, value, aliases: [label, ...aliases.split('|')], boundary, excluded,
   rawPhrases: [], // Intentionally empty: never invent source responses.
@@ -9,7 +9,7 @@ const board = (id, question, concepts) => ({
   sampleDescription: 'Illustrative board · not survey data', respondentCount: null,
   codebook: 'One intended answer per attempt. Group synonyms only within each explicit boundary; excluded neighbours do not count. Values are invented development fixtures.',
 });
-export const boards = [
+export const legacyBoards = [
   board('leaving-home', 'Name something people forget when leaving home.', [
     concept('Keys', 34, 'key|house keys|car keys|my keys|keyring|the keys to the house|something to unlock the door', 'Physical door or vehicle keys; not access cards.', ['key card','password']),
     concept('Phone', 26, 'mobile|cellphone|cell phone|mobile phone|smartphone|my phone|their phone|the thing they make calls on', 'A mobile telephone; not its accessories.', ['phone case','phone charger']),
@@ -65,5 +65,59 @@ export const boards = [
     concept('Love', 11, 'love|affection|care|kindness|love for someone|love passed on', 'Love or affection understood as persisting through people, memory or action.', ['friendship']),
     concept('Information', 8, 'information|data|knowledge|ideas|memory|memories|digital data', 'Information understood as something copied, transmitted or transformed.', ['secret']),
     concept('Money', 6, 'money|cash|wealth|currency|funds|financial value', 'Money or economic value being transferred or changing hands in the everyday sense.', ['debt']),
+  ]),
+];
+
+// US Season 26 data. Answer labels, ordering, and point values come from the source;
+// synonyms, semantic boundaries and exclusions are authored by Atlas.
+const season26Board = (id, question, surveyId, concepts) => ({
+  id, question, originalWording: question, concepts, kind: 'season26',
+  sourceSurveyId: surveyId,
+  sourceUrl: 'https://mstiescott.neocities.org/feud26_6',
+  sampleDescription: 'US Family Feud · Season 26 · archived six-answer survey',
+  respondentCount: null,
+  codebook: 'Original rankings and scores preserved; Atlas-authored recognition codebook.',
+});
+
+export const boards = [
+  season26Board('s26-six-019', "Tell me a kind of flower that a lot of grandmas have as a first name.", 19, [
+    concept("ROSE", 58, "a rose|roses|rose flower|rosie", "Rose flower/given name", ["rosemary","rosebud"]),
+    concept("DAISY", 13, "a daisy|daisies|daisy flower", "Daisy flower/given name", ["dahlia"]),
+    concept("LILY", 12, "a lily|lilies|lilly|lily flower", "Lily flower/given name", ["lilac"]),
+    concept("VIOLET", 6, "a violet|violets|violet flower", "Violet flower/given name", ["purple"]),
+    concept("IRIS", 6, "an iris|irises|iris flower", "Iris flower/given name", ["orchid"]),
+    concept("PETUNIA", 3, "a petunia|petunias|petunia flower", "Petunia flower/given name", ["pansy"]),
+  ]),
+  season26Board('s26-six-085', "Name a specific job in which you'd be exposed to a lot of germs.", 85, [
+    concept("NURSE", 35, "nurses|a nurse|nursing|registered nurse|hospital nurse|nurse practitioner", "Nurse by occupation, not generic hospital staff", ["doctor","healthcare worker"]),
+    concept("DOCTOR", 33, "doctors|a doctor|physician|physicians|medical doctor|general practitioner|gp|family doctor", "Medical doctors/physicians, not nurses", ["nurse","dentist","hospital worker"]),
+    concept("JANITOR/HOUSEKEEPER", 11, "janitor|housekeeper|cleaner|cleaners|cleaning staff|cleaning lady|cleaning person|custodian|housekeeping|office cleaner|hospital cleaner|school janitor", "Employed building/room cleaner", ["plumber","gardener"]),
+    concept("TRASH COLLECTOR", 10, "trash collector|rubbish collector|garbage collector|refuse collector|waste collector|binman|bin man|bin woman|garbage man|garbage woman|sanitation worker|waste collection worker", "People employed collecting refuse", ["janitor","housekeeper","cleaner"]),
+    concept("LAB TECH", 2, "lab technician|laboratory technician|lab tech|lab worker|laboratory worker|medical laboratory technician|medical lab tech|lab assistant", "Worker handling samples in a laboratory", ["doctor","nurse","scientist"]),
+    concept("TEACHER", 2, "teachers|a teacher|school teacher|primary teacher|secondary teacher|schoolteacher|kindergarten teacher|classroom teacher", "Teacher by occupation", ["student","school janitor"]),
+  ]),
+  season26Board('s26-six-111', "Name an animal starting with the letter S that would make a terrible pet.", 111, [
+    concept("SNAKE", 42, "a snake|snakes|python|boa constrictor|cobra|rattlesnake|viper", "Snakes, including named snake species", ["salamander","lizard"]),
+    concept("SKUNK", 19, "a skunk|skunks", "Skunks", ["squirrel"]),
+    concept("SHARK", 11, "a shark|sharks|great white shark|hammerhead shark", "Sharks", ["seal","swordfish"]),
+    concept("SLOTH", 8, "a sloth|sloths", "Sloths", ["slug"]),
+    concept("SNAIL", 5, "a snail|snails|garden snail", "Snails, not slugs", ["slug","sloth"]),
+    concept("SCORPION", 4, "a scorpion|scorpions", "Scorpions", ["spider","stingray"]),
+  ]),
+  season26Board('s26-six-121', "If dogs knew how to use Google, what might they search for the most?", 121, [
+    concept("BONES/FOOD", 59, "bone|bones|dog bone|dog bones|food|dog food|something to eat|find dog food|treat|treats|dog treats|snacks|dog snacks|where are the bones|best dog food", "Searches for food/bones/treats for eating", ["toy","dog toy","cat food"]),
+    concept("WHERE DA CATS", 10, "cats|where are the cats|where to find cats|find cats|find a cat|where cats hide|cat locations|where do cats live|locate cats|where da cats", "Locating cats, not photos of dogs", ["dog pictures","dog photos","cat food"]),
+    concept("TOY DELIVERY", 5, "dog toy delivery|toy delivery|dog toys online|order dog toys|buy dog toys|toys delivered|deliver toys|order a toy|buy a dog toy", "Ordering or getting dog toys delivered", ["food delivery","delivery","toy store"]),
+    concept("DOG PARKS", 4, "dog park|parks for dogs|dog parks near me|nearest dog park|where are dog parks|where is the dog park|find dog parks|dog friendly park|dog-friendly parks", "Searching for dog parks or parks for dogs", ["dog photos","pet shop","national park"]),
+    concept("DOG PICS", 4, "dog pictures|dog photos|photos of dogs|pictures of dogs|dog images|dog pics|cute dog pictures|cute dog photos|photos of puppies|puppy photos|pictures of puppies", "Pictures of dogs or puppies", ["cat pictures","dog parks","dog toys"]),
+    concept("PEE SPOTS/HYDRANTS", 4, "where to pee|where can i pee|where to urinate|pee spots|places to pee|fire hydrants|fire hydrant|hydrants|best fire hydrants|where are the fire hydrants|where to mark territory|places to mark territory", "Places to urinate or mark territory, especially hydrants", ["dog parks","public toilet","potty training"]),
+  ]),
+  season26Board('s26-six-137', "Name something you're tempted to do when you notice a stranger staring at you.", 137, [
+    concept("STARE RIGHT BACK", 24, "stare right back|stare back|stare at them|stare at the stranger|look back at them|look straight back|look them in the eye|stare them down|make eye contact", "Returning the stare or eye contact", ["look away","turn away","look down"]),
+    concept("SMILE/LAUGH", 14, "smile|smiles|smile at them|smile back|give a smile|laugh|laugh at them|giggle|chuckle|start laughing", "Smiling/laughing rather than a rude face", ["scowl","stick tongue out"]),
+    concept("WAVE", 13, "wave|wave at them|wave back|give a wave|wave hello|say hello with a wave|raise my hand and wave", "Greeting with a hand wave", ["shout","point"]),
+    concept("CONFRONT/ASK", 13, "confront|confront them|ask them why|ask why theyre staring|ask why they're staring|ask what they want|ask them what they want|tell them to stop staring|say stop staring|question them|call them out", "Verbally challenging the staring or asking why", ["wave","say hello"]),
+    concept("TURN AWAY", 9, "turn away|look away|look elsewhere|look the other way|avert my eyes|avoid eye contact|ignore them|pretend not to notice|look down|walk away", "Avoiding the stare, not returning it", ["stare back","look at them"]),
+    concept("MAKE FACE/TONGUE OUT", 8, "make a face|pull a face|make funny faces|pull a funny face|stick out my tongue|stick my tongue out|show my tongue|poke my tongue out|make a silly face|grimace", "Making a deliberate face or sticking out tongue", ["smile","laugh","wave"]),
   ]),
 ];
