@@ -31,6 +31,9 @@ export function continuity(Bridge) {
     activeRun(id) {
       return read(id).activeRun || null;
     },
+    sessionBest(id) {
+      return Math.max(0, ...read(id).results.map(result => Number(result.prize) || 0));
+    },
     saveRun(id, snapshot, view) {
       if (!id || !snapshot || !view) return;
       const data = read(id);
