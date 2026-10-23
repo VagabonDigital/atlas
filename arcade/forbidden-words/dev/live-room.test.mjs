@@ -89,7 +89,10 @@ try {
   await connect(tutorTicket, room, 403); // Tickets cannot be replayed.
   assert.equal(sockets.filter(ws => ws.readyState === 1).length, 2);
 
-  await room.webSocketMessage(tutor, JSON.stringify(action("start")));
+  const startId = crypto.randomUUID();
+  await room.webSocketMessage(tutor, JSON.stringify(action("start", {}, startId)));
+  assert.equal(tutor.latest().type, "ack");
+  assert.equal(tutor.latest().id, startId);
   assert.equal(learner.latest().state.phase, "countdown");
   assert.equal(tutor.latest().state.card.target.length > 0, true);
   assert.deepEqual(Object.keys(learner.latest().state.card), ["nonce"]);
@@ -102,6 +105,8 @@ try {
   const correctId = crypto.randomUUID();
   await room.webSocketMessage(tutor, JSON.stringify(action("correct", { round: 1, turn: 1, card }, correctId)));
   assert.equal((await context.storage.get("room")).game.score, 1);
+  assert.equal(tutor.latest().type, "ack");
+  assert.equal(tutor.latest().id, correctId);
   assert.equal(learner.latest().state.score, 1);
   assert.equal(learner.latest().state.card.target, undefined);
   await room.webSocketMessage(tutor, JSON.stringify(action("correct", { round: 1, turn: 1, card }, correctId)));
@@ -110,10 +115,13 @@ try {
     round: 1, turn: 1, card: (await context.storage.get("room")).game.card.nonce,
   })));
   assert.equal(learner.latest().type, "error");
+  assert.equal(learner.latest().status, 403);
   assert.equal((await context.storage.get("room")).game.score, 1);
 
   const restored = new ForbiddenWordsLiveRoomBase(context, {});
   await restored.webSocketMessage(learner, JSON.stringify({ action: "poll" }));
+  assert.equal(learner.latest().type, "heartbeat");
+  assert.equal(typeof learner.latest().serverNow, "number");
   // Heartbeats intentionally do not broadcast an unchanged state.
   assert.equal((await context.storage.get("room")).game.score, 1);
   assert.equal(learner.frames.filter(frame => frame.type === "state").at(-1).state.score, 1);
