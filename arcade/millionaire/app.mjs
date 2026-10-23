@@ -68,6 +68,22 @@ function closeModal() { $('#dialog').close(); dialogOrigin?.focus(); }
 $('#close-dialog').addEventListener('click', closeModal);
 $('#dialog').addEventListener('click', e => { if (e.target === $('#dialog')) closeModal(); });
 
+function restoreRunAtCover() {
+  context = storage.context();
+  game = null;
+  resumeOnCover = false;
+  $('#start').textContent = 'Start Game';
+  const savedRun = storage.activeRun(context.id);
+  if (!savedRun) return;
+  const candidate = new Millionaire(QUESTIONS, { seen: storage.seen(context.id), sessionSeen: savedRun.sessionSeen || [], onEvent });
+  if (candidate.restore(savedRun)) {
+    game = candidate;
+    visitSeen = new Set(savedRun.sessionSeen || []);
+    lastQuestion = null;
+    resumeOnCover = true;
+    $('#start').textContent = 'Continue Run';
+  } else storage.clearRun(context.id);
+}
 function start() {
   resumeOnCover = false;
   const nextContext = storage.context();
@@ -305,26 +321,19 @@ try {
     game = inspectState(inspect); render();
   } else {
     storage.register();
-    context = storage.context();
-    const savedRun = storage.activeRun(context.id);
-    if (savedRun) {
-      game = new Millionaire(QUESTIONS, { seen: storage.seen(context.id), sessionSeen: savedRun.sessionSeen || [], onEvent });
-      if (game.restore(savedRun)) {
-        visitSeen = new Set(savedRun.sessionSeen || []);
-        lastQuestion = null;
-        resumeOnCover = true;
-        $('#start').textContent = 'Continue Run';
-        // Keep the existing entrance visible until the tutor explicitly continues.
-      } else {
-        game = null;
-        storage.clearRun(context.id);
-      }
-    }
+    restoreRunAtCover(); // Hydrate continuity, but do not leave the entrance.
     syncNewRunControl();
   }
   // Only the game is fixed dark. Never write over the tutor’s saved appearance.
   document.documentElement.dataset.theme = 'night';
   window.addEventListener('atlas:appearance-change', () => { document.documentElement.dataset.theme = 'night'; });
+  window.addEventListener('atlas:session-change', () => {
+    if (isInspection || !context || storage.context().id === context.id) return;
+    // Keep the previous learner's run. Reopen at the new learner's cover.
+    finish({ clearContinuity: false });
+    restoreRunAtCover();
+    syncNewRunControl();
+  });
   window.addEventListener('atlas:persistence-scope-change', () => {
     if (isInspection) return;
     if ($('#dialog').open) closeModal();
