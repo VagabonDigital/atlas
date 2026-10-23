@@ -281,7 +281,7 @@ const fs = require("node:fs");
       set: (key, value) => bookmarks.set(key, value),
     },
     clearTimeout: () => {}, notify: () => {}, showTutorLandingChrome: () => {},
-    escape: value => String(value), button: (action) => action,
+    escape: value => String(value), button: (_action, label) => label,
     boot: () => { harness.boots++; }, boots: 0,
   };
   vm.runInNewContext(ownershipSnippet + ";this.change = selectTutorRoom;", harness);
