@@ -73,6 +73,8 @@ function fixture() {
     runInNewContext(appSource, context, { filename: 'family-feud/app.mjs' });
     return {
       game: context.testGame,
+      enter: () => node('#board-start').emit('click'),
+      coverLabel: () => node('#board-start .board-start-label').textContent,
       sound: () => node('#sound'),
       toggleSound: () => node('#sound').emit('click'),
       newMatch: () => node('#new-match').emit('click'),
@@ -128,6 +130,7 @@ test('Family Feud snapshots restore across reload, remain learner-specific, and 
   const f = fixture();
   let page = f.launch();
   assert.equal(page.game.state, null);
+  assert.equal(page.coverLabel(), 'Start Match');
   await page.game.start();
   assert.equal(f.state('learner-a').status, 'in-progress');
   assert.equal(f.state('learner-a').progress.covered, 1);
@@ -136,20 +139,26 @@ test('Family Feud snapshots restore across reload, remain learner-specific, and 
   await page.answer(concept.label);
   assert.equal(f.state('learner-a').familyFeud.scores.reduce((x, y) => x + y), concept.value);
   page = f.launch();
+  assert.equal(page.coverLabel(), 'Continue Match');
   assert.equal(page.game.state.boards[0].id, firstBoard);
   assert.equal(page.game.state.revealed[0].owner !== null, true);
+  page.enter(); // Reloaded game stays behind its cover until Continue.
   await page.game.submit(true);
   const strikes = page.game.state.strikes.reduce((x, y) => x + y);
   page = f.launch();
+  assert.equal(page.coverLabel(), 'Continue Match');
   assert.equal(page.game.state.strikes.reduce((x, y) => x + y), strikes);
+  page.enter();
 
   page.switchTo('learner-b');
   assert.equal(page.game.state, null);
   await page.game.start();
   assert.equal(f.state('learner-b').status, 'in-progress');
   page.switchTo('learner-a');
+  assert.equal(page.coverLabel(), 'Continue Match');
   assert.equal(page.game.state.boards[0].id, firstBoard);
   assert.equal(page.game.state.strikes.reduce((x, y) => x + y), strikes);
+  page.enter();
 
   const previous = structuredClone(f.state('learner-a').familyFeud);
   const pending = page.game.submit(true);
@@ -158,6 +167,7 @@ test('Family Feud snapshots restore across reload, remain learner-specific, and 
   assert.deepEqual(f.state('learner-a').familyFeud, previous);
   assert.equal(f.state('learner-b').familyFeud.round, 0);
   page.switchTo('learner-a');
+  page.enter();
 
   for (let round = 0; round < 3; round++) {
     while (page.game.state.phase === 'playing') await page.game.submit(true);
@@ -165,7 +175,9 @@ test('Family Feud snapshots restore across reload, remain learner-specific, and 
     page.click('reveal-all');
     assert.equal(f.state('learner-a').familyFeud.phase, 'roundEnd');
     page = f.launch();
+    assert.equal(page.coverLabel(), 'Continue Match');
     assert.equal(page.game.state.phase, 'roundEnd');
+    page.enter();
     page.click('next');
     await new Promise(resolve => setImmediate(resolve)); // Let the round-opening animation finish.
     if (round < 2) assert.equal(page.game.state.round, round + 1);
@@ -192,7 +204,9 @@ test('a newly started match uses only sourced Season 26 boards',async()=>{
 test('previously saved illustrative matches still restore and continue',async()=>{
   const f=fixture();f.seedLegacyMatch();
   const page=f.launch();
+  assert.equal(page.coverLabel(), 'Continue Match');
   assert.equal(page.game.state.boards.map(b=>b.id).join(','),legacyBoards.slice(0,3).map(b=>b.id).join(','));
+  page.enter();
   await page.answer('house keys');
   assert.equal(f.state('learner-a').familyFeud.scores.reduce((a,b)=>a+b,0),34);
   assert.equal(f.state('learner-a').familyFeud.revealed[0].owner,0);
@@ -220,7 +234,9 @@ test('New Match requires confirmation and preserves seen boards and other learne
   await page.game.start();
   const untouched = structuredClone(f.state('learner-b').familyFeud);
   page.switchTo('learner-a');
+  assert.equal(page.coverLabel(), 'Continue Match');
   assert.equal(page.game.state.boards[0].id, openingBoard);
+  page.enter();
 
   page.newMatch();
   page.confirmNewMatch();
@@ -249,4 +265,19 @@ test('New Match confirmation cannot replace another learner after a session swit
   assert.equal(page.game.state, null);
   assert.equal(f.state('learner-b'), undefined);
   assert.equal(f.state('learner-a').status, 'in-progress');
+});
+
+test('the entry button starts a fresh match and continues an existing match without resetting it', async () => {
+  const f = fixture();
+  let page = f.launch();
+  assert.equal(page.coverLabel(), 'Start Match');
+  page.enter();
+  await new Promise(resolve => setImmediate(resolve));
+  const snapshot = structuredClone(f.state('learner-a').familyFeud);
+  page = f.launch();
+  assert.equal(page.coverLabel(), 'Continue Match');
+  assert.deepEqual(f.state('learner-a').familyFeud, snapshot);
+  page.enter();
+  assert.deepEqual(f.state('learner-a').familyFeud, snapshot);
+  assert.equal(page.game.state.boards[0].id, snapshot.boardIds[0]);
 });
