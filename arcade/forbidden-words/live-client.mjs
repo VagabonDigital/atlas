@@ -3,7 +3,10 @@
 export class ForbiddenWordsLiveClient {
   constructor({ api, session, actor, getTicketPayload, getAuthorization,
     onState, onStatus, onFatal, onHeartbeat,
-    fetchImpl = fetch, WebSocketImpl = WebSocket }) {
+    // Keep the native Window receiver; calling a saved fetch function
+    // as this.fetchImpl(...) can throw "Illegal invocation" in browsers.
+    fetchImpl = (...args) => globalThis.fetch(...args),
+    WebSocketImpl = WebSocket }) {
     this.api = api.endsWith("/") ? api : api + "/";
     this.session = session;
     this.actor = actor;

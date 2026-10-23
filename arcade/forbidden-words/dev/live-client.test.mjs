@@ -122,3 +122,38 @@ try {
 } finally {
   client.close();
 }
+
+// Reproduce Chrome's native fetch receiver constraint on a fresh live room.
+// The default fetch implementation must call globalThis.fetch as a method of
+// globalThis, not with the live-client object as its receiver.
+const savedGlobalFetch = globalThis.fetch;
+let nativeCalls = 0;
+try {
+  globalThis.fetch = function(url, init) {
+    assert.equal(this, globalThis, "Native Window.fetch must keep its Window receiver");
+    assert.ok(url.endsWith("/live/create"));
+    const input = JSON.parse(init.body);
+    assert.equal(input.session, session);
+    assert.equal(input.atlasSessionId, "atlas-student");
+    nativeCalls++;
+    return Promise.resolve(new Response(JSON.stringify({ ok: true, created: true }), {
+      status: 200, headers: { "Content-Type": "application/json" },
+    }));
+  };
+  const freshRoom = new ForbiddenWordsLiveClient({
+    api, session, actor: "tutor",
+    getTicketPayload: async () => ({ atlasSessionId: "atlas-student" }),
+    getAuthorization: async () => "test-user-token",
+    WebSocketImpl: FakeWebSocket,
+  });
+  try {
+    const result = await freshRoom.initialize({ atlasSessionId: "atlas-student" });
+    assert.equal(result.created, true);
+    assert.equal(nativeCalls, 1);
+  } finally {
+    freshRoom.close();
+  }
+} finally {
+  globalThis.fetch = savedGlobalFetch;
+}
+console.log("Forbidden Words browser native fetch receiver: fresh room creation passed.");
