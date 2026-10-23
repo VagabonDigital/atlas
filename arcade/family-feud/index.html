@@ -627,37 +627,126 @@
         grid-template-columns: 1fr;
       }
     }
-    /* The unchanged six-shutter board sits inside the cabinet; its start base
-       hangs outside the cream housing, aligned to the cabinet, not a seventh row. */
+    /* The unchanged six shutters remain inside the cream cabinet. The start
+       control is a separate, rounded metal assembly wrapping its lower edge. */
     .stage:not(.entrance) .board-start { display: none; }
     .stage.entrance .board-start {
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       position: absolute;
-      top: calc(100% - 2px);
+      top: calc(100% - 7px);
       left: 50%;
       transform: translateX(-50%);
       z-index: 4;
-      width: calc(100% + 16px);
-      height: 70px;
+      isolation: isolate;
+      width: calc(100% + 20px);
+      height: 82px;
       margin: 0;
-      border: 2px solid #ae8f73;
-      border-top: 3px solid #d5ad77;
-      border-radius: 0 0 30px 30px;
-      background: linear-gradient(#67465e, #30152e);
-      box-shadow: inset 0 2px 1px #ffe8d333, 0 2px 3px #71503944;
+      padding: 0 64px;
+      border: 3px solid #d5ac70;
+      border-radius: 41px;
+      background: linear-gradient(180deg,
+        #fff1c0 0%, #dfb87a 8%, #8f562f 16%,
+        #a87744 80%, #ffe8b0 95%, #a7773e 100%);
+      box-shadow:
+        inset 0 2px 2px #fff9,
+        inset 0 -3px 0 #70421c,
+        0 3px 0 #ffe8b5,
+        0 7px 0 #986b3c,
+        0 11px 18px #67412580,
+        0 0 18px #f8d08955;
       color: #fff1df;
       text-align: center;
-      font-size: 24px;
-      font-weight: 800;
-      letter-spacing: 1px;
     }
-    .stage.entrance .board-start:hover { background: linear-gradient(#79546f, #3d1c38); }
-    .stage.entrance .board-start:focus-visible { outline: 3px solid #ffb86c; outline-offset: -4px; }
+    .stage.entrance .board-start::before {
+      content: '';
+      position: absolute;
+      inset: 5px 6px 6px;
+      z-index: -1;
+      border: 1px solid #d6a86c99;
+      border-radius: 35px;
+      background: linear-gradient(180deg,
+        #745067 0%, #603b58 27%, #46263e 63%, #2c112b 100%);
+      box-shadow:
+        inset 0 2px 3px #ffecd222,
+        inset 0 -6px 9px #0d051177,
+        inset 4px 0 8px #ebcaaf22,
+        inset -4px 0 8px #e8beaa11;
+    }
+    .stage.entrance .board-start::after {
+      content: '';
+      position: absolute;
+      top: 5px;
+      left: 42px;
+      right: 42px;
+      height: 3px;
+      border-radius: 100%;
+      background: linear-gradient(90deg, transparent,
+        #fff4cd 16%, #f3c987 48%, #fff8d6 81%, transparent);
+      box-shadow: 0 0 5px #ffe8a7aa;
+      pointer-events: none;
+    }
+    .stage.entrance .board-start:hover {
+      background: linear-gradient(180deg,
+        #fff6d1 0%, #e5bf8a 8%, #aa6c43 16%,
+        #bd8c57 80%, #fff1cb 95%, #a7773e 100%);
+    }
+    .stage.entrance .board-start:hover::before {
+      background: linear-gradient(#805d73, #59314f 45%, #361733);
+    }
+    .stage.entrance .board-start:focus-visible {
+      outline: 3px solid #6d3974;
+      outline-offset: 6px;
+    }
+    .board-start-label {
+      position: relative;
+      z-index: 2;
+      font-size: 26px;
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: .15px;
+      white-space: nowrap;
+      text-shadow: 0 2px 2px #15091a, 0 -1px #fff3df55;
+    }
+    .board-start-lights {
+      position: absolute;
+      z-index: 2;
+      top: 50%;
+      left: 18px;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      pointer-events: none;
+    }
+    .board-start-lights:last-child { left: auto; right: 18px; }
+    .board-start-lights i {
+      display: block;
+      width: 14px;
+      height: 14px;
+      border: 1px solid #fff6bd;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 28%,
+        #fff 0%, #fff7c1 29%, #ffdc78 55%, #d88d30 80%, #89521c 100%);
+      box-shadow:
+        0 0 5px 2px #ffdf92b8,
+        0 0 11px 4px #f7bf6880,
+        inset 0 1px 2px #fff;
+    }
     .stage.entrance .dock { display: none; }
     .stage.entrance .player-b { grid-column: 3; }
     @media (max-width: 899px) {
-      .stage.entrance .board-start { height: 60px; font-size: 19px; }
-      .stage.entrance .console { margin-top: 68px; }
+      .stage.entrance .board-start {
+        height: 66px;
+        width: calc(100% + 12px);
+        padding: 0 47px;
+      }
+      .board-start-label { font-size: 19px; }
+      .board-start-lights { left: 12px; gap: 3px; }
+      .board-start-lights:last-child { right: 12px; }
+      .board-start-lights i { width: 9px; height: 9px; }
+      .stage.entrance .console { margin-top: 72px; }
     }
     /* Provenance is a proud, cover-only feature, not gameplay chrome. */
     .stage:not(.entrance) .survey-credentials { display: none; }
@@ -739,8 +828,6 @@
       #game-utilities { gap: 4px; }
       #new-match, #sound { padding-inline: 8px; font-size: 11px; }
     }
-    @media (max-width: 700px) {
-    }
   </style>
 </head>
 <body>
@@ -756,7 +843,11 @@
         <span class="credentials-subtitle">2 PLAYERS · 3 ROUNDS</span>
       </button>
       <div id="board" class="board" role="group" aria-label="Ranked responses"></div>
-      <button id="board-start" class="board-start" type="button">Start Match</button>
+      <button id="board-start" class="board-start" type="button">
+        <span class="board-start-lights" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="board-start-label">Start Match</span>
+        <span class="board-start-lights" aria-hidden="true"><i></i><i></i><i></i></span>
+      </button>
       <p class="provenance" id="provenance">SEASON 26 · SURVEY GAME</p>
     </section>
     <section class="console" aria-label="Contestants and answer controls">
