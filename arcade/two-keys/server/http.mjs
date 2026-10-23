@@ -150,7 +150,7 @@ export async function handleTwoKeys(
     const credentialHash = learner ? await hash(body.credential) : null;
     if (route === "create") {
       if (learner) throw new GameError("Only a tutor can create a game.", 403);
-      const state = initialState(0);
+      const state = initialState();
 
       state.invite = token();
       await rpc("two_keys_create", {
