@@ -11,7 +11,7 @@ const escape = text => String(text).replace(/[&<>"']/g, char => ({ '&':'&amp;', 
 const lockIcon = '<svg viewBox="0 0 24 28"><path d="M6 11V7a6 6 0 0112 0v4h2v15H4V11zm3 0h6V7a3 3 0 00-6 0zm2 6v5h2v-5z"/></svg>';
 const Bridge = window.AtlasBridge;
 let game, context, visitSeen = new Set(), visitResults = [], lastQuestion, lastPhase;
-let isInspection = false, muted = true, dialogOrigin, resumeOnCover = false;
+let isInspection = false, muted = true, dialogOrigin, resumeOnCover = false, runEngaged = false;
 let hostDraftPick = null, hostDraftConfidence = 'Unsure';
 const storage = Bridge ? continuity(Bridge) : null;
 const showDirector = createShowDirector($('#show'));
@@ -42,6 +42,11 @@ function onEvent(event) {
   if (!isInspection) storage.record(context, event);
 }
 
+function hasRunInteraction(run = game) {
+  const s = run?.state;
+  return !!s && (s.rung > 1 || s.phase !== 'question' ||
+    Object.values(s.lifelines || {}).some(Boolean));
+}
 function persistRun() {
   if (isInspection || !game || !context) return;
   const snapshot = game.snapshot();
@@ -49,6 +54,8 @@ function persistRun() {
     storage.clearRun(context.id);
     return;
   }
+  runEngaged = runEngaged || hasRunInteraction();
+  snapshot.engaged = runEngaged;
   storage.saveRun(context.id, snapshot, game.publicView());
 }
 
@@ -72,12 +79,14 @@ function restoreRunAtCover() {
   context = storage.context();
   game = null;
   resumeOnCover = false;
+  runEngaged = false;
   $('#start').textContent = 'Start Game';
   const savedRun = storage.activeRun(context.id);
   if (!savedRun) return;
   const candidate = new Millionaire(QUESTIONS, { seen: storage.seen(context.id), sessionSeen: savedRun.sessionSeen || [], onEvent });
   if (candidate.restore(savedRun)) {
     game = candidate;
+    runEngaged = savedRun.engaged === true || hasRunInteraction(candidate);
     visitSeen = new Set(savedRun.sessionSeen || []);
     lastQuestion = null;
     resumeOnCover = true;
@@ -86,6 +95,7 @@ function restoreRunAtCover() {
 }
 function start() {
   resumeOnCover = false;
+  runEngaged = false;
   const nextContext = storage.context();
   if (context && nextContext.id !== context.id) { visitSeen = new Set(); visitResults = []; }
   context = nextContext;
@@ -105,7 +115,7 @@ function start() {
 function finish({ clearContinuity = true } = {}) {
   showDirector.stop();
   if (clearContinuity && !isInspection && context) storage.clearRun(context.id);
-  game = null; visitSeen = new Set(); visitResults = []; lastQuestion = null; lastPhase = null;
+  game = null; runEngaged = false; visitSeen = new Set(); visitResults = []; lastQuestion = null; lastPhase = null;
   resetHostDraft();
   resumeOnCover = false; $('#start').textContent = 'Start Game';
   $('#show').dataset.screen = 'entrance'; $('#show').dataset.phase = ''; $('#show').dataset.pressure = '';
@@ -219,7 +229,7 @@ function questionCare() {
   $('#replace-question').onclick = () => {
     const ok = game.replace($('#care-reason').value, $('#care-note').value.trim());
     closeModal();
-    if (ok) { playSound('next'); render(); } else noReplacement();
+    if (ok) { runEngaged = true; playSound('next'); render(); } else noReplacement();
   };
 }
 
