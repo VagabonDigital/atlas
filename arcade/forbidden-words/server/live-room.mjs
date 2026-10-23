@@ -191,11 +191,14 @@ export class ForbiddenWordsLiveRoomBase {
       other !== ws && other.readyState === 1 &&
       other.deserializeAttachment()?.actor === auth.actor)) return;
     const now = Date.now(), s = room.game;
-    if (["countdown", "active"].includes(s.phase) && !s.paused) {
+    if (["countdown", "active"].includes(s.phase) && !s.paused && now < s.deadline) {
       s.paused = {
-        at: now, remaining: Math.max(0, s.deadline - now),
+        at: now, remaining: s.deadline - now,
         countdown: Math.max(0, s.startsAt - now), reason: "connection",
       };
+    } else {
+      // A completed deadline wins over a late close notification.
+      advance(s, now);
     }
     s.seen[auth.actor] = 0;
     await this.persist(room, now);
