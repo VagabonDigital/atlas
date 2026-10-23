@@ -179,7 +179,8 @@ function render() {
     $('#summary-outcome').textContent = v.outcome;
     $('#summary-prize').textContent = money(v.prize);
     $('#summary-highest').textContent = `${v.rung} / 10`;
-    $('#summary-best').textContent = money(Math.max(v.prize, ...visitResults.map(r => r.prize)));
+    const savedBest = !isInspection && context ? storage.sessionBest(context.id) : 0;
+    $('#summary-best').textContent = money(Math.max(v.prize, savedBest, ...visitResults.map(r => r.prize)));
   }
   if (lastPhase !== v.phase && v.phase === 'win') celebrate();
   lastPhase = v.phase;
