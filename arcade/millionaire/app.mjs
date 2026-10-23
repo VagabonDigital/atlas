@@ -52,12 +52,9 @@ function persistRun() {
   storage.saveRun(context.id, snapshot, game.publicView());
 }
 
-function syncResetControl() {
-  const button = $('#reset-session');
-  if (!button) return;
-  if (isInspection || !storage) { button.hidden = true; return; }
-  const active = context || storage.context();
-  button.hidden = !active?.id || !storage.hasSessionData(active.id);
+function syncNewRunControl() {
+  const button = $('#new-run');
+  if (button) button.hidden = isInspection || !game || game.state?.phase === 'summary';
 }
 
 function modal(title, content, kind = '') {
@@ -97,7 +94,7 @@ function finish({ clearContinuity = true } = {}) {
   $('#entrance').hidden = false; $('#board').hidden = true; $('#summary').hidden = true;
   $('#landing-chrome').hidden = false; $('#game-chrome').hidden = true;
   $('#celebration').replaceChildren(); $('#feedback').replaceChildren(); $('#start').focus();
-  syncResetControl();
+  syncNewRunControl();
 }
 
 function celebrate() {
@@ -182,12 +179,13 @@ function render() {
     $('#summary-outcome').textContent = v.outcome;
     $('#summary-prize').textContent = money(v.prize);
     $('#summary-highest').textContent = `${v.rung} / 10`;
-    $('#summary-best').textContent = money(Math.max(v.prize, ...visitResults.map(r => r.prize)));
+    const savedBest = !isInspection && context ? storage.sessionBest(context.id) : 0;
+    $('#summary-best').textContent = money(Math.max(v.prize, savedBest, ...visitResults.map(r => r.prize)));
   }
   if (lastPhase !== v.phase && v.phase === 'win') celebrate();
   lastPhase = v.phase;
   persistRun();
-  syncResetControl();
+  syncNewRunControl();
 }
 
 function noReplacement() {
@@ -207,17 +205,16 @@ function questionCare() {
   };
 }
 
-function confirmResetSession() {
-  if (isInspection || !storage) return;
-  const target = context || storage.context();
-  if (!target?.id || !storage.hasSessionData(target.id)) return;
-  modal('Reset Millionaire session?', `<p>This clears the active run, question history, results and session best for <strong>${escape(target.name || 'this Atlas session')}</strong>.</p><p>Other Atlas sessions and tutor-wide question history are not changed. This cannot be undone.</p><div class="dialog-actions"><button class="outline" id="cancel-reset-session">Cancel</button><button class="primary" id="confirm-reset-session">Reset Session</button></div>`);
-  $('#cancel-reset-session').onclick = closeModal;
-  $('#confirm-reset-session').onclick = () => {
-    storage.resetSession(target.id);
+function confirmNewRun() {
+  if (isInspection || !game || !context || game.state?.phase === 'summary') return;
+  const currentGame = game, sessionId = context.id;
+  modal('Start a new run?', '<p>This will abandon the current run and start again at Question 1. Current progress and lifelines will be lost.</p><p>Previous results and question history for this learner will be kept.</p><div class="dialog-actions"><button class="outline" id="cancel-new-run">Keep playing</button><button class="primary" id="confirm-new-run">Start New Run</button></div>');
+  $('#cancel-new-run').onclick = closeModal;
+  $('#confirm-new-run').onclick = () => {
+    if (game !== currentGame || context?.id !== sessionId || storage.context()?.id !== sessionId) { closeModal(); return; }
     closeModal();
-    context = target;
-    finish({ clearContinuity: false });
+    finish(); // Clears only the active snapshot; exposures, events and results remain.
+    start();
   };
 }
 
@@ -266,7 +263,7 @@ $('#walk').onclick = () => { game.walk(); render(); };
 $('#confirm-walk').onclick = () => { game.walk(true); render(); };
 $('#stay').onclick = () => { game.cancelWalk(); render(); };
 $('#question-tools').onclick = questionCare;
-$('#reset-session').onclick = confirmResetSession;
+$('#new-run').onclick = confirmNewRun;
 $('#sound').onclick = () => {
   muted = !muted;
   try { localStorage.setItem('atlas:millionaire:sound', muted ? 'off' : 'on'); } catch {}
@@ -308,7 +305,7 @@ try {
         storage.clearRun(context.id);
       }
     }
-    syncResetControl();
+    syncNewRunControl();
   }
   // Only the game is fixed dark. Never write over the tutor’s saved appearance.
   document.documentElement.dataset.theme = 'night';
@@ -317,7 +314,7 @@ try {
     if (isInspection) return;
     if ($('#dialog').open) closeModal();
     finish({ clearContinuity: false }); context = null;
-    syncResetControl();
+    syncNewRunControl();
     modal('Teaching context changed', '<p>The Atlas account context changed. Start a new run in the current session.</p>');
   });
 } catch (error) {
