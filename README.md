@@ -193,11 +193,15 @@ configuration is excluded from public site assets via `.assetsignore`.
 The first Wrangler deployment of `atlas-ai` on **23 October 2026** created the
 SQLite-backed `ForbiddenWordsLiveRoom` Durable Object and bound it as
 `FORBIDDEN_WORDS_LIVE`. The health endpoint responded successfully after
-deployment. The live game remains **off by default**: unless Cloudflare has
-`ATLAS_FORBIDDEN_WORDS_LIVE_ENABLED=true`, the `/forbidden-words/live/*`
-routes respond with 404 while existing HTTP games continue unchanged.
-Actual two-browser/WebSocket acceptance testing is still required before
-enabling the new game transport.
+deployment. The live gateway remains **disabled by default in code**, but the
+production Cloudflare variable `ATLAS_FORBIDDEN_WORDS_LIVE_ENABLED=true`
+has been set for controlled real-browser testing. Newly created
+Forbidden Words games now default to WebSockets; remembered HTTP sessions
+remain on their original transport and `?fw-live=0` creates a fresh
+legacy HTTP game if an operational opt-out is needed. Disabling the backend
+flag blocks live-room recovery; it does **not** migrate those rooms to HTTP.
+Continue two-browser recovery, quota and runtime-log validation before
+retiring the legacy transport.
 
 #### Quick commands — updating `atlas-ai` from Windows / VS Code
 
