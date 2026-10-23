@@ -20,8 +20,9 @@ named learner is Player 2, with Player 1/Player 2 fallbacks. The learner opens R
 
 ## Content and matching
 
-The first two curated content batches contain **ten real six-answer US Season 26
-survey boards**: archived survey numbers 19, 85, 111, 121, 137, 3, 61, 117, 136 and 151. Original
+The first three curated content batches contain **fifteen real six-answer US Season 26
+survey boards**: archived survey numbers 19, 85, 111, 121, 137, 3, 61, 117, 136, 151,
+35, 50, 54, 92 and 104. Original
 question wording, six ranked answer labels and point values are preserved in
 `content.mjs`. Their source is the
 [Season 26 six-answer archive](https://mstiescott.neocities.org/feud26_6).
@@ -33,8 +34,9 @@ The repository-only research collection
 records. It is excluded from the deployed static site by the
 `arcade/family-feud/dev/` rule in the root `.assetsignore` file. This raw source is separate from the
 playable, hand-curated `boards` collection in `content.mjs`. Expand the
-playable library only after selecting a suitable question, verifying its source
-numbers and writing and testing its answer codebook.
+playable library only after screening a question for plausible successful guesses,
+verifying its source numbers and writing and testing its answer codebook.
+This is an editorial selection judgement, not a measured learner success rate.
 
 The seven former **illustrative development boards** remain under
 `legacyBoards` exclusively to restore previously saved matches. New matches
@@ -51,7 +53,7 @@ have separate outcomes; errors preserve the exact entry and turn for retry.
 Add new natural paraphrases on the basis of manual playtesting.
 
 Replay prefers unseen selected boards and clearly discloses reuse when the
-ten-board pool is exhausted.
+fifteen-board pool is exhausted.
 ## Verification
 
 ```sh

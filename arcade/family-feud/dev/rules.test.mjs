@@ -53,10 +53,10 @@ test('fresh legacyBoards preferred; exhaustion never prevents a full replay',()=
   assert.equal(chooseBoards(legacyBoards,legacyBoards.map(b=>b.id)).length,3);
 });
 
-test('first two sourced batches preserve ten original Season 26 six-answer records',()=>{
-  assert.equal(boards.length,10);
+test('first three sourced batches preserve fifteen original Season 26 six-answer records',()=>{
+  assert.equal(boards.length,15);
   assert.equal(legacyBoards.length,7);
-  assert.deepEqual(boards.map(b=>b.sourceSurveyId),[19,85,111,121,137,3,61,117,136,151]);
+  assert.deepEqual(boards.map(b=>b.sourceSurveyId),[19,85,111,121,137,3,61,117,136,151,35,50,54,92,104]);
   assert.equal(new Set([...boards,...legacyBoards].map(b=>b.id)).size,boards.length+legacyBoards.length);
   for(const b of boards){
     const raw=source.find(entry=>entry.id===b.sourceSurveyId);
@@ -83,8 +83,8 @@ test('all approved aliases map to one and only one source answer',()=>{
       excluded++;
     }
   }
-  assert.ok(accepted>=400);
-  assert.ok(excluded>=150);
+  assert.ok(accepted>=650);
+  assert.ok(excluded>=300);
 });
 test('conversational forms, British English, near misses and board-specific collisions',()=>{
   const byId=id=>boards.find(b=>b.sourceSurveyId===id);
@@ -115,6 +115,14 @@ test('Batch 2 natural guesses, boundary cases and multi-answer rejection',()=>{
   }
   for(const [id,phrase] of [[3,"poached"],[3,"omelette"],[61,"late for a flight"],[61,"brakes failed"],[117,"swimming pool"],[117,"dragon statue"],[136,"who is my dad"],[136,"am i hungry"],[151,"dolphin"],[151,"horse"]])assert.equal(resolveAnswer(get(id),phrase).kind,'miss',id+' '+phrase);
   for(const [id,phrase] of [[3,"scrambled or fried"],[61,"toilet or emergency"],[117,"knights and dragons"],[136,"where am i or when do i get out"],[151,"cat and hyena"]])assert.equal(resolveAnswer(get(id),phrase).kind,'ambiguous',id+' '+phrase);
+});
+test('Batch 3 realistic guesses, boundaries and multiple-answer turns',()=>{
+  const get=id=>boards.find(b=>b.sourceSurveyId===id);
+  for(const [id,samples] of [[35,["an ex's face","outgrew it","botched tattoo","a typo","skin got wrinkly","job interview"]],[50,["caught red handed","no valuables","guard dog bit him","someone was home","security cameras","shot in the leg"]],[54,["new iphone","spending money","playstation","my first car","new jeans","airpods"]],[92,["keys to the cage","bolt cutters","a sword","rope ladder","blueprint","food for the journey"]],[104,["bar bouncer","umpire","policewoman","barmaid","shopping mall security","headteacher"]]]){
+    for(const [index,phrase] of samples.entries())assert.deepEqual(resolveAnswer(get(id),phrase),{kind:'match',index},id+' '+phrase);
+  }
+  for(const [id,phrase] of [[35,"i regret it"],[35,"current boyfriend"],[50,"the house was empty"],[50,"shot at"],[54,"gift card"],[54,"headset"],[92,"escape plan"],[92,"compass"],[104,"coach"],[104,"hotel doorman"]])assert.equal(resolveAnswer(get(id),phrase).kind,'miss',id+' '+phrase);
+  for(const [id,phrase] of [[35,"my ex or job"],[50,"dog bite or no loot"],[54,"phone and clothes"],[92,"rope or keys"],[104,"bouncer and bartender"]])assert.equal(resolveAnswer(get(id),phrase).kind,'ambiguous',id+' '+phrase);
 });
 test('three-round matches select sourced boards and never legacy fixtures',()=>{
   const selected=chooseBoards(boards,[],()=>0.37);
