@@ -150,10 +150,12 @@ function renderBoard(flash=-1){
     const r=state?.revealed[i],c=r?state.boards[state.round].concepts[i]:null;
     const owner=r?.owner;return `<div role="group" class="row ${r?'revealed':''} ${r?(owner===0?'claimed-a':owner===1?'claimed-b':'unclaimed'):''} ${(Array.isArray(flash)?flash.includes(i):i===flash)?'just-revealed':''}" style="--reveal-color:${owner===0?'#ffac45':owner===1?'#b6a3ff':'#fff0d9'}" aria-label="Rank ${i+1}${c?`: ${esc(c.label)}, ${c.value} points, ${owner===null?'unclaimed':`found by ${esc(names[owner])}`}`:', hidden'}"><span class="rank" aria-hidden="true">${i+1}</span><span class="answer" aria-hidden="true">${c?esc(c.label):''}</span><span class="value" aria-hidden="true">${c?c.value:''}</span></div>`;
   }).join('');
+  if (!state) el.insertAdjacentHTML('beforeend',
+    '<button class="board-start" type="button" data-action="start">Start Match</button>');
 }
 function renderDock(displayActive=state?.active){
   const dock=$('#dock-controls');
-  if(!state){dock.innerHTML=button('start','Start Match');return;}
+  if(!state){dock.innerHTML='';return;}
   if(state.phase==='playing'){
     dock.innerHTML=`<form id="answer-form" autocomplete="off"><input id="answer" name="prediction" aria-label="Your answer" placeholder="Your answer…" maxlength="180" autocomplete="off" autocapitalize="off" spellcheck="false" ${busy?'disabled':''} value="${esc(phrase)}"><div class="actions"><button class="primary submit" type="submit" ${busy||!phrase.trim()?'disabled':''}>${busy?'Resolving…':'Submit Answer'}</button>${button('pass','Pass','secondary',busy)}</div></form>`;
     $('#answer').addEventListener('input',e=>{phrase=e.target.value;const submitButton=$('#answer-form .submit');if(submitButton)submitButton.disabled=busy||!phrase.trim();});
@@ -277,6 +279,9 @@ async function submit(pass=false){
   if(state.phase==='playing'){if(state.active!==previous)tone('handoff');focusAnswer();}
   else $('#dock button')?.focus({preventScroll:true});
 }
+$('#board').addEventListener('click',e=>{
+  if (!state && e.target.closest('[data-action="start"]')) void start();
+});
 $('#dock').addEventListener('click',async e=>{
   const action=e.target.closest('[data-action]')?.dataset.action;if(!action||busy)return;
   if(action==='start'||action==='again')await start();
