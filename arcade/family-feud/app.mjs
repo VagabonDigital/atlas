@@ -14,7 +14,7 @@ if(typeof Image!=='undefined'){
   arenaPlate.src=new URL('./assets/arena-background.png',location.href).href;
 }
 let state=null,busy=false,phrase='',message='',muted=true,audio=null,names=['Player 1','Player 2'];
-let matchSessionId=null,matchGeneration=0,sessionLoaded=false;
+let matchSessionId=null,matchGeneration=0,sessionLoaded=false,resetCandidate=null;
 let seen=[];
 try{seen=JSON.parse(localStorage.getItem('atlas:family-feud:seen')||'[]');if(!Array.isArray(seen))seen=[];}catch{}
 window.ArcadeGameChrome?.mountLanding({root:'#landing-chrome',appearance:false});
@@ -90,6 +90,8 @@ function saveMatch(){
   }catch{} // Persistence failure must not interrupt a match.
 }
 function loadActiveMatch(){
+  if ($('#new-match-dialog').open) $('#new-match-dialog').close();
+  resetCandidate=null;
   const nextSession=window.AtlasBridge?.readActiveSession?.()||null;
   const nextId=nextSession?.id||null;
   if(sessionLoaded&&nextId===matchSessionId)return;
@@ -161,6 +163,7 @@ function renderDock(displayActive=state?.active){
   else dock.innerHTML=`<div class="phase-layout"><div class="actions phase-actions phase-end-actions">${button('again','Play Again')}${button('finish','Finish','secondary')}</div></div>`;
 }
 function render({flash=-1,scores=state?.scores,active=state?.active}={}){
+  $('#new-match').hidden=!state||state.phase==='final';
   $('#stage').classList.toggle('entrance',!state);$('#landing-chrome').hidden=!!state;$('#game-chrome').hidden=!state;
   const soundSlot = state ? $('#game-utilities') : $('#landing-chrome .arcade-game-chrome-actions');
   if (soundSlot && soundButton.parentElement !== soundSlot) soundSlot.append(soundButton);
@@ -204,6 +207,28 @@ function recordAtlasPlay(){
 async function start(){
   if(busy)return;participantNames();state=createMatch(chooseBoards(boards,seen));saveMatch();recordAtlasPlay();await openRound();
 }
+function confirmNewMatch(){
+  if(!state||state.phase==='final'||!matchSessionId)return;
+  resetCandidate={sessionId:matchSessionId,match:state};
+  $('#new-match-dialog').showModal();
+}
+function startConfirmedMatch(){
+  const target=resetCandidate;
+  resetCandidate=null;
+  $('#new-match-dialog').close();
+  if(!target||matchSessionId!==target.sessionId||state!==target.match)return;
+  ++matchGeneration; // Invalidate any pending answer or round animation from the old match.
+  busy=false;
+  phrase='';message='';
+  void start(); // Replaces only this learner's in-progress snapshot. Seen boards remain.
+}
+$('#new-match').addEventListener('click',confirmNewMatch);
+$('#cancel-new-match').addEventListener('click',()=>{
+  resetCandidate=null;
+  $('#new-match-dialog').close();
+});
+$('#new-match-dialog').addEventListener('cancel',()=>{resetCandidate=null;});
+$('#confirm-new-match').addEventListener('click',startConfirmedMatch);
 function fly(index,player,value){
   if(reduced())return;
   const from=document.querySelectorAll('.row')[index]?.querySelector('.value')?.getBoundingClientRect(),to=$(`#player-${player} .score`)?.getBoundingClientRect();
