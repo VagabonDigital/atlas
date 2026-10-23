@@ -514,6 +514,14 @@ function pile(s) {
 }
 function board(s) {
   const describer = s.role === "Describer";
+  const waitingForPartner = !!s.paused && (!s.connected.tutor || !s.connected.learner);
+  const connectionPaused = s.paused?.reason === "connection";
+  const pauseTitle = waitingForPartner ? "Partner disconnected." :
+    connectionPaused ? "Both players are back." : "Turn paused.";
+  const pauseDescription = waitingForPartner
+    ? "The clock is stopped. Resume when both players are connected."
+    : connectionPaused ? "The clock is safe. Your tutor can resume when ready."
+      : "The clock is safe. Pick up when you’re ready.";
   return `${learnerHeader(s)}<section class="board"><aside class="deck-area">${deck}<p>${s.remaining} cards in the deck</p></aside>
     <div class="card-area"><div class="active-card ${s.card?.nonce !== lastNonce ? "dealing" : ""} ${describer ? "face-up" : "face-down"}">${cardFace(s)}</div>
     <div class="role-caption"><p class="eyebrow"><span>TURN ${s.turn} OF 2</span> · ${describer ? "YOU’RE DESCRIBING" : "YOUR PARTNER IS DESCRIBING"}</p><p>${describer ? "Find another way to say it." : "Guess the word out loud."}</p></div></div>
@@ -522,7 +530,7 @@ function board(s) {
       ${describer ? `<div class="resolutions">${button("correct", "Correct", "correct")}${button("skip", "Skip", "skip")}${button("oops", "I said one!", "oops")}</div>` : '<div class="guesser-note"><span>◌</span><div><strong>GUESSER</strong><p>Listen. Ask questions. <br>Follow the clues.</p></div></div>'}
     </aside></section><div class="feedback" aria-live="polite">${feedbackText(s)}</div>
     ${s.phase === "countdown" ? '<div class="countdown-overlay"><div><p class="eyebrow">GET READY</p><strong id="countdown-number">3</strong><p>Your card. Your voice. Go.</p></div></div>' : ""}
-    ${s.paused ? `<div class="pause-overlay"><div class="panel"><p class="eyebrow">TAKE YOUR TIME</p><h2>Turn paused.</h2><p>The clock is safe. Pick up when you’re ready.</p>${!learner ? `<div class="pause-actions">${button("resume", "▶ Resume turn", "primary")}${button("finish", "End game", "secondary end-game-button")}</div><details class="pause-invitation" ${replacementReady() ? "open" : ""}><summary>Invitation &amp; reconnect</summary><div class="pause-invitation-content">${invitationLink()}${button("replace-learner", "Reset invitation", "text-button pause-replace-link")}</div></details>` : "<p>Your tutor will resume the game.</p>"}</div></div>` : ""}`;
+    ${s.paused ? `<div class="pause-overlay"><div class="panel"><p class="eyebrow">TAKE YOUR TIME</p><h2>${pauseTitle}</h2><p>${pauseDescription}</p>${!learner ? `<div class="pause-actions">${button("resume", "▶ Resume turn", "primary", !s.connected.tutor || !s.connected.learner)}${button("finish", "End game", "secondary end-game-button")}</div><details class="pause-invitation" ${replacementReady() ? "open" : ""}><summary>Invitation &amp; reconnect</summary><div class="pause-invitation-content">${invitationLink()}${button("replace-learner", "Reset invitation", "text-button pause-replace-link")}</div></details>` : "<p>Your tutor will resume the game.</p>"}</div></div>` : ""}`;
 }
 function feedbackText(s) {
   return !s.feedback
@@ -631,13 +639,17 @@ function updateControls() {
       failed ||
       state?.phase !== "active" ||
       !!state?.paused ||
+      !state?.connected?.tutor ||
+      !state?.connected?.learner ||
       Date.now() + offset >= state?.deadline;
   }
   for (const el of document.querySelectorAll(
     '[data-action="start"],[data-action="replay"],[data-action="ready"],[data-action="late-correct"],[data-action="finish"],[data-action="replace-learner"],[data-action="resume"]',
   )) {
     if (["finish", "replace-learner", "resume"].includes(el.dataset.action))
-      el.disabled = busy || failed;
+      el.disabled = busy || failed ||
+        (el.dataset.action === "resume" &&
+          (!state?.connected?.tutor || !state?.connected?.learner));
     else if (busy) el.disabled = true;
   }
   const partnerDisconnected =
@@ -646,13 +658,10 @@ function updateControls() {
     !state.connected[learner ? "tutor" : "learner"];
   const timedPlay = state && ["countdown", "active"].includes(state.phase);
 
-  if (partnerDisconnected && timedPlay) {
-    notify(
-      state.paused
-        ? "Your partner is reconnecting. The turn is paused."
-        : "Your partner is reconnecting. The clock continues unless the tutor pauses.",
-      { persistent: true },
-    );
+  if (partnerDisconnected && timedPlay && !state.paused) {
+    notify("Your partner is reconnecting. The clock will pause automatically.", {
+      persistent: true,
+    });
   } else if (
     !failed &&
     document
@@ -722,7 +731,7 @@ function tick() {
   ) {
     failed = true;
     notify(
-      "Reconnecting… Your turn clock continues. Actions will return when connected.",
+      "Connection lost. Reconnecting to check the turn.",
       { persistent: true },
     );
   }
