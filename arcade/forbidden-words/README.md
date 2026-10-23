@@ -49,6 +49,33 @@ disconnect grace. Reconnection restores the same game without resetting cards
 or scores. This remains **undeployed and not browser-integrated**; the real
 Cloudflare runtime and two-browser acceptance gates are still outstanding.
 
+## Browser live transport (Batch 4, not deployed)
+
+`app.mjs` supports a room-specific, **explicit opt-in** live transport via
+`live-client.mjs`. A tutor creating a new room at
+`/arcade/forbidden-words/?fw-live=1` saves the transport with that new room ID;
+an existing bookmarked HTTP room **does not change protocols**. The tutor's
+share link contains `live=1` in the query, a random room ID, and the existing
+invitation secret only in the URL fragment. Learners persist their own private
+seat credential locally as before. No connection ticket or seat credential
+appears in a network URL.
+
+The client requests a short-lived ticket over authenticated HTTPS (tutor) or
+by seat credential (learner), opens the room socket, and consumes role-projected
+state push frames. Commands are only considered complete after the Worker
+acknowledges their exact ID; a socket interruption retains the command ID for
+an idempotent retry. A heartbeat every four seconds maintains presence without
+full state broadcast or Supabase game writes. Timers remain locally rendered
+against the authoritative server deadline; reconnect refreshes the projection
+without re-creating the game.
+
+**Release gate:** The browser path is not activated on the live website
+automatically. The backend `ATLAS_FORBIDDEN_WORDS_LIVE_ENABLED` switch remains
+off in Cloudflare; no `atlas-ai` Worker deployment has occurred. Actual
+Cloudflare WebSocket runtime checks and two-browser acceptance are mandatory
+before enabling it for real tutors. No HTTP fallback is permitted for a live
+room: mixing transports would create competing game authority.
+
 ## Session contract
 
 The tutor is authorized through the existing Atlas Supabase account verification.
