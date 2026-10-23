@@ -214,6 +214,8 @@ export class ForbiddenWordsLiveRoomBase {
           !auth || (auth.actor === "learner" && auth.seat !== room.game.learnerHash))
         throw new GameError("This seat is no longer valid.", 403);
       const now = Date.now();
+      const previousPhase = room.game.phase;
+      const wasPaused = !!room.game.paused;
       // Establish an absence before a returning heartbeat can refresh seen[].
       pauseOnDisconnect(room.game, now);
       advance(room.game, now);
@@ -225,7 +227,8 @@ export class ForbiddenWordsLiveRoomBase {
         if (input.action === "replace-learner" && !wasSeen) room.game.invite = token();
       }
       await this.persist(room, now);
-      if (input.action !== "poll") this.publish(room, now);
+      if (input.action !== "poll" || room.game.phase !== previousPhase ||
+          !!room.game.paused !== wasPaused) this.publish(room, now);
       // Finished games relinquish one of the tutor's three room slots.
       if (room.game.phase === "finished" && !room.quotaReleased) {
         try {
