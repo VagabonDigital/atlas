@@ -1429,25 +1429,6 @@ html[data-theme="night"] .invite-link-label {
   color: #617a9a;
   margin: 6px 0 0;
 }
-.room-recovery {
-  border-top: 1px solid #d5e3f1;
-  margin-top: 23px;
-  padding-top: 13px;
-}
-.room-recovery p {
-  font-size: 13px;
-  line-height: 1.5;
-  color: #6e83a0;
-}
-#app .room-recovery .text-button {
-  margin-top: 2px;
-}
-html[data-theme="night"] .room-recovery {
-  border-color: #344e67;
-}
-html[data-theme="night"] .room-recovery p {
-  color: #91a8c3;
-}
 .entry-error {
   max-width: 570px;
   margin: 12vh auto;
@@ -1505,7 +1486,6 @@ dialog {
   color: #1c3555;
 }
 #replace-learner-confirm,
-#recover-legacy-confirm,
 #end-game-confirm {
   width: min(460px, calc(100% - 32px));
 }
@@ -1513,7 +1493,6 @@ dialog {
   padding: clamp(24px, 4vw, 34px);
 }
 #replace-learner-confirm h2,
-#recover-legacy-confirm h2,
 #end-game-confirm h2 {
   font-family: "Manrope", Arial, sans-serif;
   font-size: clamp(23px, 4vw, 28px);
@@ -1521,7 +1500,6 @@ dialog {
   letter-spacing: -0.7px;
 }
 #replace-learner-description,
-#recover-legacy-description,
 #end-game-description {
   margin: 16px 0 27px;
   line-height: 1.6;
