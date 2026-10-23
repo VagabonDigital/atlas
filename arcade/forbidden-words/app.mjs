@@ -271,7 +271,7 @@ function ensurePlayingChrome() {
     actionsRoot: "#arcade-game-actions-root",
     session: false,
     search: false,
-    appearance: false,
+    appearance: true,
     mobileMenu: true,
   });
   setupTutorMobileUtilities();
