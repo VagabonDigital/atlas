@@ -1,3 +1,5 @@
+import { ForbiddenWordsLiveClient } from "./live-client.mjs";
+
 const learner = document.body.dataset.player === "learner";
 const app = document.querySelector("#app");
 const params = new URLSearchParams(location.search);
@@ -9,6 +11,9 @@ const LOCAL =
   document.querySelector('meta[name="fw-local-verification"]')?.content ===
   "true";
 const REGISTRY_ID = "arcade:forbidden-words";
+// Opt-in per newly created room. Existing HTTP rooms never change transports.
+const LIVE_PREVIEW = params.get("fw-live") === "1";
+const liveRoomKey = (roomId) => `fw:transport:${roomId}`;
 const THEME_TRANSITION_MS = 280;
 const uuid = () => crypto.randomUUID();
 const randomToken = () =>
@@ -40,6 +45,8 @@ const storage = {
   },
 };
 let session = learner ? params.get("session") : null;
+let liveMode = learner && params.get("live") === "1";
+let liveClient = null;
 let credential,
   invite = fragment.get("invite"),
   state,
@@ -190,6 +197,11 @@ function showNoLearnerRoom() {
   showTutorLandingChrome();
   app.innerHTML = `<section class="landing"><div class="landing-identity">${brand}<p class="premise">Describe the word. <br>Lose the obvious language.</p><div class="hero-deck">${deck}</div><p class="caption">Two voices. One clock. Find another way.</p></div><div class="invitation panel"><p class="eyebrow">NEW GAME</p><h1>Ready to play?</h1><p>Create a private game, then invite your learner to join.</p>${button("new-session", "Create Game", "primary start-button")}</div></section>`;
 }
+function stopLive() {
+  const client = liveClient;
+  liveClient = null;
+  client?.close();
+}
 function selectTutorRoom(next) {
   if (!owner || learner || !next?.id) return;
   if (next.id === gameLearnerId) {
@@ -197,6 +209,7 @@ function selectTutorRoom(next) {
     return;
   }
   roomEpoch++;
+  stopLive();
   replacementInvite = null;
   clearTimeout(pollTimer);
   pending = null;
@@ -212,6 +225,7 @@ function selectTutorRoom(next) {
   atlasSession = next;
   gameLearnerId = next.id;
   session = storage.get(roomKey(owner, gameLearnerId));
+  liveMode = !!session && storage.get(liveRoomKey(session)) === "live";
   if (session) void boot();
   else showNoLearnerRoom();
 }
@@ -307,9 +321,15 @@ async function setupTutor() {
   if (!atlasSession?.id) throw new Error("Select an Atlas learner to host a game.");
   gameLearnerId = atlasSession.id;
   session = storage.get(roomKey(owner, gameLearnerId));
+  liveMode = !!session && storage.get(liveRoomKey(session)) === "live";
   return true;
 }
 async function request(action, extra = {}, commandId) {
+  if (liveMode) {
+    if (action === "poll") return liveClient?.heartbeat();
+    if (!liveClient) throw new Error("Live room is reconnecting.");
+    return liveClient.command(action, extra, commandId || uuid());
+  }
   const requestSession = session;
   const requestEpoch = roomEpoch;
   let auth = "";
@@ -485,6 +505,7 @@ function joinUrl() {
   url.search = "";
   url.hash = "";
   url.searchParams.set("session", session);
+  if (liveMode) url.searchParams.set("live", "1");
   const shared = window.AtlasResourceShare?.buildShareUrl({
     world: "arcade",
     resourceId: "arcade:forbidden-words",
@@ -725,7 +746,7 @@ function tick() {
     lastCount = count;
   }
   if (
-    Date.now() - lastSync > 4000 &&
+    Date.now() - lastSync > (liveMode ? 12000 : 4000) &&
     ["active", "countdown"].includes(state.phase)
   ) {
     failed = true;
@@ -822,10 +843,14 @@ async function act(action) {
     );
   if (action === "new-session") {
     if (learner || !owner || !gameLearnerId) return;
+    const nextLive = liveMode || LIVE_PREVIEW;
     roomEpoch++;
+    stopLive();
     replacementInvite = null;
     clearTimeout(pollTimer);
     session = uuid();
+    liveMode = nextLive;
+    if (liveMode) storage.set(liveRoomKey(session), "live");
     storage.set(roomKey(owner, gameLearnerId), session);
     state = null;
     pending = null;
@@ -897,7 +922,7 @@ async function sendPending() {
 }
 function schedulePoll() {
   clearTimeout(pollTimer);
-  if (!session) return;
+  if (!session || liveMode) return;
   pollTimer = setTimeout(poll, state?.phase === "finished" ? 3000 : retryDelay);
 }
 function showEntryError(error) {
@@ -916,6 +941,7 @@ function showEntryError(error) {
   pending = null;
   failed = true;
   clearTimeout(pollTimer);
+  stopLive();
   document.documentElement.style.setProperty("--heat", "0");
   app.innerHTML = `<section class="entry-error panel">${brand}<h1>Let’s get you connected.</h1><p>${escape(message)}</p>${claimedInvitation ? "" : button("retry", "Try again", "primary")}${!learner && owner ? button("new-session", "Create a fresh game", "text-button") : ""}</section>`;
   notify("");
@@ -950,8 +976,78 @@ async function poll() {
   }
   if (pollEpoch === roomEpoch) schedulePoll();
 }
+function receiveLiveState(frame, epoch, selectedSession) {
+  if (epoch !== roomEpoch || selectedSession !== session || !liveMode) return;
+  const next = {
+    ...frame.state,
+    ...(!learner ? { invite: frame.invite } : {}),
+  };
+  if (!learner && next.atlasSessionId !== gameLearnerId) {
+    showEntryError(new Error("This room belongs to a different Atlas learner."));
+    return;
+  }
+  offset = next.serverNow - Date.now();
+  lastSync = Date.now();
+  failed = false;
+  if (!state || next.revision >= state.revision) {
+    state = next;
+    render();
+    if (learner) applyGameTheme(state.theme);
+    else syncAtlasContinuity(state);
+  }
+}
+async function startLiveRoom(epoch) {
+  stopLive();
+  if (LOCAL) throw new Error("Live rooms require the Atlas backend.");
+  const selectedSession = session;
+  const client = new ForbiddenWordsLiveClient({
+    api: API, session: selectedSession,
+    actor: learner ? "learner" : "tutor",
+    getAuthorization: async () => {
+      if (learner) return "";
+      const current = await window.AtlasCloud.getSession();
+      if (!current || current.user.id !== owner)
+        throw new Error("Your Atlas account changed. Reload to continue.");
+      return current.access_token;
+    },
+    getTicketPayload: async () => learner
+      ? { credential, invite }
+      : { atlasSessionId: gameLearnerId },
+    onState: frame => receiveLiveState(frame, epoch, selectedSession),
+    onHeartbeat: serverNow => {
+      if (epoch !== roomEpoch || selectedSession !== session) return;
+      lastSync = Date.now();
+      if (typeof serverNow === "number") offset = serverNow - Date.now();
+    },
+    onStatus: connected => {
+      if (epoch !== roomEpoch || selectedSession !== session) return;
+      failed = !connected;
+      if (connected) {
+        notify("");
+        if (!learner && state && state.theme !== tutorTheme())
+          void syncTutorTheme(tutorTheme());
+        // Preserve uncertain actions and their IDs through a reconnect.
+        if (pending && !busy) void sendPending();
+      } else {
+        notify("Connection interrupted. Reconnecting…", { persistent: true });
+      }
+      if (state) updateControls();
+    },
+    onFatal: error => {
+      if (epoch === roomEpoch && selectedSession === session)
+        showEntryError(error);
+    },
+  });
+  liveClient = client;
+  if (!learner) {
+    await client.initialize({ atlasSessionId: gameLearnerId });
+    if (epoch !== roomEpoch || selectedSession !== session) return;
+  }
+  client.connect();
+}
 async function boot() {
   clearTimeout(pollTimer);
+  stopLive();
   const bootEpoch = roomEpoch;
   try {
     if (learner) {
@@ -963,12 +1059,14 @@ async function boot() {
       if (invite) storage.set(`fw:invite:${session}`, invite);
       // Invite secrets never enter query strings, referrers or network request URLs.
       history.replaceState(null, "", `${location.pathname}${location.search}`);
-      await request("join", { invite });
+      if (liveMode) await startLiveRoom(bootEpoch);
+      else await request("join", { invite });
     } else {
       if (!owner && !(await setupTutor())) return;
       if (bootEpoch !== roomEpoch) return;
       if (!session) return showNoLearnerRoom();
-      await request("create", { theme: tutorTheme() });
+      if (liveMode) await startLiveRoom(bootEpoch);
+      else await request("create", { theme: tutorTheme() });
     }
     if (bootEpoch === roomEpoch) schedulePoll();
   } catch (error) {
@@ -1052,13 +1150,21 @@ document.addEventListener("keydown", (event) => {
   }
 });
 window.addEventListener("online", () => {
-  clearTimeout(pollTimer);
-  poll();
+  if (liveMode) liveClient?.connect();
+  else {
+    clearTimeout(pollTimer);
+    poll();
+  }
 });
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden && state) {
-    clearTimeout(pollTimer);
-    poll();
+    if (liveMode) {
+      liveClient?.connect();
+      liveClient?.heartbeat();
+    } else {
+      clearTimeout(pollTimer);
+      poll();
+    }
   }
 });
 window.addEventListener("atlas:session-change", (event) => {
