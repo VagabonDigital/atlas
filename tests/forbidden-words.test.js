@@ -422,7 +422,7 @@ const fs = require("node:fs");
     brand: "Forbidden Words", owner: null,
     escape: value => String(value),
     button: (_action, label) => label,
-    clearTimeout: () => {}, notify: () => {},
+    clearTimeout: () => {}, notify: () => {}, stopLive: () => {},
   };
   vm.runInNewContext(entrySnippet + ";this.displayEntryError = showEntryError;", entryHarness);
   entryHarness.displayEntryError({
