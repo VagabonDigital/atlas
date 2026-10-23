@@ -116,16 +116,22 @@ test('Atlas continuity records both exposure scopes and removes a voided result'
   assert.equal(registry.sessionStates.learner['arcade:millionaire'].millionaire.exposures[event.questionId].count, 1);
   assert.equal(registry.sessionStates.shared['arcade:millionaire'].millionaire.tutorExposures[event.questionId].count, 1);
   assert.ok(store.seen('another-learner').includes(event.questionId));
-  const activeSnapshot = { version: 1, state: { id: 'run' }, sessionSeen: [event.questionId] };
+  const activeSnapshot = { version: 1, state: { id: 'run' }, sessionSeen: [event.questionId], engaged: false };
   store.saveRun(session.id, activeSnapshot, { rung: 4 });
   assert.deepEqual(store.activeRun(session.id), activeSnapshot);
-  assert.equal(registry.sessionStates.learner['arcade:millionaire'].title, 'Millionaire · Question 4 of 10');
-  assert.equal(registry.sessionStates.learner['arcade:millionaire'].currentLabel, 'Question 4 of 10');
-  assert.equal(registry.sessionStates.learner['arcade:millionaire'].progress.covered, 4);
+  assert.equal(registry.sessionStates.learner['arcade:millionaire'].status, 'available');
+  assert.equal(registry.sessionStates.learner['arcade:millionaire'].title, 'Millionaire');
+  assert.equal(registry.sessionStates.learner['arcade:millionaire'].currentLabel, null);
+  assert.equal(registry.sessionStates.learner['arcade:millionaire'].progress.covered, 0);
   // URL creation in recent activity uses the browser location; supply that boundary here.
   const previousLocation = globalThis.location;
   globalThis.location = { href: 'http://localhost/arcade/millionaire/index.html' };
   try {
+    store.saveRun(session.id, { ...activeSnapshot, engaged: true }, { rung: 4 });
+    assert.equal(registry.sessionStates.learner['arcade:millionaire'].status, 'in-progress');
+    assert.equal(registry.sessionStates.learner['arcade:millionaire'].title, 'Millionaire · Question 4 of 10');
+    assert.equal(registry.sessionStates.learner['arcade:millionaire'].currentLabel, 'Question 4 of 10');
+    assert.equal(registry.sessionStates.learner['arcade:millionaire'].progress.covered, 4);
     store.record(session, { ...event, type: 'result', prize: 0, outcome: 'wrong answer', highest: 1 });
     assert.equal(store.activeRun(session.id), null);
     assert.equal(registry.sessionStates.learner['arcade:millionaire'].status, 'complete');
