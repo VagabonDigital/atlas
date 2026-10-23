@@ -409,8 +409,8 @@ const fs = require("node:fs");
   assert.ok(inviteHarness.makeInvite().includes("Private game link"));
   assert.ok(!inviteHarness.makeInvite().includes("Previous invitation disabled"));
 
-  // The learner sees an actionable message for a claimed invitation, not a
-  // retry button that cannot reclaim a seat from a different browser.
+  // The learner sees actionable recovery for both the old HTTP and new
+  // live-room errors, never an endless retry for a claimed/replaced seat.
   const entrySnippet = client.slice(
     client.indexOf("function showEntryError(error)"),
     client.indexOf("async function poll()"),
@@ -425,12 +425,27 @@ const fs = require("node:fs");
     clearTimeout: () => {}, notify: () => {}, stopLive: () => {},
   };
   vm.runInNewContext(entrySnippet + ";this.displayEntryError = showEntryError;", entryHarness);
-  entryHarness.displayEntryError({
-    status: 403,
-    message: "This learner seat is already in use. Ask your tutor for a replacement link.",
-  });
-  assert.ok(entryHarness.app.innerHTML.includes("This invitation has already been used."));
-  assert.ok(entryHarness.app.innerHTML.includes("ask your tutor for a new link."));
+  for (const claimedSeatMessage of [
+    "This learner seat is already in use. Ask your tutor for a replacement link.",
+    "This learner seat is already in use.",
+  ]) {
+    entryHarness.displayEntryError({ status: 403, message: claimedSeatMessage });
+    assert.ok(entryHarness.app.innerHTML.includes("This invitation has already been used"));
+    assert.ok(entryHarness.app.innerHTML.includes("Reopen the original learner window"));
+    assert.ok(entryHarness.app.innerHTML.includes("reset the invitation"));
+    assert.ok(!entryHarness.app.innerHTML.includes("Try again"));
+  }
+  for (const invalidInviteMessage of [
+    "This invitation is no longer available.",
+    "This learner seat has been replaced.",
+    "This invite is no longer available. Ask your tutor for a new link.",
+  ]) {
+    entryHarness.displayEntryError({ status: 403, message: invalidInviteMessage });
+    assert.ok(entryHarness.app.innerHTML.includes("reset the invitation"));
+    assert.ok(!entryHarness.app.innerHTML.includes("Try again"));
+  }
+  entryHarness.displayEntryError({ status: 410, message: "This game has expired." });
+  assert.ok(entryHarness.app.innerHTML.includes("start a new game"));
   assert.ok(!entryHarness.app.innerHTML.includes("Try again"));
   entryHarness.displayEntryError({ status: 503, message: "Connection failed." });
   assert.ok(entryHarness.app.innerHTML.includes("Connection failed."));
