@@ -356,8 +356,7 @@ async function request(action, extra = {}, commandId) {
   // Never show or record an old, unassigned or mislabelled room as the
   // selected Atlas learner, even if a stale browser bookmark points to it.
   if (!learner && gameLearnerId &&
-      data.state.atlasSessionId !== gameLearnerId &&
-      !(action === "poll" && extra.atlasSessionId === null))
+      data.state.atlasSessionId !== gameLearnerId)
     throw new Error("This room is not linked to the selected Atlas learner.");
   offset = data.state.serverNow + (performance.now() - start) / 2 - Date.now();
   lastSync = Date.now();
