@@ -588,18 +588,57 @@
      ============================================================ */
 
     #game {
+      position: relative;
+      isolation: isolate;
       display: none;
       min-height: 100svh;
       flex-direction: column;
-      background: var(--bg);
+      background: #edf1f3;
     }
 
-    #game.visible {
-      display: flex;
-    }
+    #game.visible { display: flex; }
 
-    html[data-theme="night"] #game {
-      background: #060b11;
+    /* The opening's surreal fact collage returns as atmospheric scenery.
+       It never sits above the case or intercepts controls. */
+    #game::before,
+    #game::after {
+      content: "";
+      position: fixed;
+      inset: 56px 0 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+    #game::before {
+      background: url("truth-trap-cover.png") center center / cover no-repeat;
+      opacity: 0.62;
+      filter: saturate(0.88) contrast(0.95);
+    }
+    #game::after {
+      background:
+        radial-gradient(ellipse 55% 90% at 50% 39%,
+          rgba(239, 243, 246, 0.92) 0%,
+          rgba(239, 243, 246, 0.81) 49%,
+          rgba(239, 243, 246, 0.3) 100%),
+        linear-gradient(0deg, rgba(239, 243, 246, 0.46), transparent 55%);
+    }
+    html[data-theme="night"] #game { background: #060b11; }
+    html[data-theme="night"] #game::before {
+      opacity: 0.42;
+      filter: saturate(0.86) brightness(0.68);
+    }
+    html[data-theme="night"] #game::after {
+      background:
+        radial-gradient(ellipse 59% 88% at 50% 39%,
+          rgba(6, 11, 17, 0.93) 0%,
+          rgba(6, 11, 17, 0.8) 50%,
+          rgba(6, 11, 17, 0.36) 100%),
+        linear-gradient(0deg, rgba(6, 11, 17, 0.52), transparent 60%);
+    }
+    @media (max-width: 900px) {
+      #game::before { opacity: 0.35; }
+      #game::after { background: rgba(239, 243, 246, 0.68); }
+      html[data-theme="night"] #game::before { opacity: 0.26; }
+      html[data-theme="night"] #game::after { background: rgba(6, 11, 17, 0.71); }
     }
 
     /* ============================================================
@@ -699,12 +738,14 @@
      ============================================================ */
 
     .game-main {
+      position: relative;
+      z-index: 1;
       display: flex;
       flex: 1;
       flex-direction: column;
       align-items: center;
-      gap: 1rem;
-      padding: 1.5rem 1.25rem 2.5rem;
+      gap: 1.15rem;
+      padding: 1.6rem 1.25rem 2.5rem;
     }
 
     .game-inner {
@@ -722,10 +763,13 @@
     .case-card {
       position: relative;
       overflow: hidden;
-      border: 1px solid rgba(var(--cyan-rgb), 0.16);
-      border-radius: var(--r-lg);
-      background: rgba(255, 255, 255, 0.88);
-      box-shadow: var(--shadow-md);
+      border: 1px solid rgba(var(--cyan-rgb), 0.32);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.97);
+      box-shadow:
+        0 0 0 5px rgba(255, 255, 255, 0.31),
+        0 20px 54px rgba(17, 32, 48, 0.18),
+        0 2px 8px rgba(17, 32, 48, 0.08);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
       animation:
@@ -736,11 +780,12 @@
     }
 
     html[data-theme="night"] .case-card {
-      border-color: rgba(var(--cyan-rgb), 0.22);
-      background: rgba(19, 28, 40, 0.88);
+      border-color: rgba(var(--cyan-rgb), 0.37);
+      background: rgba(16, 26, 39, 0.96);
       box-shadow:
-        var(--shadow-lg),
-        0 0 40px rgba(var(--cyan-rgb), 0.05);
+        0 0 0 5px rgba(8, 15, 24, 0.44),
+        0 22px 60px rgba(0, 0, 0, 0.48),
+        0 0 36px rgba(var(--cyan-rgb), 0.09);
     }
 
     .case-card::before {
@@ -781,24 +826,30 @@
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      padding: 1rem 1.25rem;
-      border-bottom: 1px solid var(--border);
-      background:
-        linear-gradient(90deg,
-          rgba(var(--cyan-rgb), 0.1),
-          rgba(var(--cyan-rgb), 0.02));
+      padding: 1.08rem 1.3rem;
+      border-bottom: 1px solid rgba(var(--cyan-rgb), 0.2);
+      background: linear-gradient(110deg,
+        rgba(var(--cyan-rgb), 0.16) 0%,
+        rgba(255, 226, 184, 0.22) 69%,
+        rgba(var(--cyan-rgb), 0.07) 100%);
     }
-
     html[data-theme="night"] .case-header {
-      background: var(--bg-deep);
+      background: linear-gradient(110deg,
+        rgba(var(--cyan-rgb), 0.17),
+        rgba(103, 62, 101, 0.16) 74%,
+        rgba(var(--cyan-rgb), 0.08));
     }
 
     .case-number {
       flex-shrink: 0;
+      padding: 0.34rem 0.66rem;
+      border: 1px solid rgba(var(--cyan-rgb), 0.25);
+      border-radius: 100px;
+      background: rgba(var(--cyan-rgb), 0.08);
       color: var(--cyan);
       font-size: 0.66rem;
-      font-weight: 700;
-      letter-spacing: 0.16em;
+      font-weight: 800;
+      letter-spacing: 0.13em;
       text-transform: uppercase;
     }
 
@@ -886,22 +937,36 @@
     .stmt.is-selected {
       border-color: var(--cyan);
       background: var(--cyan-dim);
-      box-shadow: 0 0 0 3px rgba(var(--cyan-rgb), 0.08);
+      box-shadow:
+        inset 4px 0 0 var(--cyan),
+        0 0 0 3px rgba(var(--cyan-rgb), 0.12),
+        0 6px 16px rgba(var(--cyan-rgb), 0.08);
     }
 
+    /* Evidence lands in three clearly differentiated verdict states. */
     .stmt.is-lie {
       border-color: var(--lie);
       background: var(--lie-bg);
+      box-shadow: inset 4px 0 0 var(--lie), 0 3px 12px rgba(var(--lie-rgb), 0.09);
     }
-
     .stmt.is-truth {
       border-color: var(--truth);
       background: var(--truth-bg);
+      box-shadow: inset 4px 0 0 var(--truth), 0 3px 12px rgba(var(--truth-rgb), 0.07);
     }
-
     .stmt.is-wildcard {
       border-color: var(--wildcard);
       background: var(--wildcard-bg);
+      box-shadow: inset 4px 0 0 var(--wildcard);
+    }
+    .stmt.is-revealing {
+      animation: truth-trap-verdict-in 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .stmt.is-revealing:nth-child(2) { animation-delay: 75ms; }
+    .stmt.is-revealing:nth-child(3) { animation-delay: 150ms; }
+    @keyframes truth-trap-verdict-in {
+      from { opacity: 0.68; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .stmt-inner {
@@ -1341,20 +1406,18 @@
       width: 100%;
       flex-direction: column;
       overflow: hidden;
-      border: 1px solid rgba(15, 25, 35, 0.12);
+      border: 1px solid rgba(var(--cyan-rgb), 0.17);
       border-radius: var(--r-lg);
-      background: rgba(255, 255, 255, 0.88);
-      box-shadow: var(--shadow-sm);
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 8px 26px rgba(17, 32, 48, 0.12);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
     }
 
     html[data-theme="night"] .control-panel {
-      border-color: rgba(var(--cyan-rgb), 0.22);
-      background: rgba(19, 28, 40, 0.88);
-      box-shadow:
-        var(--shadow-lg),
-        0 0 40px rgba(var(--cyan-rgb), 0.05);
+      border-color: rgba(var(--cyan-rgb), 0.28);
+      background: rgba(16, 26, 39, 0.95);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
     }
 
     .nav-bar {
@@ -1944,6 +2007,9 @@
      ============================================================ */
 
     @media (max-width: 600px) {
+      #game::before { opacity: 0.2; }
+      html[data-theme="night"] #game::before { opacity: 0.15; }
+      .case-card { box-shadow: 0 5px 20px rgba(17, 32, 48, 0.13); }
       .game-header {
         gap: 0.5rem;
         padding: 0 0.85rem;
@@ -2710,6 +2776,7 @@
           cls += ' is-hoverable';
           if (cs.playerAnswer === L) cls += ' is-selected';
         } else if (state === 'revealed' || state === 'solved') {
+          if (state === 'revealed') cls += ' is-revealing';
           if (c.wildcard) {
             cls += ' is-wildcard';
             verdictHtml = '<span class="verdict-pill verdict-wildcard">True</span>';
