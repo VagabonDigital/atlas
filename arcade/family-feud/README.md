@@ -30,8 +30,8 @@ Atlas respondent data.
 
 The repository-only research collection
 `dev/season26-six-answer-raw.json` currently contains 161 six-answer survey
-records. It is excluded from the deployed static site by the existing
-`arcade/**/dev/` asset exclusion. This raw source is separate from the
+records. It is excluded from the deployed static site by the
+`arcade/family-feud/dev/` rule in the root `.assetsignore` file. This raw source is separate from the
 playable, hand-curated `boards` collection in `content.mjs`. Expand the
 playable library only after selecting a suitable question, verifying its source
 numbers and writing and testing its answer codebook.
