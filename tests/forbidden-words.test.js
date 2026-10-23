@@ -115,6 +115,64 @@ const fs = require("node:fs");
   advance(s, s.deadline);
   act("tutor", "finish", s.deadline + 1);
   assert.equal(s.phase, "finished");
+  // End Game is a tutor-only room termination. Live play must be paused first.
+  for (const phase of ["waiting", "countdown", "active"]) {
+    const at = 200000;
+    const game = initialState(at);
+    game.learnerHash = "existing-learner";
+    game.seen.learner = at;
+    const endAction = (actor, action, when) =>
+      command(game, actor, {
+        action, id: crypto.randomUUID(), round: game.round, turn: game.turn,
+      }, when);
+    let actionTime = at + 100;
+    if (phase !== "waiting") {
+      endAction("tutor", "start", at);
+      if (phase === "active") {
+        actionTime = at + 3100;
+        advance(game, actionTime);
+      }
+      assert.throws(
+        () => endAction("tutor", "finish", actionTime),
+        /End the game while waiting/,
+      );
+      endAction("tutor", "pause", actionTime + 1);
+      assert.ok(game.paused);
+    }
+    assert.throws(() => endAction("learner", "finish", actionTime + 2));
+    endAction("tutor", "finish", actionTime + 3);
+    assert.equal(game.phase, "finished");
+    assert.equal(game.card, null);
+    assert.equal(game.paused, null);
+    assert.equal(game.late, null);
+    assert.deepEqual(game.ready, []);
+    assert.equal(view(game, "learner", at + 3104, 1).phase, "finished");
+    assert.equal(view(game, "learner", at + 3104, 1).card, null);
+    advance(game, at + 200000);
+    assert.equal(game.phase, "finished");
+    assert.throws(() => endAction("tutor", "finish", at + 200001));
+  }
+  // Immutable Atlas ownership lives in the same server state as the room.
+  const scopedGame = initialState(40000);
+  const bind = (actor, atlasSessionId, id = crypto.randomUUID()) =>
+    command(scopedGame, actor, {
+      action: "bind-learner", id, round: scopedGame.round,
+      turn: scopedGame.turn, atlasSessionId,
+    }, 40010);
+  assert.equal(view(scopedGame, "learner", 40000, 0).atlasSessionId, undefined);
+  assert.throws(() => bind("learner", "session-alex"), /already belongs/);
+  bind("tutor", "session-alex");
+  assert.equal(scopedGame.atlasSessionId, "session-alex");
+  assert.equal(view(scopedGame, "tutor", 40010, 1).atlasSessionId, "session-alex");
+  assert.equal(view(scopedGame, "learner", 40010, 1).atlasSessionId, undefined);
+  assert.throws(() => bind("tutor", "session-blair"), /already belongs/);
+  assert.equal(scopedGame.atlasSessionId, "session-alex");
+  const invalidGame = initialState(40000);
+  assert.throws(() => command(invalidGame, "tutor", {
+    action: "bind-learner", id: crypto.randomUUID(),
+    round: 0, turn: 0, atlasSessionId: "../wrong",
+  }, 40010), /Invalid Atlas learner context/);
+
   const tutorPage = fs.readFileSync(
     "arcade/forbidden-words/index.html",
     "utf8",
@@ -201,6 +259,53 @@ const fs = require("node:fs");
   assert.ok(tutorPage.includes('id="arcade-game-return-root"'));
   assert.ok(tutorPage.includes('id="arcade-game-actions-root"'));
   assert.ok(client.includes("window.AtlasSessionPanel.mount"));
+  // Exercise room selection with a fake Atlas Bridge; no network required.
+  const vm = require("node:vm");
+  const ownershipSnippet = client.slice(
+    client.indexOf("// Only the selected Atlas learner may own"),
+    client.indexOf("function syncAtlasContinuity(s)"),
+  );
+  assert.ok(ownershipSnippet.startsWith("// Only"));
+  const bookmarks = new Map([["fw:tutor:test-owner:atlas:session-alex", "room-alex"]]);
+  const selected = { id: "session-alex", name: "Alex" };
+  const harness = {
+    owner: "test-owner", learner: false, gameLearnerId: "session-alex",
+    session: "room-alex", atlasSession: selected, roomEpoch: 0,
+    state: { phase: "active" }, pending: { action: "skip" }, busy: true,
+    failed: false, retryDelay: 650, lastKey: "cached",
+    lastNonce: "secret", lastPhase: "active", lastFeedback: null,
+    pollTimer: 1, app: { innerHTML: "" }, brand: "Brand", deck: "Deck",
+    window: { AtlasBridge: { readActiveSession: () => selected } },
+    storage: {
+      get: key => bookmarks.get(key) || null,
+      set: (key, value) => bookmarks.set(key, value),
+    },
+    clearTimeout: () => {}, notify: () => {}, showTutorLandingChrome: () => {},
+    escape: value => String(value), button: (action) => action,
+    boot: () => { harness.boots++; }, boots: 0,
+  };
+  vm.runInNewContext(ownershipSnippet + ";this.change = selectTutorRoom;", harness);
+  harness.change({ id: "session-blair", name: "Blair" });
+  assert.equal(harness.session, null);
+  assert.equal(harness.pending, null);
+  assert.equal(harness.state, null);
+  assert.equal(harness.boots, 0);
+  assert.equal(harness.roomEpoch, 1);
+  assert.ok(harness.app.innerHTML.includes("Blair"));
+  assert.equal(bookmarks.get("fw:tutor:test-owner:atlas:session-alex"), "room-alex");
+  harness.change({ id: "session-alex", name: "Alex" });
+  assert.equal(harness.session, "room-alex");
+  assert.equal(harness.boots, 1);
+  assert.equal(harness.roomEpoch, 2);
+  harness.change({ id: "session-alex", name: "Alex renamed" });
+  assert.equal(harness.roomEpoch, 2);
+  assert.equal(harness.boots, 1);
+  assert.ok(!client.includes("storage.set(\`fw:tutor:\${owner}\`, session)"));
+  assert.ok(client.includes('if (requestSession !== session || requestEpoch !== roomEpoch)'));
+  assert.ok(client.includes("if (window.AtlasBridge.readActiveSession?.()?.id !== gameLearnerId) return;"));
+  assert.ok(tutorPage.includes('id="recover-legacy-confirm"'));
+  assert.ok(!learnerPage.includes('id="recover-legacy-confirm"'));
+
   const setupTutorBlock = client.slice(
     client.indexOf("async function setupTutor()"),
     client.indexOf("async function request("),
@@ -246,6 +351,17 @@ const fs = require("node:fs");
   assert.ok(client.includes("requestAnimationFrame(syncRulesScrollbar)"));
   assert.ok(tutorPage.includes('class="atlas-modal-close rules-close"'));
   assert.ok(tutorPage.includes('id="replace-learner-confirm"'));
+  assert.ok(tutorPage.includes('id="end-game-confirm"'));
+  assert.ok(tutorPage.includes('value="end"'));
+  assert.ok(!learnerPage.includes('id="end-game-confirm"'));
+  assert.ok(client.includes("function confirmEndGame()"));
+  assert.ok(client.includes('dialog.returnValue === "end"'));
+  assert.ok(client.includes('button("finish", "End game", "entry-footer-action end-game-action")'));
+  assert.ok(client.includes('button("finish", "End game", "secondary end-game-button")'));
+  assert.ok(client.includes('class="pause-invitation"'));
+  assert.ok(client.includes('id="invite-link" class="invite-link-input"'));
+  assert.ok(gameCss.includes(".pause-actions {"));
+  assert.ok(gameCss.includes(".pause-invitation {"));
   assert.ok(tutorPage.includes('method="dialog" class="fw-confirm-actions"'));
   assert.ok(tutorPage.includes('value="cancel" autofocus'));
   assert.ok(tutorPage.includes('value="replace"'));
@@ -253,7 +369,7 @@ const fs = require("node:fs");
   assert.ok(client.includes('function confirmLearnerReplacement()'));
   assert.ok(client.includes('dialog.returnValue === "replace"'));
   assert.ok(!client.includes('!confirm('));
-  assert.ok(gameCss.includes("#replace-learner-confirm {"));
+  assert.ok(gameCss.includes("#replace-learner-confirm,\n#recover-legacy-confirm,\n#end-game-confirm {"));
   assert.ok(learnerPage.includes('class="atlas-modal-close rules-close"'));
   assert.ok(gameCss.includes("background: rgba(49, 90, 134, 0.07);"));
   assert.ok(learnerPage.includes("../../shared/atlas-modal-theme.css"));
@@ -330,7 +446,7 @@ const fs = require("node:fs");
   assert.ok(!gameCss.includes(".invite-tools {"));
   assert.ok(client.includes('joined ? button("start", "▶ Start Round"'));
   assert.ok(gameCss.includes("min-height: calc(100svh - 72px);"));
-  assert.ok(gameCss.includes(".landing .invite-link-input {"));
+  assert.ok(gameCss.includes(".landing .invite-link-input,\n.pause-overlay .invite-link-input {"));
   assert.ok(client.includes('entry-footer-action entry-footer-maintenance'));
   assert.ok(!client.includes("ⓘ How to Play"));
   assert.ok(!client.includes('class="waiting-label"'));
