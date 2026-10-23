@@ -1,10 +1,21 @@
 import assert from "node:assert/strict";
 import { database, OWNER } from "./database.mjs";
+import { GameError } from "../server/game.mjs";
 import { handleForbiddenWordsLive } from "../server/live-http.mjs";
 import { handleForbiddenWords, token } from "../server/http.mjs";
 import { ForbiddenWordsLiveRoomBase } from "../server/live-room.mjs";
 
 const { db, rpc } = await database();
+// Real Supabase HTTP RPC maps PostgreSQL's P0001 quota signal to HTTP 429.
+// Keep the database real while modelling that existing transport boundary.
+const quotaRpc = async (name, args) => {
+  try { return await rpc(name, args); }
+  catch (error) {
+    if (error.code === "P0001")
+      throw new GameError("Game limit reached. Finish an existing game, or try again later.", 429);
+    throw error;
+  }
+};
 const previousResponse = globalThis.Response;
 class UpgradeResponse extends previousResponse {
   constructor(body, options = {}) {
@@ -50,7 +61,7 @@ const namespace = {
         getWebSockets() { return connections; },
       };
       const room = new ForbiddenWordsLiveRoomBase(ctx, env);
-      room.rpc = rpc;
+      room.rpc = quotaRpc;
       rooms.set(name, room);
       contexts.set(name, ctx);
     }
@@ -74,7 +85,7 @@ async function gateway(route, body, expected, options = {}) {
   const response = await handleForbiddenWordsLive(new Request(url, {
     method: options.socket ? "GET" : "POST", headers,
     ...(!options.socket ? { body: JSON.stringify(body) } : {}),
-  }), env, { authenticate: authorize, rpc, namespace });
+  }), env, { authenticate: authorize, rpc: quotaRpc, namespace });
   assert.equal(response.upgraded ? 101 : response.status, expected, route);
   if (response.upgraded) return response;
   return response.json();
@@ -108,7 +119,7 @@ try {
       },
       body: JSON.stringify({ session: ids[0], action: "poll", atlasSessionId: "lesson-0" }),
     }),
-    env, { rpc, authenticate: authorize },
+    env, { rpc: quotaRpc, authenticate: authorize },
   );
   assert.equal(old.status, 409);
 
@@ -162,7 +173,7 @@ try {
   // The same seat reconnects after object reconstruction without claiming
   // another learner or resetting the private card.
   const revive = new ForbiddenWordsLiveRoomBase(contexts.get(ids[0]), env);
-  revive.rpc = rpc;
+  revive.rpc = quotaRpc;
   rooms.set(ids[0], revive);
   const { ticket: restoredTicket } = await gateway("ticket", {
     session: ids[0], actor: "learner", credential,
