@@ -205,6 +205,89 @@ try {
   } finally {
     globalThis.fetch = originalFetch;
   }
+  // Tutor-only termination must reach both seats and revoke future seat claims.
+  const waitingRoom = crypto.randomUUID();
+  const waitingCredential = token();
+  let waitingTutor = await call({ session: waitingRoom, action: "create" }, 200, true, "create");
+  await call({ session: waitingRoom, action: "join", credential: waitingCredential, invite: waitingTutor.invite });
+  await call({ session: waitingRoom, action: "finish", credential: waitingCredential }, 409);
+  waitingTutor = await call({ session: waitingRoom, action: "finish" }, 200, true);
+  assert.equal(waitingTutor.phase, "finished");
+  assert.equal((await call({ session: waitingRoom, action: "poll", credential: waitingCredential })).phase, "finished");
+  await call({ session: waitingRoom, action: "join", credential: token(), invite: waitingTutor.invite }, 403);
+
+  const pausedRoom = crypto.randomUUID();
+  const pausedCredential = token();
+  let pausedTutor = await call({ session: pausedRoom, action: "create" }, 200, true, "create");
+  await call({ session: pausedRoom, action: "join", credential: pausedCredential, invite: pausedTutor.invite });
+  pausedTutor = await call({ session: pausedRoom, action: "start" }, 200, true);
+  await call({ session: pausedRoom, action: "finish" }, 409, true); // live countdown cannot be ended
+  pausedTutor = await call({ session: pausedRoom, action: "pause" }, 200, true);
+  assert.ok(pausedTutor.paused);
+  pausedTutor = await call({ session: pausedRoom, action: "finish" }, 200, true);
+  assert.equal(pausedTutor.phase, "finished");
+  assert.equal(pausedTutor.paused, null);
+  assert.equal(pausedTutor.card, null);
+  const finishedLearner = await call({ session: pausedRoom, action: "poll", credential: pausedCredential });
+  assert.equal(finishedLearner.phase, "finished");
+  assert.equal(finishedLearner.card, null);
+  await call({ session: pausedRoom, action: "resume" }, 409, true);
+
+  // New rooms are immutably scoped to one Atlas learner on the server, not
+  // merely by the tutor browser's local storage.
+  const scopedRoom = crypto.randomUUID();
+  let scopedTutor = await call({
+    session: scopedRoom, action: "create", atlasSessionId: "session-alex",
+  }, 200, true, "create");
+  assert.equal(scopedTutor.atlasSessionId, "session-alex");
+  const scopeInvite = scopedTutor.invite;
+  const scopedCredential = token();
+  const scopedLearner = await call({
+    session: scopedRoom, action: "join", credential: scopedCredential,
+    invite: scopeInvite,
+  });
+  assert.equal(scopedLearner.atlasSessionId, undefined);
+  await call({ session: scopedRoom, action: "poll", atlasSessionId: "session-blair" }, 409, true);
+  await call({ session: scopedRoom, action: "poll" }, 409, true);
+  scopedTutor = await call({
+    session: scopedRoom, action: "poll", atlasSessionId: "session-alex",
+  }, 200, true);
+  assert.equal(scopedTutor.atlasSessionId, "session-alex");
+  await call({ session: scopedRoom, action: "poll", credential: scopedCredential }, 200);
+  const seatRotation = await call({
+    session: scopedRoom, action: "replace-learner",
+    atlasSessionId: "session-alex",
+  }, 200, true);
+  assert.equal(seatRotation.atlasSessionId, "session-alex");
+  assert.notEqual(seatRotation.invite, scopeInvite);
+  await call({ session: scopedRoom, action: "poll", credential: scopedCredential }, 403);
+  const newSeat = await call({
+    session: scopedRoom, action: "join", credential: token(),
+    invite: seatRotation.invite,
+  });
+  assert.equal(newSeat.atlasSessionId, undefined);
+
+  // Legacy rooms are never silently attributed. Explicit tutor binding is
+  // atomic, permanent, and visible only on the authenticated tutor projection.
+  const legacyRoom = crypto.randomUUID();
+  let olderTutor = await call({ session: legacyRoom, action: "create" }, 200, true, "create");
+  assert.equal(olderTutor.atlasSessionId, null);
+  await call({ session: legacyRoom, action: "poll", atlasSessionId: "session-blair" }, 409, true);
+  olderTutor = await call({
+    session: legacyRoom, action: "bind-learner",
+    atlasSessionId: "session-blair",
+  }, 200, true);
+  assert.equal(olderTutor.atlasSessionId, "session-blair");
+  await call({
+    session: legacyRoom, action: "bind-learner",
+    atlasSessionId: "session-alex",
+  }, 409, true);
+  await call({
+    session: legacyRoom, action: "poll", atlasSessionId: "session-alex",
+  }, 409, true);
+  await call({
+    session: legacyRoom, action: "poll", atlasSessionId: "session-blair",
+  }, 200, true);
   const denied = await handleForbiddenWords(
     new Request("https://api.test/forbidden-words/session", {
       method: "POST",

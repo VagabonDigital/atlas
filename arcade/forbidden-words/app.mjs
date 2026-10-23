@@ -55,6 +55,8 @@ let lastKey = "",
   pollTimer,
   owner,
   atlasSession,
+  gameLearnerId = null,
+  roomEpoch = 0,
   playingChromeMounted = false;
 let sound = storage.get("fw:sound") === "on",
   audio,
@@ -176,16 +178,68 @@ function showTutorLandingChrome() {
   if (landingChrome) landingChrome.hidden = false;
   if (playingChrome) playingChrome.hidden = true;
 }
+// Only the selected Atlas learner may own this tab's tutor room. Room IDs
+// are browser bookmarks, not authorization: the Worker enforces the bound ID.
+const roomKey = (ownerId, learnerId) =>
+  `fw:tutor:${ownerId}:atlas:${learnerId}`;
+const legacyKey = (ownerId) => `fw:tutor:${ownerId}`;
+const legacyClaimKey = (ownerId) => `fw:tutor:${ownerId}:legacy-claimed`;
+function selectedAtlasLearner() {
+  return window.AtlasBridge?.readActiveSession?.() || null;
+}
+function showNoLearnerRoom() {
+  showTutorLandingChrome();
+  const previous = storage.get(legacyKey(owner));
+  const canRecover = previous && !storage.get(legacyClaimKey(owner));
+  const name = escape(atlasSession?.name || "this learner");
+  app.innerHTML = `<section class="landing"><div class="landing-identity">${brand}<p class="premise">Describe the word. <br>Lose the obvious language.</p><div class="hero-deck">${deck}</div><p class="caption">Two voices. One clock. Find another way.</p></div><div class="invitation panel"><p class="eyebrow">ATLAS LEARNER</p><h1>${name}</h1><p>No Forbidden Words game is linked to this learner yet. Existing games for other learners stay where they are.</p>${button("new-session", "Create game for this learner", "primary start-button")}${canRecover ? `<div class="room-recovery"><p>Played before this update? An older game is saved without an Atlas learner.</p>${button("recover-legacy", "Link older game to this learner", "text-button")}</div>` : ""}</div></section>`;
+}
+function selectTutorRoom(next) {
+  if (!owner || learner || !next?.id) return;
+  if (next.id === gameLearnerId) {
+    atlasSession = next; // Rename/refresh; never reassign the room.
+    return;
+  }
+  roomEpoch++;
+  clearTimeout(pollTimer);
+  pending = null;
+  busy = false;
+  failed = false;
+  retryDelay = 650;
+  state = null;
+  lastKey = "";
+  lastNonce = null;
+  lastPhase = null;
+  lastFeedback = null;
+  notify("");
+  atlasSession = next;
+  gameLearnerId = next.id;
+  session = storage.get(roomKey(owner, gameLearnerId));
+  if (session) void boot();
+  else showNoLearnerRoom();
+}
+function confirmLegacyRecovery() {
+  const dialog = document.querySelector("#recover-legacy-confirm");
+  if (!dialog || dialog.open) return Promise.resolve(false);
+  dialog.returnValue = "";
+  const name = dialog.querySelector("#recover-legacy-name");
+  if (name) name.textContent = atlasSession?.name || "this learner";
+  return new Promise(resolve => {
+    dialog.addEventListener("close", () => resolve(dialog.returnValue === "recover"), { once: true });
+    dialog.showModal();
+  });
+}
+class RoomChanged extends Error {}
+
 function syncAtlasContinuity(s) {
-  if (learner || LOCAL || !s || !window.AtlasBridge) return;
+  if (learner || LOCAL || !s || !window.AtlasBridge || !gameLearnerId) return;
   try {
-    atlasSession = window.AtlasBridge.readActiveSession?.() || atlasSession;
-    if (!atlasSession?.id) return;
+    if (window.AtlasBridge.readActiveSession?.()?.id !== gameLearnerId) return;
     const started = s.phase !== "waiting";
     const finished = s.phase === "finished";
     const round = Math.max(1, Number(s.round) || 1);
     const launchUrl = new URL("./index.html", location.href).href;
-    window.AtlasBridge.upsertSessionState(atlasSession.id, REGISTRY_ID, {
+    window.AtlasBridge.upsertSessionState(gameLearnerId, REGISTRY_ID, {
       world: "arcade",
       status: finished ? "complete" : started ? "in-progress" : "available",
       launchUrl,
@@ -197,7 +251,7 @@ function syncAtlasContinuity(s) {
     });
     if (started) {
       window.AtlasBridge.touchRecentActivity({
-        sessionId: atlasSession.id,
+        sessionId: gameLearnerId,
         registryId: REGISTRY_ID,
         title: "Forbidden Words",
         launchUrl,
@@ -261,13 +315,17 @@ async function setupTutor() {
     }
     owner = auth.user.id;
   } else owner = "local-verification";
-  if (!LOCAL) atlasSession = window.AtlasBridge?.readActiveSession?.() || null;
-  session = storage.get(`fw:tutor:${owner}`) || uuid();
-  storage.set(`fw:tutor:${owner}`, session);
+  // The session panel can select learners during setup; resolve the final
+  // selection only after Atlas account and session chrome are ready.
+  atlasSession = selectedAtlasLearner();
+  if (!atlasSession?.id) throw new Error("Select an Atlas learner to host a game.");
+  gameLearnerId = atlasSession.id;
+  session = storage.get(roomKey(owner, gameLearnerId));
   return true;
 }
 async function request(action, extra = {}, commandId) {
   const requestSession = session;
+  const requestEpoch = roomEpoch;
   let auth = "";
   if (!learner) {
     if (LOCAL) auth = "local-verification";
@@ -278,6 +336,8 @@ async function request(action, extra = {}, commandId) {
       auth = current.access_token;
     }
   }
+  if (requestSession !== session || requestEpoch !== roomEpoch)
+    throw new RoomChanged();
   const start = performance.now();
   const response = await fetch(
     `${API}${action === "create" ? "create" : "session"}`,
@@ -291,6 +351,7 @@ async function request(action, extra = {}, commandId) {
         session: requestSession,
         action,
         id: commandId || uuid(),
+        ...(!learner && gameLearnerId ? { atlasSessionId: gameLearnerId } : {}),
         ...(learner ? { credential } : {}),
         ...extra,
       }),
@@ -299,12 +360,19 @@ async function request(action, extra = {}, commandId) {
     },
   );
   const data = await response.json();
-  if (requestSession !== session) return state;
+  if (requestSession !== session || requestEpoch !== roomEpoch)
+    throw new RoomChanged();
   if (!response.ok) {
     const e = new Error(data.error || "Could not reach the game.");
     e.status = response.status;
     throw e;
   }
+  // Never show or record an old, unassigned or mislabelled room as the
+  // selected Atlas learner, even if a stale browser bookmark points to it.
+  if (!learner && gameLearnerId &&
+      data.state.atlasSessionId !== gameLearnerId &&
+      !(action === "poll" && extra.atlasSessionId === null))
+    throw new Error("This room is not linked to the selected Atlas learner.");
   offset = data.state.serverNow + (performance.now() - start) / 2 - Date.now();
   lastSync = Date.now();
   failed = false;
@@ -413,7 +481,7 @@ function landing(s) {
           <div class="entry-footer-actions">
             ${button("rules", "How to play", "entry-footer-action")}
             ${s ? '<span class="entry-footer-separator" aria-hidden="true">·</span>' : ""}
-            ${s ? button("replace-learner", "Replace learner link", "entry-footer-action entry-footer-maintenance") : ""}
+            ${s ? button("replace-learner", "Replace learner link", "entry-footer-action entry-footer-maintenance") + '<span class="entry-footer-separator" aria-hidden="true">·</span>' + button("finish", "End game", "entry-footer-action end-game-action") : ""}
           </div>
         </div>`}
     </div></section>`;
@@ -459,7 +527,7 @@ function board(s) {
       ${describer ? `<div class="resolutions">${button("correct", "Correct", "correct")}${button("skip", "Skip", "skip")}${button("oops", "I said one!", "oops")}</div>` : '<div class="guesser-note"><span>◌</span><div><strong>GUESSER</strong><p>Listen. Ask questions. <br>Follow the clues.</p></div></div>'}
     </aside></section><div class="feedback" aria-live="polite">${feedbackText(s)}</div>
     ${s.phase === "countdown" ? '<div class="countdown-overlay"><div><p class="eyebrow">GET READY</p><strong id="countdown-number">3</strong><p>Your card. Your voice. Go.</p></div></div>' : ""}
-    ${s.paused ? `<div class="pause-overlay"><div class="panel"><p class="eyebrow">TAKE YOUR TIME</p><h2>Turn paused.</h2><p>The clock is safe. Pick up when you’re ready.</p>${!learner ? button("resume", "▶ Resume turn", "primary") + button("replace-learner", "Replace learner link", "text-button") + `<input aria-label="Learner invite link" readonly value="${escape(joinUrl())}">` : "<p>Your tutor will resume the game.</p>"}</div></div>` : ""}`;
+    ${s.paused ? `<div class="pause-overlay"><div class="panel"><p class="eyebrow">TAKE YOUR TIME</p><h2>Turn paused.</h2><p>The clock is safe. Pick up when you’re ready.</p>${!learner ? `<div class="pause-actions">${button("resume", "▶ Resume turn", "primary")}${button("finish", "End game", "secondary end-game-button")}</div><div class="pause-invitation"><p class="pause-invite-label">Current learner link</p><div class="link-row invite-link-row"><span class="invite-link-label" aria-hidden="true">↗ &nbsp; Current link</span><input id="invite-link" class="invite-link-input" aria-label="Current learner link" aria-hidden="true" tabindex="-1" readonly value="${escape(joinUrl())}">${button("copy", "Copy link", "primary")}</div><p class="pause-invite-note">Your learner’s existing browser can reconnect. Replacing the link revokes their access, but keeps this game’s score.</p>${button("replace-learner", "Replace learner link", "text-button pause-replace-link")}</div>` : "<p>Your tutor will resume the game.</p>"}</div></div>` : ""}`;
 }
 function feedbackText(s) {
   return !s.feedback
@@ -481,7 +549,7 @@ function between(s) {
     <div class="result-score"><strong>${s.score}</strong><span>shared ${s.score === 1 ? "point" : "points"}${switching ? " so far" : ""}</span></div>
     ${s.best !== null ? `<p class="best">Session best <strong>${s.best}</strong>${!switching && s.score === s.best ? " ✦" : ""}</p>` : ""}
     ${s.finalCard && !finished ? `<div class="final-card"><span>At the horn</span><strong>${escape(s.finalCard.target)}</strong>${s.finalCard.credited ? "<small>✓ Credited</small>" : s.canCredit ? button("late-correct", "They said it before the horn · +1", "text-button") : ""}</div>` : ""}
-    ${switching ? `<p class="switch-copy">${ready ? "Waiting for your partner to get ready." : "Take a breath. Both of you tap ready to begin."}</p><div class="switch-actions">${button("ready", ready ? "✓ Ready" : "I’m ready", "primary", ready)}${!learner ? button("finish", "Finish", "secondary") : ""}</div>` : finished ? `<p>Your lesson call stays open. Take those new ways of saying things with you.</p>${!learner ? button("new-session", "Start a new game", "primary") : ""}` : `<div class="result-actions">${!learner ? button("replay", "▶ Play Another Round", "primary", !s.connected.learner) + button("finish", "Finish", "secondary") : "<p>Your partner can start another round or finish.</p>"}</div>`}
+    ${switching ? `<p class="switch-copy">${ready ? "Waiting for your partner to get ready." : "Take a breath. Both of you tap ready to begin."}</p><div class="switch-actions">${button("ready", ready ? "✓ Ready" : "I’m ready", "primary", ready)}${!learner ? button("finish", "End game", "secondary end-game-button") : ""}</div>` : finished ? `<p>Your lesson call stays open. Take those new ways of saying things with you.</p>${!learner ? button("new-session", "Start a new game", "primary") : ""}` : `<div class="result-actions">${!learner ? button("replay", "▶ Play Another Round", "primary", !s.connected.learner) + button("finish", "End game", "secondary end-game-button") : "<p>Your partner can start another round or finish.</p>"}</div>`}
     ${!switching && s.review.length ? `<details class="review"><summary>Talk through ${s.review.length} unresolved ${s.review.length === 1 ? "card" : "cards"} <span>Optional</span></summary><div>${s.review.map((c) => `<article><strong>${escape(c.target)}</strong><small>${c.result === "oops" ? "Oops" : c.result === "skip" ? "Skipped" : "At the horn"}</small><p>${c.forbidden.map(escape).join(" · ")}</p></article>`).join("")}</div></details>` : ""}
     ${!learner && switching ? `<div class="switch-maintenance">${button("replace-learner", "Replace learner link", "text-button small")}${!s.connected.learner ? `<div class="link-row"><input id="invite-link" aria-label="Learner invite link" readonly value="${escape(joinUrl())}">${button("copy", "Copy link", "primary")}</div>` : ""}</div>` : ""}</div></section>`;
 }
@@ -568,9 +636,11 @@ function updateControls() {
       Date.now() + offset >= state?.deadline;
   }
   for (const el of document.querySelectorAll(
-    '[data-action="start"],[data-action="replay"],[data-action="ready"],[data-action="late-correct"]',
+    '[data-action="start"],[data-action="replay"],[data-action="ready"],[data-action="late-correct"],[data-action="finish"],[data-action="replace-learner"],[data-action="resume"]',
   )) {
-    if (busy) el.disabled = true;
+    if (["finish", "replace-learner", "resume"].includes(el.dataset.action))
+      el.disabled = busy || failed;
+    else if (busy) el.disabled = true;
   }
   const partnerDisconnected =
     state &&
@@ -688,6 +758,15 @@ function confirmLearnerReplacement() {
     dialog.showModal();
   });
 }
+function confirmEndGame() {
+  const dialog = document.querySelector("#end-game-confirm");
+  if (!dialog || dialog.open) return Promise.resolve(false);
+  dialog.returnValue = "";
+  return new Promise((resolve) => {
+    dialog.addEventListener("close", () => resolve(dialog.returnValue === "end"), { once: true });
+    dialog.showModal();
+  });
+}
 async function act(action) {
   // A remembered preference still needs a user gesture after reloading.
   if (action !== "sound") unlockSound();
@@ -728,12 +807,65 @@ async function act(action) {
       "arcade:forbidden-words",
     );
   if (action === "new-session") {
+    if (learner || !owner || !gameLearnerId) return;
+    roomEpoch++;
+    clearTimeout(pollTimer);
     session = uuid();
-    storage.set(`fw:tutor:${owner}`, session);
+    storage.set(roomKey(owner, gameLearnerId), session);
+    state = null;
+    pending = null;
+    lastKey = "";
+    lastNonce = null;
+    await boot();
+    return;
+  }
+  if (action === "recover-legacy") {
+    if (learner || !owner || !gameLearnerId || session ||
+        storage.get(legacyClaimKey(owner))) return;
+    const targetLearnerId = gameLearnerId;
+    const legacyRoom = storage.get(legacyKey(owner));
+    if (!legacyRoom || !(await confirmLegacyRecovery())) return;
+    if (targetLearnerId !== gameLearnerId || session) return;
+    const recoveryEpoch = ++roomEpoch;
+    clearTimeout(pollTimer);
+    session = legacyRoom;
     state = null;
     lastKey = "";
-    await request("create", { theme: tutorTheme() });
-    schedulePoll();
+    try {
+      // Read legacy room as its authenticated tutor, before explicit binding.
+      await request("poll", { atlasSessionId: null });
+      if (recoveryEpoch !== roomEpoch) return;
+      await request("bind-learner", {
+        atlasSessionId: targetLearnerId, round: state.round, turn: state.turn,
+      });
+      if (recoveryEpoch !== roomEpoch) return;
+      storage.set(roomKey(owner, targetLearnerId), legacyRoom);
+      storage.set(legacyClaimKey(owner), targetLearnerId);
+      lastKey = "";
+      render();
+      schedulePoll();
+    } catch (error) {
+      if (recoveryEpoch !== roomEpoch || error instanceof RoomChanged) return;
+      // A dropped response after a successful bind is ambiguous. Probe the
+      // same room with this learner ID before discarding the recovery.
+      try {
+        await request("poll", { atlasSessionId: targetLearnerId });
+        if (recoveryEpoch !== roomEpoch) return;
+        storage.set(roomKey(owner, targetLearnerId), legacyRoom);
+        storage.set(legacyClaimKey(owner), targetLearnerId);
+        lastKey = "";
+        render();
+        schedulePoll();
+        return;
+      } catch {
+        if (recoveryEpoch !== roomEpoch) return;
+      }
+      session = null;
+      state = null;
+      lastKey = "";
+      showNoLearnerRoom();
+      notify(error.message, { duration: 6000 });
+    }
     return;
   }
   if (busy) return;
@@ -743,6 +875,10 @@ async function act(action) {
   }
   if (action === "replace-learner") {
     if (!(await confirmLearnerReplacement())) return;
+    if (busy) return;
+  }
+  if (action === "finish") {
+    if (learner || !(await confirmEndGame())) return;
     if (busy) return;
   }
   pending = {
@@ -756,6 +892,7 @@ async function act(action) {
 }
 async function sendPending() {
   if (!pending) return;
+  const pendingEpoch = roomEpoch;
   busy = true;
   updateControls();
   const operation = pending;
@@ -765,6 +902,7 @@ async function sendPending() {
       { card: operation.card, round: operation.round, turn: operation.turn },
       operation.id,
     );
+    if (pendingEpoch !== roomEpoch) return;
     pending = null;
     notify(
       operation.action === "replace-learner"
@@ -772,6 +910,7 @@ async function sendPending() {
         : "",
     );
   } catch (error) {
+    if (pendingEpoch !== roomEpoch || error instanceof RoomChanged) return;
     notify(error.message, {
       persistent: !error.status || error.status >= 500,
       duration: 5000,
@@ -781,14 +920,17 @@ async function sendPending() {
       failed = true;
     }
   } finally {
-    busy = false;
-    lastKey = "";
-    if (state) render();
-    schedulePoll();
+    if (pendingEpoch === roomEpoch) {
+      busy = false;
+      lastKey = "";
+      if (state) render();
+      schedulePoll();
+    }
   }
 }
 function schedulePoll() {
   clearTimeout(pollTimer);
+  if (!session) return;
   pollTimer = setTimeout(poll, state?.phase === "finished" ? 3000 : retryDelay);
 }
 function showEntryError(error) {
@@ -803,6 +945,8 @@ function showEntryError(error) {
   notify("");
 }
 async function poll() {
+  if (!session) return;
+  const pollEpoch = roomEpoch;
   if (busy) return schedulePoll();
   try {
     if (pending) {
@@ -811,12 +955,14 @@ async function poll() {
     }
     const wasDisconnected = failed;
     await request("poll");
+    if (pollEpoch !== roomEpoch) return;
     const partnerMissing =
       state &&
       ["countdown", "active"].includes(state.phase) &&
       !state.connected[learner ? "tutor" : "learner"];
     if (wasDisconnected && !partnerMissing) notify("Connected again.");
   } catch (error) {
+    if (pollEpoch !== roomEpoch || error instanceof RoomChanged) return;
     if ([401, 403, 410].includes(error.status)) {
       showEntryError(error);
       return;
@@ -826,10 +972,11 @@ async function poll() {
     notify(error.message, { persistent: true });
     updateControls();
   }
-  schedulePoll();
+  if (pollEpoch === roomEpoch) schedulePoll();
 }
 async function boot() {
   clearTimeout(pollTimer);
+  const bootEpoch = roomEpoch;
   try {
     if (learner) {
       if (!session)
@@ -843,10 +990,13 @@ async function boot() {
       await request("join", { invite });
     } else {
       if (!owner && !(await setupTutor())) return;
+      if (bootEpoch !== roomEpoch) return;
+      if (!session) return showNoLearnerRoom();
       await request("create", { theme: tutorTheme() });
     }
-    schedulePoll();
+    if (bootEpoch === roomEpoch) schedulePoll();
   } catch (error) {
+    if (bootEpoch !== roomEpoch || error instanceof RoomChanged) return;
     showEntryError(error);
   }
 }
@@ -936,10 +1086,10 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 window.addEventListener("atlas:session-change", (event) => {
-  if (learner || LOCAL) return;
-  atlasSession =
-    event.detail?.session || window.AtlasBridge?.readActiveSession?.() || null;
-  if (state) syncAtlasContinuity(state);
+  if (learner) return;
+  const next = window.AtlasBridge?.readActiveSession?.() || event.detail?.session;
+  if (owner) selectTutorRoom(next);
+  else atlasSession = next;
 });
 window.addEventListener("atlas:appearance-change", (event) => {
   if (learner || LOCAL || !state) return;
