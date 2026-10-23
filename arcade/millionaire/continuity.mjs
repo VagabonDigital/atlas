@@ -31,28 +31,6 @@ export function continuity(Bridge) {
     activeRun(id) {
       return read(id).activeRun || null;
     },
-    hasSessionData(id) {
-      if (!id) return false;
-      const data = read(id);
-      return Boolean(data.activeRun || data.events.length || data.results.length || Object.keys(data.exposures).length);
-    },
-    resetSession(id) {
-      if (!id) return false;
-      const current = read(id);
-      const data = empty();
-      // The default Atlas session also owns tutor-wide exposure history. Keep it:
-      // resetting one teaching session must never erase cross-session history.
-      data.tutorExposures = current.tutorExposures || {};
-      write(id, data, {
-        title: 'Millionaire',
-        status: 'available',
-        progress: { covered: 0, total: 10, openEnded: false },
-        currentLabel: null,
-        lastResult: null,
-        lastTouchedAt: Date.now()
-      });
-      return true;
-    },
     saveRun(id, snapshot, view) {
       if (!id || !snapshot || !view) return;
       const data = read(id);
