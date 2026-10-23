@@ -233,6 +233,50 @@ try {
   assert.equal(finishedLearner.card, null);
   await call({ session: pausedRoom, action: "resume" }, 409, true);
 
+  // Real PostgreSQL test: when the invited seat stops polling, the server
+  // freezes the countdown, refuses premature resume, then restores the clock
+  // only after that same seat reconnects.
+  const disconnectRoom = crypto.randomUUID();
+  const disconnectCredential = token();
+  let disconnectTutor = await call({
+    session: disconnectRoom, action: "create",
+  }, 200, true, "create");
+  await call({
+    session: disconnectRoom, action: "join",
+    credential: disconnectCredential, invite: disconnectTutor.invite,
+  });
+  disconnectTutor = await call({
+    session: disconnectRoom, action: "start",
+  }, 200, true);
+  await db.query(
+    "update public.forbidden_words_sessions set state=jsonb_set(state,'{seen,learner}',to_jsonb((extract(epoch from clock_timestamp())*1000-15000)::bigint)) where id=$1",
+    [disconnectRoom],
+  );
+  disconnectTutor = await call({
+    session: disconnectRoom, action: "poll",
+  }, 200, true);
+  assert.equal(disconnectTutor.phase, "countdown");
+  assert.equal(disconnectTutor.paused.reason, "connection");
+  assert.equal(disconnectTutor.paused.countdown, 3000);
+  await call({ session: disconnectRoom, action: "resume" }, 409, true);
+  const pausedLearner = await call({
+    session: disconnectRoom, action: "poll",
+    credential: disconnectCredential,
+  });
+  assert.equal(pausedLearner.paused.reason, "connection");
+  disconnectTutor = await call({
+    session: disconnectRoom, action: "resume",
+  }, 200, true);
+  assert.equal(disconnectTutor.paused, null);
+  assert.ok(Math.abs(disconnectTutor.startsAt - disconnectTutor.serverNow - 3000) < 50);
+  disconnectTutor = await call({
+    session: disconnectRoom, action: "pause",
+  }, 200, true);
+  disconnectTutor = await call({
+    session: disconnectRoom, action: "finish",
+  }, 200, true);
+  assert.equal(disconnectTutor.phase, "finished");
+
   // New rooms are immutably scoped to one Atlas learner on the server, not
   // merely by the tutor browser's local storage.
   const scopedRoom = crypto.randomUUID();
