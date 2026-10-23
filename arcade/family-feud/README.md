@@ -83,8 +83,9 @@ learner session in the existing AtlasBridge registry. Continue becomes eligible
 immediately. The snapshot preserves board IDs, round, current contestant, starting
 contestant, scores, round contributions, strikes, revealed answers and contestant
 names. Answers, passes, board reveals and round transitions checkpoint the match.
-Refreshing the page or returning through Atlas restores the same unfinished match,
-including its current playing, missed-board or round-end controls.
+Reopening the page (including through Atlas Continue) shows the cover first.
+**Continue Match** then restores the exact unfinished playing, missed-board or
+round-end state without creating a new match, resetting scores or opening a round.
 
 Changing the active Atlas learner session loads that learner's own match (or the
 start screen when none exists); pending answer animations cannot apply results
