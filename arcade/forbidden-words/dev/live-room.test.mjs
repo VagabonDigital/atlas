@@ -120,8 +120,8 @@ try {
   assert.equal(learner.readyState, 3);
   assert.notEqual(tutor.latest().invite, invite);
   assert.equal((await context.storage.get("room")).game.learnerHash, null);
-  await restored.webSocketMessage(learner, JSON.stringify({ action: "poll" }));
-  assert.equal(learner.latest().type, "error");
+  // Cloudflare cannot deliver further messages to the already-closed seat.
+  assert.equal(learner.code, 4003);
   await call("/ticket", { actor: "learner", credential: token(), invite }, 403, restored);
   const nextCredential = token(), nextInvite = tutor.latest().invite;
   const { ticket: nextTicket } = await call("/ticket", {
