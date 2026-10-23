@@ -92,6 +92,15 @@ async function gateway(route, body, expected, options = {}) {
 }
 const makeId = () => crypto.randomUUID();
 try {
+  // No dashboard rollout flag: the production Worker never exposes live rooms.
+  const { default: worker } = await import("../../../shared/worker.js");
+  const off = await worker.fetch(new Request("https://api.test/forbidden-words/live/create", {
+    method: "POST",
+    headers: { Origin: env.ALLOWED_ORIGIN, "Content-Type": "application/json" },
+    body: JSON.stringify({ session: makeId(), atlasSessionId: "lesson-0" }),
+  }), env);
+  assert.equal(off.status, 404);
+
   const ids = [makeId(), makeId(), makeId(), makeId()];
   await gateway("create", { session: ids[0], atlasSessionId: "lesson-a" }, 401);
   await gateway("create", { session: ids[0], atlasSessionId: "lesson-a" }, 403, {
