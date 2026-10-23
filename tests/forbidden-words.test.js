@@ -411,6 +411,36 @@ const fs = require("node:fs");
   assert.ok(inviteHarness.makeInvite().includes("Private game link"));
   assert.ok(!inviteHarness.makeInvite().includes("Previous invitation disabled"));
 
+  // The learner sees an actionable message for a claimed invitation, not a
+  // retry button that cannot reclaim a seat from a different browser.
+  const entrySnippet = client.slice(
+    client.indexOf("function showEntryError(error)"),
+    client.indexOf("async function poll()"),
+  );
+  const entryHarness = {
+    learner: true, state: {}, lastKey: "", lastNonce: "", pending: null,
+    failed: false, pollTimer: 1, app: { innerHTML: "" },
+    document: { documentElement: { style: { setProperty: () => {} } } },
+    brand: "Forbidden Words", owner: null,
+    escape: value => String(value),
+    button: (_action, label) => label,
+    clearTimeout: () => {}, notify: () => {},
+  };
+  vm.runInNewContext(entrySnippet + ";this.displayEntryError = showEntryError;", entryHarness);
+  entryHarness.displayEntryError({
+    status: 403,
+    message: "This learner seat is already in use. Ask your tutor for a replacement link.",
+  });
+  assert.ok(entryHarness.app.innerHTML.includes("This invitation has already been used."));
+  assert.ok(entryHarness.app.innerHTML.includes("ask your tutor for a new link."));
+  assert.ok(!entryHarness.app.innerHTML.includes("Try again"));
+  entryHarness.displayEntryError({ status: 503, message: "Connection failed." });
+  assert.ok(entryHarness.app.innerHTML.includes("Connection failed."));
+  assert.ok(entryHarness.app.innerHTML.includes("Try again"));
+  assert.ok(client.includes('finished ? "That’s a wrap!"'));
+  assert.ok(!client.includes("Your lesson call stays open."));
+  assert.ok(!client.includes("Take those new ways of saying things with you."));
+
   const setupTutorBlock = client.slice(
     client.indexOf("async function setupTutor()"),
     client.indexOf("async function request("),
