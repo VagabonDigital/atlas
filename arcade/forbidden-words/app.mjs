@@ -936,7 +936,7 @@ function showEntryError(error) {
     learner && error.status === 403 &&
     /learner seat is already in use/i.test(error.message || "");
   const message = claimedSeat
-    ? "This invitation has already been used in another browser. Reopen the original learner window, or ask your tutor to reset the invitation and send a new link."
+    ? "Ask your tutor to send you a new link."
     : learner && error.status === 410
       ? "This game has expired. Ask your tutor to start a new game and share a new invitation."
       : unavailableSeat
@@ -950,7 +950,7 @@ function showEntryError(error) {
   clearTimeout(pollTimer);
   stopLive();
   document.documentElement.style.setProperty("--heat", "0");
-  app.innerHTML = `<section class="entry-error panel">${brand}<h1>Let’s get you connected.</h1><p>${escape(message)}</p>${unavailableSeat ? "" : button("retry", "Try again", "primary")}${!learner && owner ? button("new-session", "Create a fresh game", "text-button") : ""}</section>`;
+  app.innerHTML = `<section class="entry-error panel">${brand}<h1>${claimedSeat ? "This invitation is already in use." : "Let’s get you connected."}</h1><p>${escape(message)}</p>${unavailableSeat ? "" : button("retry", "Try again", "primary")}${!learner && owner ? button("new-session", "Create a fresh game", "text-button") : ""}</section>`;
   notify("");
 }
 async function poll() {

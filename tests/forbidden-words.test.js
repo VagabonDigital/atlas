@@ -430,9 +430,9 @@ const fs = require("node:fs");
     "This learner seat is already in use.",
   ]) {
     entryHarness.displayEntryError({ status: 403, message: claimedSeatMessage });
-    assert.ok(entryHarness.app.innerHTML.includes("This invitation has already been used"));
-    assert.ok(entryHarness.app.innerHTML.includes("Reopen the original learner window"));
-    assert.ok(entryHarness.app.innerHTML.includes("reset the invitation"));
+    assert.ok(entryHarness.app.innerHTML.includes("<h1>This invitation is already in use.</h1>"));
+    assert.ok(entryHarness.app.innerHTML.includes("<p>Ask your tutor to send you a new link.</p>"));
+    assert.ok(!entryHarness.app.innerHTML.includes("Reopen the original learner window"));
     assert.ok(!entryHarness.app.innerHTML.includes("Try again"));
   }
   for (const invalidInviteMessage of [
