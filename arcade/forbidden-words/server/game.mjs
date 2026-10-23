@@ -82,7 +82,7 @@ function record(s, result, now) {
 // Freeze on the first server request that confirms a missing heartbeat.
 // Credit the time since the last confirmed heartbeat back to the turn; a
 // two-person game must not burn its clock while the other seat is absent.
-function pauseOnDisconnect(s, now) {
+export function pauseOnDisconnect(s, now) {
   if (s.paused || !["active", "countdown"].includes(s.phase) || !s.learnerHash) return;
   const missing = [s.seen.tutor, s.seen.learner]
     .filter((lastSeen) => now - lastSeen >= PRESENCE_MS);

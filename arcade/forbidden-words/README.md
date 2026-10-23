@@ -8,7 +8,9 @@ product specification supplied for this build is `GAME.md` in the handoff worksp
 - `index.html`, `join.html`, `app.mjs`, `game.css`: tutor and sealed learner views.
 - `server/cards.mjs`: 141 learner-appropriate cards; never served as a static asset.
 - `server/game.mjs`: rules, role changes, timing, scoring and explicit role projections.
-- `server/http.mjs`: this game's HTTP transport and seat authorization.
+- `server/http.mjs`: this game's existing HTTP transport and seat authorization.
+- `server/live-room.mjs`: isolated **unrouted** Durable Object foundation for
+  durable game state, private hibernating WebSockets and one-use connection tickets.
 - `dev/`: local PostgreSQL-backed verification, isolated from deployed runtime.
 - `shared/worker.js`: the existing Atlas backend dispatches `/forbidden-words/*` and
   supplies its existing authenticated-account verifier. It does not contain game rules.
@@ -18,6 +20,23 @@ product specification supplied for this build is `GAME.md` in the handoff worksp
 Existing Arcade chrome, catalog, access/sign-in and scoped resource-share URL building
 remain their existing owners. The learner page loads no tutor workspace/navigation code.
 The generic resource share grant is not treated as session authorization.
+
+## Live-room backend (Batch 2, not deployed)
+
+The backend source now includes `ForbiddenWordsLiveRoom`, generated into the
+existing `shared/worker.js` and configured as a SQLite-backed Durable Object
+through declarative Wrangler exports. **No public Worker route leads to it.**
+The current HTTP/Supabase game remains the only production game.
+
+The private Durable Object accepts internal `/initialize` (owner + Atlas learner),
+`/ticket` (validated tutor or learner identity), and `/socket` (one-use
+30-second ticket carried in the WebSocket subprotocol, never in a URL).
+The room persists the existing game state through hibernation and streams
+role-projected updates; its alarm drives deadlines, disconnect pauses and
+six-hour expiration. The room itself does not yet enforce the global per-tutor
+quota. **It must not be publicly routed until the authentication, quota and
+rollout-gating batch is complete.** This is a private backend foundation and
+is not a replacement for acceptance testing on Cloudflare's runtime.
 
 ## Session contract
 

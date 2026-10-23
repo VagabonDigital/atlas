@@ -9,6 +9,7 @@ const paths = {
   cards: path.join(root, "arcade", "forbidden-words", "server", "cards.mjs"),
   game: path.join(root, "arcade", "forbidden-words", "server", "game.mjs"),
   http: path.join(root, "arcade", "forbidden-words", "server", "http.mjs"),
+  live: path.join(root, "arcade", "forbidden-words", "server", "live-room.mjs"),
 };
 
 const START =
@@ -53,9 +54,17 @@ function generatedBlock() {
     /^import\s+\{\s*initialState,\s*command,\s*view,\s*GameError\s*\}\s+from\s+["']\.\/game\.mjs["'];?\s*$/,
   );
 
+  const liveGame = stripModule(
+    read(paths.live),
+    /^import\s+\{[^}]+\}\s+from\s+["']\.\/game\.mjs["'];?\s*$/,
+  );
+  const live = stripModule(
+    liveGame,
+    /^import\s+\{[^}]+\}\s+from\s+["']\.\/http\.mjs["'];?\s*$/,
+  );
   return [
     START,
-    "const handleForbiddenWords = (() => {",
+    "const { handleForbiddenWords, ForbiddenWordsLiveRoomBase } = (() => {",
     "    /* arcade/forbidden-words/server/cards.mjs */",
     indent(cards),
     "",
@@ -65,8 +74,12 @@ function generatedBlock() {
     "    /* arcade/forbidden-words/server/http.mjs */",
     indent(http),
     "",
-    "    return handleForbiddenWords;",
+    "    /* arcade/forbidden-words/server/live-room.mjs */",
+    indent(live),
+    "",
+    "    return { handleForbiddenWords, ForbiddenWordsLiveRoomBase };",
     "})();",
+    "export class ForbiddenWordsLiveRoom extends ForbiddenWordsLiveRoomBase {}",
     END,
   ].join("\n");
 }

@@ -16,7 +16,7 @@ export async function hash(value) {
     (n) => n.toString(16).padStart(2, "0"),
   ).join("");
 }
-async function same(a, b) {
+export async function same(a, b) {
   if (typeof a !== "string" || typeof b !== "string") return false;
   // HMAC verification provides constant-time comparison in both Workers and Node.
   const key = await crypto.subtle.importKey(
