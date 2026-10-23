@@ -291,7 +291,10 @@ const fs = require("node:fs");
   assert.equal(harness.state, null);
   assert.equal(harness.boots, 0);
   assert.equal(harness.roomEpoch, 1);
-  assert.ok(harness.app.innerHTML.includes("Blair"));
+  assert.ok(harness.app.innerHTML.includes("Ready to play?"));
+  assert.ok(harness.app.innerHTML.includes("Create Game"));
+  assert.ok(!harness.app.innerHTML.includes("Blair"));
+  assert.ok(!harness.app.innerHTML.includes("Played before this update"));
   assert.equal(bookmarks.get("fw:tutor:test-owner:atlas:session-alex"), "room-alex");
   harness.change({ id: "session-alex", name: "Alex" });
   assert.equal(harness.session, "room-alex");
@@ -303,8 +306,12 @@ const fs = require("node:fs");
   assert.ok(!client.includes("storage.set(\`fw:tutor:\${owner}\`, session)"));
   assert.ok(client.includes('if (requestSession !== session || requestEpoch !== roomEpoch)'));
   assert.ok(client.includes("if (window.AtlasBridge.readActiveSession?.()?.id !== gameLearnerId) return;"));
-  assert.ok(tutorPage.includes('id="recover-legacy-confirm"'));
+  assert.ok(!tutorPage.includes('id="recover-legacy-confirm"'));
   assert.ok(!learnerPage.includes('id="recover-legacy-confirm"'));
+  assert.ok(!client.includes("recover-legacy"));
+  assert.ok(!client.includes("No Forbidden Words game is linked"));
+  assert.ok(!client.includes("Played before this update"));
+  assert.ok(!gameCss.includes(".room-recovery"));
 
   const setupTutorBlock = client.slice(
     client.indexOf("async function setupTutor()"),
@@ -369,7 +376,7 @@ const fs = require("node:fs");
   assert.ok(client.includes('function confirmLearnerReplacement()'));
   assert.ok(client.includes('dialog.returnValue === "replace"'));
   assert.ok(!client.includes('!confirm('));
-  assert.ok(gameCss.includes("#replace-learner-confirm,\n#recover-legacy-confirm,\n#end-game-confirm {"));
+  assert.ok(gameCss.includes("#replace-learner-confirm,\n#end-game-confirm {"));
   assert.ok(learnerPage.includes('class="atlas-modal-close rules-close"'));
   assert.ok(gameCss.includes("background: rgba(49, 90, 134, 0.07);"));
   assert.ok(learnerPage.includes("../../shared/atlas-modal-theme.css"));
