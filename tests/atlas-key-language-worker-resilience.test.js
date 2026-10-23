@@ -10,6 +10,7 @@ const workerSource = fs
         'utf8'
     )
     .replace(/^import \{ handleForbiddenWords \} from .*;\r?\n/m, '')
+    .replace(/^export class ForbiddenWordsLiveRoom\b/m, 'class ForbiddenWordsLiveRoom')
     .replace(
         'export default {',
         'globalThis.__atlasWorker = {'
