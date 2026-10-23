@@ -92,7 +92,7 @@ export async function handleForbiddenWordsLive(request, env, {
       const response = await stub.fetch(new Request("https://live-room.internal/initialize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ owner: auth.userId, atlasSessionId: input.atlasSessionId }),
+        body: JSON.stringify({ session: input.session, owner: auth.userId, atlasSessionId: input.atlasSessionId }),
       }));
       return liveReply(await response.json(), response.status, cors);
     }
