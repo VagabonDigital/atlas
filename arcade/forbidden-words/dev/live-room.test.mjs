@@ -114,7 +114,9 @@ try {
 
   const restored = new ForbiddenWordsLiveRoomBase(context, {});
   await restored.webSocketMessage(learner, JSON.stringify({ action: "poll" }));
-  assert.equal(learner.latest().state.score, 1);
+  // Heartbeats intentionally do not broadcast an unchanged state.
+  assert.equal((await context.storage.get("room")).game.score, 1);
+  assert.equal(learner.frames.filter(frame => frame.type === "state").at(-1).state.score, 1);
   assert.equal(tutor.latest().state.score, 1);
 
   await restored.webSocketMessage(tutor, JSON.stringify(action("pause", { round: 1, turn: 1 })));
