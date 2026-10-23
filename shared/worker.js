@@ -1054,7 +1054,7 @@ return handleTwoKeys;
    ============================================================ */
 
 /* BEGIN GENERATED FORBIDDEN WORDS BACKEND — npm run build:atlas-ai-worker */
-const { handleForbiddenWords, ForbiddenWordsLiveRoomBase } = (() => {
+const { handleForbiddenWords, handleForbiddenWordsLive, ForbiddenWordsLiveRoomBase } = (() => {
     /* arcade/forbidden-words/server/cards.mjs */
     // Server-only content. Never serve this file or send the deck to either browser.
     const lines = `
@@ -1710,6 +1710,10 @@ const { handleForbiddenWords, ForbiddenWordsLiveRoomBase } = (() => {
               410,
             );
           const s = row.state;
+          // Live rooms use this table only for quota metadata. Never let
+          // the old HTTP transport mutate their authoritative Durable Object game.
+          if (s.transport === "durable")
+            throw new GameError("This game uses a live connection. Reload the game.", 409);
           const now = Number(row.now);
           const actor = learner ? "learner" : "tutor";
           if (!learner && row.owner !== owner)
@@ -1784,8 +1788,9 @@ const { handleForbiddenWords, ForbiddenWordsLiveRoomBase } = (() => {
     }
 
     /* arcade/forbidden-words/server/live-room.mjs */
-    // Private Durable Object transport. No public Worker route may forward
-    // /initialize or /ticket until the rollout owns quota and account checks.
+    // Private Durable Object transport. Only the authenticated, quota-reserving
+    // Worker gateway may forward requests here; the public live route is disabled
+    // until its explicit rollout switch is set.
     // Its state belongs to one named game, not a globally shared multiplayer engine.
     const ROOM_MS = 6 * 60 * 60 * 1000;
     const TICKET_MS = 30 * 1000;
@@ -1803,6 +1808,34 @@ const { handleForbiddenWords, ForbiddenWordsLiveRoomBase } = (() => {
       constructor(ctx, env) {
         this.ctx = ctx;
         this.env = env;
+        this.rpc = supabaseRpc(env);
+      }
+
+      // Only two metadata RPC calls per completed game, never per heartbeat.
+      async releaseFinishedReservation(room) {
+        if (room.game.phase !== "finished" || room.quotaReleased) return;
+        for (let attempt = 0; attempt < 3; attempt++) {
+          const row = await this.rpc("forbidden_words_read", { p_id: room.id });
+          if (!row || row.owner !== room.owner ||
+              row.state?.transport !== "durable" ||
+              row.state?.atlasSessionId !== room.game.atlasSessionId)
+            throw new GameError("Game reservation is missing.", 503);
+          if (row.state.phase === "finished") {
+            room.quotaReleased = true;
+            return;
+          }
+          const committed = await this.rpc("forbidden_words_commit", {
+            p_id: room.id,
+            p_revision: row.revision,
+            p_state: { ...row.state, phase: "finished" },
+            p_deadline: null,
+          });
+          if (committed) {
+            room.quotaReleased = true;
+            return;
+          }
+        }
+        throw new GameError("Game reservation is busy.", 503);
       }
 
       async load() {
@@ -1817,6 +1850,8 @@ const { handleForbiddenWords, ForbiddenWordsLiveRoomBase } = (() => {
       async schedule(room, now) {
         const events = [room.expiresAt];
         const s = room.game;
+        if (s.phase === "finished" && !room.quotaReleased)
+          events.push(now + 30000);
         if (!s.paused && ["countdown", "active"].includes(s.phase)) {
           if (s.startsAt > now && s.phase === "countdown") events.push(s.startsAt);
           if (s.deadline > now) events.push(s.deadline);
@@ -1858,7 +1893,8 @@ const { handleForbiddenWords, ForbiddenWordsLiveRoomBase } = (() => {
           const { pathname } = new URL(request.url);
           if (pathname === "/initialize" && request.method === "POST") {
             const input = await request.json();
-            if (!ROOM_OWNER_UUID.test(input.owner || "") || !CONTEXT.test(input.atlasSessionId || ""))
+            if (!ROOM_OWNER_UUID.test(input.owner || "") || !ROOM_OWNER_UUID.test(input.session || "") ||
+                !CONTEXT.test(input.atlasSessionId || ""))
               throw new GameError("Invalid tutor context.", 400);
             const present = await this.ctx.storage.get("room");
             if (present) {
@@ -1870,7 +1906,10 @@ const { handleForbiddenWords, ForbiddenWordsLiveRoomBase } = (() => {
             const now = Date.now(), s = initialState(now);
             s.atlasSessionId = input.atlasSessionId;
             s.invite = token();
-            const room = { owner: input.owner, expiresAt: now + ROOM_MS, revision: 0, game: s };
+            const room = {
+              id: input.session, owner: input.owner, expiresAt: now + ROOM_MS,
+              quotaReleased: false, revision: 0, game: s,
+            };
             await this.ctx.storage.put("room", room);
             await this.schedule(room, now);
             return json({ ok: true, created: true });
@@ -1910,9 +1949,15 @@ const { handleForbiddenWords, ForbiddenWordsLiveRoomBase } = (() => {
             const match = /^fw-ticket\.([0-9a-f]{64})$/.exec(subprotocol);
             if (!match) throw new GameError("Connection ticket required.", 401);
             const digest = await hash(match[1]), key = "ticket:" + digest;
-            const ticket = await this.ctx.storage.get(key);
-            if (!ticket || ticket.expiresAt <= Date.now()) throw new GameError("Connection ticket expired.", 403);
-            await this.ctx.storage.delete(key); // One-use even after hibernation/reconnect.
+            // Transactional consumption prevents two concurrent upgrades reusing a
+            // single ticket across event-handler awaits or after hibernation.
+            const ticket = await this.ctx.storage.transaction(async txn => {
+              const value = await txn.get(key);
+              if (!value || value.expiresAt <= Date.now()) return null;
+              await txn.delete(key);
+              return value;
+            });
+            if (!ticket) throw new GameError("Connection ticket expired.", 403);
             const room = await this.load();
             if (ticket.actor === "learner" && ticket.seat !== room.game.learnerHash)
               throw new GameError("This learner seat has been replaced.", 403);
@@ -1931,7 +1976,12 @@ const { handleForbiddenWords, ForbiddenWordsLiveRoomBase } = (() => {
             room.game.seen[ticket.actor] = now;
             await this.persist(room, now);
             this.publish(room, now);
-            return new Response(null, { status: 101, webSocket: client });
+            return new Response(null, {
+              status: 101, webSocket: client,
+              // A browser will reject the upgrade unless one offered protocol
+              // is explicitly selected in the server handshake.
+              headers: { "Sec-WebSocket-Protocol": subprotocol },
+            });
           }
           throw new GameError("Not found.", 404);
         } catch (error) {
@@ -1947,9 +1997,15 @@ const { handleForbiddenWords, ForbiddenWordsLiveRoomBase } = (() => {
           const input = JSON.parse(message);
           const auth = ws.deserializeAttachment();
           const room = await this.load();
-          if (!auth || (auth.actor === "learner" && auth.seat !== room.game.learnerHash))
+          if (ws.readyState !== 1 || !this.ctx.getWebSockets().includes(ws) ||
+              !auth || (auth.actor === "learner" && auth.seat !== room.game.learnerHash))
             throw new GameError("This seat is no longer valid.", 403);
           const now = Date.now();
+          const previousPhase = room.game.phase;
+          const wasPaused = !!room.game.paused;
+          // Establish an absence before a returning heartbeat can refresh seen[].
+          pauseOnDisconnect(room.game, now);
+          advance(room.game, now);
           if (input.action === "poll") {
             command(room.game, auth.actor, { action: "poll" }, now);
           } else {
@@ -1958,7 +2014,18 @@ const { handleForbiddenWords, ForbiddenWordsLiveRoomBase } = (() => {
             if (input.action === "replace-learner" && !wasSeen) room.game.invite = token();
           }
           await this.persist(room, now);
-          this.publish(room, now);
+          if (input.action !== "poll" || room.game.phase !== previousPhase ||
+              !!room.game.paused !== wasPaused) this.publish(room, now);
+          // Finished games relinquish one of the tutor's three room slots.
+          if (room.game.phase === "finished" && !room.quotaReleased) {
+            try {
+              await this.releaseFinishedReservation(room);
+              await this.persist(room, Date.now());
+            } catch {
+              // Alarm retries release. Gameplay completion is not rolled back.
+              await this.schedule(room, Date.now());
+            }
+          }
         } catch (error) {
           this.send(ws, { type: "error", error: error instanceof GameError ? error.message : "Invalid command." });
         }
@@ -1974,16 +2041,10 @@ const { handleForbiddenWords, ForbiddenWordsLiveRoomBase } = (() => {
           other !== ws && other.readyState === 1 &&
           other.deserializeAttachment()?.actor === auth.actor)) return;
         const now = Date.now(), s = room.game;
-        if (["countdown", "active"].includes(s.phase) && !s.paused && now < s.deadline) {
-          s.paused = {
-            at: now, remaining: s.deadline - now,
-            countdown: Math.max(0, s.startsAt - now), reason: "connection",
-          };
-        } else {
-          // A completed deadline wins over a late close notification.
-          advance(s, now);
-        }
-        s.seen[auth.actor] = 0;
+        // Preserve the existing 12-second tolerance for a transient disconnect.
+        // The last verified heartbeat remains authoritative until the alarm.
+        pauseOnDisconnect(s, now);
+        advance(s, now);
         await this.persist(room, now);
         this.publish(room, now);
       }
@@ -2007,12 +2068,145 @@ const { handleForbiddenWords, ForbiddenWordsLiveRoomBase } = (() => {
         }
         pauseOnDisconnect(room.game, now);
         advance(room.game, now);
+        if (room.game.phase === "finished" && !room.quotaReleased) {
+          try {
+            await this.releaseFinishedReservation(room);
+          } catch {
+            // Retry at the next alarm. Missing backend credentials fail closed.
+          }
+        }
         await this.persist(room, now);
         this.publish(room, now);
       }
     }
 
-    return { handleForbiddenWords, ForbiddenWordsLiveRoomBase };
+    /* arcade/forbidden-words/server/live-http.mjs */
+    // Staged behind an explicit, default-off Worker switch. The existing
+    // /forbidden-words/create and /session transport remains unchanged.
+    const LIVE_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const LIVE_CONTEXT = /^[a-zA-Z0-9_-]{1,160}$/;
+    const LIVE_CREDENTIAL = /^[0-9a-f]{64}$/;
+    const LIVE_TRANSPORT = "durable";
+    const liveReply = (body, status = 200, headers = {}) =>
+      new Response(JSON.stringify(body), {
+        status,
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store, private",
+          "Referrer-Policy": "no-referrer",
+          ...headers,
+        },
+      });
+
+    async function handleForbiddenWordsLive(request, env, {
+      authenticate, rpc = supabaseRpc(env),
+      namespace = env.FORBIDDEN_WORDS_LIVE,
+    }) {
+      const origin = request.headers.get("Origin");
+      const allowed = [env.ALLOWED_ORIGIN, env.ALLOWED_DEV_ORIGIN].filter(Boolean);
+      const cors = {
+        Vary: "Origin",
+        ...(allowed.includes(origin) ? { "Access-Control-Allow-Origin": origin } : {}),
+        "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      };
+      try {
+        // Browser origins are mandatory for both HTTP and WebSocket entry.
+        if (!origin || !allowed.includes(origin))
+          throw new GameError("Origin is not permitted.", 403);
+        if (request.method === "OPTIONS")
+          return new Response(null, { status: 204, headers: cors });
+        if (!namespace) throw new GameError("Live rooms are unavailable.", 503);
+        const pathname = new URL(request.url).pathname;
+        const route = pathname.slice("/forbidden-words/live/".length);
+        if (!["create", "ticket", "socket"].includes(route))
+          throw new GameError("Not found.", 404);
+        const isSocket = route === "socket";
+        if (isSocket ? request.method !== "GET" : request.method !== "POST")
+          throw new GameError("Method not allowed.", 405);
+        let input;
+        if (isSocket) {
+          if (request.headers.get("Upgrade")?.toLowerCase() !== "websocket")
+            throw new GameError("WebSocket upgrade required.", 426);
+          const url = new URL(request.url);
+          input = { session: url.searchParams.get("session") };
+          if (!/^fw-ticket\.[0-9a-f]{64}$/.test(request.headers.get("Sec-WebSocket-Protocol") || ""))
+            throw new GameError("Connection ticket required.", 401);
+        } else {
+          input = await bodyOf(request);
+        }
+        if (!input || !LIVE_ID.test(input.session || ""))
+          throw new GameError("Invalid game session.", 400);
+        const stub = namespace.get(namespace.idFromName(input.session));
+        if (isSocket) {
+          // No credential or connection ticket is placed in the URL.
+          return stub.fetch(new Request("https://live-room.internal/socket", {
+            headers: {
+              Upgrade: "websocket",
+              "Sec-WebSocket-Protocol": request.headers.get("Sec-WebSocket-Protocol"),
+            },
+          }));
+        }
+        if (route === "create") {
+          const auth = await authenticate(request, env);
+          if (!auth.ok)
+            throw new GameError("Sign in to Atlas to host this game.", auth.status || 401);
+          if (!LIVE_CONTEXT.test(input.atlasSessionId || ""))
+            throw new GameError("Select an Atlas learner to host this game.", 400);
+          // This one-time metadata reservation shares the existing atomic
+          // three-unfinished / twenty-retained per-tutor quotas with HTTP games.
+          // Never create a second full game state in Supabase.
+          const record = {
+            transport: LIVE_TRANSPORT,
+            phase: "waiting",
+            atlasSessionId: input.atlasSessionId,
+          };
+          await rpc("forbidden_words_create", {
+            p_id: input.session, p_owner: auth.userId, p_state: record,
+          });
+          const existing = await rpc("forbidden_words_read", { p_id: input.session });
+          if (!existing || existing.owner !== auth.userId ||
+              existing.state?.transport !== LIVE_TRANSPORT ||
+              existing.state?.atlasSessionId !== input.atlasSessionId)
+            throw new GameError("This room belongs to a different game or learner.", 409);
+          const response = await stub.fetch(new Request("https://live-room.internal/initialize", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ session: input.session, owner: auth.userId, atlasSessionId: input.atlasSessionId }),
+          }));
+          return liveReply(await response.json(), response.status, cors);
+        }
+        const actor = input.actor;
+        let credential;
+        if (actor === "tutor") {
+          const auth = await authenticate(request, env);
+          if (!auth.ok)
+            throw new GameError("Sign in to Atlas to host this game.", auth.status || 401);
+          if (!LIVE_CONTEXT.test(input.atlasSessionId || ""))
+            throw new GameError("Invalid Atlas learner context.", 400);
+          credential = { actor, owner: auth.userId, atlasSessionId: input.atlasSessionId };
+        } else if (actor === "learner") {
+          if (!LIVE_CREDENTIAL.test(input.credential || ""))
+            throw new GameError("Invalid learner credential.", 403);
+          credential = { actor, credential: input.credential, invite: input.invite };
+        } else throw new GameError("Invalid game seat.", 400);
+        const response = await stub.fetch(new Request("https://live-room.internal/ticket", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(credential),
+        }));
+        return liveReply(await response.json(), response.status, cors);
+      } catch (error) {
+        if (!(error instanceof GameError))
+          console.error("[Forbidden Words live gateway] Request failed:", error.name);
+        return liveReply({
+          ok: false,
+          error: error instanceof GameError ? error.message : "Live game temporarily unavailable.",
+        }, error instanceof GameError ? error.status : 503, cors);
+      }
+    }
+
+    return { handleForbiddenWords, handleForbiddenWordsLive, ForbiddenWordsLiveRoomBase };
 })();
 export class ForbiddenWordsLiveRoom extends ForbiddenWordsLiveRoomBase {}
 /* END GENERATED FORBIDDEN WORDS BACKEND */
@@ -4040,6 +4234,13 @@ export default {
     async fetch(request, env) {
         const url = new URL(request.url);
         if (url.pathname.startsWith('/two-keys/')) { return handleTwoKeys(request, env, { authenticate: authenticateAtlasAIRequest }); }
+        if (url.pathname.startsWith('/forbidden-words/live/')) {
+            if (env.ATLAS_FORBIDDEN_WORDS_LIVE_ENABLED !== 'true')
+                return new Response('Not found.', { status: 404 });
+            return handleForbiddenWordsLive(request, env, {
+                authenticate: authenticateAtlasAIRequest,
+            });
+        }
         if (url.pathname.startsWith('/forbidden-words/')) {
             return handleForbiddenWords(request, env, { authenticate: authenticateAtlasAIRequest });
         }
