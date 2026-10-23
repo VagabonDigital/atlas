@@ -182,17 +182,12 @@ function showTutorLandingChrome() {
 // are browser bookmarks, not authorization: the Worker enforces the bound ID.
 const roomKey = (ownerId, learnerId) =>
   `fw:tutor:${ownerId}:atlas:${learnerId}`;
-const legacyKey = (ownerId) => `fw:tutor:${ownerId}`;
-const legacyClaimKey = (ownerId) => `fw:tutor:${ownerId}:legacy-claimed`;
 function selectedAtlasLearner() {
   return window.AtlasBridge?.readActiveSession?.() || null;
 }
 function showNoLearnerRoom() {
   showTutorLandingChrome();
-  const previous = storage.get(legacyKey(owner));
-  const canRecover = previous && !storage.get(legacyClaimKey(owner));
-  const name = escape(atlasSession?.name || "this learner");
-  app.innerHTML = `<section class="landing"><div class="landing-identity">${brand}<p class="premise">Describe the word. <br>Lose the obvious language.</p><div class="hero-deck">${deck}</div><p class="caption">Two voices. One clock. Find another way.</p></div><div class="invitation panel"><p class="eyebrow">ATLAS LEARNER</p><h1>${name}</h1><p>No Forbidden Words game is linked to this learner yet. Existing games for other learners stay where they are.</p>${button("new-session", "Create game for this learner", "primary start-button")}${canRecover ? `<div class="room-recovery"><p>Played before this update? An older game is saved without an Atlas learner.</p>${button("recover-legacy", "Link older game to this learner", "text-button")}</div>` : ""}</div></section>`;
+  app.innerHTML = `<section class="landing"><div class="landing-identity">${brand}<p class="premise">Describe the word. <br>Lose the obvious language.</p><div class="hero-deck">${deck}</div><p class="caption">Two voices. One clock. Find another way.</p></div><div class="invitation panel"><p class="eyebrow">NEW GAME</p><h1>Ready to play?</h1><p>Create a private game, then invite your learner to join.</p>${button("new-session", "Create Game", "primary start-button")}</div></section>`;
 }
 function selectTutorRoom(next) {
   if (!owner || learner || !next?.id) return;
@@ -217,17 +212,6 @@ function selectTutorRoom(next) {
   session = storage.get(roomKey(owner, gameLearnerId));
   if (session) void boot();
   else showNoLearnerRoom();
-}
-function confirmLegacyRecovery() {
-  const dialog = document.querySelector("#recover-legacy-confirm");
-  if (!dialog || dialog.open) return Promise.resolve(false);
-  dialog.returnValue = "";
-  const name = dialog.querySelector("#recover-legacy-name");
-  if (name) name.textContent = atlasSession?.name || "this learner";
-  return new Promise(resolve => {
-    dialog.addEventListener("close", () => resolve(dialog.returnValue === "recover"), { once: true });
-    dialog.showModal();
-  });
 }
 class RoomChanged extends Error {}
 
@@ -817,55 +801,6 @@ async function act(action) {
     lastKey = "";
     lastNonce = null;
     await boot();
-    return;
-  }
-  if (action === "recover-legacy") {
-    if (learner || !owner || !gameLearnerId || session ||
-        storage.get(legacyClaimKey(owner))) return;
-    const targetLearnerId = gameLearnerId;
-    const legacyRoom = storage.get(legacyKey(owner));
-    if (!legacyRoom || !(await confirmLegacyRecovery())) return;
-    if (targetLearnerId !== gameLearnerId || session) return;
-    const recoveryEpoch = ++roomEpoch;
-    clearTimeout(pollTimer);
-    session = legacyRoom;
-    state = null;
-    lastKey = "";
-    try {
-      // Read legacy room as its authenticated tutor, before explicit binding.
-      await request("poll", { atlasSessionId: null });
-      if (recoveryEpoch !== roomEpoch) return;
-      await request("bind-learner", {
-        atlasSessionId: targetLearnerId, round: state.round, turn: state.turn,
-      });
-      if (recoveryEpoch !== roomEpoch) return;
-      storage.set(roomKey(owner, targetLearnerId), legacyRoom);
-      storage.set(legacyClaimKey(owner), targetLearnerId);
-      lastKey = "";
-      render();
-      schedulePoll();
-    } catch (error) {
-      if (recoveryEpoch !== roomEpoch || error instanceof RoomChanged) return;
-      // A dropped response after a successful bind is ambiguous. Probe the
-      // same room with this learner ID before discarding the recovery.
-      try {
-        await request("poll", { atlasSessionId: targetLearnerId });
-        if (recoveryEpoch !== roomEpoch) return;
-        storage.set(roomKey(owner, targetLearnerId), legacyRoom);
-        storage.set(legacyClaimKey(owner), targetLearnerId);
-        lastKey = "";
-        render();
-        schedulePoll();
-        return;
-      } catch {
-        if (recoveryEpoch !== roomEpoch) return;
-      }
-      session = null;
-      state = null;
-      lastKey = "";
-      showNoLearnerRoom();
-      notify(error.message, { duration: 6000 });
-    }
     return;
   }
   if (busy) return;

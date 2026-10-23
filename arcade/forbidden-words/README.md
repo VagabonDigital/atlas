@@ -88,13 +88,9 @@ six hours). Different browsers do not share these local bookmarks; a future
 cross-device room discovery feature would need a separate authenticated
 server lookup.
 
-Existing pre-ownership rooms stored under `fw:tutor:<owner>` are deliberately
-**not** attributed to whichever learner happens to be selected during an
-upgrade. A tutor can explicitly confirm a one-time legacy-room link to the
-selected learner. The Worker enforces that it can only be bound once and
-permanently. Ambiguous network responses are recovered by checking the same
-room and learner ID before saving the scoped bookmark. Existing unassigned
-rooms remain accessible to older clients during phased deployment.
+The backend continues to accept previously unbound rooms for compatibility,
+but the game presents no legacy-game migration or recovery UI. New games
+are scoped to the selected learner from the outset.
 
 The existing server quota (three unfinished rooms per owner) still applies;
 switching learners alone never consumes a room. Account ownership/authorisation,
