@@ -11,8 +11,10 @@ const LOCAL =
   document.querySelector('meta[name="fw-local-verification"]')?.content ===
   "true";
 const REGISTRY_ID = "arcade:forbidden-words";
-// Opt-in per newly created room. Existing HTTP rooms never change transports.
-const LIVE_PREVIEW = params.get("fw-live") === "1";
+// Live WebSockets are the default only for newly created production rooms.
+// ?fw-live=0 is an emergency opt-out for a NEW game; remembered rooms retain
+// their original transport so reconnecting never switches game authority.
+const LIVE_NEW_ROOMS = !LOCAL && params.get("fw-live") !== "0";
 const liveRoomKey = (roomId) => `fw:transport:${roomId}`;
 const THEME_TRANSITION_MS = 280;
 const uuid = () => crypto.randomUUID();
@@ -843,7 +845,7 @@ async function act(action) {
     );
   if (action === "new-session") {
     if (learner || !owner || !gameLearnerId) return;
-    const nextLive = liveMode || LIVE_PREVIEW;
+    const nextLive = LIVE_NEW_ROOMS;
     roomEpoch++;
     stopLive();
     replacementInvite = null;
