@@ -1243,33 +1243,32 @@
      REVEALED STATE
      ============================================================ */
 
+    /* A verdict is information, not an action: no pill or button-shaped box. */
     .reveal-summary {
+      display: flex;
+      align-items: baseline;
+      gap: 0.85rem;
       margin-bottom: 0.85rem;
-      padding: 0.65rem 1rem;
-      border: 1px solid;
-      border-radius: var(--r-sm);
-      font-size: 0.82rem;
-      font-weight: 500;
-      line-height: 1.5;
+      padding: 0.38rem 0 0.7rem;
+      border: 0;
+      border-bottom: 1px solid var(--tt-card-edge);
+      border-radius: 0;
+      background: none;
+      font-size: 0.87rem;
+      font-weight: 650;
+      line-height: 1.55;
     }
-
-    .summary-correct {
-      border-color: var(--truth-border);
-      background: var(--truth-bg);
-      color: var(--truth);
+    .reveal-summary::before {
+      content: "VERDICT";
+      flex: 0 0 auto;
+      color: var(--ink-quiet);
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
     }
-
-    .summary-wrong {
-      border-color: var(--lie-border);
-      background: var(--lie-bg);
-      color: var(--lie);
-    }
-
-    .summary-wildcard {
-      border-color: var(--wildcard-border);
-      background: var(--wildcard-bg);
-      color: var(--wildcard);
-    }
+    .summary-correct { color: var(--truth); }
+    .summary-wrong { color: var(--lie); }
+    .summary-wildcard { color: var(--wildcard); }
 
     .reveal-actions {
       display: flex;
@@ -1290,7 +1289,7 @@
     }
 
     .btn-discussion {
-      flex: 0 0 auto;
+      flex: 1;
       border: 1px solid rgba(var(--cyan-rgb), 0.35);
       background: var(--cyan-dim);
       color: var(--cyan);
@@ -1321,7 +1320,6 @@
     }
 
     .btn-mark-solved {
-      margin-left: auto; /* Keep completion and copy together on the right. */
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -2223,7 +2221,6 @@
     }
     .action-area { border-top-color: var(--tt-card-edge); background: rgba(240, 246, 241, .29); }
     html[data-theme="night"] .action-area { background: rgba(9, 18, 27, .25); }
-    .reveal-summary { padding: .84rem 1rem; border-radius: 10px; font-weight: 650; }
     .btn-reveal {
       border-radius: 10px;
       background: linear-gradient(180deg, #087a95, #075d73);
@@ -2304,10 +2301,8 @@
       }
 
       .btn-discussion,
-      .btn-mark-solved,
-      .btn-copy-recap {
+      .btn-mark-solved {
         width: 100%;
-        margin-left: 0;
       }
 
       .nav-bar {
