@@ -1,8 +1,9 @@
 import { initialState, command, view, advance, pauseOnDisconnect, GameError, PRESENCE_MS } from "./game.mjs";
-import { token, hash, same } from "./http.mjs";
+import { token, hash, same, supabaseRpc } from "./http.mjs";
 
-// Private Durable Object transport. No public Worker route may forward
-// /initialize or /ticket until the rollout owns quota and account checks.
+// Private Durable Object transport. Only the authenticated, quota-reserving
+// Worker gateway may forward requests here; the public live route is disabled
+// until its explicit rollout switch is set.
 // Its state belongs to one named game, not a globally shared multiplayer engine.
 const ROOM_MS = 6 * 60 * 60 * 1000;
 const TICKET_MS = 30 * 1000;
@@ -20,6 +21,34 @@ export class ForbiddenWordsLiveRoomBase {
   constructor(ctx, env) {
     this.ctx = ctx;
     this.env = env;
+    this.rpc = supabaseRpc(env);
+  }
+
+  // Only two metadata RPC calls per completed game, never per heartbeat.
+  async releaseFinishedReservation(room) {
+    if (room.game.phase !== "finished" || room.quotaReleased) return;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const row = await this.rpc("forbidden_words_read", { p_id: room.id });
+      if (!row || row.owner !== room.owner ||
+          row.state?.transport !== "durable" ||
+          row.state?.atlasSessionId !== room.game.atlasSessionId)
+        throw new GameError("Game reservation is missing.", 503);
+      if (row.state.phase === "finished") {
+        room.quotaReleased = true;
+        return;
+      }
+      const committed = await this.rpc("forbidden_words_commit", {
+        p_id: room.id,
+        p_revision: row.revision,
+        p_state: { ...row.state, phase: "finished" },
+        p_deadline: null,
+      });
+      if (committed) {
+        room.quotaReleased = true;
+        return;
+      }
+    }
+    throw new GameError("Game reservation is busy.", 503);
   }
 
   async load() {
@@ -34,6 +63,8 @@ export class ForbiddenWordsLiveRoomBase {
   async schedule(room, now) {
     const events = [room.expiresAt];
     const s = room.game;
+    if (s.phase === "finished" && !room.quotaReleased)
+      events.push(now + 30000);
     if (!s.paused && ["countdown", "active"].includes(s.phase)) {
       if (s.startsAt > now && s.phase === "countdown") events.push(s.startsAt);
       if (s.deadline > now) events.push(s.deadline);
@@ -75,7 +106,8 @@ export class ForbiddenWordsLiveRoomBase {
       const { pathname } = new URL(request.url);
       if (pathname === "/initialize" && request.method === "POST") {
         const input = await request.json();
-        if (!ROOM_OWNER_UUID.test(input.owner || "") || !CONTEXT.test(input.atlasSessionId || ""))
+        if (!ROOM_OWNER_UUID.test(input.owner || "") || !ROOM_OWNER_UUID.test(input.session || "") ||
+            !CONTEXT.test(input.atlasSessionId || ""))
           throw new GameError("Invalid tutor context.", 400);
         const present = await this.ctx.storage.get("room");
         if (present) {
@@ -87,7 +119,10 @@ export class ForbiddenWordsLiveRoomBase {
         const now = Date.now(), s = initialState(now);
         s.atlasSessionId = input.atlasSessionId;
         s.invite = token();
-        const room = { owner: input.owner, expiresAt: now + ROOM_MS, revision: 0, game: s };
+        const room = {
+          id: input.session, owner: input.owner, expiresAt: now + ROOM_MS,
+          quotaReleased: false, revision: 0, game: s,
+        };
         await this.ctx.storage.put("room", room);
         await this.schedule(room, now);
         return json({ ok: true, created: true });
@@ -127,9 +162,15 @@ export class ForbiddenWordsLiveRoomBase {
         const match = /^fw-ticket\.([0-9a-f]{64})$/.exec(subprotocol);
         if (!match) throw new GameError("Connection ticket required.", 401);
         const digest = await hash(match[1]), key = "ticket:" + digest;
-        const ticket = await this.ctx.storage.get(key);
-        if (!ticket || ticket.expiresAt <= Date.now()) throw new GameError("Connection ticket expired.", 403);
-        await this.ctx.storage.delete(key); // One-use even after hibernation/reconnect.
+        // Transactional consumption prevents two concurrent upgrades reusing a
+        // single ticket across event-handler awaits or after hibernation.
+        const ticket = await this.ctx.storage.transaction(async txn => {
+          const value = await txn.get(key);
+          if (!value || value.expiresAt <= Date.now()) return null;
+          await txn.delete(key);
+          return value;
+        });
+        if (!ticket) throw new GameError("Connection ticket expired.", 403);
         const room = await this.load();
         if (ticket.actor === "learner" && ticket.seat !== room.game.learnerHash)
           throw new GameError("This learner seat has been replaced.", 403);
@@ -148,7 +189,12 @@ export class ForbiddenWordsLiveRoomBase {
         room.game.seen[ticket.actor] = now;
         await this.persist(room, now);
         this.publish(room, now);
-        return new Response(null, { status: 101, webSocket: client });
+        return new Response(null, {
+          status: 101, webSocket: client,
+          // A browser will reject the upgrade unless one offered protocol
+          // is explicitly selected in the server handshake.
+          headers: { "Sec-WebSocket-Protocol": subprotocol },
+        });
       }
       throw new GameError("Not found.", 404);
     } catch (error) {
@@ -164,9 +210,13 @@ export class ForbiddenWordsLiveRoomBase {
       const input = JSON.parse(message);
       const auth = ws.deserializeAttachment();
       const room = await this.load();
-      if (!auth || (auth.actor === "learner" && auth.seat !== room.game.learnerHash))
+      if (ws.readyState !== 1 || !this.ctx.getWebSockets().includes(ws) ||
+          !auth || (auth.actor === "learner" && auth.seat !== room.game.learnerHash))
         throw new GameError("This seat is no longer valid.", 403);
       const now = Date.now();
+      // Establish an absence before a returning heartbeat can refresh seen[].
+      pauseOnDisconnect(room.game, now);
+      advance(room.game, now);
       if (input.action === "poll") {
         command(room.game, auth.actor, { action: "poll" }, now);
       } else {
@@ -175,7 +225,17 @@ export class ForbiddenWordsLiveRoomBase {
         if (input.action === "replace-learner" && !wasSeen) room.game.invite = token();
       }
       await this.persist(room, now);
-      this.publish(room, now);
+      if (input.action !== "poll") this.publish(room, now);
+      // Finished games relinquish one of the tutor's three room slots.
+      if (room.game.phase === "finished" && !room.quotaReleased) {
+        try {
+          await this.releaseFinishedReservation(room);
+          await this.persist(room, Date.now());
+        } catch {
+          // Alarm retries release. Gameplay completion is not rolled back.
+          await this.schedule(room, Date.now());
+        }
+      }
     } catch (error) {
       this.send(ws, { type: "error", error: error instanceof GameError ? error.message : "Invalid command." });
     }
@@ -191,16 +251,10 @@ export class ForbiddenWordsLiveRoomBase {
       other !== ws && other.readyState === 1 &&
       other.deserializeAttachment()?.actor === auth.actor)) return;
     const now = Date.now(), s = room.game;
-    if (["countdown", "active"].includes(s.phase) && !s.paused && now < s.deadline) {
-      s.paused = {
-        at: now, remaining: s.deadline - now,
-        countdown: Math.max(0, s.startsAt - now), reason: "connection",
-      };
-    } else {
-      // A completed deadline wins over a late close notification.
-      advance(s, now);
-    }
-    s.seen[auth.actor] = 0;
+    // Preserve the existing 12-second tolerance for a transient disconnect.
+    // The last verified heartbeat remains authoritative until the alarm.
+    pauseOnDisconnect(s, now);
+    advance(s, now);
     await this.persist(room, now);
     this.publish(room, now);
   }
@@ -224,6 +278,13 @@ export class ForbiddenWordsLiveRoomBase {
     }
     pauseOnDisconnect(room.game, now);
     advance(room.game, now);
+    if (room.game.phase === "finished" && !room.quotaReleased) {
+      try {
+        await this.releaseFinishedReservation(room);
+      } catch {
+        // Retry at the next alarm. Missing backend credentials fail closed.
+      }
+    }
     await this.persist(room, now);
     this.publish(room, now);
   }
