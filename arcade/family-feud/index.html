@@ -797,6 +797,8 @@
         inset 0 1px 2px #fff;
       transition: box-shadow 180ms ease, filter 180ms ease;
     }
+    /* Cover contestant layer overlaps the external base; let pointer events reach Start Match. */
+    .stage.entrance .console { pointer-events: none; }
     .stage.entrance .dock { display: none; }
     .stage.entrance .player-b { grid-column: 3; }
     @media (max-width: 899px) {
