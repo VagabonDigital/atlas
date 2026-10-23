@@ -23,7 +23,7 @@ Existing Arcade chrome, catalog, access/sign-in and scoped resource-share URL bu
 remain their existing owners. The learner page loads no tutor workspace/navigation code.
 The generic resource share grant is not treated as session authorization.
 
-## Live-room backend (Batch 2, not deployed)
+## Live-room backend (Batches 2–3, not deployed)
 
 The backend source now includes `ForbiddenWordsLiveRoom`, generated into the
 existing `shared/worker.js` and configured as a SQLite-backed Durable Object
