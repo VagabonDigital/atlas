@@ -651,6 +651,32 @@
         margin-bottom: clamp(17px, 2.3dvh, 24px);
       }
     }
+    #new-match {
+      opacity: .78;
+      background: transparent;
+      border-color: transparent;
+      color: #42243c;
+    }
+    #new-match:hover { opacity: 1; background: #fff4e4; }
+    #new-match-dialog {
+      width: min(420px, calc(100vw - 32px));
+      padding: 25px;
+      border: 1px solid #bd9a86;
+      border-radius: 20px;
+      background: #fff7ea;
+      color: #32132e;
+      box-shadow: 0 24px 70px #26132377;
+    }
+    #new-match-dialog::backdrop { background: #231326a8; }
+    #new-match-dialog h2 { margin: 0 0 12px; font-size: 24px; }
+    #new-match-dialog p { font-size: 15px; line-height: 1.5; margin: 0 0 18px; }
+    #new-match-dialog .dialog-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+    #new-match-dialog .dialog-actions button { min-height: 42px; }
+    @media (max-width: 560px) {
+      #game-chrome .small-brand { display: none; }
+      #game-utilities { gap: 4px; }
+      #new-match, #sound { padding-inline: 8px; font-size: 11px; }
+    }
     @media (max-width: 700px) {
       .stage.entrance .board { margin-bottom: 8px; }
       .stage.entrance .cover-meta {
@@ -662,7 +688,7 @@
 </head>
 <body>
   <div id="landing-chrome"></div>
-  <header id="game-chrome" hidden><div id="return-slot"></div><span class="small-brand">FAMILY FEUD</span><div id="game-utilities"></div></header>
+  <header id="game-chrome" hidden><div id="return-slot"></div><span class="small-brand">FAMILY FEUD</span><div id="game-utilities"><button id="new-match" class="arcade-game-chrome-utility" type="button" hidden>New Match</button></div></header>
   <button id="sound" class="sound arcade-game-chrome-utility" type="button" aria-label="Sound" aria-pressed="false">Sound off</button>
   <div class="arena" aria-hidden="true"><div class="sky"></div><div class="architecture"><i></i><i></i><i></i><i></i></div><div class="garden left"></div><div class="garden right"></div><div id="crowd" class="crowd"></div><div class="floor"></div></div>
   <main id="stage" class="stage entrance">
@@ -678,6 +704,14 @@
       <div id="player-1" class="contestant player-b"></div>
     </section>
   </main>
+  <dialog id="new-match-dialog" aria-labelledby="new-match-title" aria-describedby="new-match-description">
+    <h2 id="new-match-title">Start a new match?</h2>
+    <p id="new-match-description">This abandons the current three-round match and starts a new one. Current scores and revealed answers will be lost. Your previously seen boards stay recorded.</p>
+    <div class="dialog-actions">
+      <button id="cancel-new-match" type="button" class="secondary">Keep playing</button>
+      <button id="confirm-new-match" type="button" class="primary">Start New Match</button>
+    </div>
+  </dialog>
   <div id="atlas-session-panel-root"></div>
   <script src="../../shared/atlas-bridge.js"></script>
   <script src="../../shared/atlas-session-panel.js"></script>
