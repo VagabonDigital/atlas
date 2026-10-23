@@ -38,9 +38,12 @@ export class ForbiddenWordsLiveClient {
       cache: "no-store",
       signal: AbortSignal.timeout(10000),
     });
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
     if (!response.ok) {
-      const error = new Error(data.error || "Could not reach the live game.");
+      const message = response.status === 404
+        ? "Live rooms are not enabled yet. Start a regular game instead."
+        : data.error || "Could not reach the live game.";
+      const error = new Error(message);
       error.status = response.status;
       throw error;
     }
@@ -50,7 +53,8 @@ export class ForbiddenWordsLiveClient {
     return this.post("create", payload);
   }
   connect() {
-    if (this.closed || this.connecting || this.connected) return;
+    if (this.closed || this.connecting || this.connected ||
+        (this.socket && this.socket.readyState <= 1)) return;
     this.connecting = true;
     this.startConnection().catch(error => this.connectionFailed(error))
       .finally(() => { this.connecting = false; });
