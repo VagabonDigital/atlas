@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
-import { boards } from '../content.mjs';
+import { boards,legacyBoards } from '../content.mjs';
 import * as engine from '../engine.mjs';
 
 // Verify the actual app module with deterministic browser and AtlasBridge fakes.
@@ -49,7 +49,7 @@ function fixture() {
       }
     };
     const context = {
-      boards, ...engine,
+      boards, legacyBoards, ...engine,
       window: {
         AtlasBridge: bridge, AtlasAnalytics: { arcadeGameStart() {} },
         ArcadeGameChrome: { mountLanding() {}, mountGame() {} },
@@ -87,8 +87,22 @@ function fixture() {
       }
     };
   }
-  return { launch, state: session => registry.sessionStates[session]?.['arcade:family-feud'],
-    recent: () => registry.recentActivity };
+  return {
+    launch,
+    state: session => registry.sessionStates[session]?.['arcade:family-feud'],
+    recent: () => registry.recentActivity,
+    seedLegacyMatch(session='learner-a') {
+      registry.sessionStates[session] = { 'arcade:family-feud': {
+        status: 'in-progress',
+        familyFeud: {
+          version: 1,boardIds:legacyBoards.slice(0,3).map(b=>b.id),
+          round:0,starter:0,active:0,scores:[0,0],contribution:[0,0],
+          strikes:[0,0],revealed:Array(6).fill(null),phase:'playing',
+          names:['Player 1','Alice']
+        }
+      }};
+    }
+  };
 }
 
 test('sound defaults off and remembers enabled and disabled choices across reloads', () => {
@@ -158,4 +172,21 @@ test('Family Feud snapshots restore across reload, remain learner-specific, and 
   assert.equal(page.game.state, null);
   await page.game.start();
   assert.equal(f.state('learner-a').status, 'in-progress');
+});
+
+
+test('a newly started match uses only sourced Season 26 boards',async()=>{
+  const f=fixture(),page=f.launch();
+  await page.game.start();
+  assert.equal(page.game.state.boards.length,3);
+  assert.equal(page.game.state.boards.every(b=>b.kind==='season26'),true);
+});
+
+test('previously saved illustrative matches still restore and continue',async()=>{
+  const f=fixture();f.seedLegacyMatch();
+  const page=f.launch();
+  assert.equal(page.game.state.boards.map(b=>b.id).join(','),legacyBoards.slice(0,3).map(b=>b.id).join(','));
+  await page.answer('house keys');
+  assert.equal(f.state('learner-a').familyFeud.scores.reduce((a,b)=>a+b,0),34);
+  assert.equal(f.state('learner-a').familyFeud.revealed[0].owner,0);
 });
