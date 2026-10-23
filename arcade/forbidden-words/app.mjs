@@ -548,11 +548,11 @@ function between(s) {
     finished = s.phase === "finished";
   const ready = s.ready.includes(s.actor);
   return `${learnerHeader(s)}<section class="between"><div class="results-deck">${deck}</div><div class="result-panel panel ${switching ? "switch-panel" : ""}"><p class="eyebrow">${finished ? "THANKS FOR PLAYING" : switching ? "TIME’S UP · SWAP ROLES" : "TWO VOICES. ONE GREAT ROUND."}</p>
-    <h1>${finished ? "Keep the conversation going." : switching ? (s.role === "Describer" ? "Your turn to describe." : "Your turn to guess.") : "Look what you cleared."}</h1>
+    <h1>${finished ? "That’s a wrap!" : switching ? (s.role === "Describer" ? "Your turn to describe." : "Your turn to guess.") : "Look what you cleared."}</h1>
     <div class="result-score"><strong>${s.score}</strong><span>shared ${s.score === 1 ? "point" : "points"}${switching ? " so far" : ""}</span></div>
     ${s.best !== null ? `<p class="best">Session best <strong>${s.best}</strong>${!switching && s.score === s.best ? " ✦" : ""}</p>` : ""}
     ${s.finalCard && !finished ? `<div class="final-card"><span>At the horn</span><strong>${escape(s.finalCard.target)}</strong>${s.finalCard.credited ? "<small>✓ Credited</small>" : s.canCredit ? button("late-correct", "They said it before the horn · +1", "text-button") : ""}</div>` : ""}
-    ${switching ? `<p class="switch-copy">${ready ? "Waiting for your partner to get ready." : "Take a breath. Both of you tap ready to begin."}</p><div class="switch-actions">${button("ready", ready ? "✓ Ready" : "I’m ready", "primary", ready)}${!learner ? button("finish", "End game", "secondary end-game-button") : ""}</div>` : finished ? `<p>Your lesson call stays open. Take those new ways of saying things with you.</p>${!learner ? button("new-session", "Start a new game", "primary") : ""}` : `<div class="result-actions">${!learner ? button("replay", "▶ Play Another Round", "primary", !s.connected.learner) + button("finish", "End game", "secondary end-game-button") : "<p>Your partner can start another round or finish.</p>"}</div>`}
+    ${switching ? `<p class="switch-copy">${ready ? "Waiting for your partner to get ready." : "Take a breath. Both of you tap ready to begin."}</p><div class="switch-actions">${button("ready", ready ? "✓ Ready" : "I’m ready", "primary", ready)}${!learner ? button("finish", "End game", "secondary end-game-button") : ""}</div>` : finished ? (!learner ? button("new-session", "Start a new game", "primary") : "") : `<div class="result-actions">${!learner ? button("replay", "▶ Play Another Round", "primary", !s.connected.learner) + button("finish", "End game", "secondary end-game-button") : "<p>Your partner can start another round or finish.</p>"}</div>`}
     ${!switching && s.review.length ? `<details class="review"><summary>Talk through ${s.review.length} unresolved ${s.review.length === 1 ? "card" : "cards"} <span>Optional</span></summary><div>${s.review.map((c) => `<article><strong>${escape(c.target)}</strong><small>${c.result === "oops" ? "Oops" : c.result === "skip" ? "Skipped" : "At the horn"}</small><p>${c.forbidden.map(escape).join(" · ")}</p></article>`).join("")}</div></details>` : ""}
     ${!learner && switching ? `<div class="switch-maintenance">${button("replace-learner", "Reset invitation", "text-button small")}${!s.connected.learner || replacementReady() ? invitationLink() : ""}</div>` : ""}</div></section>`;
 }
@@ -902,6 +902,15 @@ function schedulePoll() {
   pollTimer = setTimeout(poll, state?.phase === "finished" ? 3000 : retryDelay);
 }
 function showEntryError(error) {
+  // A claimed invitation cannot open another learner seat in a new browser.
+  // Keep that restriction, but explain the recovery path without server jargon.
+  const claimedInvitation =
+    learner &&
+    error.status === 403 &&
+    error.message === "This learner seat is already in use. Ask your tutor for a replacement link.";
+  const message = claimedInvitation
+    ? "This invitation has already been used. If you can't get back into the game, ask your tutor for a new link."
+    : error.message;
   state = null;
   lastKey = "";
   lastNonce = null;
@@ -909,7 +918,7 @@ function showEntryError(error) {
   failed = true;
   clearTimeout(pollTimer);
   document.documentElement.style.setProperty("--heat", "0");
-  app.innerHTML = `<section class="entry-error panel">${brand}<h1>Let’s get you connected.</h1><p>${escape(error.message)}</p>${button("retry", "Try again", "primary")}${!learner && owner ? button("new-session", "Create a fresh game", "text-button") : ""}</section>`;
+  app.innerHTML = `<section class="entry-error panel">${brand}<h1>Let’s get you connected.</h1><p>${escape(message)}</p>${claimedInvitation ? "" : button("retry", "Try again", "primary")}${!learner && owner ? button("new-session", "Create a fresh game", "text-button") : ""}</section>`;
   notify("");
 }
 async function poll() {
