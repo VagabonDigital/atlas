@@ -203,7 +203,7 @@ try {
           "Content-Type": "application/json",
           Authorization: "Bearer verified-tutor",
         },
-        body: JSON.stringify({ session, action: "poll" }),
+        body: JSON.stringify({ session, action: "poll", atlasSessionId: "session-default" }),
       }),
       workerEnv,
     );
