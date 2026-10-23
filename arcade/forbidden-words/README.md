@@ -93,9 +93,9 @@ six hours). Different browsers do not share these local bookmarks; a future
 cross-device room discovery feature would need a separate authenticated
 server lookup.
 
-The backend continues to accept previously unbound rooms for compatibility,
-but the game presents no legacy-game migration or recovery UI. New games
-are scoped to the selected learner from the outset.
+Every new room requires a valid Atlas learner ID at creation, and the backend
+rejects unassigned older rooms rather than silently linking them to a learner.
+The obsolete one-time legacy binding command and its recovery UI are retired.
 
 The existing server quota (three unfinished rooms per owner) still applies;
 switching learners alone never consumes a room. Account ownership/authorisation,
