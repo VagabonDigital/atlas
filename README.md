@@ -182,7 +182,31 @@ browser-shared runtime, and is explicitly excluded from the static asset deploym
 
 It owns provider credentials, authenticated Atlas account verification, AI abuse guardrails, Paddle webhooks/customer-portal operations and server-side external-provider requests.
 
-**The repository currently contains no GitHub Actions workflow that deploys this backend Worker.** Do not assume that editing backend source makes the production `atlas-ai` Worker current. Before a manual Cloudflare deployment, run `npm run build:atlas-ai-worker`, then copy the complete contents of `shared/worker.js` into the existing `atlas-ai` Worker and deploy without changing its existing bindings, variables or secrets. `npm run verify` fails if the generated Forbidden Words section is stale.
+**Backend deployment configuration (prepared, not activated):** `wrangler.atlas-ai.jsonc`
+describes the **existing** `atlas-ai` Worker and its `shared/worker.js` source.
+It preserves the verified production compatibility date (`2026-08-07`), no
+compatibility flags, the existing `ATLAS_FEEDBACK` KV binding to
+`atlas-feedback`, and the `workers.dev` endpoint. `keep_vars: true` leaves
+dashboard-managed plaintext variables in place; encrypted secrets remain in
+Cloudflare and are not copied into source control. Never put secret values
+in this file. The config is excluded from the public static asset deployment
+through `.assetsignore`.
+
+**Verification-only, without a Cloudflare deployment:**
+
+```sh
+npm run build:atlas-ai-worker
+npx --yes wrangler@4 deploy --config wrangler.atlas-ai.jsonc --dry-run
+npm run verify
+```
+
+Do not change the Cloudflare dashboard's `atlas-ai` bindings or deploy the Worker
+as part of this configuration-only step. Future Worker deployments must first
+reconcile the current dashboard bindings/variables and explicitly use
+`wrangler.atlas-ai.jsonc`; no backend auto-deployment workflow exists.
+The live-room Durable Object class and binding are a **later** implementation batch.
+
+**The repository currently contains no GitHub Actions workflow that deploys this backend Worker.** Do not assume that editing backend source makes the production `atlas-ai` Worker current. The existing Cloudflare dashboard code-editor workflow remains available until a controlled CLI cutover is explicitly approved. Before any backend deployment, run `npm run build:atlas-ai-worker` and `npm run verify`; deployment of the complete source must preserve existing bindings, variables and secrets. The Wrangler dry-run step checks the future CLI bundle **without deploying it**.
 
 The physical location/name of `shared/worker.js` is historical and may be improved in a future backend-architecture pass. Do not move it as routine repository hygiene.
 

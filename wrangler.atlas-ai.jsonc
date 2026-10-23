@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "atlas-ai",
+  "main": "shared/worker.js",
+  "compatibility_date": "2026-08-07",
+  "workers_dev": true,
+  "keep_vars": true,
+  "kv_namespaces": [
+    {
+      "binding": "ATLAS_FEEDBACK",
+      "id": "0474a2ba75d746c49e7292f0139b3752"
+    }
+  ]
+}

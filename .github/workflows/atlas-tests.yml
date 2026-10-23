@@ -22,6 +22,10 @@ jobs:
           node-version: 22
       - name: Run Atlas verification
         run: npm run verify
+      - name: Dry-run existing atlas-ai backend build (never deploy)
+        run: |
+          grep -Fxq 'wrangler.atlas-ai.jsonc' .assetsignore
+          npx --yes wrangler@4 deploy --config wrangler.atlas-ai.jsonc --dry-run --outdir /tmp/atlas-ai-dry-run
       - name: Verify Family Feud game rules and Atlas continuity
         run: |
           node --test arcade/family-feud/dev/rules.test.mjs arcade/family-feud/dev/continuity.test.mjs
