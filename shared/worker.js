@@ -1254,6 +1254,7 @@ const handleForbiddenWords = (() => {
         startsAt: null,
         late: null,
         learnerHash: null,
+        atlasSessionId: null,
         seen: { tutor: now, learner: 0 },
         receipts: [],
         rate: {},
@@ -1339,7 +1340,16 @@ const handleForbiddenWords = (() => {
         "The game has moved to another turn. Please try again.",
       );
       const tutor = actor === "tutor";
-      if (action === "theme") {
+      if (action === "bind-learner") {
+        requireThat(tutor && !s.atlasSessionId, "This game already belongs to an Atlas learner.", 409);
+        requireThat(
+          typeof input.atlasSessionId === "string" &&
+            /^[a-zA-Z0-9_-]{1,160}$/.test(input.atlasSessionId),
+          "Invalid Atlas learner context.",
+          400,
+        );
+        s.atlasSessionId = input.atlasSessionId;
+      } else if (action === "theme") {
         requireThat(tutor, "Only the tutor can change the game theme.", 403);
         requireThat(
           input.theme === "light" || input.theme === "night",
@@ -1373,12 +1383,16 @@ const handleForbiddenWords = (() => {
         s.paused = null;
       } else if (action === "finish") {
         requireThat(
-          tutor && ["waiting", "switch", "results"].includes(s.phase),
-          "Finish between turns or rounds.",
+          tutor &&
+            (["waiting", "switch", "results"].includes(s.phase) ||
+              (["active", "countdown"].includes(s.phase) && !!s.paused)),
+          "End the game while waiting, between rounds, or after pausing the turn.",
         );
         s.phase = "finished";
         s.card = null;
         s.paused = null;
+        s.late = null;
+        s.ready = [];
       } else {
         requireThat(!s.paused, "The tutor has paused the game.");
         if (action === "start" || action === "replay") {
@@ -1496,6 +1510,7 @@ const handleForbiddenWords = (() => {
           s.phase !== "finished" && s.late.describer === actor && !s.late.credited;
         result.finalNonce = s.late.nonce;
       }
+      if (actor === "tutor") result.atlasSessionId = s.atlasSessionId || null;
       if (["results", "finished"].includes(s.phase)) {
         result.review = s.history
           .filter((x) => x.result !== "correct")
@@ -1655,10 +1670,17 @@ const handleForbiddenWords = (() => {
         } else if (!TOKEN.test(body.credential))
           throw new GameError("Invalid learner credential.", 403);
         const credentialHash = learner ? await hash(body.credential) : null;
+        const atlasSessionId = typeof body.atlasSessionId === "string"
+          ? body.atlasSessionId
+          : null;
+        if (!learner && atlasSessionId !== null &&
+            !/^[a-zA-Z0-9_-]{1,160}$/.test(atlasSessionId))
+          throw new GameError("Invalid Atlas learner context.", 400);
         if (route === "create") {
           if (learner) throw new GameError("Only a tutor can create a game.", 403);
           const state = initialState(0);
           state.theme = body.theme === "night" ? "night" : "light";
+          state.atlasSessionId = atlasSessionId;
           state.invite = token();
           await rpc("forbidden_words_create", {
             p_id: body.session,
@@ -1699,6 +1721,17 @@ const handleForbiddenWords = (() => {
             }
           } else if (row.owner !== owner)
             throw new GameError("This game belongs to another tutor.", 403);
+          if (!learner && s.atlasSessionId && s.atlasSessionId !== atlasSessionId)
+            throw new GameError(
+              "This room belongs to a different Atlas learner. Return to that learner to continue.",
+              409,
+            );
+          if (!learner && !s.atlasSessionId && atlasSessionId &&
+              route !== "create" && body.action !== "bind-learner")
+            throw new GameError(
+              "This older room must be explicitly linked to an Atlas learner first.",
+              409,
+            );
           const input =
             route === "create" || body.action === "join"
               ? { action: "poll" }
