@@ -132,11 +132,15 @@ test('Family Feud snapshots restore across reload, remain learner-specific, and 
   assert.equal(page.game.state, null);
   assert.equal(page.coverLabel(), 'Start Match');
   await page.game.start();
-  assert.equal(f.state('learner-a').status, 'in-progress');
-  assert.equal(f.state('learner-a').progress.covered, 1);
+  assert.equal(f.state('learner-a').status, 'available');
+  assert.equal(f.state('learner-a').progress.covered, 0);
+  assert.equal(f.recent().length,0);
   const firstBoard = page.game.state.boards[0].id;
   const concept = page.game.state.boards[0].concepts[0];
   await page.answer(concept.label);
+  assert.equal(f.state('learner-a').status, 'in-progress');
+  assert.equal(f.state('learner-a').progress.covered, 1);
+  assert.equal(f.recent().length,1);
   assert.equal(f.state('learner-a').familyFeud.scores.reduce((x, y) => x + y), concept.value);
   page = f.launch();
   assert.equal(page.coverLabel(), 'Continue Match');
@@ -153,7 +157,7 @@ test('Family Feud snapshots restore across reload, remain learner-specific, and 
   page.switchTo('learner-b');
   assert.equal(page.game.state, null);
   await page.game.start();
-  assert.equal(f.state('learner-b').status, 'in-progress');
+  assert.equal(f.state('learner-b').status, 'available');
   page.switchTo('learner-a');
   assert.equal(page.coverLabel(), 'Continue Match');
   assert.equal(page.game.state.boards[0].id, firstBoard);
@@ -190,7 +194,7 @@ test('Family Feud snapshots restore across reload, remain learner-specific, and 
   page = f.launch();
   assert.equal(page.game.state, null);
   await page.game.start();
-  assert.equal(f.state('learner-a').status, 'in-progress');
+  assert.equal(f.state('learner-a').status, 'available');
 });
 
 
@@ -246,7 +250,8 @@ test('New Match requires confirmation and preserves seen boards and other learne
   assert.equal(page.game.state.phase, 'playing');
   assert.deepEqual(page.game.state.scores, [0, 0]);
   assert.deepEqual(page.game.state.revealed, Array(6).fill(null));
-  assert.equal(f.state('learner-a').status, 'in-progress');
+  assert.equal(f.state('learner-a').status, 'available');
+  assert.equal(f.state('learner-a').progress.covered, 0);
   assert.equal(f.state('learner-a').familyFeud.round, 0);
   assert.ok(f.seen().includes(openingBoard));
   assert.ok(recorded.every(id => f.seen().includes(id)));
