@@ -1,0 +1,2095 @@
+[
+  {
+    "id": 1,
+    "question": "Name something that some people jump into and others ease into.",
+    "total_points": 100,
+    "answers": [
+      { "answer": "POOL/WATER", "points": 69 },
+      { "answer": "RELATIONSHIP/SEX", "points": 22 },
+      { "answer": "BED/FURNITURE", "points": 3 },
+      { "answer": "CAR", "points": 2 },
+      { "answer": "NEW JOB", "points": 2 },
+      { "answer": "GOOD BOOK", "points": 2 }
+    ]
+  },
+  {
+    "id": 2,
+    "question": "Name something you'd hate to have happen while you're making love in the backyard.",
+    "total_points": 100,
+    "answers": [
+      { "answer": "CAUGHT/BY SPOUSE", "points": 61 },
+      { "answer": "STORM/HAIL", "points": 18 },
+      { "answer": "ANIMAL/BEE ATTACK", "points": 12 },
+      { "answer": "SPRINKLERS START", "points": 5 },
+      { "answer": "ROLL IN POOP", "points": 2 },
+      { "answer": "LIGHTS TURN ON", "points": 2 }
+    ]
+  },
+  {
+    "id": 3,
+    "question": "Name a word or phrase that describes how eggs are prepared that also describes you.",
+    "total_points": 100,
+    "answers": [
+      { "answer": "SCRAMBLED", "points": 47 },
+      { "answer": "OVER EASY", "points": 19 },
+      { "answer": "BOILED/HARD-BOILED", "points": 14 },
+      { "answer": "SUNNY-SIDE UP", "points": 11 },
+      { "answer": "DEVILED", "points": 7 },
+      { "answer": "FRIED", "points": 2 }
+    ]
+  },
+  {
+    "id": 4,
+    "question": "Name a musical instrument a person plays that would give them strong, kissable lips.",
+    "total_points": 100,
+    "answers": [
+      { "answer": "TRUMPET", "points": 45 },
+      { "answer": "TUBA", "points": 17 },
+      { "answer": "FLUTE", "points": 16 },
+      { "answer": "SAX", "points": 15 },
+      { "answer": "TROMBONE", "points": 5 },
+      { "answer": "FRENCH HORN", "points": 2 }
+    ]
+  },
+  {
+    "id": 5,
+    "question": "We asked 100 women... I'd love to move some of the fat from my belly to my what?",
+    "total_points": 100,
+    "answers": [
+      { "answer": "BOOBS", "points": 42 },
+      { "answer": "BADONKADONK", "points": 40 },
+      { "answer": "SUNKEN FACE", "points": 9 },
+      { "answer": "TRASH CAN", "points": 4 },
+      { "answer": "ENEMY'S BODY", "points": 3 },
+      { "answer": "LEGS/CALVES", "points": 2 }
+    ]
+  },
+  {
+    "id": 6,
+    "question": "We asked 100 married men... Name something your wife does in bed that Sleeping Beauty wouldn't have.",
+    "total_points": 100,
+    "answers": [
+      { "answer": "SNORE", "points": 40 },
+      { "answer": "WATCH TV", "points": 22 },
+      { "answer": "READ", "points": 19 },
+      { "answer": "WEAR SOCKS", "points": 9 },
+      { "answer": "DROOL", "points": 8 },
+      { "answer": "STUFF HER FACE", "points": 2 }
+    ]
+  },
+  {
+    "id": 7,
+    "question": "Name something Steve Harvey and Mr. Clean have in common.",
+    "total_points": 99,
+    "answers": [
+      { "answer": "SHINY BALD HEADS", "points": 77 },
+      { "answer": "THEY'RE MEN", "points": 8 },
+      { "answer": "THEY'RE FAMOUS", "points": 7 },
+      { "answer": "CUTE/SMILES", "points": 3 },
+      { "answer": "MUSCULAR BUILD", "points": 2 },
+      { "answer": "THEY'RE CLEAN", "points": 2 }
+    ]
+  },
+  {
+    "id": 8,
+    "question": "Instead of leaving her shoe at the ball, today's Cinderella might leave her what?",
+    "total_points": 99,
+    "answers": [
+      { "answer": "PHONE", "points": 60 },
+      { "answer": "THONG/CLOTHES", "points": 23 },
+      { "answer": "CARD/NUMBER", "points": 6 },
+      { "answer": "JEWELRY/BRACELET", "points": 4 },
+      { "answer": "PURSE/WALLET", "points": 4 },
+      { "answer": "TESLA/KEYS", "points": 2 }
+    ]
+  },
+  {
+    "id": 9,
+    "question": "Name something a baseball player does on the field that would be unacceptable in church.",
+    "total_points": 99,
+    "answers": [
+      { "answer": "SPIT/CHEW", "points": 53 },
+      { "answer": "ADJUST/SCRATCH", "points": 26 },
+      { "answer": "CUSS", "points": 10 },
+      { "answer": "PLAY BALL/SLIDE", "points": 6 },
+      { "answer": "TAP/THROW BAT", "points": 2 },
+      { "answer": "WEAR A HAT", "points": 2 }
+    ]
+  },
+  {
+    "id": 10,
+    "question": "Give me a word that rhymes with \"curdle.\"",
+    "total_points": 99,
+    "answers": [
+      { "answer": "HURDLE/HURTLE", "points": 49 },
+      { "answer": "GIRDLE", "points": 26 },
+      { "answer": "TURTLE", "points": 12 },
+      { "answer": "MYRTLE", "points": 5 },
+      { "answer": "WORDLE", "points": 4 },
+      { "answer": "FERTILE", "points": 3 }
+    ]
+  },
+  {
+    "id": 11,
+    "question": "We asked 100 married women... You wish you could cover your husband from pits to toes in Old Spice Total Body Deodorant after what?",
+    "total_points": 99,
+    "answers": [
+      { "answer": "EXERCISE/SPORTS", "points": 34 },
+      { "answer": "WHOOPEE", "points": 18 },
+      { "answer": "WORK", "points": 17 },
+      { "answer": "HIS SHOWER", "points": 14 },
+      { "answer": "YARD WORK", "points": 12 },
+      { "answer": "CAMPING TRIP", "points": 4 }
+    ]
+  },
+  {
+    "id": 12,
+    "question": "Name something that would be hard to do if you had just one lip instead of two.",
+    "total_points": 99,
+    "answers": [
+      { "answer": "EAT/DRINK/STRAW", "points": 32 },
+      { "answer": "KISS", "points": 31 },
+      { "answer": "WHISTLE", "points": 18 },
+      { "answer": "TALK", "points": 14 },
+      { "answer": "PLAY INSTRUMENT", "points": 2 },
+      { "answer": "SMILE", "points": 2 }
+    ]
+  },
+  {
+    "id": 13,
+    "question": "Name something a bank robber does not want to see when he runs into a bank.",
+    "total_points": 98,
+    "answers": [
+      { "answer": "COPS/GUARD", "points": 86 },
+      { "answer": "CAMERAS", "points": 3 },
+      { "answer": "NO TELLERS/\"BE BACK\"", "points": 3 },
+      { "answer": "HIS SPOUSE/MATE", "points": 2 },
+      { "answer": "HIS PARENTS", "points": 2 },
+      { "answer": "COMPETING ROBBER", "points": 2 }
+    ]
+  },
+  {
+    "id": 14,
+    "question": "Name something specific you'd need to impersonate Mary Poppins.",
+    "total_points": 98,
+    "answers": [
+      { "answer": "UMBRELLA", "points": 78 },
+      { "answer": "BAG", "points": 5 },
+      { "answer": "HAT", "points": 5 },
+      { "answer": "DRESS/SKIRT", "points": 4 },
+      { "answer": "BRITISH ACCENT", "points": 4 },
+      { "answer": "SINGING TALENT", "points": 2 }
+    ]
+  },
+  {
+    "id": 15,
+    "question": "Name something a preacher might buy that could make the congregation wonder where all their donations are going.",
+    "total_points": 98,
+    "answers": [
+      { "answer": "CORVETTE", "points": 68 },
+      { "answer": "MANSION", "points": 19 },
+      { "answer": "YACHT", "points": 4 },
+      { "answer": "JET", "points": 3 },
+      { "answer": "PORN", "points": 2 },
+      { "answer": "ROLEX", "points": 2 }
+    ]
+  },
+  {
+    "id": 16,
+    "question": "Name something a guy does when he walks past a beautiful woman.",
+    "total_points": 98,
+    "answers": [
+      { "answer": "TURNS & GAWKS", "points": 68 },
+      { "answer": "WHISTLES", "points": 17 },
+      { "answer": "SMILES", "points": 6 },
+      { "answer": "KEEPS GOING/IGNORES", "points": 3 },
+      { "answer": "DOPEY COMMENT", "points": 2 },
+      { "answer": "WINKS", "points": 2 }
+    ]
+  },
+  {
+    "id": 17,
+    "question": "Linda told her man, \"Pretend I'm ice cream and cover me with\" what?",
+    "total_points": 98,
+    "answers": [
+      { "answer": "CHOCOLATE/HOT FUDGE", "points": 62 },
+      { "answer": "WHIPPED CREAM", "points": 20 },
+      { "answer": "SPRINKLES", "points": 7 },
+      { "answer": "CARAMEL", "points": 4 },
+      { "answer": "NUTS", "points": 3 },
+      { "answer": "YOUR MOUTH", "points": 2 }
+    ]
+  },
+  {
+    "id": 18,
+    "question": "We asked 100 women... Name a reason you might not be able to run your fingers through a man's hair.",
+    "total_points": 98,
+    "answers": [
+      { "answer": "HE'S BALD", "points": 61 },
+      { "answer": "IT'S TOO SHORT", "points": 12 },
+      { "answer": "GREASE/PRODUCT", "points": 12 },
+      { "answer": "MATTED", "points": 8 },
+      { "answer": "HE DOESN'T WANT IT", "points": 3 },
+      { "answer": "LOTTA DANDRUFF", "points": 2 }
+    ]
+  },
+  {
+    "id": 19,
+    "question": "Tell me a kind of flower that a lot of grandmas have as a first name.",
+    "total_points": 98,
+    "answers": [
+      { "answer": "ROSE", "points": 58 },
+      { "answer": "DAISY", "points": 13 },
+      { "answer": "LILY", "points": 12 },
+      { "answer": "VIOLET", "points": 6 },
+      { "answer": "IRIS", "points": 6 },
+      { "answer": "PETUNIA", "points": 3 }
+    ]
+  },
+  {
+    "id": 20,
+    "question": "We asked 100 married men... I'm in a twelve-step program. I take twelve steps away from my angry wife when we argue about what?",
+    "total_points": 98,
+    "answers": [
+      { "answer": "MONEY", "points": 54 },
+      { "answer": "CHORES", "points": 11 },
+      { "answer": "SEX", "points": 10 },
+      { "answer": "POLITICS", "points": 9 },
+      { "answer": "BOOZING", "points": 9 },
+      { "answer": "EACH OTHER'S PARENTS", "points": 5 }
+    ]
+  },
+  {
+    "id": 21,
+    "question": "Name a reason why coworkers would keep moving out of the cubicle next to you.",
+    "total_points": 98,
+    "answers": [
+      { "answer": "I STINK", "points": 52 },
+      { "answer": "LOUD/CHATTY", "points": 32 },
+      { "answer": "I'M RUDE/MEAN", "points": 5 },
+      { "answer": "THEY GET FIRED", "points": 5 },
+      { "answer": "I EAT GROSS FOOD", "points": 2 },
+      { "answer": "I'M MESSY", "points": 2 }
+    ]
+  },
+  {
+    "id": 22,
+    "question": "We asked 100 married men... Your wife just asked you to put on something sexy. What do you put on?",
+    "total_points": 98,
+    "answers": [
+      { "answer": "MY UNDIES/A THONG", "points": 52 },
+      { "answer": "BIRTHDAY SUIT", "points": 20 },
+      { "answer": "HER PANTIES", "points": 9 },
+      { "answer": "COLOGNE", "points": 9 },
+      { "answer": "JOCKSTRAP", "points": 5 },
+      { "answer": "A SEDUCTIVE SMILE", "points": 3 }
+    ]
+  },
+  {
+    "id": 23,
+    "question": "We asked 100 single women... Your best friend's billionaire boyfriend just hit on you. What do you do?",
+    "total_points": 98,
+    "answers": [
+      { "answer": "TELL BFF", "points": 46 },
+      { "answer": "GO FOR IT!", "points": 18 },
+      { "answer": "SAY NO/LEAVE", "points": 15 },
+      { "answer": "MENTION HIS GIRLFRIEND", "points": 11 },
+      { "answer": "BLACKMAIL/TAKE $", "points": 5 },
+      { "answer": "TELL HIM OFF", "points": 3 }
+    ]
+  },
+  {
+    "id": 24,
+    "question": "Name something you do with your eyes to flirt with someone.",
+    "total_points": 98,
+    "answers": [
+      { "answer": "WINK", "points": 45 },
+      { "answer": "BAT THEM", "points": 38 },
+      { "answer": "STARE/EYE CONTACT", "points": 8 },
+      { "answer": "RAISE EYEBROWS", "points": 3 },
+      { "answer": "OPEN WIDE", "points": 2 },
+      { "answer": "SQUINT", "points": 2 }
+    ]
+  },
+  {
+    "id": 25,
+    "question": "At the nursing home, grandma flirts by flashing her what at the men?",
+    "total_points": 98,
+    "answers": [
+      { "answer": "SMILE/3 TEETH", "points": 45 },
+      { "answer": "TA-TAS/LADY BITS", "points": 34 },
+      { "answer": "LEGS/ANKLES", "points": 11 },
+      { "answer": "CHECKBOOK", "points": 4 },
+      { "answer": "EYELASHES", "points": 2 },
+      { "answer": "BLOOMERS/LINGERIE", "points": 2 }
+    ]
+  },
+  {
+    "id": 26,
+    "question": "When you walk into a hospital, what might you see on the floor that would make you walk back out?",
+    "total_points": 98,
+    "answers": [
+      { "answer": "BLOOD", "points": 45 },
+      { "answer": "A BODY/AN ARM", "points": 27 },
+      { "answer": "BARF", "points": 12 },
+      { "answer": "PEE/POO", "points": 6 },
+      { "answer": "ROACHES/CRITTERS", "points": 5 },
+      { "answer": "DIRT/TRASH", "points": 3 }
+    ]
+  },
+  {
+    "id": 27,
+    "question": "Name a reason a woman might nickname her blind date \"Ronald McDonald.\"",
+    "total_points": 98,
+    "answers": [
+      { "answer": "RED HAIR", "points": 40 },
+      { "answer": "CLOWN/GOOFY", "points": 29 },
+      { "answer": "BIG FEET", "points": 16 },
+      { "answer": "LOVES McD'S", "points": 7 },
+      { "answer": "HE'S CHEAP", "points": 3 },
+      { "answer": "BIG RED NOSE", "points": 3 }
+    ]
+  },
+  {
+    "id": 28,
+    "question": "Name something your cheap friends bring to your party.",
+    "total_points": 98,
+    "answers": [
+      { "answer": "LEFTOVERS/CHEAP FOOD", "points": 39 },
+      { "answer": "CHEAP LIQUOR", "points": 37 },
+      { "answer": "CUPS/PAPER PLATES", "points": 8 },
+      { "answer": "BUPKIS", "points": 8 },
+      { "answer": "WATER/ICE", "points": 4 },
+      { "answer": "PAPER TOWELS", "points": 2 }
+    ]
+  },
+  {
+    "id": 29,
+    "question": "Tell me something that gets squeezed out.",
+    "total_points": 98,
+    "answers": [
+      { "answer": "TOOTHPASTE", "points": 38 },
+      { "answer": "FRUIT/JUICE", "points": 36 },
+      { "answer": "KETCHUP/CONDIMENT", "points": 12 },
+      { "answer": "A ZIT", "points": 7 },
+      { "answer": "TOWEL/WASHRAG", "points": 3 },
+      { "answer": "SPONGE", "points": 2 }
+    ]
+  },
+  {
+    "id": 30,
+    "question": "Name something G.I. Joe has that Barbie says really turns her on.",
+    "total_points": 98,
+    "answers": [
+      { "answer": "HUNKY BOD", "points": 34 },
+      { "answer": "UNIFORM/HELMET", "points": 30 },
+      { "answer": "GUN/GRENADE", "points": 22 },
+      { "answer": "BEARD", "points": 6 },
+      { "answer": "KUNG-FU GRIP", "points": 4 },
+      { "answer": "JEEP", "points": 2 }
+    ]
+  },
+  {
+    "id": 31,
+    "question": "Name something a single guy might put on his stinky feet to hide the smell.",
+    "total_points": 98,
+    "answers": [
+      { "answer": "FOOT POWDER/SPRAY", "points": 30 },
+      { "answer": "SOCKS/SHOES", "points": 23 },
+      { "answer": "COLOGNE/AFTERSHAVE", "points": 22 },
+      { "answer": "DEODORANT", "points": 17 },
+      { "answer": "LOTION", "points": 4 },
+      { "answer": "BAKING SODA", "points": 2 }
+    ]
+  },
+  {
+    "id": 32,
+    "question": "We asked 100 single women... Tell me a reason you might nickname your blind date \"Yoda.\"",
+    "total_points": 98,
+    "answers": [
+      { "answer": "SHORTY", "points": 28 },
+      { "answer": "BIG EARS", "points": 27 },
+      { "answer": "UGLY FACE", "points": 22 },
+      { "answer": "SMARTY PANTS", "points": 15 },
+      { "answer": "PSYCHIC/SEES FUTURE", "points": 4 },
+      { "answer": "TURNED GREEN", "points": 2 }
+    ]
+  },
+  {
+    "id": 33,
+    "question": "Who might give you a hard time if you haven't showered in a couple of days?",
+    "total_points": 97,
+    "answers": [
+      { "answer": "MY BOO", "points": 77 },
+      { "answer": "PARENT", "points": 6 },
+      { "answer": "COWORKER", "points": 5 },
+      { "answer": "FRIEND", "points": 4 },
+      { "answer": "KID", "points": 3 },
+      { "answer": "TEACHER", "points": 2 }
+    ]
+  },
+  {
+    "id": 34,
+    "question": "We asked 100 men... Money can't buy love, but what can it buy so women are attracted to you?",
+    "total_points": 97,
+    "answers": [
+      { "answer": "SWEET CAR", "points": 62 },
+      { "answer": "NICE THREADS", "points": 16 },
+      { "answer": "COOL CRIB", "points": 10 },
+      { "answer": "GIFTS FOR THEM", "points": 4 },
+      { "answer": "LOOKS/HAIR", "points": 3 },
+      { "answer": "EDUCATION", "points": 2 }
+    ]
+  },
+  {
+    "id": 35,
+    "question": "Name a reason you might want to get rid of a tattoo.",
+    "total_points": 97,
+    "answers": [
+      { "answer": "EX'S NAME/FACE", "points": 60 },
+      { "answer": "I MATURED/TACKY", "points": 11 },
+      { "answer": "UGLY/BAD ART", "points": 10 },
+      { "answer": "MISSPELLED", "points": 6 },
+      { "answer": "GOT FLABBY/WRINKLY", "points": 5 },
+      { "answer": "FOR WORK", "points": 5 }
+    ]
+  },
+  {
+    "id": 36,
+    "question": "We asked 100 women... What's the first thing you notice about a man when he enters a room?",
+    "total_points": 97,
+    "answers": [
+      { "answer": "FACE/EYES/SMILE", "points": 59 },
+      { "answer": "TALL/GREAT BOD", "points": 21 },
+      { "answer": "HIS CLOTHES", "points": 6 },
+      { "answer": "HIS POSTURE/WALK", "points": 5 },
+      { "answer": "HIS HAIR", "points": 4 },
+      { "answer": "HIS SCENT/STENCH", "points": 2 }
+    ]
+  },
+  {
+    "id": 37,
+    "question": "Tell me a way that a mafia hit man might dispose of his victims.",
+    "total_points": 97,
+    "answers": [
+      { "answer": "RIVER/OCEAN", "points": 58 },
+      { "answer": "BARREL/OF ACID", "points": 14 },
+      { "answer": "GRIND 'EM UP", "points": 9 },
+      { "answer": "IN CEMENT", "points": 7 },
+      { "answer": "BURY THEM", "points": 6 },
+      { "answer": "BONFIRE/BURN", "points": 3 }
+    ]
+  },
+  {
+    "id": 38,
+    "question": "Name something you do in a regular pool that would be weird to do in a kid's inflatable pool.",
+    "total_points": 97,
+    "answers": [
+      { "answer": "SWIM/DO LAPS", "points": 50 },
+      { "answer": "DIVE/JUMP", "points": 32 },
+      { "answer": "PEE", "points": 6 },
+      { "answer": "FLOAT", "points": 4 },
+      { "answer": "SKINNY-DIP", "points": 3 },
+      { "answer": "HANDSTANDS", "points": 2 }
+    ]
+  },
+  {
+    "id": 39,
+    "question": "Tell me a reason Mrs. Claus's mom told her she might regret marrying Santa.",
+    "total_points": 97,
+    "answers": [
+      { "answer": "SCHEDULE/HOURS", "points": 49 },
+      { "answer": "JELLY BELLY", "points": 19 },
+      { "answer": "NORTH POLE!", "points": 15 },
+      { "answer": "HANGS W/ ELVES", "points": 8 },
+      { "answer": "TOYS ALL OVER", "points": 4 },
+      { "answer": "TACKY DRESSER", "points": 2 }
+    ]
+  },
+  {
+    "id": 40,
+    "question": "Name something you might order a cake in the shape of for a cowboy's birthday.",
+    "total_points": 97,
+    "answers": [
+      { "answer": "HAT", "points": 47 },
+      { "answer": "BOOT", "points": 28 },
+      { "answer": "HORSE", "points": 14 },
+      { "answer": "COW/BULL", "points": 4 },
+      { "answer": "SADDLE", "points": 2 },
+      { "answer": "TEXAS", "points": 2 }
+    ]
+  },
+  {
+    "id": 41,
+    "question": "Name something that might go wrong while hand-feeding your lover pieces of grapefruit.",
+    "total_points": 97,
+    "answers": [
+      { "answer": "JUICE/IN EYE", "points": 41 },
+      { "answer": "GET BITTEN", "points": 25 },
+      { "answer": "THEY CHOKE", "points": 23 },
+      { "answer": "I DROP IT", "points": 4 },
+      { "answer": "ALLERGIC REACTION", "points": 2 },
+      { "answer": "SPIT IT OUT", "points": 2 }
+    ]
+  },
+  {
+    "id": 42,
+    "question": "We asked 100 married women... What would you do if you found out your husband had a side job as a stripper?",
+    "total_points": 97,
+    "answers": [
+      { "answer": "GO WATCH!", "points": 40 },
+      { "answer": "LAUGH", "points": 22 },
+      { "answer": "DIVORCE HIM", "points": 15 },
+      { "answer": "TAKE HIS TIPS/SHOP", "points": 15 },
+      { "answer": "NADA/\"OH WELL\"", "points": 3 },
+      { "answer": "\"PERFORM FOR ME!\"", "points": 2 }
+    ]
+  },
+  {
+    "id": 43,
+    "question": "If a baby had a credit card, name something they'd use it to buy.",
+    "total_points": 97,
+    "answers": [
+      { "answer": "FOOD/MILK", "points": 37 },
+      { "answer": "TOYS/RATTLE", "points": 33 },
+      { "answer": "DIAPERS", "points": 14 },
+      { "answer": "PACIFIER", "points": 9 },
+      { "answer": "BOOB JOB FOR MOM", "points": 2 },
+      { "answer": "HIPPER CLOTHES", "points": 2 }
+    ]
+  },
+  {
+    "id": 44,
+    "question": "Name something a lazy single dad might use if he runs out of diapers.",
+    "total_points": 96,
+    "answers": [
+      { "answer": "TOWEL/DISH TOWEL", "points": 59 },
+      { "answer": "PAPER TOWELS", "points": 17 },
+      { "answer": "OLD SHIRT", "points": 14 },
+      { "answer": "NEWSPAPER", "points": 2 },
+      { "answer": "NAPKINS", "points": 2 },
+      { "answer": "TOILET PAPER", "points": 2 }
+    ]
+  },
+  {
+    "id": 45,
+    "question": "Name something about his wife a comedian had better not make fun of during his act.",
+    "total_points": 96,
+    "answers": [
+      { "answer": "HER WEIGHT/FIGURE", "points": 59 },
+      { "answer": "HER FACE/3 TEETH", "points": 16 },
+      { "answer": "HER LOVEMAKING", "points": 12 },
+      { "answer": "HER PERSONALITY", "points": 3 },
+      { "answer": "HER MOM", "points": 3 },
+      { "answer": "HER HAIR", "points": 3 }
+    ]
+  },
+  {
+    "id": 46,
+    "question": "Fill in the blank: You should never show up to a funeral ______.",
+    "total_points": 96,
+    "answers": [
+      { "answer": "DRUNK", "points": 57 },
+      { "answer": "NAKED", "points": 18 },
+      { "answer": "HAPPY/LAUGHING", "points": 8 },
+      { "answer": "WEARING WHITE", "points": 6 },
+      { "answer": "LATE", "points": 5 },
+      { "answer": "STONED", "points": 2 }
+    ]
+  },
+  {
+    "id": 47,
+    "question": "When a magician proposes, he might pull an engagement ring out of his girlfriend's what?",
+    "total_points": 96,
+    "answers": [
+      { "answer": "EAR", "points": 56 },
+      { "answer": "CLOTHES/BRA", "points": 20 },
+      { "answer": "PURSE/WALLET", "points": 10 },
+      { "answer": "HAND", "points": 4 },
+      { "answer": "HAIR", "points": 3 },
+      { "answer": "FOOD", "points": 3 }
+    ]
+  },
+  {
+    "id": 48,
+    "question": "Name something you'd hate to have to brush with a toilet brush.",
+    "total_points": 96,
+    "answers": [
+      { "answer": "MY TEETH", "points": 54 },
+      { "answer": "MY HAIR", "points": 28 },
+      { "answer": "MY FILTHY TOILET", "points": 6 },
+      { "answer": "SHOWER/TUB", "points": 4 },
+      { "answer": "KITCHEN SINK", "points": 2 },
+      { "answer": "MY DOG", "points": 2 }
+    ]
+  },
+  {
+    "id": 49,
+    "question": "Name something of yours that you wish were better looking.",
+    "total_points": 96,
+    "answers": [
+      { "answer": "BODY", "points": 50 },
+      { "answer": "BEASTLY FACE", "points": 30 },
+      { "answer": "HAIR", "points": 6 },
+      { "answer": "MATE/UGLY HUBBY", "points": 5 },
+      { "answer": "JACKED TEETH", "points": 3 },
+      { "answer": "TRASHY HOUSE", "points": 2 }
+    ]
+  },
+  {
+    "id": 50,
+    "question": "Tell me a reason a house burglar might say he had a bad day.",
+    "total_points": 96,
+    "answers": [
+      { "answer": "CAUGHT/ARRESTED", "points": 47 },
+      { "answer": "NO LOOT", "points": 20 },
+      { "answer": "DOG BITE", "points": 15 },
+      { "answer": "EVERYONE WAS HOME", "points": 5 },
+      { "answer": "SET OFF ALARM/CAM", "points": 5 },
+      { "answer": "GOT SHOT", "points": 4 }
+    ]
+  },
+  {
+    "id": 51,
+    "question": "Name something that could make a funeral more fun than usual.",
+    "total_points": 96,
+    "answers": [
+      { "answer": "MUSIC/DANCING", "points": 44 },
+      { "answer": "OPEN BAR", "points": 29 },
+      { "answer": "GAMES/POP GOES WEASEL", "points": 11 },
+      { "answer": "HOME MOVIES", "points": 6 },
+      { "answer": "JOKES/CLOWNS", "points": 4 },
+      { "answer": "BALLOON DROP", "points": 2 }
+    ]
+  },
+  {
+    "id": 52,
+    "question": "Name something the Jolly Green Giant has nightmares about a woman doing to his niblets.",
+    "total_points": 96,
+    "answers": [
+      { "answer": "EAT/BITING 'EM", "points": 44 },
+      { "answer": "CUT/CHOPPING 'EM", "points": 24 },
+      { "answer": "MASHING 'EM", "points": 13 },
+      { "answer": "COOKING 'EM", "points": 11 },
+      { "answer": "STICK FORK IN", "points": 2 },
+      { "answer": "WASTING 'EM", "points": 2 }
+    ]
+  },
+  {
+    "id": 53,
+    "question": "We asked 100 single men... Your friends might call you desperate if you start hitting on women where?",
+    "total_points": 96,
+    "answers": [
+      { "answer": "CHURCH", "points": 43 },
+      { "answer": "GROCERY STORE", "points": 25 },
+      { "answer": "NURSING HOME", "points": 14 },
+      { "answer": "LAUNDROMAT", "points": 7 },
+      { "answer": "BAR", "points": 5 },
+      { "answer": "FUNERAL", "points": 2 }
+    ]
+  },
+  {
+    "id": 54,
+    "question": "Name something that's on every teenager's Christmas wish list.",
+    "total_points": 96,
+    "answers": [
+      { "answer": "PHONE", "points": 42 },
+      { "answer": "MOOLAH", "points": 22 },
+      { "answer": "GAME SYSTEM", "points": 16 },
+      { "answer": "CAR", "points": 12 },
+      { "answer": "CLOTHES", "points": 2 },
+      { "answer": "EARBUDS", "points": 2 }
+    ]
+  },
+  {
+    "id": 55,
+    "question": "A man might call his mate \"honey bunny\" because she does what like a rabbit?",
+    "total_points": 96,
+    "answers": [
+      { "answer": "SHAGS/MULTIPLIES", "points": 38 },
+      { "answer": "NIBBLES/LETTUCE", "points": 27 },
+      { "answer": "HOPS/RUNS", "points": 17 },
+      { "answer": "SNUGGLES", "points": 7 },
+      { "answer": "KISSES", "points": 4 },
+      { "answer": "WIGGLES NOSE", "points": 3 }
+    ]
+  },
+  {
+    "id": 56,
+    "question": "Name a place you go where a stranger sees you naked.",
+    "total_points": 96,
+    "answers": [
+      { "answer": "DOC/HOSPITAL", "points": 32 },
+      { "answer": "GYM LOCKERS", "points": 23 },
+      { "answer": "NUDE BEACH/CAMP", "points": 18 },
+      { "answer": "SPA/SAUNA", "points": 16 },
+      { "answer": "TANNING SALON", "points": 4 },
+      { "answer": "POOL/POOL SHOWER", "points": 3 }
+    ]
+  },
+  {
+    "id": 57,
+    "question": "Name something people stick their noses in.",
+    "total_points": 95,
+    "answers": [
+      { "answer": "MY BIZNESS/MARRIAGE", "points": 74 },
+      { "answer": "FLOWERS", "points": 10 },
+      { "answer": "TISSUE", "points": 5 },
+      { "answer": "THE FRIDGE", "points": 2 },
+      { "answer": "BOD/THEIR ARMPITS", "points": 2 },
+      { "answer": "SCENTED CANDLES", "points": 2 }
+    ]
+  },
+  {
+    "id": 58,
+    "question": "Name something you'd have to get used to if you were a penguin.",
+    "total_points": 95,
+    "answers": [
+      { "answer": "THE COLD", "points": 58 },
+      { "answer": "WADDLE/WALK A LOT", "points": 16 },
+      { "answer": "EAT'G LIVE FISH", "points": 8 },
+      { "answer": "HEAT/GLOBAL WARMING", "points": 5 },
+      { "answer": "BLACK & WHITE TUX", "points": 5 },
+      { "answer": "SWIMMING/WATER", "points": 3 }
+    ]
+  },
+  {
+    "id": 59,
+    "question": "We asked 100 single men... Your new girlfriend has the best body and the worst breath. What do you do?",
+    "total_points": 95,
+    "answers": [
+      { "answer": "MOUTHWASH/MINT", "points": 54 },
+      { "answer": "BREAK UP", "points": 13 },
+      { "answer": "HOLD NOSE", "points": 8 },
+      { "answer": "LIVE WITH/ENJOY", "points": 7 },
+      { "answer": "TELL HER", "points": 7 },
+      { "answer": "NEVER KISS HER", "points": 6 }
+    ]
+  },
+  {
+    "id": 60,
+    "question": "We asked 100 married women... Tell me something you'd love your husband to say to you without any prompting.",
+    "total_points": 95,
+    "answers": [
+      { "answer": "I LOVE YOU", "points": 43 },
+      { "answer": "LOOKIN' GOOD", "points": 32 },
+      { "answer": "I APPRECIATE YOU", "points": 9 },
+      { "answer": "TAKE YOU SHOPPING?", "points": 4 },
+      { "answer": "I'LL CLEAN/VACUUM", "points": 4 },
+      { "answer": "OUT TO DINNER/MOVIE?", "points": 3 }
+    ]
+  },
+  {
+    "id": 61,
+    "question": "A cop pulls you over for speeding. What's an excuse you give to get out of a ticket?",
+    "total_points": 95,
+    "answers": [
+      { "answer": "EMERGENCY/HOSPITAL", "points": 40 },
+      { "answer": "GOTTA POTTY", "points": 29 },
+      { "answer": "DIDN'T REALIZE", "points": 15 },
+      { "answer": "LATE FOR WORK", "points": 7 },
+      { "answer": "GAS PEDAL STUCK", "points": 2 },
+      { "answer": "DATE NIGHT/ANNIV.", "points": 2 }
+    ]
+  },
+  {
+    "id": 62,
+    "question": "Tell me something it might be harder to do if you had a teeny-weeny nose.",
+    "total_points": 95,
+    "answers": [
+      { "answer": "SMELL", "points": 27 },
+      { "answer": "WEAR GLASSES", "points": 19 },
+      { "answer": "BREATHE/SNORE", "points": 19 },
+      { "answer": "PICK/BLOW IT", "points": 19 },
+      { "answer": "PIERCE IT", "points": 8 },
+      { "answer": "SNEEZE", "points": 3 }
+    ]
+  },
+  {
+    "id": 63,
+    "question": "We asked 100 married women... Name a hand-me-down you don't want from your mother-in-law.",
+    "total_points": 94,
+    "answers": [
+      { "answer": "CLOTHES/PANTIES", "points": 83 },
+      { "answer": "JEWELRY", "points": 3 },
+      { "answer": "FURNITURE/MATTRESS", "points": 2 },
+      { "answer": "HER HUSBAND", "points": 2 },
+      { "answer": "WIG", "points": 2 },
+      { "answer": "BLANKETS/SHEETS", "points": 2 }
+    ]
+  },
+  {
+    "id": 64,
+    "question": "We asked 100 women... Name a reason you might suspect your man is turning into the Wolf Man.",
+    "total_points": 94,
+    "answers": [
+      { "answer": "EXTRA HAIRY/SHEDS", "points": 73 },
+      { "answer": "HOWLS AT MOON", "points": 11 },
+      { "answer": "HAS CLAWS", "points": 3 },
+      { "answer": "GROW'G FANGS", "points": 3 },
+      { "answer": "START'G TO BITE", "points": 2 },
+      { "answer": "RIPPED CLOTHING", "points": 2 }
+    ]
+  },
+  {
+    "id": 65,
+    "question": "Name something Tom Cruise and Tom Brady have in common.",
+    "total_points": 94,
+    "answers": [
+      { "answer": "FIRST NAMES", "points": 65 },
+      { "answer": "RICHER THAN RICH", "points": 8 },
+      { "answer": "FAMOUS", "points": 7 },
+      { "answer": "HOTTIES", "points": 6 },
+      { "answer": "MALES", "points": 5 },
+      { "answer": "ANNOYING!", "points": 3 }
+    ]
+  },
+  {
+    "id": 66,
+    "question": "If a brawl broke out at a nursing home, what might one of the nurses get hit by?",
+    "total_points": 94,
+    "answers": [
+      { "answer": "CANE/WALKER", "points": 59 },
+      { "answer": "BEDPAN", "points": 17 },
+      { "answer": "DENTURES", "points": 9 },
+      { "answer": "A PATIENT", "points": 3 },
+      { "answer": "WHEELCHAIR", "points": 3 },
+      { "answer": "DIAPER", "points": 3 }
+    ]
+  },
+  {
+    "id": 67,
+    "question": "Name something you'd be surprised adult twins shared with each other.",
+    "total_points": 94,
+    "answers": [
+      { "answer": "BOOS/DATES", "points": 59 },
+      { "answer": "CLOTHES", "points": 13 },
+      { "answer": "TOOTHBRUSH", "points": 9 },
+      { "answer": "BED/BEDROOM", "points": 8 },
+      { "answer": "FOOD/GUM", "points": 3 },
+      { "answer": "BATHS", "points": 2 }
+    ]
+  },
+  {
+    "id": 68,
+    "question": "If the Statue of Liberty was feeling sexy, what might she wear instead of a robe?",
+    "total_points": 94,
+    "answers": [
+      { "answer": "BIKINI", "points": 57 },
+      { "answer": "TEDDY/NIGHTIE", "points": 14 },
+      { "answer": "G-STRING/PANTIES", "points": 12 },
+      { "answer": "MINISKIRT/DRESS", "points": 7 },
+      { "answer": "CAPE", "points": 2 },
+      { "answer": "SHORT SHORTS", "points": 2 }
+    ]
+  },
+  {
+    "id": 69,
+    "question": "Name something a woman would wear to the club on Saturday night that she wouldn't wear to church on Sunday.",
+    "total_points": 94,
+    "answers": [
+      { "answer": "SLINKY DRESS/SKIRT", "points": 55 },
+      { "answer": "REVEALING TOP", "points": 18 },
+      { "answer": "HIGH HEELS", "points": 11 },
+      { "answer": "STOCKINGS/FISHNET", "points": 5 },
+      { "answer": "TIGHT JEANS/PANTS", "points": 3 },
+      { "answer": "DAISY DUKES", "points": 2 }
+    ]
+  },
+  {
+    "id": 70,
+    "question": "Name something you might be doing in a booth.",
+    "total_points": 94,
+    "answers": [
+      { "answer": "KISSING", "points": 36 },
+      { "answer": "EATING", "points": 29 },
+      { "answer": "TAKING PHOTOS", "points": 15 },
+      { "answer": "BUY/SELLING STUFF", "points": 6 },
+      { "answer": "PHONE CALL", "points": 5 },
+      { "answer": "VOTING", "points": 3 }
+    ]
+  },
+  {
+    "id": 71,
+    "question": "Name someone a lonely woman might hire to work at her house because he's a nudist.",
+    "total_points": 94,
+    "answers": [
+      { "answer": "HANDYMAN/PLUMBER", "points": 35 },
+      { "answer": "POOL/CABANA BOY", "points": 23 },
+      { "answer": "GARDENER", "points": 14 },
+      { "answer": "HOUSEKEEPER", "points": 13 },
+      { "answer": "PAINTER", "points": 7 },
+      { "answer": "COOK", "points": 2 }
+    ]
+  },
+  {
+    "id": 72,
+    "question": "Name the biggest gripe you have about your doctor.",
+    "total_points": 94,
+    "answers": [
+      { "answer": "WAITING TIME", "points": 34 },
+      { "answer": "THE BILL", "points": 30 },
+      { "answer": "RUSHES ME", "points": 12 },
+      { "answer": "RUDE/DOESN'T LISTEN", "points": 11 },
+      { "answer": "COLD HANDS", "points": 4 },
+      { "answer": "INCOMPETENT", "points": 3 }
+    ]
+  },
+  {
+    "id": 73,
+    "question": "Name a ball a wife might throw at her husband's head if he watches sports all day on TV.",
+    "total_points": 94,
+    "answers": [
+      { "answer": "BASEBALL", "points": 32 },
+      { "answer": "FOOTBALL", "points": 30 },
+      { "answer": "BASKETBALL", "points": 10 },
+      { "answer": "TENNIS BALL", "points": 9 },
+      { "answer": "GOLF BALL", "points": 7 },
+      { "answer": "BOWLING BALL", "points": 6 }
+    ]
+  },
+  {
+    "id": 74,
+    "question": "Name something a magician might be embarrassed to admit that he gambled away in a poker game.",
+    "total_points": 94,
+    "answers": [
+      { "answer": "RABBIT", "points": 31 },
+      { "answer": "MAGIC WAND", "points": 28 },
+      { "answer": "HAT/OUTFIT", "points": 19 },
+      { "answer": "$/MAGIC COIN", "points": 7 },
+      { "answer": "HIS BOO/ASSISTANT", "points": 5 },
+      { "answer": "TRICKS/SECRETS", "points": 4 }
+    ]
+  },
+  {
+    "id": 75,
+    "question": "We asked 100 married women... Name something you wish you could tell your husband, but you're afraid it would end your marriage.",
+    "total_points": 94,
+    "answers": [
+      { "answer": "LAME-O-LOVER", "points": 26 },
+      { "answer": "WE'RE BROKE/I SPENT IT", "points": 22 },
+      { "answer": "I CHEATED", "points": 20 },
+      { "answer": "YOU'RE A JERK", "points": 11 },
+      { "answer": "LOSE THAT GUT", "points": 9 },
+      { "answer": "I HATE YOUR MOM", "points": 6 }
+    ]
+  },
+  {
+    "id": 76,
+    "question": "Name a female singer whose concerts sell out within hours after tickets go on sale.",
+    "total_points": 93,
+    "answers": [
+      { "answer": "TAYLOR SWIFT", "points": 81 },
+      { "answer": "BEYONCE", "points": 4 },
+      { "answer": "CHER", "points": 2 },
+      { "answer": "LADY GAGA", "points": 2 },
+      { "answer": "ADELE", "points": 2 },
+      { "answer": "CELINE DION", "points": 2 }
+    ]
+  },
+  {
+    "id": 77,
+    "question": "Name somewhere it's inappropriate to play the explicit version of a song.",
+    "total_points": 93,
+    "answers": [
+      { "answer": "CHURCH", "points": 67 },
+      { "answer": "SCHOOL/KINDERGARTEN", "points": 12 },
+      { "answer": "FUNERAL", "points": 5 },
+      { "answer": "PARK/PLAYGROUND", "points": 4 },
+      { "answer": "WEDDING", "points": 3 },
+      { "answer": "DAYCARE", "points": 2 }
+    ]
+  },
+  {
+    "id": 78,
+    "question": "We asked 100 men... Name something your partner will never do as well as your mom.",
+    "total_points": 93,
+    "answers": [
+      { "answer": "COOK", "points": 63 },
+      { "answer": "CLEAN/LAUNDRY", "points": 21 },
+      { "answer": "YELL/LECTURE", "points": 3 },
+      { "answer": "HUG ME", "points": 2 },
+      { "answer": "LOVE ME", "points": 2 },
+      { "answer": "SEW", "points": 2 }
+    ]
+  },
+  {
+    "id": 79,
+    "question": "Name something done to a carpet that a bald guy might do to his toupee.",
+    "total_points": 93,
+    "answers": [
+      { "answer": "CLEAN/SHAMPOO", "points": 61 },
+      { "answer": "BRUSH/COMB", "points": 11 },
+      { "answer": "VACUUM", "points": 10 },
+      { "answer": "GLUE/TAPE IT", "points": 5 },
+      { "answer": "THROW IT AWAY", "points": 4 },
+      { "answer": "FLUFF IT", "points": 2 }
+    ]
+  },
+  {
+    "id": 80,
+    "question": "The party went from average to epic when Bob arrived with what?",
+    "total_points": 93,
+    "answers": [
+      { "answer": "BOOZE/BEER BONG", "points": 48 },
+      { "answer": "DRUGS/POT", "points": 14 },
+      { "answer": "STRIPPERS", "points": 10 },
+      { "answer": "MUSIC/A BAND", "points": 10 },
+      { "answer": "CELEB/SAM L. JACKSON", "points": 6 },
+      { "answer": "FOOD", "points": 5 }
+    ]
+  },
+  {
+    "id": 81,
+    "question": "Judge Judy would smack you with her gavel if you made fun of her what?",
+    "total_points": 93,
+    "answers": [
+      { "answer": "HER HAIR", "points": 44 },
+      { "answer": "VOICE/LAUGH", "points": 23 },
+      { "answer": "'TUDE/COMMENTS", "points": 11 },
+      { "answer": "HER HEIGHT", "points": 6 },
+      { "answer": "HER AGE", "points": 5 },
+      { "answer": "ROBE/COLLAR", "points": 4 }
+    ]
+  },
+  {
+    "id": 82,
+    "question": "Name somebody you pay to work on your body.",
+    "total_points": 93,
+    "answers": [
+      { "answer": "MASSEUSE", "points": 41 },
+      { "answer": "DOC/DENTIST", "points": 29 },
+      { "answer": "HAIRSTYLIST", "points": 8 },
+      { "answer": "CHIROPRACTOR", "points": 6 },
+      { "answer": "TATTOO ARTIST", "points": 5 },
+      { "answer": "FITNESS TRAINER", "points": 4 }
+    ]
+  },
+  {
+    "id": 83,
+    "question": "If the word of God is number one for you, whose word is number two?",
+    "total_points": 93,
+    "answers": [
+      { "answer": "PARENTS'", "points": 41 },
+      { "answer": "MINE", "points": 22 },
+      { "answer": "MY HONEY'S", "points": 22 },
+      { "answer": "SATAN'S", "points": 3 },
+      { "answer": "CLERGY'S", "points": 3 },
+      { "answer": "MY CHILD'S", "points": 2 }
+    ]
+  },
+  {
+    "id": 84,
+    "question": "We asked 100 men... Name someone who shows up naked in your dream that turns into a nightmare.",
+    "total_points": 93,
+    "answers": [
+      { "answer": "EVIL EX", "points": 37 },
+      { "answer": "MOTHER-IN-LAW", "points": 18 },
+      { "answer": "PARENTS", "points": 13 },
+      { "answer": "BOSS", "points": 11 },
+      { "answer": "SISTER", "points": 7 },
+      { "answer": "SPOUSE!", "points": 7 }
+    ]
+  },
+  {
+    "id": 85,
+    "question": "Name a specific job in which you'd be exposed to a lot of germs.",
+    "total_points": 93,
+    "answers": [
+      { "answer": "NURSE", "points": 35 },
+      { "answer": "DOCTOR", "points": 33 },
+      { "answer": "JANITOR/HOUSEKEEPER", "points": 11 },
+      { "answer": "TRASH COLLECTOR", "points": 10 },
+      { "answer": "LAB TECH", "points": 2 },
+      { "answer": "TEACHER", "points": 2 }
+    ]
+  },
+  {
+    "id": 86,
+    "question": "Name a city where there might be more strippers than ballet dancers.",
+    "total_points": 92,
+    "answers": [
+      { "answer": "LAS VEGAS", "points": 77 },
+      { "answer": "MIAMI", "points": 7 },
+      { "answer": "RENO", "points": 2 },
+      { "answer": "TAMPA", "points": 2 },
+      { "answer": "ATLANTA", "points": 2 },
+      { "answer": "ATLANTIC CITY", "points": 2 }
+    ]
+  },
+  {
+    "id": 87,
+    "question": "When Jane wants to let Tarzan know she's in the mood for love, she makes a noise like what animal?",
+    "total_points": 92,
+    "answers": [
+      { "answer": "\"CHEETA\"/MONKEY", "points": 59 },
+      { "answer": "KITTY CAT", "points": 14 },
+      { "answer": "TIGER", "points": 11 },
+      { "answer": "BIRD", "points": 3 },
+      { "answer": "LION", "points": 3 },
+      { "answer": "ELEPHANT", "points": 2 }
+    ]
+  },
+  {
+    "id": 88,
+    "question": "Give me a boy's name that starts with M.",
+    "total_points": 92,
+    "answers": [
+      { "answer": "MIKE/MICHAEL", "points": 55 },
+      { "answer": "MATT/MATTHEW", "points": 18 },
+      { "answer": "MARK/MARCUS", "points": 13 },
+      { "answer": "MAVERICK", "points": 2 },
+      { "answer": "MALCOLM", "points": 2 },
+      { "answer": "MASON", "points": 2 }
+    ]
+  },
+  {
+    "id": 89,
+    "question": "Fill in the blank: Your dog must wonder, \"How come no one else in the family has a ______ like me?\"",
+    "total_points": 92,
+    "answers": [
+      { "answer": "TAIL", "points": 54 },
+      { "answer": "CUTE FACE/NOSE", "points": 13 },
+      { "answer": "COLLAR & LEASH", "points": 10 },
+      { "answer": "BOWL", "points": 7 },
+      { "answer": "BED", "points": 4 },
+      { "answer": "BARK", "points": 4 }
+    ]
+  },
+  {
+    "id": 90,
+    "question": "Name something a coworker puts on your desk when they don't like you.",
+    "total_points": 92,
+    "answers": [
+      { "answer": "MORE WORK", "points": 52 },
+      { "answer": "TRASH", "points": 14 },
+      { "answer": "POOP", "points": 9 },
+      { "answer": "CRITTER/RAT", "points": 6 },
+      { "answer": "DEAD PLANT", "points": 6 },
+      { "answer": "NOTE/\"YOU'RE FIRED!\"", "points": 5 }
+    ]
+  },
+  {
+    "id": 91,
+    "question": "Name a hygiene product a wife might hand her husband and say, \"Hint, hint.\"",
+    "total_points": 92,
+    "answers": [
+      { "answer": "DEODORANT", "points": 51 },
+      { "answer": "TOOTHBRUSH/PASTE", "points": 19 },
+      { "answer": "SOAP/SHAMPOO", "points": 8 },
+      { "answer": "CONDOM", "points": 6 },
+      { "answer": "COLOGNE", "points": 4 },
+      { "answer": "TOILET PAPER", "points": 4 }
+    ]
+  },
+  {
+    "id": 92,
+    "question": "Name something a zookeeper might find in the kangaroo's pouch that could make him think the animals were planning an escape.",
+    "total_points": 92,
+    "answers": [
+      { "answer": "KEYS", "points": 44 },
+      { "answer": "WIRE CUTTER/TOOLS", "points": 30 },
+      { "answer": "WEAPON", "points": 7 },
+      { "answer": "ROPE", "points": 6 },
+      { "answer": "MAP", "points": 3 },
+      { "answer": "FOOD STASH", "points": 2 }
+    ]
+  },
+  {
+    "id": 93,
+    "question": "God might have made a mistake because he created what?",
+    "total_points": 92,
+    "answers": [
+      { "answer": "PEOPLE/POLITICIANS", "points": 41 },
+      { "answer": "BUGS", "points": 36 },
+      { "answer": "SNAKES", "points": 8 },
+      { "answer": "SATAN", "points": 3 },
+      { "answer": "THE PLATYPUS", "points": 2 },
+      { "answer": "TAXES", "points": 2 }
+    ]
+  },
+  {
+    "id": 94,
+    "question": "Give me a word or expression that contains the word \"drag.\"",
+    "total_points": 92,
+    "answers": [
+      { "answer": "DRAG QUEEN", "points": 40 },
+      { "answer": "DRAG RACE", "points": 28 },
+      { "answer": "DRAGNET", "points": 10 },
+      { "answer": "WHAT A.../IT'S A DRAG", "points": 7 },
+      { "answer": "DRAGON", "points": 5 },
+      { "answer": "DRAG STRIP", "points": 2 }
+    ]
+  },
+  {
+    "id": 95,
+    "question": "Name something specific Mrs. Peanut might threaten to do to Mr. Peanut when she gets angry.",
+    "total_points": 92,
+    "answers": [
+      { "answer": "CRACK/CHOP HIM", "points": 37 },
+      { "answer": "GRIND/PEANUT BUTTER", "points": 23 },
+      { "answer": "ROAST/BOIL HIM", "points": 16 },
+      { "answer": "EAT HIM", "points": 11 },
+      { "answer": "BREAK HIS MONOCLE", "points": 3 },
+      { "answer": "ERASE HIS FACE", "points": 2 }
+    ]
+  },
+  {
+    "id": 96,
+    "question": "Grandma is a mover and shaker because when she moves, what shakes?",
+    "total_points": 92,
+    "answers": [
+      { "answer": "HER BOOTY", "points": 28 },
+      { "answer": "ARMS/BAT WINGS", "points": 16 },
+      { "answer": "HEAVEN & EARTH", "points": 15 },
+      { "answer": "HER BOOBS", "points": 15 },
+      { "answer": "HER BELLY", "points": 13 },
+      { "answer": "THE HOUSE/FLOOR", "points": 5 }
+    ]
+  },
+  {
+    "id": 97,
+    "question": "Name a city where it's easier to walk than drive.",
+    "total_points": 91,
+    "answers": [
+      { "answer": "NEW YORK CITY", "points": 74 },
+      { "answer": "CHICAGO", "points": 6 },
+      { "answer": "LAS VEGAS", "points": 4 },
+      { "answer": "SAN FRANCISCO", "points": 3 },
+      { "answer": "PARIS", "points": 2 },
+      { "answer": "EMERALD CITY/OZ", "points": 2 }
+    ]
+  },
+  {
+    "id": 98,
+    "question": "Name an L word you might call your boss behind his back.",
+    "total_points": 91,
+    "answers": [
+      { "answer": "LOSER", "points": 65 },
+      { "answer": "LAME", "points": 8 },
+      { "answer": "LAZY", "points": 8 },
+      { "answer": "LIAR", "points": 6 },
+      { "answer": "LOUD", "points": 2 },
+      { "answer": "LOVE/LOVER", "points": 2 }
+    ]
+  },
+  {
+    "id": 99,
+    "question": "Having big lips is an advantage when you're doing what?",
+    "total_points": 91,
+    "answers": [
+      { "answer": "KISSING", "points": 57 },
+      { "answer": "EAT/DRINKING", "points": 17 },
+      { "answer": "TRUMPET/HORN", "points": 8 },
+      { "answer": "BOBBING 4 APPLES", "points": 3 },
+      { "answer": "APPLYING LIPSTICK", "points": 3 },
+      { "answer": "POUTING/SMILING", "points": 3 }
+    ]
+  },
+  {
+    "id": 100,
+    "question": "Fill in the blank: White as ______.",
+    "total_points": 91,
+    "answers": [
+      { "answer": "WHITE AS SNOW", "points": 46 },
+      { "answer": "WHITE AS RICE", "points": 22 },
+      { "answer": "WHITE AS A GHOST", "points": 13 },
+      { "answer": "WHITE AS A SHEET", "points": 6 },
+      { "answer": "WHITE AS HELL", "points": 2 },
+      { "answer": "WHITE AS BREAD", "points": 2 }
+    ]
+  },
+  {
+    "id": 101,
+    "question": "A wife might not let her husband or the dog in bed for the same reason: they both do what?",
+    "total_points": 91,
+    "answers": [
+      { "answer": "STINK/FART", "points": 44 },
+      { "answer": "SNORE", "points": 23 },
+      { "answer": "HOG BED", "points": 10 },
+      { "answer": "MOVE/KICK", "points": 8 },
+      { "answer": "CUDDLE", "points": 3 },
+      { "answer": "HUMP/EVERYONE!", "points": 3 }
+    ]
+  },
+  {
+    "id": 102,
+    "question": "We asked 100 married women... Tell me a reason it might be nicer to be married to a robot than a man.",
+    "total_points": 91,
+    "answers": [
+      { "answer": "OBEYS/NO BACK TALK", "points": 35 },
+      { "answer": "COOKS & CLEANS", "points": 28 },
+      { "answer": "OFF BUTTON", "points": 13 },
+      { "answer": "NO SEX", "points": 6 },
+      { "answer": "WON'T LIE", "points": 5 },
+      { "answer": "LOGICAL/SMART", "points": 4 }
+    ]
+  },
+  {
+    "id": 103,
+    "question": "Name a female country singer known by just her first name.",
+    "total_points": 91,
+    "answers": [
+      { "answer": "REBA", "points": 34 },
+      { "answer": "DOLLY", "points": 30 },
+      { "answer": "SHANIA", "points": 16 },
+      { "answer": "LORETTA", "points": 4 },
+      { "answer": "JEWEL", "points": 4 },
+      { "answer": "WYNONNA", "points": 3 }
+    ]
+  },
+  {
+    "id": 104,
+    "question": "Name an occupation in which you might have to break up a fight.",
+    "total_points": 91,
+    "answers": [
+      { "answer": "BOUNCER", "points": 30 },
+      { "answer": "REFEREE", "points": 25 },
+      { "answer": "PO-PO", "points": 22 },
+      { "answer": "BARTENDER", "points": 5 },
+      { "answer": "SECURITY GUARD", "points": 5 },
+      { "answer": "TEACHER/PRINCIPAL", "points": 4 }
+    ]
+  },
+  {
+    "id": 105,
+    "question": "Name something of yours that looks like it was hit with an ugly stick.",
+    "total_points": 90,
+    "answers": [
+      { "answer": "ME/MY FACE", "points": 55 },
+      { "answer": "MOTHER-IN-LAW", "points": 10 },
+      { "answer": "MY BAE", "points": 8 },
+      { "answer": "MY CAR", "points": 7 },
+      { "answer": "MY CLOTHES/SHOES", "points": 6 },
+      { "answer": "MY FURNITURE", "points": 4 }
+    ]
+  },
+  {
+    "id": 106,
+    "question": "We asked 100 men... I don't want to rest in peace -- I want to be buried next to what to watch the action?",
+    "total_points": 90,
+    "answers": [
+      { "answer": "SPORTS VENUE/GOLF", "points": 52 },
+      { "answer": "A TV", "points": 20 },
+      { "answer": "BAR/CLUB", "points": 8 },
+      { "answer": "MY WIFE/MATE", "points": 5 },
+      { "answer": "STRIP JOINT", "points": 3 },
+      { "answer": "CASINO/VEGAS", "points": 2 }
+    ]
+  },
+  {
+    "id": 107,
+    "question": "Name a sound that ruins a moment of romance.",
+    "total_points": 90,
+    "answers": [
+      { "answer": "2-TOOT-SALUTE", "points": 45 },
+      { "answer": "KIDS/CRYING", "points": 17 },
+      { "answer": "BURP", "points": 12 },
+      { "answer": "HORN/SIREN", "points": 8 },
+      { "answer": "DOOR/\"FBI! OPEN UP!\"", "points": 5 },
+      { "answer": "PHONE", "points": 3 }
+    ]
+  },
+  {
+    "id": 108,
+    "question": "Name a lie a woman tells a guy after a bad first date so he stops calling.",
+    "total_points": 90,
+    "answers": [
+      { "answer": "TAKEN/BACK WITH EX", "points": 40 },
+      { "answer": "DISEASE/DYING", "points": 18 },
+      { "answer": "PREFER LADIES", "points": 10 },
+      { "answer": "MOVING", "points": 9 },
+      { "answer": "SO BUSY/WORK", "points": 7 },
+      { "answer": "I'M PREGNANT", "points": 6 }
+    ]
+  },
+  {
+    "id": 109,
+    "question": "We asked 100 men... Your mate searches for what on the internet that makes you think you're going to be a father?",
+    "total_points": 90,
+    "answers": [
+      { "answer": "BABY CLOTHES", "points": 32 },
+      { "answer": "CRIB/BABY FURNITURE", "points": 27 },
+      { "answer": "DIAPERS", "points": 12 },
+      { "answer": "PREGNANCY TEST", "points": 10 },
+      { "answer": "PARENT'G BOOK/INFO", "points": 6 },
+      { "answer": "CHILD NAMES", "points": 3 }
+    ]
+  },
+  {
+    "id": 110,
+    "question": "A store selling what might be really popular in hell?",
+    "total_points": 89,
+    "answers": [
+      { "answer": "ICE/COLD WATER", "points": 52 },
+      { "answer": "AC/FANS", "points": 19 },
+      { "answer": "DRUGS/CBD", "points": 6 },
+      { "answer": "ICE CREAM/POPSICLES", "points": 5 },
+      { "answer": "BOOZE/FIREBALL", "points": 5 },
+      { "answer": "CUTE RED CLOTHES", "points": 2 }
+    ]
+  },
+  {
+    "id": 111,
+    "question": "Name an animal starting with the letter S that would make a terrible pet.",
+    "total_points": 89,
+    "answers": [
+      { "answer": "SNAKE", "points": 42 },
+      { "answer": "SKUNK", "points": 19 },
+      { "answer": "SHARK", "points": 11 },
+      { "answer": "SLOTH", "points": 8 },
+      { "answer": "SNAIL", "points": 5 },
+      { "answer": "SCORPION", "points": 4 }
+    ]
+  },
+  {
+    "id": 112,
+    "question": "Name something you might put in your evil ex's shampoo.",
+    "total_points": 88,
+    "answers": [
+      { "answer": "NAIR", "points": 39 },
+      { "answer": "BLEACH/DYE", "points": 29 },
+      { "answer": "PEE", "points": 6 },
+      { "answer": "CONDIMENTS/SPICES", "points": 6 },
+      { "answer": "GLUE", "points": 5 },
+      { "answer": "WATER", "points": 3 }
+    ]
+  },
+  {
+    "id": 113,
+    "question": "Name something Steve Harvey and The Rock have in common.",
+    "total_points": 88,
+    "answers": [
+      { "answer": "BALD", "points": 39 },
+      { "answer": "BATHE IN MONEY", "points": 12 },
+      { "answer": "THEY'RE BLACK", "points": 12 },
+      { "answer": "FINE FACES/SMILES", "points": 10 },
+      { "answer": "TALL & HUNKY", "points": 9 },
+      { "answer": "FAMOUS", "points": 6 }
+    ]
+  },
+  {
+    "id": 114,
+    "question": "Name a place where it's inappropriate to be rolling on the floor laughing.",
+    "total_points": 88,
+    "answers": [
+      { "answer": "CHURCH", "points": 38 },
+      { "answer": "FUNERAL/CEMETERY", "points": 23 },
+      { "answer": "WORK", "points": 14 },
+      { "answer": "HOSPITAL/DOC", "points": 6 },
+      { "answer": "BATHROOM/AT REST STOP", "points": 4 },
+      { "answer": "STORE/CHANEL", "points": 3 }
+    ]
+  },
+  {
+    "id": 115,
+    "question": "Fill in the blank: ______ bells.",
+    "total_points": 88,
+    "answers": [
+      { "answer": "JINGLE BELLS", "points": 32 },
+      { "answer": "HELL'S BELLS", "points": 18 },
+      { "answer": "SILVER BELLS", "points": 14 },
+      { "answer": "WEDDING BELLS", "points": 10 },
+      { "answer": "CHURCH BELLS", "points": 9 },
+      { "answer": "CHRISTMAS BELLS", "points": 5 }
+    ]
+  },
+  {
+    "id": 116,
+    "question": "We asked 100 women... Tell me a reason your BFF might tell you she loves dating Italian men.",
+    "total_points": 88,
+    "answers": [
+      { "answer": "SEXIER!", "points": 25 },
+      { "answer": "THAT ACCENT! YUM!", "points": 25 },
+      { "answer": "ROMANTIC", "points": 12 },
+      { "answer": "GOOD FOOD!", "points": 12 },
+      { "answer": "BETTER LOVERS", "points": 11 },
+      { "answer": "THICK DARK HAIR", "points": 3 }
+    ]
+  },
+  {
+    "id": 117,
+    "question": "Name something a castle might have that would be weird if your house had it.",
+    "total_points": 87,
+    "answers": [
+      { "answer": "MOAT/DRAWBRIDGE", "points": 61 },
+      { "answer": "TORTURE DUNGEON", "points": 10 },
+      { "answer": "TURRET/TOWER", "points": 9 },
+      { "answer": "NO PLUMBING/A WELL", "points": 3 },
+      { "answer": "KNIGHTS/GUARDS", "points": 2 },
+      { "answer": "PET DRAGON", "points": 2 }
+    ]
+  },
+  {
+    "id": 118,
+    "question": "Name the worst place to find a fresh wad of chewing gum.",
+    "total_points": 87,
+    "answers": [
+      { "answer": "CHAIR/SEAT", "points": 32 },
+      { "answer": "SHOE", "points": 24 },
+      { "answer": "HAIR", "points": 17 },
+      { "answer": "TABLE", "points": 5 },
+      { "answer": "CLOTHES/BUTT", "points": 5 },
+      { "answer": "TOILET", "points": 4 }
+    ]
+  },
+  {
+    "id": 119,
+    "question": "If your family is stressing you out, what might you buy yourself for Christmas?",
+    "total_points": 87,
+    "answers": [
+      { "answer": "BOOZE", "points": 26 },
+      { "answer": "EARPHONES/PLUGS", "points": 23 },
+      { "answer": "VACATION", "points": 15 },
+      { "answer": "SPA DAY/MASSAGE", "points": 14 },
+      { "answer": "CHOCOLATE/CANDY", "points": 6 },
+      { "answer": "MEDS/WEED", "points": 3 }
+    ]
+  },
+  {
+    "id": 120,
+    "question": "Name someone in your life that, however tempting, it would be a big no-no to start a romantic relationship with.",
+    "total_points": 87,
+    "answers": [
+      { "answer": "BOSS/COWORKER", "points": 25 },
+      { "answer": "BEST FRIEND", "points": 24 },
+      { "answer": "MY EX", "points": 14 },
+      { "answer": "SIS/BRO-IN-LAW", "points": 9 },
+      { "answer": "BEST FRIEND'S MATE", "points": 8 },
+      { "answer": "NEIGHBOR", "points": 6 }
+    ]
+  },
+  {
+    "id": 121,
+    "question": "If dogs knew how to use Google, what might they search for the most?",
+    "total_points": 86,
+    "answers": [
+      { "answer": "BONES/FOOD", "points": 59 },
+      { "answer": "WHERE DA CATS", "points": 10 },
+      { "answer": "TOY DELIVERY", "points": 5 },
+      { "answer": "DOG PARKS", "points": 4 },
+      { "answer": "DOG PICS", "points": 4 },
+      { "answer": "PEE SPOTS/HYDRANTS", "points": 4 }
+    ]
+  },
+  {
+    "id": 122,
+    "question": "Name a specific moment you suck in your gut.",
+    "total_points": 86,
+    "answers": [
+      { "answer": "PHOTOS", "points": 36 },
+      { "answer": "DRESS'G/SKINNY JEANS", "points": 21 },
+      { "answer": "SEE A CUTIE!", "points": 15 },
+      { "answer": "WEDDING", "points": 6 },
+      { "answer": "DOCTOR'S OFFICE", "points": 4 },
+      { "answer": "IN THE MIRROR", "points": 4 }
+    ]
+  },
+  {
+    "id": 123,
+    "question": "They call Batman by shining a symbol of a bat in the sky. What symbol would they shine to summon Steve Harvey?",
+    "total_points": 86,
+    "answers": [
+      { "answer": "MUSTACHE", "points": 36 },
+      { "answer": "DOLLAR SIGN", "points": 18 },
+      { "answer": "SMILE/WHITE TEETH", "points": 13 },
+      { "answer": "BALD HEAD", "points": 11 },
+      { "answer": "A FINE SUIT", "points": 5 },
+      { "answer": "FAMILY FEUD LOGO", "points": 3 }
+    ]
+  },
+  {
+    "id": 124,
+    "question": "A woman probably should not do what when she's nine months pregnant?",
+    "total_points": 85,
+    "answers": [
+      { "answer": "SPORTS/BUNGEE JUMP", "points": 43 },
+      { "answer": "DRINK/BAR HOP", "points": 23 },
+      { "answer": "SMOKE", "points": 7 },
+      { "answer": "SEX", "points": 6 },
+      { "answer": "DANCE/TWERK", "points": 3 },
+      { "answer": "FLY/TRAVEL", "points": 3 }
+    ]
+  },
+  {
+    "id": 125,
+    "question": "Name something a woman might want to be buried with in case she needs it in the afterlife.",
+    "total_points": 85,
+    "answers": [
+      { "answer": "CASH/PURSE", "points": 35 },
+      { "answer": "PHONE", "points": 14 },
+      { "answer": "JEWELRY", "points": 13 },
+      { "answer": "MAKEUP", "points": 12 },
+      { "answer": "CUTE OUTFIT", "points": 8 },
+      { "answer": "VIBRATOR", "points": 3 }
+    ]
+  },
+  {
+    "id": 126,
+    "question": "Eve told Adam, \"I'm just glad God made me from your rib and not your\" what?",
+    "total_points": 85,
+    "answers": [
+      { "answer": "BUTT", "points": 27 },
+      { "answer": "PEA-BRAIN", "points": 22 },
+      { "answer": "DING-A-LING", "points": 15 },
+      { "answer": "FOOT/TOENAIL", "points": 12 },
+      { "answer": "EAR", "points": 5 },
+      { "answer": "UGLY MUG/NOSE", "points": 4 }
+    ]
+  },
+  {
+    "id": 127,
+    "question": "Tell me something people know about Prince Harry.",
+    "total_points": 84,
+    "answers": [
+      { "answer": "MARRIED TO MEGHAN", "points": 31 },
+      { "answer": "DIANA'S SON", "points": 21 },
+      { "answer": "REDHEAD", "points": 16 },
+      { "answer": "HE'S A PRINCE...DUH", "points": 9 },
+      { "answer": "HOTTIE!", "points": 4 },
+      { "answer": "BALDING", "points": 3 }
+    ]
+  },
+  {
+    "id": 128,
+    "question": "Name something your parents used to tell you that you should be grateful to have.",
+    "total_points": 83,
+    "answers": [
+      { "answer": "FOOD/BROCCOLI", "points": 35 },
+      { "answer": "A HOME", "points": 25 },
+      { "answer": "THEM", "points": 11 },
+      { "answer": "CLOTHES/UGLY LOAFERS", "points": 4 },
+      { "answer": "ANNOYING SIBLING", "points": 4 },
+      { "answer": "BRAINS/SENSE", "points": 4 }
+    ]
+  },
+  {
+    "id": 129,
+    "question": "If people laid eggs, name a specific place that you'd hate to be when one pops out of you.",
+    "total_points": 83,
+    "answers": [
+      { "answer": "WORK/INTERVIEW", "points": 25 },
+      { "answer": "STORE/MALL", "points": 18 },
+      { "answer": "CHURCH", "points": 16 },
+      { "answer": "BATHROOM/TOILET", "points": 12 },
+      { "answer": "CAR/TAXI", "points": 8 },
+      { "answer": "RESTAURANT/ON DATE", "points": 4 }
+    ]
+  },
+  {
+    "id": 130,
+    "question": "Fill in the blank: My ______ should win an Oscar because they are such a drama queen.",
+    "total_points": 83,
+    "answers": [
+      { "answer": "CHILD/TEEN", "points": 25 },
+      { "answer": "SPOUSE/PARTNER", "points": 18 },
+      { "answer": "SIBLING", "points": 15 },
+      { "answer": "BOSS/COWORKER", "points": 9 },
+      { "answer": "FRIEND", "points": 8 },
+      { "answer": "DOG/PET", "points": 8 }
+    ]
+  },
+  {
+    "id": 131,
+    "question": "Fill in the blank: You'd probably get kicked off of a jury if you ______ed during the trial.",
+    "total_points": 82,
+    "answers": [
+      { "answer": "SLEPT/SNORED", "points": 36 },
+      { "answer": "TALKED/YELLED", "points": 24 },
+      { "answer": "FARTED", "points": 8 },
+      { "answer": "LAUGHED", "points": 7 },
+      { "answer": "PUKED", "points": 4 },
+      { "answer": "PICS/LIVE-STREAMED", "points": 3 }
+    ]
+  },
+  {
+    "id": 132,
+    "question": "Fill in the blank: If Satan were a woman, she'd make the men in hell wear ______ all day.",
+    "total_points": 82,
+    "answers": [
+      { "answer": "STILETTOS", "points": 34 },
+      { "answer": "THONGS/PANTIES", "points": 15 },
+      { "answer": "BRAS", "points": 13 },
+      { "answer": "SUITS/TIES", "points": 10 },
+      { "answer": "WINTER COATS/SWEATERS", "points": 7 },
+      { "answer": "SPEEDOS", "points": 3 }
+    ]
+  },
+  {
+    "id": 133,
+    "question": "Name something a thin supermodel might have that's fat.",
+    "total_points": 82,
+    "answers": [
+      { "answer": "BANK ACCOUNT", "points": 25 },
+      { "answer": "LIPS", "points": 16 },
+      { "answer": "PEACH BOOTY", "points": 13 },
+      { "answer": "PET", "points": 12 },
+      { "answer": "BURGER/FOOD", "points": 9 },
+      { "answer": "EGO", "points": 7 }
+    ]
+  },
+  {
+    "id": 134,
+    "question": "Name a B word that describes your belly.",
+    "total_points": 81,
+    "answers": [
+      { "answer": "BIG", "points": 45 },
+      { "answer": "BLOATED", "points": 13 },
+      { "answer": "BEAUTIFUL", "points": 8 },
+      { "answer": "BOUNCY", "points": 7 },
+      { "answer": "BULGING", "points": 5 },
+      { "answer": "BLUBBERY", "points": 3 }
+    ]
+  },
+  {
+    "id": 135,
+    "question": "Fill in the blank: I want to live in a mansion so big, it has its own ______.",
+    "total_points": 81,
+    "answers": [
+      { "answer": "ZIP/AREA CODE", "points": 43 },
+      { "answer": "WATER PARK", "points": 20 },
+      { "answer": "GUEST HOUSE", "points": 7 },
+      { "answer": "MALL/STORE", "points": 4 },
+      { "answer": "HELIPAD/PLANE", "points": 4 },
+      { "answer": "MOVIE THEATER", "points": 3 }
+    ]
+  },
+  {
+    "id": 136,
+    "question": "If a baby could talk while it was still in the womb, tell me a question it might ask its mom.",
+    "total_points": 81,
+    "answers": [
+      { "answer": "WHEN DO I GET OUT?", "points": 31 },
+      { "answer": "WHAT ARE WE EATING?", "points": 29 },
+      { "answer": "WHAT'S MY NAME?", "points": 8 },
+      { "answer": "WHO ARE YOU?", "points": 5 },
+      { "answer": "WHAT'S THAT NOISE?", "points": 4 },
+      { "answer": "WHERE AM I?", "points": 4 }
+    ]
+  },
+  {
+    "id": 137,
+    "question": "Name something you're tempted to do when you notice a stranger staring at you.",
+    "total_points": 81,
+    "answers": [
+      { "answer": "STARE RIGHT BACK", "points": 24 },
+      { "answer": "SMILE/LAUGH", "points": 14 },
+      { "answer": "WAVE", "points": 13 },
+      { "answer": "CONFRONT/ASK", "points": 13 },
+      { "answer": "TURN AWAY", "points": 9 },
+      { "answer": "MAKE FACE/TONGUE OUT", "points": 8 }
+    ]
+  },
+  {
+    "id": 138,
+    "question": "Tell me an S word that describes how you feel after smoking pot.",
+    "total_points": 80,
+    "answers": [
+      { "answer": "SLEEPY", "points": 27 },
+      { "answer": "STONED", "points": 24 },
+      { "answer": "SILLY", "points": 15 },
+      { "answer": "STUPID/STUPEFIED", "points": 8 },
+      { "answer": "SERENE", "points": 3 },
+      { "answer": "SMOOTH", "points": 3 }
+    ]
+  },
+  {
+    "id": 139,
+    "question": "We asked 100 women... Fill in the blank: I must admit, I ______ too much.",
+    "total_points": 80,
+    "answers": [
+      { "answer": "SHOP/SPEND", "points": 21 },
+      { "answer": "DRINK", "points": 16 },
+      { "answer": "EAT", "points": 14 },
+      { "answer": "TALK", "points": 13 },
+      { "answer": "WORRY", "points": 12 },
+      { "answer": "CRY", "points": 4 }
+    ]
+  },
+  {
+    "id": 140,
+    "question": "Name a famous captain.",
+    "total_points": 80,
+    "answers": [
+      { "answer": "CAP'N CRUNCH", "points": 20 },
+      { "answer": "CAPTAIN HOOK", "points": 17 },
+      { "answer": "CAPTAIN AMERICA", "points": 15 },
+      { "answer": "CAPTAIN KANGAROO", "points": 10 },
+      { "answer": "CAPTAIN KIRK", "points": 10 },
+      { "answer": "CAPTAIN JACK SPARROW", "points": 8 }
+    ]
+  },
+  {
+    "id": 141,
+    "question": "Name something a bride might ride down the aisle to make a big entrance.",
+    "total_points": 78,
+    "answers": [
+      { "answer": "HORSE", "points": 43 },
+      { "answer": "MOTORCYCLE", "points": 14 },
+      { "answer": "CAR/JEEP", "points": 7 },
+      { "answer": "BIKE/UNICYCLE", "points": 5 },
+      { "answer": "STAND-UP SCOOTER", "points": 5 },
+      { "answer": "ELEPHANT", "points": 4 }
+    ]
+  },
+  {
+    "id": 142,
+    "question": "You get to experience a little heaven on earth whenever you have a good what?",
+    "total_points": 76,
+    "answers": [
+      { "answer": "MEAL/FOOD", "points": 38 },
+      { "answer": "SHAG", "points": 14 },
+      { "answer": "MASSAGE", "points": 8 },
+      { "answer": "NAP/SLEEP", "points": 6 },
+      { "answer": "WINE/DRINK", "points": 5 },
+      { "answer": "DOODY", "points": 5 }
+    ]
+  },
+  {
+    "id": 143,
+    "question": "Name something outside your house that you'd hate to get inside your house.",
+    "total_points": 74,
+    "answers": [
+      { "answer": "BUGS/SPIDER", "points": 36 },
+      { "answer": "SNAKE", "points": 9 },
+      { "answer": "MOUSE/RAT", "points": 9 },
+      { "answer": "SKUNK", "points": 8 },
+      { "answer": "DIRT/MUD", "points": 6 },
+      { "answer": "RACCOON", "points": 6 }
+    ]
+  },
+  {
+    "id": 144,
+    "question": "Name an occupation in which all eyes are on your hands.",
+    "total_points": 74,
+    "answers": [
+      { "answer": "SURGEON/DENTIST", "points": 23 },
+      { "answer": "HAND MODEL", "points": 19 },
+      { "answer": "MANICURIST", "points": 13 },
+      { "answer": "CASINO/CARD DEALER", "points": 7 },
+      { "answer": "MAGICIAN", "points": 7 },
+      { "answer": "SIGN LANG. TRANSLATOR", "points": 5 }
+    ]
+  },
+  {
+    "id": 145,
+    "question": "Name an occupation that you'd never want to hear say, \"Oh no -- this is not good.\"",
+    "total_points": 72,
+    "answers": [
+      { "answer": "DOCTOR/DENTIST", "points": 55 },
+      { "answer": "PLUMBER", "points": 6 },
+      { "answer": "POLITICIAN", "points": 3 },
+      { "answer": "NUCLEAR ENGINEER", "points": 3 },
+      { "answer": "COOK/CHEF", "points": 3 },
+      { "answer": "PILOT", "points": 2 }
+    ]
+  },
+  {
+    "id": 146,
+    "question": "Name an animal you might compare a date's French kissing to.",
+    "total_points": 72,
+    "answers": [
+      { "answer": "SLOBBERY DOG", "points": 40 },
+      { "answer": "FISH", "points": 8 },
+      { "answer": "SNAKE", "points": 8 },
+      { "answer": "LIZARD", "points": 7 },
+      { "answer": "FROG", "points": 5 },
+      { "answer": "GIRAFFE", "points": 4 }
+    ]
+  },
+  {
+    "id": 147,
+    "question": "Name something you should never, ever do in the middle of a job interview.",
+    "total_points": 72,
+    "answers": [
+      { "answer": "FART", "points": 33 },
+      { "answer": "USE PHONE/TEXT", "points": 12 },
+      { "answer": "PICK NOSE", "points": 11 },
+      { "answer": "CUSS/YELL", "points": 10 },
+      { "answer": "GO TO BATHROOM", "points": 3 },
+      { "answer": "LIGHT UP A CIG", "points": 3 }
+    ]
+  },
+  {
+    "id": 148,
+    "question": "Name a female singer who would intimidate most men she dates.",
+    "total_points": 72,
+    "answers": [
+      { "answer": "TAYLOR SWIFT", "points": 30 },
+      { "answer": "BEYONCE", "points": 11 },
+      { "answer": "CHER", "points": 9 },
+      { "answer": "JENNIFER LOPEZ", "points": 9 },
+      { "answer": "MADONNA", "points": 7 },
+      { "answer": "PINK", "points": 6 }
+    ]
+  },
+  {
+    "id": 149,
+    "question": "A kid in a candy store behaves the same as a grown man in a where?",
+    "total_points": 71,
+    "answers": [
+      { "answer": "STRIP JOINT", "points": 21 },
+      { "answer": "SPORTING GOODS STORE", "points": 14 },
+      { "answer": "CAR LOT/SHOW", "points": 13 },
+      { "answer": "HARDWARE STORE", "points": 12 },
+      { "answer": "BROTHEL", "points": 6 },
+      { "answer": "BAR/NIGHTCLUB", "points": 5 }
+    ]
+  },
+  {
+    "id": 150,
+    "question": "If a woman asked a man to fill out a date application, what question might be on it?",
+    "total_points": 70,
+    "answers": [
+      { "answer": "INCOME/JOB?", "points": 26 },
+      { "answer": "YOU SINGLE?", "points": 16 },
+      { "answer": "PERV/MAN-HO?", "points": 9 },
+      { "answer": "AGE/NEAR DEATH?", "points": 8 },
+      { "answer": "HAVE/WANT KIDS?", "points": 7 },
+      { "answer": "HEIGHT & WEIGHT?", "points": 4 }
+    ]
+  },
+  {
+    "id": 151,
+    "question": "Susan got fired from the choir because her singing sounds like what animal?",
+    "total_points": 70,
+    "answers": [
+      { "answer": "BIRD/SCREECH OWL", "points": 24 },
+      { "answer": "CAT IN HEAT", "points": 15 },
+      { "answer": "HYENA", "points": 14 },
+      { "answer": "DONKEY", "points": 7 },
+      { "answer": "MONKEY/APE", "points": 6 },
+      { "answer": "WHALE/ORCA", "points": 4 }
+    ]
+  },
+  {
+    "id": 152,
+    "question": "Name something that goes down.",
+    "total_points": 69,
+    "answers": [
+      { "answer": "ELEVATOR", "points": 27 },
+      { "answer": "THE SUN", "points": 23 },
+      { "answer": "TEMPERATURE", "points": 6 },
+      { "answer": "RAIN", "points": 5 },
+      { "answer": "MY MEAL/DRINK", "points": 4 },
+      { "answer": "SUBMARINE", "points": 4 }
+    ]
+  },
+  {
+    "id": 153,
+    "question": "Name something that would be harder to do if you had a neck like a giraffe.",
+    "total_points": 69,
+    "answers": [
+      { "answer": "DRIVE", "points": 19 },
+      { "answer": "GETTING DRESSED/CLOTHING", "points": 16 },
+      { "answer": "EAT/DRINK", "points": 11 },
+      { "answer": "ENTER DOOR/HOUSE", "points": 10 },
+      { "answer": "SLEEP", "points": 7 },
+      { "answer": "KISS", "points": 6 }
+    ]
+  },
+  {
+    "id": 154,
+    "question": "Name something you might admit to your dog because you know he can't tell anyone.",
+    "total_points": 67,
+    "answers": [
+      { "answer": "AFFAIR/LOVE LIFE", "points": 41 },
+      { "answer": "WHO I HATE", "points": 8 },
+      { "answer": "I'M SAD", "points": 5 },
+      { "answer": "CRIMINAL/ROBBED BANK", "points": 5 },
+      { "answer": "I FARTED", "points": 4 },
+      { "answer": "MY WEIGHT", "points": 4 }
+    ]
+  },
+  {
+    "id": 155,
+    "question": "Grandma's 40-year-old lower back butterfly tattoo now looks like what kind of insect?",
+    "total_points": 67,
+    "answers": [
+      { "answer": "MOTH", "points": 24 },
+      { "answer": "CATERPILLAR", "points": 15 },
+      { "answer": "FLY", "points": 8 },
+      { "answer": "SPIDER", "points": 8 },
+      { "answer": "DRAGONFLY", "points": 6 },
+      { "answer": "BEETLE", "points": 6 }
+    ]
+  },
+  {
+    "id": 156,
+    "question": "Instead of a bottle, the people at a wild party might play a game of spin the what?",
+    "total_points": 65,
+    "answers": [
+      { "answer": "PERSON/DRUNK", "points": 19 },
+      { "answer": "VIBRATOR", "points": 12 },
+      { "answer": "ANIMAL/CAT", "points": 10 },
+      { "answer": "CELL PHONE", "points": 9 },
+      { "answer": "CAN", "points": 9 },
+      { "answer": "GLASS/SHOT GLASS", "points": 6 }
+    ]
+  },
+  {
+    "id": 157,
+    "question": "Name a dirty job that they should just let workers do in the nude.",
+    "total_points": 61,
+    "answers": [
+      { "answer": "CONSTRUCTION", "points": 21 },
+      { "answer": "CLEANING POOLS", "points": 11 },
+      { "answer": "WASHING CARS", "points": 8 },
+      { "answer": "PAINTING", "points": 7 },
+      { "answer": "SEWER WORKER", "points": 7 },
+      { "answer": "HOUSE CLEANING", "points": 7 }
+    ]
+  },
+  {
+    "id": 158,
+    "question": "Fill in the blank: ______ love.",
+    "total_points": 58,
+    "answers": [
+      { "answer": "PUPPY LOVE", "points": 30 },
+      { "answer": "TRUELOVE", "points": 7 },
+      { "answer": "FIRST LOVE", "points": 6 },
+      { "answer": "UNDYING LOVE", "points": 5 },
+      { "answer": "MAD LOVE", "points": 5 },
+      { "answer": "MY LOVE", "points": 5 }
+    ]
+  },
+  {
+    "id": 159,
+    "question": "Name something you probably do 100 times a day.",
+    "total_points": 58,
+    "answers": [
+      { "answer": "BLINK", "points": 21 },
+      { "answer": "BREATHE", "points": 12 },
+      { "answer": "CHECK PHONE/APPS", "points": 10 },
+      { "answer": "WALK/STEP", "points": 6 },
+      { "answer": "TALK/SWEAR", "points": 5 },
+      { "answer": "FART", "points": 4 }
+    ]
+  },
+  {
+    "id": 160,
+    "question": "We asked 100 women... Fill in the blank: I wish they made a pill for men that would make them what?",
+    "total_points": 58,
+    "answers": [
+      { "answer": "KIND/SENSITIVE", "points": 18 },
+      { "answer": "CLEAN/DO DISHES", "points": 15 },
+      { "answer": "HONEST", "points": 8 },
+      { "answer": "CHILL OUT/CALM", "points": 6 },
+      { "answer": "SMARTER", "points": 6 },
+      { "answer": "ROMANTIC", "points": 5 }
+    ]
+  },
+  {
+    "id": 161,
+    "question": "You just won a fully furnished mansion in the city of your choice. What's your choice?",
+    "total_points": 54,
+    "answers": [
+      { "answer": "NEW YORK CITY", "points": 21 },
+      { "answer": "NASHVILLE", "points": 11 },
+      { "answer": "LA/BEV. HILLS", "points": 11 },
+      { "answer": "PARIS", "points": 4 },
+      { "answer": "LONDON", "points": 4 },
+      { "answer": "MIAMI", "points": 3 }
+    ]
+  }
+]
