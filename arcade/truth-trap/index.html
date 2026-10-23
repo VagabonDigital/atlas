@@ -114,10 +114,10 @@
       --bg-subtle: #1a2436;
       --bg-deep: #0d1520;
 
-      --ink: #d8e8f8;
-      --ink-mid: #8aa0b8;
-      --ink-quiet: #5a7090;
-      --ink-faint: #2a3a4e;
+      --ink: #e2eef7;
+      --ink-mid: #bbcedd;
+      --ink-quiet: #9bb4c9;
+      --ink-faint: #8aa5ba;
 
       --border: rgba(255, 255, 255, 0.08);
       --border-mid: rgba(255, 255, 255, 0.14);
@@ -2275,6 +2275,40 @@
       border-color: var(--tt-panel-edge);
       background: var(--tt-nav-bg);
       box-shadow: 0 12px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(183,246,240,.09);
+    }
+    /* Night UI: readable secondary information must never resemble a
+       disabled control. Disabled navigation retains its explicit dimming. */
+    html[data-theme="night"] .header-position {
+      color: #c4d7e6;
+      font-weight: 700;
+    }
+    html[data-theme="night"] .reveal-summary::before {
+      color: #aac5d5;
+    }
+    html[data-theme="night"] .btn-copy-recap.verdict-copy {
+      color: #c7dce9;
+    }
+    html[data-theme="night"] .btn-copy-recap.verdict-copy:hover {
+      color: #f0faff;
+      background: rgba(var(--cyan-rgb), .13);
+    }
+    html[data-theme="night"] .btn-nav:not(:disabled) {
+      color: #d6e6f1;
+    }
+    html[data-theme="night"] .btn-random {
+      color: #c3d7e4;
+    }
+    html[data-theme="night"] .btn-reset-game {
+      color: #adc4d4;
+      border-color: rgba(var(--cyan-rgb), .27);
+      background: rgba(17, 34, 44, .77);
+    }
+    html[data-theme="night"] .tt-toast {
+      border-color: #537988;
+      background: #1b3542;
+      color: #e8f4fa;
+      font-weight: 650;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, .48);
     }
     .btn-nav, .btn-random {
       border-color: var(--tt-accent-edge);
