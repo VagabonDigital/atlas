@@ -627,30 +627,25 @@
         grid-template-columns: 1fr;
       }
     }
-    /* The cover's START control is the physical base of its six-shutter board. */
-    .stage.entrance .board {
-      --cover-board-pad: clamp(4px, .9dvh, 7px);
-      grid-template-rows: repeat(6, minmax(0, 1fr)) auto;
-      padding-bottom: 0;
-    }
+    /* Six shutters keep their original size; Start Match attaches below as a separate piece. */
+    .stage:not(.entrance) .board-start { display: none; }
     .stage.entrance .board-start {
       display: block;
-      width: calc(100% + 2 * var(--cover-board-pad));
-      height: 50px;
-      min-height: 0;
-      margin: 0 calc(-1 * var(--cover-board-pad));
-      padding: 8px 14px;
-      border: 0;
-      border-top: 2px solid #ddae79;
-      border-radius: 0 0 25px 25px;
-      background: linear-gradient(#604058, #2a1129);
-      box-shadow: inset 0 2px 1px #ffe8d322, inset 0 8px 8px #08000722;
-      color: #fff1dd;
-      font-size: 23px;
-      font-weight: 800;
-      letter-spacing: .8px;
+      align-self: center;
+      flex: none;
+      width: 82%;
+      height: 53px;
+      margin: -2px 0 0;
+      border: 2px solid #ae8f73;
+      border-top: 3px solid #d5ad77;
+      border-radius: 0 0 27px 27px;
+      background: linear-gradient(#67465e, #30152e);
+      box-shadow: inset 0 2px 1px #ffe8d333, 0 2px 3px #71503944;
+      color: #fff1df;
       text-align: center;
-      text-transform: uppercase;
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 1px;
     }
     .stage.entrance .board-start:hover { background: linear-gradient(#79546f, #3d1c38); }
     .stage.entrance .board-start:focus-visible { outline: 3px solid #ffb86c; outline-offset: -4px; }
@@ -658,14 +653,10 @@
     .stage.entrance .player-b { grid-column: 3; }
     @media (min-width: 900px) {
       .stage.entrance .machine { height: 90%; gap: clamp(12px, 1.5dvh, 15px); }
-      .stage.entrance .board {
-        height: calc(clamp(190px, 34dvh, 285px) + 50px);
-        grid-template-rows: repeat(6, minmax(0, 1fr)) 50px;
-      }
+      .stage.entrance .board-start { margin-top: calc(-1 * clamp(12px, 1.5dvh, 15px) - 2px); }
     }
     @media (max-width: 899px) {
-      .stage.entrance .board { min-height: 242px; }
-      .stage.entrance .board-start { height: 46px; font-size: 18px; }
+      .stage.entrance .board-start { width: 100%; height: 47px; font-size: 19px; }
     }
     /* Provenance is a proud, cover-only feature, not gameplay chrome. */
     .stage:not(.entrance) .survey-credentials { display: none; }
@@ -701,7 +692,7 @@
       font-weight: 800; letter-spacing: 1.3px; line-height: 1.2;
     }
     @media (min-width: 900px) {
-      .stage.entrance .machine { height: 86%; gap: clamp(15px, 1.9dvh, 18px); }
+      .stage.entrance .machine { height: 90%; gap: clamp(12px, 1.5dvh, 15px); }
       .stage.entrance .question h1 { margin-bottom: clamp(14px, 2dvh, 20px); }
     }
     @media (max-width: 700px) {
@@ -765,6 +756,7 @@
         <span class="credentials-subtitle">2 PLAYERS · 3 ROUNDS</span>
       </button>
       <div id="board" class="board" role="group" aria-label="Ranked responses"></div>
+      <button id="board-start" class="board-start" type="button">Start Match</button>
       <p class="provenance" id="provenance">SEASON 26 · SURVEY GAME</p>
     </section>
     <section class="console" aria-label="Contestants and answer controls">
