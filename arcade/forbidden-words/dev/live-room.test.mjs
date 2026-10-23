@@ -132,6 +132,17 @@ try {
   await restored.webSocketClose(newLearner);
   assert.equal((await context.storage.get("room")).game.seen.learner, 0);
   assert.ok((await context.storage.get("room")).game.paused);
+  // A socket closure after the turn deadline must finish the turn, not freeze it.
+  stored = await context.storage.get("room");
+  stored.game.paused = null;
+  stored.game.phase = "active";
+  stored.game.deadline = Date.now() - 1;
+  stored.game.startsAt = Date.now() - 4000;
+  await context.storage.put("room", stored);
+  await restored.webSocketClose(tutor);
+  const deadlineResult = (await context.storage.get("room")).game;
+  assert.equal(deadlineResult.paused, null);
+  assert.equal(deadlineResult.phase, "switch");
 
   stored = await context.storage.get("room");
   stored.expiresAt = Date.now() - 1;
