@@ -11,7 +11,7 @@ export function continuity(Bridge) {
   });
   const runLabel = rung => `Question ${Math.max(1, Math.min(10, Number(rung) || 1))} of 10`;
   const runTitle = rung => `Millionaire · ${runLabel(rung)}`;
-  const runProgress = rung => ({ covered: Math.max(1, Math.min(10, Number(rung) || 1)), total: 10, openEnded: false });
+  const runProgress = (rung, engaged = true) => ({ covered: engaged ? Math.max(1, Math.min(10, Number(rung) || 1)) : 0, total: 10, openEnded: false });
 
   return {
     context() { return Bridge.readActiveSession(); },
@@ -37,14 +37,23 @@ export function continuity(Bridge) {
     saveRun(id, snapshot, view) {
       if (!id || !snapshot || !view) return;
       const data = read(id);
+      const wasEngaged = data.activeRun?.engaged === true;
+      const engaged = snapshot.engaged === true;
       data.activeRun = snapshot;
       write(id, data, {
-        title: runTitle(view.rung),
-        status: 'in-progress',
-        progress: runProgress(view.rung),
-        currentLabel: runLabel(view.rung),
+        title: engaged ? runTitle(view.rung) : 'Millionaire',
+        status: engaged ? 'in-progress' : 'available',
+        progress: runProgress(view.rung, engaged),
+        currentLabel: engaged ? runLabel(view.rung) : null,
         lastTouchedAt: Date.now()
       });
+      if (engaged && !wasEngaged) {
+        Bridge.touchRecentActivity({
+          sessionId: id, registryId: REGISTRY_ID, world: 'arcade',
+          type: 'game', title: 'Millionaire', action: 'opened',
+          launchUrl: new URL('./index.html', location.href).href
+        });
+      }
     },
     clearRun(id) {
       if (!id) return;
@@ -83,13 +92,14 @@ export function continuity(Bridge) {
       }
       const result = data.results.at(-1) || null;
       const finished = event.type === 'result';
+      const engaged = data.activeRun?.engaged === true;
       write(session.id, data, {
-        title: finished ? 'Millionaire' : runTitle(event.rung),
-        status: finished ? 'complete' : 'in-progress',
+        title: finished || !engaged ? 'Millionaire' : runTitle(event.rung),
+        status: finished ? 'complete' : engaged ? 'in-progress' : 'available',
         progress: finished
           ? { covered: 10, total: 10, openEnded: false }
-          : runProgress(event.rung),
-        currentLabel: finished ? null : runLabel(event.rung),
+          : runProgress(event.rung, engaged),
+        currentLabel: finished ? null : engaged ? runLabel(event.rung) : null,
         lastResult: result ? { prize: result.prize, outcome: result.outcome, highest: result.highest } : null,
         lastTouchedAt: Date.now()
       });
@@ -99,7 +109,7 @@ export function continuity(Bridge) {
         tutor.tutorExposures[event.questionId] = { count: (previous?.count || 0) + 1, lastSeenAt: event.timestamp };
         write(Bridge.defaultSessionId, tutor);
       }
-      if (['start', 'result'].includes(event.type)) Bridge.touchRecentActivity({
+      if (event.type === 'result') Bridge.touchRecentActivity({
         sessionId: session.id, registryId: REGISTRY_ID, world: 'arcade', type: 'game',
         title: 'Millionaire', action: event.type === 'result' ? 'played' : 'opened',
         launchUrl: new URL('./index.html', location.href).href
