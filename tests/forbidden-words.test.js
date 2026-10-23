@@ -313,6 +313,34 @@ const fs = require("node:fs");
   assert.ok(!client.includes("Played before this update"));
   assert.ok(!gameCss.includes(".room-recovery"));
 
+
+  // Invitations rotate on a confirmed server reply; show persistent replacement
+  // feedback only for the matching token, never for a different room/invite.
+  const inviteSnippet = client.slice(
+    client.indexOf("function replacementReady()"),
+    client.indexOf("function landing(s)"),
+  );
+  assert.ok(inviteSnippet.includes("function invitationLink()"));
+  const inviteHarness = {
+    state: { invite: "original" },
+    replacementInvite: null,
+    escape: x => String(x),
+    joinUrl: () => "https://example.test/join",
+    button: (_action, label) => label,
+  };
+  vm.runInNewContext(inviteSnippet + ";this.makeInvite = invitationLink;", inviteHarness);
+  assert.ok(inviteHarness.makeInvite().includes("Private game link"));
+  assert.ok(inviteHarness.makeInvite().includes("Copy link"));
+  assert.ok(!inviteHarness.makeInvite().includes("Previous invitation disabled"));
+  inviteHarness.replacementInvite = "replacement";
+  inviteHarness.state.invite = "replacement";
+  assert.ok(inviteHarness.makeInvite().includes("Replacement link"));
+  assert.ok(inviteHarness.makeInvite().includes("Copy new link"));
+  assert.ok(inviteHarness.makeInvite().includes("Previous invitation disabled"));
+  inviteHarness.state.invite = "other-session-token";
+  assert.ok(inviteHarness.makeInvite().includes("Private game link"));
+  assert.ok(!inviteHarness.makeInvite().includes("Previous invitation disabled"));
+
   const setupTutorBlock = client.slice(
     client.indexOf("async function setupTutor()"),
     client.indexOf("async function request("),
@@ -363,12 +391,21 @@ const fs = require("node:fs");
   assert.ok(!learnerPage.includes('id="end-game-confirm"'));
   assert.ok(client.includes("function confirmEndGame()"));
   assert.ok(client.includes('dialog.returnValue === "end"'));
-  assert.ok(client.includes('button("finish", "End game", "entry-footer-action end-game-action")'));
+  assert.ok(client.includes('button("finish", "Cancel game", "entry-footer-action end-game-action")'));
+  assert.ok(client.includes('dialog.querySelector("#end-game-title").textContent = waiting ? "Cancel this game?"'));
+  assert.ok(tutorPage.includes('id="end-game-eyebrow"'));
   assert.ok(client.includes('button("finish", "End game", "secondary end-game-button")'));
-  assert.ok(client.includes('class="pause-invitation"'));
+  assert.ok(client.includes('<details class="pause-invitation"'));
+  assert.ok(client.includes("Invitation &amp; reconnect"));
+  assert.ok(client.includes('button("replace-learner", "Reset invitation"'));
+  assert.ok(client.includes("replacementInvite = state?.invite || null"));
+  assert.ok(tutorPage.includes("Reset invitation?"));
+  assert.ok(gameCss.includes(".pause-invitation summary:focus-visible {"));
   assert.ok(client.includes('id="invite-link" class="invite-link-input"'));
   assert.ok(gameCss.includes(".pause-actions {"));
   assert.ok(gameCss.includes(".pause-invitation {"));
+  assert.ok(!client.includes("Current learner link"));
+  assert.ok(!client.includes("Replace learner link"));
   assert.ok(tutorPage.includes('method="dialog" class="fw-confirm-actions"'));
   assert.ok(tutorPage.includes('value="cancel" autofocus'));
   assert.ok(tutorPage.includes('value="replace"'));
