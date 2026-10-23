@@ -7,6 +7,8 @@
     "check:compass-covers": "node scripts/sync-compass-covers.js --check",
     "verify": "npm run check:shared-worker-syntax && npm run check:atlas-ai-worker && npm test && npm run check:compass-covers",
     "build:atlas-ai-worker": "node scripts/build-atlas-ai-worker.js",
-    "check:atlas-ai-worker": "node scripts/build-atlas-ai-worker.js --check && node --check shared/worker.js"
+    "check:atlas-ai-worker": "node scripts/build-atlas-ai-worker.js --check && node --check shared/worker.js",
+    "ai:dry-run": "npm run check:atlas-ai-worker && npx --yes wrangler@4 deploy --config wrangler.atlas-ai.jsonc --dry-run",
+    "ai:deploy": "npm run verify && npx --yes wrangler@4 deploy --config wrangler.atlas-ai.jsonc"
   }
 }
