@@ -138,7 +138,7 @@ test('Atlas continuity records both exposure scopes and removes a voided result'
   } finally { if (previousLocation === undefined) delete globalThis.location; else globalThis.location = previousLocation; }
 });
 
-test('session reset clears only that Millionaire session and preserves tutor-wide history', () => {
+test('New Run clears only the active run and preserves learner and tutor history', () => {
   const registry = { sessionStates: {} };
   const bridge = {
     defaultSessionId: 'shared', readRegistry: () => structuredClone(registry),
@@ -152,22 +152,28 @@ test('session reset clears only that Millionaire session and preserves tutor-wid
   const exposure = { type: 'exposure', runId: 'run-a', questionId, rung: 1, timestamp: 1 };
   store.record({ id: 'learner-a' }, exposure);
   store.record({ id: 'learner-b' }, { ...exposure, runId: 'run-b', timestamp: 2 });
-  store.saveRun('learner-a', { version: 1, state: { id: 'run-a' }, sessionSeen: [questionId] }, { rung: 2 });
+  const active = { version: 1, state: { id: 'run-a' }, sessionSeen: [questionId] };
+  store.saveRun('learner-a', active, { rung: 2 });
+  const learner = registry.sessionStates['learner-a']['arcade:millionaire'];
+  learner.millionaire.results.push({ type: 'result', runId: 'previous', prize: 8000, outcome: 'walked away' });
+  learner.lastResult = { prize: 8000, outcome: 'walked away', highest: 3 };
+  const previous = structuredClone(learner.millionaire);
+  const other = structuredClone(registry.sessionStates['learner-b']['arcade:millionaire']);
 
-  assert.equal(store.hasSessionData('learner-a'), true);
-  assert.equal(store.resetSession('learner-a'), true);
+  store.clearRun('learner-a');
 
-  const reset = registry.sessionStates['learner-a']['arcade:millionaire'];
-  assert.deepEqual(reset.millionaire.exposures, {});
-  assert.deepEqual(reset.millionaire.events, []);
-  assert.deepEqual(reset.millionaire.results, []);
-  assert.equal(reset.millionaire.activeRun, null);
-  assert.equal(reset.status, 'available');
-  assert.equal(reset.progress.covered, 0);
-  assert.equal(reset.lastResult, null);
-  assert.equal(store.hasSessionData('learner-a'), false);
-
-  assert.equal(registry.sessionStates['learner-b']['arcade:millionaire'].millionaire.exposures[questionId].count, 1);
+  const after = registry.sessionStates['learner-a']['arcade:millionaire'];
+  assert.equal(store.activeRun('learner-a'), null);
+  assert.equal(after.status, 'available');
+  assert.equal(after.progress.covered, 0);
+  assert.deepEqual(after.millionaire.exposures, previous.exposures);
+  assert.deepEqual(after.millionaire.events, previous.events);
+  assert.deepEqual(after.millionaire.results, previous.results);
+  assert.deepEqual(after.lastResult, { prize: 8000, outcome: 'walked away', highest: 3 });
+  assert.deepEqual(registry.sessionStates['learner-b']['arcade:millionaire'], other);
   assert.equal(registry.sessionStates.shared['arcade:millionaire'].millionaire.tutorExposures[questionId].count, 2);
   assert.ok(store.seen('learner-a').includes(questionId));
+  store.saveRun('learner-a', active, { rung: 1 });
+  assert.deepEqual(store.activeRun('learner-a'), active);
+  assert.deepEqual(registry.sessionStates['learner-a']['arcade:millionaire'].millionaire.results, previous.results);
 });
