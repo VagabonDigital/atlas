@@ -88,7 +88,13 @@ Changing the active Atlas learner session loads that learner's own match (or the
 start screen when none exists); pending answer animations cannot apply results
 across learner sessions. The final result marks the match complete, clears the
 resumable snapshot and removes Continue eligibility. Recent Activity remains, and
-Play Again starts a fresh three-round match. This uses AtlasBridge's existing
+Play Again starts a fresh three-round match. During an unfinished match, the
+muted **New Match** game-header control opens a confirmation dialog. Confirming
+starts a new three-round match for the selected learner only, replacing their
+unfinished snapshot and resetting current scores and reveals without clearing
+the browser's previously seen boards or another learner's match. Cancelling
+leaves gameplay untouched. Pending animations cannot apply old-match results
+after confirmation or cross-session switching. This uses AtlasBridge's existing
 browser-local continuity, not cross-device or server-side game storage.
 
 Previously seen board IDs continue to be stored in browser-local storage to
