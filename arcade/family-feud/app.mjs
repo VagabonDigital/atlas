@@ -67,9 +67,12 @@ function readSnapshot(sessionId){
     };
   }catch{return null;}
 }
+function matchHasActivity(match=state){
+  return !!match&&(match.round>0||match.phase!=='playing'||match.strikes.some(Boolean)||match.revealed.some(Boolean));
+}
 function saveMatch(){
   if(!state||!matchSessionId||!window.AtlasBridge?.upsertSessionState)return;
-  const complete=state.phase==='final';
+  const complete=state.phase==='final',engaged=matchHasActivity();
   const snapshot=complete?null:{
     version:1,boardIds:state.boards.map(board=>board.id),
     round:state.round,starter:state.starter,active:state.active,
@@ -80,9 +83,9 @@ function saveMatch(){
   try{
     window.AtlasBridge.upsertSessionState(matchSessionId,REGISTRY_ID,{
       world:'arcade',type:'game',title:'Family Feud',
-      status:complete?'complete':'in-progress',
-      progress:{covered:complete?3:state.round+1,total:3,openEnded:false},
-      currentLabel:complete?'Match complete':`Round ${state.round+1} of 3`,
+      status:complete?'complete':engaged?'in-progress':'available',
+      progress:{covered:complete?3:engaged?state.round+1:0,total:3,openEnded:false},
+      currentLabel:complete?'Match complete':engaged?`Round ${state.round+1} of 3`:null,
       familyFeud:snapshot,
       launchUrl:new URL('./index.html',location.href).href,
       lastTouchedAt:Date.now()
@@ -103,6 +106,8 @@ function loadActiveMatch(){
   $('#stage').classList.remove('opening');
   participantNames();
   if(restored?.names)names=restored.names;
+  // Normalize pre-existing empty Round 1 snapshots written by older versions.
+  if(state&&!matchHasActivity()&&window.AtlasBridge?.readRegistry?.()?.sessionStates?.[matchSessionId]?.[REGISTRY_ID]?.progress?.covered>0)saveMatch();
   render();
 }
 window.addEventListener('atlas:session-change',loadActiveMatch);
@@ -192,19 +197,17 @@ async function openRound(){
   busy=false;renderDock();focusAnswer();
 }
 function recordAtlasPlay(){
+  try{window.AtlasAnalytics?.arcadeGameStart?.('family-feud');}
+  catch{} // Analytics must never interrupt a match.
+}
+function recordAtlasEngagement(){
   try{
-    const bridge=window.AtlasBridge;
-    if(matchSessionId){
-      bridge?.touchRecentActivity?.({
-        sessionId:matchSessionId,
-        registryId:REGISTRY_ID,
-        world:'arcade',
-        type:'game',
-        title:'Family Feud',
-        launchUrl:new URL('./index.html',location.href).href
-      });
-    }
-    window.AtlasAnalytics?.arcadeGameStart?.('family-feud');
+    if(!matchSessionId)return;
+    window.AtlasBridge?.touchRecentActivity?.({
+      sessionId:matchSessionId,registryId:REGISTRY_ID,world:'arcade',
+      type:'game',title:'Family Feud',
+      launchUrl:new URL('./index.html',location.href).href
+    });
   }catch{} // Recent activity must never interrupt a match.
 }
 async function start(){
@@ -260,8 +263,12 @@ async function submit(pass=false){
   if(!stillCurrent())return;
   await pause(Math.max(0,320-(performance.now()-began)));
   if(!stillCurrent())return;
+  const wasEngaged=matchHasActivity(match);
   const result=applyResolution(match,resolution);
-  if(!['error','ambiguous','already'].includes(result.kind))saveMatch();
+  if(!['error','ambiguous','already'].includes(result.kind)){
+    saveMatch();
+    if(!wasEngaged)recordAtlasEngagement();
+  }
   if(result.kind==='error'){
     message='Couldn’t check that answer. Try again — no strike.'; // Preserve exact phrase and turn.
   }else if(result.kind==='ambiguous'){
