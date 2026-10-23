@@ -19,7 +19,7 @@ test('paraphrases, punctuation, typo, near misses and neighbouring concepts',()=
   assert.throws(()=>resolveAnswer(null,'phone'));
 });
 test('successful discovery, already-found, ambiguity and failure preserve fair state',()=>{
-  const s=createMatch(legacyBoards.slice(0,3),()=>0);assert.equal(s.active,0);
+  const s=createMatch(legacyBoards.slice(0,3));assert.equal(s.active,1);s.starter=s.active=0;
   applyResolution(s,{kind:'match',index:0});assert.deepEqual(s.scores,[34,0]);assert.equal(s.active,1);
   const before=structuredClone(s);
   assert.equal(applyResolution(s,resolveAnswer(legacyBoards[0],'house keys')).kind,'already');
@@ -27,7 +27,7 @@ test('successful discovery, already-found, ambiguity and failure preserve fair s
   applyResolution(s,{kind:'match',index:1});assert.deepEqual(s.scores,[34,26]);assert.equal(s.active,0);
 });
 test('third strike eliminates one player, solo tail continues, missed reveals remain neutral',()=>{
-  const s=createMatch(legacyBoards,()=>0);
+  const s=createMatch(legacyBoards);s.starter=s.active=0;
   for(let i=0;i<5;i++)applyResolution(s,{kind:i%2?'miss':'pass'});
   assert.deepEqual(s.strikes,[3,2]);assert.equal(s.active,1);assert.equal(s.phase,'playing');
   applyResolution(s,{kind:'match',index:0});assert.equal(s.active,1);assert.deepEqual(s.scores,[0,34]);
@@ -37,14 +37,14 @@ test('third strike eliminates one player, solo tail continues, missed reveals re
   nextRound(s);assert.equal(s.active,0);assert.deepEqual(s.strikes,[0,0]);assert.deepEqual(s.contribution,[0,0]);
 });
 test('three rounds, trailing/tie starters, all found, draw and win',()=>{
-  const s=createMatch(legacyBoards,()=>.9);assert.equal(s.starter,1);
+  const s=createMatch(legacyBoards);assert.equal(s.starter,1);
   for(let round=0;round<3;round++){
     for(let n=0;n<6;n++)applyResolution(s,{kind:'pass'});
     revealMissed(s,true);nextRound(s);
     if(round<2)assert.equal(s.starter,round===0?0:1);
   }
   assert.equal(s.phase,'final');assert.equal(winner(s),null);
-  const win=createMatch(legacyBoards,()=>0);for(let i=0;i<6;i++)applyResolution(win,{kind:'match',index:i});
+  const win=createMatch(legacyBoards);win.starter=win.active=0;for(let i=0;i<6;i++)applyResolution(win,{kind:'match',index:i});
   assert.equal(win.phase,'roundEnd');assert.deepEqual(win.scores,[58,41]);assert.equal(winner(win),0);nextRound(win);assert.equal(win.starter,1);
 });
 test('fresh legacyBoards preferred; exhaustion never prevents a full replay',()=>{
@@ -112,7 +112,7 @@ test('three-round matches select sourced boards and never legacy fixtures',()=>{
   const selected=chooseBoards(boards,[],()=>0.37);
   assert.equal(selected.length,3);
   assert.ok(selected.every(b=>b.kind==='season26'));
-  const match=createMatch(selected,()=>0);
+  const match=createMatch(selected);
   for(let round=0;round<3;round++){
     for(let i=0;i<6;i++)applyResolution(match,resolveAnswer(selected[round],selected[round].concepts[i].label));
     assert.equal(match.phase,'roundEnd');

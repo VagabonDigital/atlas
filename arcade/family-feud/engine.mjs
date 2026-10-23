@@ -46,8 +46,8 @@ export function chooseBoards(boards, seen=[], random=Math.random) {
   const shuffle = a => {a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a;};
   return [...shuffle(boards.filter(b=>!seen.includes(b.id))),...shuffle(boards.filter(b=>seen.includes(b.id)))].slice(0,3);
 }
-export function createMatch(boards, random=Math.random) {
-  const starter=random()<.5?0:1;
+export function createMatch(boards) {
+  const starter=1; // Player 2 is the learner and opens Round 1.
   return {boards,round:0,starter,active:starter,scores:[0,0],contribution:[0,0],strikes:[0,0],revealed:Array(6).fill(null),phase:'playing'};
 }
 function advance(s) {
