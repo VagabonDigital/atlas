@@ -1799,7 +1799,9 @@
     function getGameDeckState(game, state) {
       // Millionaire restores active runs, but completed shows start afresh.
       if (game.registryId === 'arcade:millionaire') {
-        const resumable = !!state?.millionaire?.activeRun;
+        // A saved run can exist before the player has interacted.
+        const resumable = !!state?.millionaire?.activeRun &&
+          (Number(state?.progress?.covered) || 0) > 0;
         const covered = Math.max(
           1,
           Math.min(10, Number(state?.progress?.covered) || 1)
