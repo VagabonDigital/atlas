@@ -111,6 +111,8 @@ const {pathToFileURL}=require('node:url');
  assert.equal((await matchRecord()).status,'complete');
  assert.equal((await matchRecord()).familyFeud,null);
  await page.screenshot({path:path.join(dir,'final-1024.png')});
+ const seenBeforeReplay=await page.evaluate(()=>JSON.parse(localStorage.getItem('atlas:family-feud:seen')||'[]'));
+ const unseenBeforeReplay=boards.filter(board=>!seenBeforeReplay.includes(board.id)).map(board=>board.id);
  await page.getByRole('button',{name:'Play Again',exact:true}).click();await ready();
  // Entire second match with passes gives a draw; unseen boards are preferred.
  const second=[];
@@ -120,7 +122,11 @@ const {pathToFileURL}=require('node:url');
   await page.getByRole('button',{name:'Reveal All',exact:true}).click();
   await page.getByRole('button',{name:r===2?'Final Result':'Next Round',exact:true}).click();if(r<2)await ready();
  }
- assert.match(await page.locator('#board h2').innerText(),/draw/);assert.ok(!second.includes(b.id));
+ assert.match(await page.locator('#board h2').innerText(),/draw/);
+ assert.equal(new Set(second).size,3);
+ // With a five-board pool, reuse becomes necessary. Prefer every remaining unseen board.
+ assert.equal(second.filter(id=>!seenBeforeReplay.includes(id)).length,Math.min(3,unseenBeforeReplay.length));
+ if(unseenBeforeReplay.length<=3)assert.ok(unseenBeforeReplay.every(id=>second.includes(id)));
  await page.screenshot({path:path.join(dir,'draw-1024.png')});
  await page.getByRole('button',{name:'Finish',exact:true}).click();await page.waitForURL('**/arcade/index.html');
  await page.goto(url);
