@@ -79,8 +79,10 @@ The game has no debug controls, answer reveal shortcuts, or hidden text in shutt
 ## Atlas Continue
 
 Starting a match creates a versioned Family Feud snapshot under the active Atlas
-learner session in the existing AtlasBridge registry. Continue becomes eligible
-immediately. The snapshot preserves board IDs, round, current contestant, starting
+learner session in the existing AtlasBridge registry. An untouched opening board
+is saved but reports zero progress: the Arcade and Atlas Continue surfaces become
+eligible only after the first valid guess or pass. The snapshot preserves board
+IDs, round, current contestant, starting
 contestant, scores, round contributions, strikes, revealed answers and contestant
 names. Answers, passes, board reveals and round transitions checkpoint the match.
 Reopening the page (including through Atlas Continue) shows the cover first.
