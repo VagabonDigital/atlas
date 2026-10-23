@@ -1290,7 +1290,7 @@
     }
 
     .btn-discussion {
-      flex: 1;
+      flex: 0 0 auto;
       border: 1px solid rgba(var(--cyan-rgb), 0.35);
       background: var(--cyan-dim);
       color: var(--cyan);
@@ -1321,6 +1321,7 @@
     }
 
     .btn-mark-solved {
+      margin-left: auto; /* Keep completion and copy together on the right. */
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -2303,8 +2304,10 @@
       }
 
       .btn-discussion,
-      .btn-mark-solved {
+      .btn-mark-solved,
+      .btn-copy-recap {
         width: 100%;
+        margin-left: 0;
       }
 
       .nav-bar {
