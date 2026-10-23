@@ -873,10 +873,14 @@
       background: var(--bg-subtle);
     }
 
+    .stmt.is-hoverable { cursor: pointer; }
     .stmt.is-hoverable:hover {
-      border-color: rgba(var(--cyan-rgb), 0.4);
-      box-shadow: 0 0 0 3px rgba(var(--cyan-rgb), 0.06);
-      cursor: pointer;
+      border-color: rgba(var(--cyan-rgb), 0.55);
+      box-shadow: 0 0 0 3px rgba(var(--cyan-rgb), 0.09);
+    }
+    .stmt.is-hoverable:focus-visible {
+      outline: 3px solid var(--cyan);
+      outline-offset: 3px;
     }
 
     .stmt.is-selected {
@@ -1093,51 +1097,6 @@
       text-transform: uppercase;
     }
 
-    .choose-btns {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 0.6rem;
-    }
-
-    .btn-choose {
-      min-height: 44px;
-      max-width: 160px;
-      flex: 1;
-      padding: 0.72rem 1rem;
-      border: 1.5px solid var(--border-mid);
-      border-radius: var(--r-md);
-      background: var(--bg-raised);
-      color: var(--ink-mid);
-      font-family: var(--font-body);
-      font-size: 0.84rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition:
-        background-color var(--t),
-        border-color var(--t),
-        color var(--t);
-    }
-
-    html[data-theme="night"] .btn-choose {
-      background: var(--bg-subtle);
-    }
-
-    .btn-choose:hover {
-      border-color: var(--cyan);
-      background: var(--cyan-dim);
-      color: var(--cyan);
-    }
-
-    .btn-choose:focus-visible {
-      outline: 2px solid var(--cyan);
-      outline-offset: 2px;
-    }
-
-    /* ============================================================
-     SELECTED STATE
-     ============================================================ */
-
     .selected-row {
       display: flex;
       flex-wrap: wrap;
@@ -1156,29 +1115,10 @@
       color: var(--cyan);
     }
 
-    .btn-change,
     .btn-reveal {
       min-height: 38px;
       font-family: var(--font-body);
       cursor: pointer;
-    }
-
-    .btn-change {
-      padding: 0.58rem 1rem;
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
-      background: transparent;
-      color: var(--ink-quiet);
-      font-size: 0.78rem;
-      font-weight: 500;
-      transition:
-        border-color var(--t),
-        color var(--t);
-    }
-
-    .btn-change:hover {
-      border-color: var(--border-mid);
-      color: var(--ink);
     }
 
     .btn-reveal {
@@ -1838,8 +1778,6 @@
     html.theme-changing .btn-evidence,
     html.theme-changing .evidence-panel,
     html.theme-changing .action-area,
-    html.theme-changing .btn-choose,
-    html.theme-changing .btn-change,
     html.theme-changing .btn-reveal,
     html.theme-changing .reveal-summary,
     html.theme-changing .btn-discussion,
@@ -2023,9 +1961,7 @@
         padding: 0.75rem;
       }
 
-      .btn-choose {
-        max-width: 100%;
-      }
+
 
       .btn-reveal {
         width: 100%;
@@ -2544,18 +2480,13 @@
        ================================================================ */
     function selectAnswer(letter) {
       ensureCaseEntry(ST.currentIndex);
-      if (ST.cases[String(ST.currentIndex)].revealed) return;
+      if (ST.cases[String(ST.currentIndex)].revealed || !['A', 'B', 'C'].includes(letter)) return;
+      if (ST.cases[String(ST.currentIndex)].playerAnswer === letter) return;
       ST.cases[String(ST.currentIndex)].playerAnswer = letter;
       saveState();
       renderCaseCard();
-    }
-
-    function changeAnswer() {
-      ensureCaseEntry(ST.currentIndex);
-      if (ST.cases[String(ST.currentIndex)].revealed) return;
-      ST.cases[String(ST.currentIndex)].playerAnswer = null;
-      saveState();
-      renderCaseCard();
+      // Re-render replaces the cards; restore focus to the current choice.
+      document.querySelector('.stmt[data-answer="' + letter + '"]')?.focus({ preventScroll: true });
     }
 
     function revealTrap() {
@@ -2763,7 +2694,7 @@
 
       // Instruction
       if (state === 'idle') {
-        html += '<div class="case-instruction">Study the statements and identify the lie</div>';
+        html += '<div class="case-instruction">Select the statement you think is the lie</div>';
       }
 
       // Statements
@@ -2775,9 +2706,8 @@
         let playerPickHtml = '';
         let actionHtml = '';
 
-        if (state === 'idle') {
+        if (state === 'idle' || state === 'selected') {
           cls += ' is-hoverable';
-        } else if (state === 'selected') {
           if (cs.playerAnswer === L) cls += ' is-selected';
         } else if (state === 'revealed' || state === 'solved') {
           if (c.wildcard) {
@@ -2796,11 +2726,12 @@
           actionHtml = '<button class="btn-evidence" id="ev-btn-' + L + '" onclick="toggleEvidence(\'' + L + '\')" aria-expanded="false">Show evidence</button>';
         }
 
-        const clickHandler = (state === 'idle')
-          ? 'onclick="selectAnswer(\'' + L + '\')" role="button" tabindex="0" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();selectAnswer(\'' + L + '\')}"'
+        const selectable = state === 'idle' || state === 'selected';
+        const clickHandler = selectable
+          ? 'data-answer="' + L + '" onclick="selectAnswer(\'' + L + '\')" role="button" tabindex="0" aria-pressed="' + (cs.playerAnswer === L) + '" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();selectAnswer(\'' + L + '\')}"'
           : '';
 
-        html += '<div class="' + cls + '" ' + clickHandler + ' aria-label="Statement ' + L + '">';
+        html += '<div class="' + cls + '" ' + clickHandler + ' aria-label="Statement ' + L + ': ' + escHtml(stmt.text) + '">';
         html += '<div class="stmt-inner">';
         html += '<div class="stmt-label" aria-hidden="true">' + L + '</div>';
         html += '<div class="stmt-body">';
@@ -2823,19 +2754,11 @@
       });
       html += '</div>'; // .statements
 
-      // Action area
-      html += '<div class="action-area">';
-      if (state === 'idle') {
-        html += '<div class="choose-prompt">Which statement is the lie?</div>';
-        html += '<div class="choose-btns">';
-        html += '<button class="btn-choose" onclick="selectAnswer(\'A\')">Statement A</button>';
-        html += '<button class="btn-choose" onclick="selectAnswer(\'B\')">Statement B</button>';
-        html += '<button class="btn-choose" onclick="selectAnswer(\'C\')">Statement C</button>';
-        html += '</div>';
-      } else if (state === 'selected') {
+      // Statements are the selection controls; reveal remains a deliberate confirmation.
+      if (state !== 'idle') html += '<div class="action-area">';
+      if (state === 'selected') {
         html += '<div class="selected-row">';
-        html += '<div class="selected-label">Statement <strong>' + cs.playerAnswer + '</strong> is the lie</div>';
-        html += '<button class="btn-change" onclick="changeAnswer()">Change</button>';
+        html += '<div class="selected-label">Statement <strong>' + cs.playerAnswer + '</strong> selected · Select another card to change your mind</div>';
         html += '<button class="btn-reveal" onclick="revealTrap()">Reveal the trap</button>';
         html += '</div>';
       } else if (state === 'revealed') {
@@ -2887,7 +2810,7 @@
         html += '<p class="discussion-text">' + escHtml(c.discussion) + '</p>';
         html += '</div>';
       }
-      html += '</div>'; // .action-area
+      if (state !== 'idle') html += '</div>'; // .action-area
 
       const card = document.getElementById('case-card');
       if (!card) return;
