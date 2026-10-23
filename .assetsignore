@@ -15,6 +15,7 @@ README.md
 package.json
 package-lock.json
 wrangler.atlas-web.jsonc
+wrangler.atlas-ai.jsonc
 
 shared/worker.js
 arcade/forbidden-words/server/
