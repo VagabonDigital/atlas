@@ -62,6 +62,9 @@ const fs = require("node:fs");
   act("tutor", "pause", now + 5000);
   advance(s, now + 90000);
   assert.equal(s.phase, "active");
+  // The tutor cannot resume until both seats are present again.
+  assert.throws(() => act("tutor", "resume", now + 90000), /both players reconnect/);
+  act("learner", "poll", now + 89999);
   act("tutor", "resume", now + 90000);
   assert.equal(s.deadline, now + 208000);
   const final = s.card.nonce;
@@ -152,6 +155,73 @@ const fs = require("node:fs");
     assert.equal(game.phase, "finished");
     assert.throws(() => endAction("tutor", "finish", at + 200001));
   }
+  // An abandoned participant freezes the clock on the server and the
+  // original time is restored only after both reconnect. No scores can change.
+  const disconnected = initialState(300000);
+  disconnected.learnerHash = "connected-learner";
+  disconnected.seen.learner = 300000;
+  const dact = (actor, action, at, extra = {}) => command(
+    disconnected, actor, {
+      action, id: crypto.randomUUID(),
+      round: disconnected.round, turn: disconnected.turn, ...extra,
+    }, at,
+  );
+  dact("tutor", "start", 300000);
+  dact("learner", "poll", 303100);
+  dact("tutor", "poll", 303100);
+  const expectedDeadline = disconnected.deadline;
+  const offlineAt = 303100 + 12001;
+  dact("tutor", "poll", offlineAt);
+  assert.equal(disconnected.phase, "active");
+  assert.equal(disconnected.paused.reason, "connection");
+  assert.equal(disconnected.paused.at, 303100);
+  assert.equal(disconnected.paused.remaining, expectedDeadline - 303100);
+  const frozenCard = disconnected.card.nonce;
+  const frozenScore = disconnected.score;
+  assert.throws(
+    () => dact("tutor", "correct", offlineAt + 1, { card: frozenCard }),
+    /paused/,
+  );
+  assert.equal(disconnected.card.nonce, frozenCard);
+  assert.equal(disconnected.score, frozenScore);
+  assert.throws(() => dact("tutor", "resume", offlineAt + 2), /both players reconnect/);
+  dact("learner", "poll", offlineAt + 3);
+  assert.equal(disconnected.paused.reason, "connection");
+  const returned = offlineAt + 4;
+  dact("tutor", "resume", returned);
+  assert.equal(disconnected.paused, null);
+  assert.equal(disconnected.deadline, returned + expectedDeadline - 303100);
+
+  // Losing the tutor also freezes a learner's visible turn, including when
+  // the tutor browser is closed entirely.
+  const tutorLost = returned + 12001;
+  dact("learner", "poll", tutorLost);
+  assert.equal(disconnected.paused.reason, "connection");
+  assert.equal(view(disconnected, "learner", tutorLost, 10).connected.tutor, false);
+  assert.throws(() => dact("learner", "resume", tutorLost + 1), /Only the tutor/);
+  dact("tutor", "poll", tutorLost + 2);
+  dact("tutor", "resume", tutorLost + 3);
+  assert.equal(disconnected.paused, null);
+
+  // Countdown also freezes rather than slipping into active play while
+  // the learner is absent, with the countdown restored on reconnection.
+  const countdownRoom = initialState(500000);
+  countdownRoom.learnerHash = "connected";
+  countdownRoom.seen.learner = 500000;
+  const cact = (actor, action, at) => command(countdownRoom, actor, {
+    action, id: crypto.randomUUID(), round: countdownRoom.round,
+    turn: countdownRoom.turn,
+  }, at);
+  cact("tutor", "start", 500000);
+  cact("tutor", "poll", 515000);
+  assert.equal(countdownRoom.phase, "countdown");
+  assert.equal(countdownRoom.paused.reason, "connection");
+  assert.equal(countdownRoom.paused.countdown, 3000);
+  cact("learner", "poll", 515001);
+  cact("tutor", "resume", 515002);
+  assert.equal(countdownRoom.startsAt, 518002);
+  assert.equal(countdownRoom.deadline, 638002);
+
   // Immutable Atlas ownership lives in the same server state as the room.
   const scopedGame = initialState(40000);
   const bind = (actor, atlasSessionId, id = crypto.randomUUID()) =>
@@ -535,7 +605,9 @@ const fs = require("node:fs");
   assert.ok(gameCss.includes("overflow-wrap: normal;"));
   assert.ok(gameCss.includes("word-break: normal;"));
   assert.ok(!gameCss.includes("overflow-wrap: anywhere;"));
-  assert.ok(client.includes("<h2>Turn paused.</h2>"));
+  assert.ok(client.includes('connectionPaused ? "Both players are back." : "Turn paused."'));
+  assert.ok(client.includes('waitingForPartner ? "Partner disconnected."'));
+  assert.ok(client.includes('!s.connected.tutor || !s.connected.learner'));
   assert.ok(client.includes('id="clock">02:00</strong>'));
   assert.ok(client.includes("const turnMs = state.turnMs || 120000;"));
   assert.ok(client.includes("ms / turnMs"));
@@ -557,7 +629,8 @@ const fs = require("node:fs");
   assert.ok(gameCss.includes("left: 50%;"));
   assert.ok(gameCss.includes("body:has(#notice:not(:empty)) .feedback"));
   assert.ok(client.includes('["countdown", "active"].includes(state.phase)'));
-  assert.ok(client.includes("The turn is paused."));
+  assert.ok(client.includes("The clock is stopped. Resume when both players are connected."));
+  assert.ok(!client.includes("The clock continues unless the tutor pauses."));
   assert.ok(gameCss.includes("width: max-content;"));
   assert.ok(gameCss.includes("max-width: min(680px, calc(100vw - 32px));"));
   const excludes = fs.readFileSync(".assetsignore", "utf8");
