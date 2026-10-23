@@ -40,6 +40,24 @@ const {pathToFileURL}=require('node:url');
  });
  assert.equal((await matchRecord()).status,'in-progress');
  assert.equal((await matchRecord()).progress.covered,1);
+
+ // The title stays centred on the viewport, even with both right utilities present.
+ for (const width of [1280, 800]) {
+  await page.setViewportSize({width,height:720});
+  const header=await page.evaluate(()=>{
+   const brand=document.querySelector('#game-chrome > .small-brand').getBoundingClientRect();
+   const back=document.querySelector('#return-slot').getBoundingClientRect();
+   const utilities=document.querySelector('#game-utilities').getBoundingClientRect();
+   return {
+    offset:(brand.left+brand.right)/2-innerWidth/2,
+    leftGap:brand.left-back.right,
+    rightGap:utilities.left-brand.right
+   };
+  });
+  assert.ok(Math.abs(header.offset)<=1,`Header title shifted at ${width}px: ${header.offset}px`);
+  assert.ok(header.leftGap>=8&&header.rightGap>=8,`Header controls overlap title at ${width}px`);
+ }
+ await page.setViewportSize({width:1280,height:720});
  const firstQuestion=await page.locator('#heading h1').innerText();
  await page.reload();await page.getByRole('textbox',{name:'Your answer'}).waitFor();
  assert.equal(await page.locator('#heading h1').innerText(),firstQuestion);
