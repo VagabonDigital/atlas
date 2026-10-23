@@ -182,42 +182,71 @@ browser-shared runtime, and is explicitly excluded from the static asset deploym
 
 It owns provider credentials, authenticated Atlas account verification, AI abuse guardrails, Paddle webhooks/customer-portal operations and server-side external-provider requests.
 
-**Backend deployment configuration (prepared, not activated):** `wrangler.atlas-ai.jsonc`
-describes the **existing** `atlas-ai` Worker and its `shared/worker.js` source.
-It preserves the verified production compatibility date (`2026-08-07`), no
-compatibility flags, the existing `ATLAS_FEEDBACK` KV binding to
-`atlas-feedback`, and the `workers.dev` endpoint. `keep_vars: true` leaves
-dashboard-managed plaintext variables in place; encrypted secrets remain in
-Cloudflare and are not copied into source control. Never put secret values
-in this file. The config is excluded from the public static asset deployment
-through `.assetsignore`.
+**Backend deployment configuration:** `wrangler.atlas-ai.jsonc` describes the
+existing `atlas-ai` Worker and its `shared/worker.js` source. It retains the
+production compatibility date (`2026-08-07`), existing `ATLAS_FEEDBACK`
+KV namespace, and `workers.dev` endpoint. `keep_vars: true` preserves
+dashboard-managed plaintext variables; encrypted secrets stay in Cloudflare.
+Never commit secrets or copy them into the Wrangler configuration. The
+configuration is excluded from public site assets via `.assetsignore`.
 
-**Verification-only, without a Cloudflare deployment:**
+The first Wrangler deployment of `atlas-ai` on **23 October 2026** created the
+SQLite-backed `ForbiddenWordsLiveRoom` Durable Object and bound it as
+`FORBIDDEN_WORDS_LIVE`. The health endpoint responded successfully after
+deployment. The live game remains **off by default**: unless Cloudflare has
+`ATLAS_FORBIDDEN_WORDS_LIVE_ENABLED=true`, the `/forbidden-words/live/*`
+routes respond with 404 while existing HTTP games continue unchanged.
+Actual two-browser/WebSocket acceptance testing is still required before
+enabling the new game transport.
 
-```sh
-npm run build:atlas-ai-worker
-npx --yes wrangler@4 deploy --config wrangler.atlas-ai.jsonc --dry-run
-npm run verify
-```
+#### Quick commands — updating `atlas-ai` from Windows / VS Code
 
-Do not change the Cloudflare dashboard's `atlas-ai` bindings or deploy the Worker
-as part of this configuration-only step. Future Worker deployments must first
-reconcile the current dashboard bindings/variables and explicitly use
-`wrangler.atlas-ai.jsonc`; no backend auto-deployment workflow exists.
-The repository now stages a SQLite-backed `ForbiddenWordsLiveRoom` Durable Object
-class and `FORBIDDEN_WORDS_LIVE` binding for the next Arcade implementation batch.
-The game-specific source is `arcade/forbidden-words/server/live-room.mjs`, embedded
-by the existing backend generator. The Worker includes a disabled-by-default live route; absent the exact
-`ATLAS_FORBIDDEN_WORDS_LIVE_ENABLED=true` setting, it returns 404 and the
-existing HTTP route remains in control. The production namespace has not
-been created by this repository change. Do **not**
-deploy this Worker configuration until the live-room account-authorisation,
-quota, runtime verification and rollout gates are approved. The Cloudflare
-declarative `exports` lifecycle cannot be rolled back across the first class
-creation, so retain the namespace/binding in rollback configurations and
-switch only game routing during a rollback.
+This backend Worker is **not automatically deployed** when GitHub `main`
+changes. GitHub's public-site deployment is a separate process. Use these
+commands only for an intentional **backend** update:
 
-**The repository currently contains no GitHub Actions workflow that deploys this backend Worker.** Do not assume that editing backend source makes the production `atlas-ai` Worker current. The existing Cloudflare dashboard code-editor workflow remains available until a controlled CLI cutover is explicitly approved. Before any backend deployment, run `npm run build:atlas-ai-worker` and `npm run verify`; deployment of the complete source must preserve existing bindings, variables and secrets. The Wrangler dry-run step checks the future CLI bundle **without deploying it**.
+1. Verify the intended backend changes have been merged and CI has passed.
+   In **GitHub Desktop**, select `atlas` on `main`, click **Fetch origin**,
+   then **Pull origin** if offered. Check for uncommitted changes first; never
+   deploy an unknown or stale local version.
+2. In **VS Code**, open **Terminal → New Terminal** in the Atlas repository
+   root (where `package.json` is). On Windows PowerShell, run the safe preview:
+
+   ```powershell
+   npm.cmd run ai:dry-run
+   ```
+
+   This checks that the generated backend is current and previews the Worker
+   bundle/bindings **without deploying anything**.
+3. If the preview is correct **and the backend update is approved**, run:
+
+   ```powershell
+   npm.cmd run ai:deploy
+   ```
+
+   This runs `npm run verify` first and, only if it succeeds, deploys
+   `shared/worker.js` with `wrangler.atlas-ai.jsonc`. **This is a real
+   production deployment** of the shared backend Worker, not just Forbidden
+   Words. Never run it to publish a normal website-only change.
+4. Confirm the terminal reports `Deployed atlas-ai`. Open
+   [the Worker health check](https://atlas-ai.savvy989.workers.dev/health);
+   it should return `"ok":true`. Then smoke-test relevant Atlas features.
+   For the Forbidden Words live-room rollout, verify the switch remains off
+   until controlled testing is arranged. A green health endpoint alone does
+   **not** validate AI, account, billing or live WebSocket behaviour.
+
+The shortcuts live in the existing root `package.json`:
+`ai:dry-run` and `ai:deploy`. On macOS/Linux, use `npm run` instead of
+`npm.cmd run`. Without shortcuts, the underlying commands are
+`npx.cmd wrangler deploy --config wrangler.atlas-ai.jsonc --dry-run`
+and `npx.cmd wrangler deploy --config wrangler.atlas-ai.jsonc`.
+The GitHub Actions backend step is verification-only; it never deploys.
+
+**Durable Object rollback:** after the first Cloudflare deployment, preserve
+the class/binding in future Worker configurations. To roll back Forbidden
+Words, disable its live route instead of attempting to remove the already
+created Durable Object class. Do not replace the full backend Worker via
+manual dashboard code-paste without checking the source/configuration drift.
 
 The physical location/name of `shared/worker.js` is historical and may be improved in a future backend-architecture pass. Do not move it as routine repository hygiene.
 
