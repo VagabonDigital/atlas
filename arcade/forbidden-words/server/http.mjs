@@ -16,7 +16,7 @@ export async function hash(value) {
     (n) => n.toString(16).padStart(2, "0"),
   ).join("");
 }
-async function same(a, b) {
+export async function same(a, b) {
   if (typeof a !== "string" || typeof b !== "string") return false;
   // HMAC verification provides constant-time comparison in both Workers and Node.
   const key = await crypto.subtle.importKey(
@@ -70,7 +70,7 @@ export function supabaseRpc(env) {
     return response.status === 204 ? null : response.json();
   };
 }
-async function bodyOf(request) {
+export async function bodyOf(request) {
   if (!request.headers.get("Content-Type")?.startsWith("application/json"))
     throw new GameError("JSON required.", 415);
   const reader = request.body?.getReader();
@@ -153,8 +153,7 @@ export async function handleForbiddenWords(
     const atlasSessionId = typeof body.atlasSessionId === "string"
       ? body.atlasSessionId
       : null;
-    if (!learner && atlasSessionId !== null &&
-        !/^[a-zA-Z0-9_-]{1,160}$/.test(atlasSessionId))
+    if (!learner && !/^[a-zA-Z0-9_-]{1,160}$/.test(atlasSessionId || ""))
       throw new GameError("Invalid Atlas learner context.", 400);
     if (route === "create") {
       if (learner) throw new GameError("Only a tutor can create a game.", 403);
@@ -176,8 +175,17 @@ export async function handleForbiddenWords(
           410,
         );
       const s = row.state;
+      // Live rooms use this table only for quota metadata. Never let
+      // the old HTTP transport mutate their authoritative Durable Object game.
+      if (s.transport === "durable")
+        throw new GameError("This game uses a live connection. Reload the game.", 409);
       const now = Number(row.now);
       const actor = learner ? "learner" : "tutor";
+      if (!learner && row.owner !== owner)
+        throw new GameError("This game belongs to another tutor.", 403);
+      // Unassigned pre-ownership rooms cannot be recovered or silently claimed.
+      if (!s.atlasSessionId)
+        throw new GameError("This game is no longer available. Ask your tutor to create a new one.", 410);
       if (learner) {
         if (s.learnerHash) {
           if (!(await same(s.learnerHash, credentialHash)))
@@ -199,17 +207,10 @@ export async function handleForbiddenWords(
           }
           s.learnerHash = credentialHash;
         }
-      } else if (row.owner !== owner)
-        throw new GameError("This game belongs to another tutor.", 403);
-      if (!learner && s.atlasSessionId && s.atlasSessionId !== atlasSessionId)
+      }
+      if (!learner && s.atlasSessionId !== atlasSessionId)
         throw new GameError(
           "This room belongs to a different Atlas learner. Return to that learner to continue.",
-          409,
-        );
-      if (!learner && !s.atlasSessionId && atlasSessionId &&
-          route !== "create" && body.action !== "bind-learner")
-        throw new GameError(
-          "This older room must be explicitly linked to an Atlas learner first.",
           409,
         );
       const input =

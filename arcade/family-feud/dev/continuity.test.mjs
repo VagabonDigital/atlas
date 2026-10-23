@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
-import { boards } from '../content.mjs';
+import { boards,legacyBoards } from '../content.mjs';
 import * as engine from '../engine.mjs';
 
 // Verify the actual app module with deterministic browser and AtlasBridge fakes.
@@ -19,7 +19,8 @@ function fixture() {
       if (!elements.has(key)) {
         const events = new Map(), classes = new Set();
         elements.set(key, {
-          innerHTML: '', textContent: '', hidden: false, disabled: false, dataset: {},
+          innerHTML: '', textContent: '', hidden: false, disabled: false, open: false, dataset: {},
+          showModal() { this.open = true; }, close() { this.open = false; },
           style: { setProperty() {} },
           classList: {
             add(...xs) { xs.forEach(x => classes.add(x)); },
@@ -49,7 +50,7 @@ function fixture() {
       }
     };
     const context = {
-      boards, ...engine,
+      boards, legacyBoards, ...engine,
       window: {
         AtlasBridge: bridge, AtlasAnalytics: { arcadeGameStart() {} },
         ArcadeGameChrome: { mountLanding() {}, mountGame() {} },
@@ -72,8 +73,15 @@ function fixture() {
     runInNewContext(appSource, context, { filename: 'family-feud/app.mjs' });
     return {
       game: context.testGame,
+      enter: () => node('#board-start').emit('click'),
+      coverLabel: () => node('#board-start .board-start-label').textContent,
       sound: () => node('#sound'),
       toggleSound: () => node('#sound').emit('click'),
+      newMatch: () => node('#new-match').emit('click'),
+      cancelNewMatch: () => node('#cancel-new-match').emit('click'),
+      confirmNewMatch: () => node('#confirm-new-match').emit('click'),
+      newMatchDialogOpen: () => node('#new-match-dialog').open,
+      newMatchVisible: () => !node('#new-match').hidden,
       switchTo(session) {
         active = session;
         for (const fn of listeners.get('atlas:session-change') || []) fn();
@@ -87,8 +95,23 @@ function fixture() {
       }
     };
   }
-  return { launch, state: session => registry.sessionStates[session]?.['arcade:family-feud'],
-    recent: () => registry.recentActivity };
+  return {
+    launch,
+    state: session => registry.sessionStates[session]?.['arcade:family-feud'],
+    recent: () => registry.recentActivity,
+    seen: () => JSON.parse(local.get('atlas:family-feud:seen') || '[]'),
+    seedLegacyMatch(session='learner-a') {
+      registry.sessionStates[session] = { 'arcade:family-feud': {
+        status: 'in-progress',
+        familyFeud: {
+          version: 1,boardIds:legacyBoards.slice(0,3).map(b=>b.id),
+          round:0,starter:0,active:0,scores:[0,0],contribution:[0,0],
+          strikes:[0,0],revealed:Array(6).fill(null),phase:'playing',
+          names:['Player 1','Alice']
+        }
+      }};
+    }
+  };
 }
 
 test('sound defaults off and remembers enabled and disabled choices across reloads', () => {
@@ -107,28 +130,39 @@ test('Family Feud snapshots restore across reload, remain learner-specific, and 
   const f = fixture();
   let page = f.launch();
   assert.equal(page.game.state, null);
+  assert.equal(page.coverLabel(), 'Start Match');
   await page.game.start();
-  assert.equal(f.state('learner-a').status, 'in-progress');
-  assert.equal(f.state('learner-a').progress.covered, 1);
+  assert.equal(f.state('learner-a').status, 'available');
+  assert.equal(f.state('learner-a').progress.covered, 0);
+  assert.equal(f.recent().length,0);
   const firstBoard = page.game.state.boards[0].id;
   const concept = page.game.state.boards[0].concepts[0];
   await page.answer(concept.label);
+  assert.equal(f.state('learner-a').status, 'in-progress');
+  assert.equal(f.state('learner-a').progress.covered, 1);
+  assert.equal(f.recent().length,1);
   assert.equal(f.state('learner-a').familyFeud.scores.reduce((x, y) => x + y), concept.value);
   page = f.launch();
+  assert.equal(page.coverLabel(), 'Continue Match');
   assert.equal(page.game.state.boards[0].id, firstBoard);
   assert.equal(page.game.state.revealed[0].owner !== null, true);
+  page.enter(); // Reloaded game stays behind its cover until Continue.
   await page.game.submit(true);
   const strikes = page.game.state.strikes.reduce((x, y) => x + y);
   page = f.launch();
+  assert.equal(page.coverLabel(), 'Continue Match');
   assert.equal(page.game.state.strikes.reduce((x, y) => x + y), strikes);
+  page.enter();
 
   page.switchTo('learner-b');
   assert.equal(page.game.state, null);
   await page.game.start();
-  assert.equal(f.state('learner-b').status, 'in-progress');
+  assert.equal(f.state('learner-b').status, 'available');
   page.switchTo('learner-a');
+  assert.equal(page.coverLabel(), 'Continue Match');
   assert.equal(page.game.state.boards[0].id, firstBoard);
   assert.equal(page.game.state.strikes.reduce((x, y) => x + y), strikes);
+  page.enter();
 
   const previous = structuredClone(f.state('learner-a').familyFeud);
   const pending = page.game.submit(true);
@@ -137,6 +171,7 @@ test('Family Feud snapshots restore across reload, remain learner-specific, and 
   assert.deepEqual(f.state('learner-a').familyFeud, previous);
   assert.equal(f.state('learner-b').familyFeud.round, 0);
   page.switchTo('learner-a');
+  page.enter();
 
   for (let round = 0; round < 3; round++) {
     while (page.game.state.phase === 'playing') await page.game.submit(true);
@@ -144,7 +179,9 @@ test('Family Feud snapshots restore across reload, remain learner-specific, and 
     page.click('reveal-all');
     assert.equal(f.state('learner-a').familyFeud.phase, 'roundEnd');
     page = f.launch();
+    assert.equal(page.coverLabel(), 'Continue Match');
     assert.equal(page.game.state.phase, 'roundEnd');
+    page.enter();
     page.click('next');
     await new Promise(resolve => setImmediate(resolve)); // Let the round-opening animation finish.
     if (round < 2) assert.equal(page.game.state.round, round + 1);
@@ -157,5 +194,95 @@ test('Family Feud snapshots restore across reload, remain learner-specific, and 
   page = f.launch();
   assert.equal(page.game.state, null);
   await page.game.start();
-  assert.equal(f.state('learner-a').status, 'in-progress');
+  assert.equal(f.state('learner-a').status, 'available');
+});
+
+
+test('a newly started match uses only sourced Season 26 boards',async()=>{
+  const f=fixture(),page=f.launch();
+  await page.game.start();
+  assert.equal(page.game.state.boards.length,3);
+  assert.equal(page.game.state.boards.every(b=>b.kind==='season26'),true);
+});
+
+test('previously saved illustrative matches still restore and continue',async()=>{
+  const f=fixture();f.seedLegacyMatch();
+  const page=f.launch();
+  assert.equal(page.coverLabel(), 'Continue Match');
+  assert.equal(page.game.state.boards.map(b=>b.id).join(','),legacyBoards.slice(0,3).map(b=>b.id).join(','));
+  page.enter();
+  await page.answer('house keys');
+  assert.equal(f.state('learner-a').familyFeud.scores.reduce((a,b)=>a+b,0),34);
+  assert.equal(f.state('learner-a').familyFeud.revealed[0].owner,0);
+});
+
+
+test('New Match requires confirmation and preserves seen boards and other learner snapshots', async () => {
+  const f = fixture();
+  const page = f.launch();
+  await page.game.start();
+  const openingBoard = page.game.state.boards[0].id;
+  const answer = page.game.state.boards[0].concepts[0].label;
+  await page.answer(answer);
+  const original = structuredClone(f.state('learner-a').familyFeud);
+  const recorded = f.seen();
+  assert.equal(page.newMatchVisible(), true);
+
+  page.newMatch();
+  assert.equal(page.newMatchDialogOpen(), true);
+  page.cancelNewMatch();
+  assert.equal(page.newMatchDialogOpen(), false);
+  assert.deepEqual(f.state('learner-a').familyFeud, original);
+
+  page.switchTo('learner-b');
+  await page.game.start();
+  const untouched = structuredClone(f.state('learner-b').familyFeud);
+  page.switchTo('learner-a');
+  assert.equal(page.coverLabel(), 'Continue Match');
+  assert.equal(page.game.state.boards[0].id, openingBoard);
+  page.enter();
+
+  page.newMatch();
+  page.confirmNewMatch();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(page.newMatchDialogOpen(), false);
+  assert.equal(page.game.state.round, 0);
+  assert.equal(page.game.state.phase, 'playing');
+  assert.deepEqual(page.game.state.scores, [0, 0]);
+  assert.deepEqual(page.game.state.revealed, Array(6).fill(null));
+  assert.equal(f.state('learner-a').status, 'available');
+  assert.equal(f.state('learner-a').progress.covered, 0);
+  assert.equal(f.state('learner-a').familyFeud.round, 0);
+  assert.ok(f.seen().includes(openingBoard));
+  assert.ok(recorded.every(id => f.seen().includes(id)));
+  assert.deepEqual(f.state('learner-b').familyFeud, untouched);
+});
+
+test('New Match confirmation cannot replace another learner after a session switch', async () => {
+  const f = fixture(), page = f.launch();
+  await page.game.start();
+  page.newMatch();
+  assert.equal(page.newMatchDialogOpen(), true);
+  page.switchTo('learner-b');
+  assert.equal(page.newMatchDialogOpen(), false);
+  page.confirmNewMatch();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(page.game.state, null);
+  assert.equal(f.state('learner-b'), undefined);
+  assert.equal(f.state('learner-a').status, 'available');
+});
+
+test('the entry button starts a fresh match and continues an existing match without resetting it', async () => {
+  const f = fixture();
+  let page = f.launch();
+  assert.equal(page.coverLabel(), 'Start Match');
+  page.enter();
+  await new Promise(resolve => setImmediate(resolve));
+  const snapshot = structuredClone(f.state('learner-a').familyFeud);
+  page = f.launch();
+  assert.equal(page.coverLabel(), 'Continue Match');
+  assert.deepEqual(f.state('learner-a').familyFeud, snapshot);
+  page.enter();
+  assert.deepEqual(f.state('learner-a').familyFeud, snapshot);
+  assert.equal(page.game.state.boards[0].id, snapshot.boardIds[0]);
 });

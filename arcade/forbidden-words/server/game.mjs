@@ -79,6 +79,23 @@ function record(s, result, now) {
     ...(result === "correct" ? { target: CARDS[s.card.index].target } : {}),
   };
 }
+// Freeze on the first server request that confirms a missing heartbeat.
+// Credit the time since the last confirmed heartbeat back to the turn; a
+// two-person game must not burn its clock while the other seat is absent.
+export function pauseOnDisconnect(s, now) {
+  if (s.paused || !["active", "countdown"].includes(s.phase) || !s.learnerHash) return;
+  const missing = [s.seen.tutor, s.seen.learner]
+    .filter((lastSeen) => now - lastSeen >= PRESENCE_MS);
+  if (!missing.length) return;
+  const at = Math.max(s.startsAt - COUNTDOWN_MS, Math.min(...missing));
+  if (at >= s.deadline) return; // The turn genuinely finished before anyone left.
+  s.paused = {
+    at,
+    remaining: s.deadline - at,
+    countdown: Math.max(0, s.startsAt - at),
+    reason: "connection",
+  };
+}
 export function advance(s, now) {
   if (s.paused) return;
   if (s.phase === "countdown" && now >= s.startsAt) s.phase = "active";
@@ -106,8 +123,9 @@ export function command(s, actor, input, now) {
     );
     bucket.count++;
   }
-  advance(s, now);
   s.seen[actor] = now;
+  pauseOnDisconnect(s, now);
+  advance(s, now);
   const { action, id } = input;
   if (action === "poll") {
     if (
@@ -132,16 +150,7 @@ export function command(s, actor, input, now) {
     "The game has moved to another turn. Please try again.",
   );
   const tutor = actor === "tutor";
-  if (action === "bind-learner") {
-    requireThat(tutor && !s.atlasSessionId, "This game already belongs to an Atlas learner.", 409);
-    requireThat(
-      typeof input.atlasSessionId === "string" &&
-        /^[a-zA-Z0-9_-]{1,160}$/.test(input.atlasSessionId),
-      "Invalid Atlas learner context.",
-      400,
-    );
-    s.atlasSessionId = input.atlasSessionId;
-  } else if (action === "theme") {
+  if (action === "theme") {
     requireThat(tutor, "Only the tutor can change the game theme.", 403);
     requireThat(
       input.theme === "light" || input.theme === "night",
@@ -170,6 +179,12 @@ export function command(s, actor, input, now) {
     };
   } else if (action === "resume") {
     requireThat(tutor && s.paused, "Only the tutor can resume.");
+    requireThat(
+      !!s.learnerHash &&
+      now - s.seen.tutor < PRESENCE_MS &&
+      now - s.seen.learner < PRESENCE_MS,
+      "Wait until both players reconnect before resuming.",
+    );
     s.deadline = now + s.paused.remaining;
     s.startsAt = now + s.paused.countdown;
     s.paused = null;

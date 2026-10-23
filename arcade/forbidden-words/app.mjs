@@ -1,3 +1,5 @@
+import { ForbiddenWordsLiveClient } from "./live-client.mjs";
+
 const learner = document.body.dataset.player === "learner";
 const app = document.querySelector("#app");
 const params = new URLSearchParams(location.search);
@@ -9,6 +11,9 @@ const LOCAL =
   document.querySelector('meta[name="fw-local-verification"]')?.content ===
   "true";
 const REGISTRY_ID = "arcade:forbidden-words";
+// Opt-in per newly created room. Existing HTTP rooms never change transports.
+const LIVE_PREVIEW = params.get("fw-live") === "1";
+const liveRoomKey = (roomId) => `fw:transport:${roomId}`;
 const THEME_TRANSITION_MS = 280;
 const uuid = () => crypto.randomUUID();
 const randomToken = () =>
@@ -40,6 +45,8 @@ const storage = {
   },
 };
 let session = learner ? params.get("session") : null;
+let liveMode = learner && params.get("live") === "1";
+let liveClient = null;
 let credential,
   invite = fragment.get("invite"),
   state,
@@ -57,6 +64,7 @@ let lastKey = "",
   atlasSession,
   gameLearnerId = null,
   roomEpoch = 0,
+  replacementInvite = null,
   playingChromeMounted = false;
 let sound = storage.get("fw:sound") === "on",
   audio,
@@ -189,6 +197,11 @@ function showNoLearnerRoom() {
   showTutorLandingChrome();
   app.innerHTML = `<section class="landing"><div class="landing-identity">${brand}<p class="premise">Describe the word. <br>Lose the obvious language.</p><div class="hero-deck">${deck}</div><p class="caption">Two voices. One clock. Find another way.</p></div><div class="invitation panel"><p class="eyebrow">NEW GAME</p><h1>Ready to play?</h1><p>Create a private game, then invite your learner to join.</p>${button("new-session", "Create Game", "primary start-button")}</div></section>`;
 }
+function stopLive() {
+  const client = liveClient;
+  liveClient = null;
+  client?.close();
+}
 function selectTutorRoom(next) {
   if (!owner || learner || !next?.id) return;
   if (next.id === gameLearnerId) {
@@ -196,6 +209,8 @@ function selectTutorRoom(next) {
     return;
   }
   roomEpoch++;
+  stopLive();
+  replacementInvite = null;
   clearTimeout(pollTimer);
   pending = null;
   busy = false;
@@ -210,6 +225,7 @@ function selectTutorRoom(next) {
   atlasSession = next;
   gameLearnerId = next.id;
   session = storage.get(roomKey(owner, gameLearnerId));
+  liveMode = !!session && storage.get(liveRoomKey(session)) === "live";
   if (session) void boot();
   else showNoLearnerRoom();
 }
@@ -305,9 +321,15 @@ async function setupTutor() {
   if (!atlasSession?.id) throw new Error("Select an Atlas learner to host a game.");
   gameLearnerId = atlasSession.id;
   session = storage.get(roomKey(owner, gameLearnerId));
+  liveMode = !!session && storage.get(liveRoomKey(session)) === "live";
   return true;
 }
 async function request(action, extra = {}, commandId) {
+  if (liveMode) {
+    if (action === "poll") return liveClient?.heartbeat();
+    if (!liveClient) throw new Error("Live room is reconnecting.");
+    return liveClient.command(action, extra, commandId || uuid());
+  }
   const requestSession = session;
   const requestEpoch = roomEpoch;
   let auth = "";
@@ -354,8 +376,7 @@ async function request(action, extra = {}, commandId) {
   // Never show or record an old, unassigned or mislabelled room as the
   // selected Atlas learner, even if a stale browser bookmark points to it.
   if (!learner && gameLearnerId &&
-      data.state.atlasSessionId !== gameLearnerId &&
-      !(action === "poll" && extra.atlasSessionId === null))
+      data.state.atlasSessionId !== gameLearnerId)
     throw new Error("This room is not linked to the selected Atlas learner.");
   offset = data.state.serverNow + (performance.now() - start) / 2 - Date.now();
   lastSync = Date.now();
@@ -449,12 +470,21 @@ function updateTutorHeader(s) {
   }
   if (pauseRoot) pauseRoot.innerHTML = headerPause(s);
 }
+function replacementReady() {
+  return !!replacementInvite && replacementInvite === state?.invite;
+}
+function invitationLink() {
+  const fresh = replacementReady();
+  const label = fresh ? "Replacement link" : "Private game link";
+  const copyLabel = fresh ? "Copy new link" : "Copy link";
+  return `<div class="link-row invite-link-row"><span class="invite-link-label" aria-hidden="true">↗ &nbsp; ${label}</span><input id="invite-link" class="invite-link-input" aria-label="${label}" aria-hidden="true" tabindex="-1" readonly value="${escape(joinUrl())}">${button("copy", copyLabel, "primary")}</div>${fresh ? '<p class="replacement-note" role="status">Previous invitation disabled. Share this new link to reconnect.</p>' : ""}`;
+}
 function landing(s) {
   const joined = s?.connected.learner;
   app.innerHTML = `<section class="landing"><div class="landing-identity">${brand}<p class="premise">Describe the word. <br>Lose the obvious language.</p><div class="hero-deck">${deck}<span class="spark one">✦</span><span class="spark two">✧</span></div><p class="caption">Two voices. One clock. Find another way.</p></div>
     <div class="invitation panel"><p class="eyebrow">${learner ? "YOU’RE IN" : "BETTER TOGETHER"}</p><h1>${learner ? "Your partner goes first." : "Invite your learner"}</h1>
     <p>${learner ? "Listen to the clues and guess aloud." : "Send a private game invitation to your learner."}</p>
-    ${!learner && s ? `<div class="link-row invite-link-row"><span class="invite-link-label" aria-hidden="true">↗ &nbsp; Private game link</span><input id="invite-link" class="invite-link-input" aria-label="Learner invite link" aria-hidden="true" tabindex="-1" readonly value="${escape(joinUrl())}">${button("copy", "Copy link", "primary")}</div>` : ""}
+    ${!learner && s ? invitationLink() : ""}
     <div class="connection"><span class="connection-dot ${joined ? "online" : ""}"></span><div><strong>${learner ? "Connected to the game" : joined ? "Your learner is here" : s ? "Waiting for your learner…" : "Ready for a live lesson?"}</strong><p>${learner ? "Your tutor will start the round." : joined ? "You can start the first round." : s ? "They’ll appear here when connected." : "Sign in to create your private game."}</p></div></div>
     ${learner ? "" : !s ? button("sign-in", "Sign in to host", "primary start-button") : joined ? button("start", "▶ Start Round", "primary start-button") : ""}
     ${learner
@@ -465,7 +495,7 @@ function landing(s) {
           <div class="entry-footer-actions">
             ${button("rules", "How to play", "entry-footer-action")}
             ${s ? '<span class="entry-footer-separator" aria-hidden="true">·</span>' : ""}
-            ${s ? button("replace-learner", "Replace learner link", "entry-footer-action entry-footer-maintenance") + '<span class="entry-footer-separator" aria-hidden="true">·</span>' + button("finish", "End game", "entry-footer-action end-game-action") : ""}
+            ${s ? button("replace-learner", "Reset invitation", "entry-footer-action entry-footer-maintenance") + '<span class="entry-footer-separator" aria-hidden="true">·</span>' + button("finish", "Cancel game", "entry-footer-action end-game-action") : ""}
           </div>
         </div>`}
     </div></section>`;
@@ -475,6 +505,7 @@ function joinUrl() {
   url.search = "";
   url.hash = "";
   url.searchParams.set("session", session);
+  if (liveMode) url.searchParams.set("live", "1");
   const shared = window.AtlasResourceShare?.buildShareUrl({
     world: "arcade",
     resourceId: "arcade:forbidden-words",
@@ -503,6 +534,14 @@ function pile(s) {
 }
 function board(s) {
   const describer = s.role === "Describer";
+  const waitingForPartner = !!s.paused && (!s.connected.tutor || !s.connected.learner);
+  const connectionPaused = s.paused?.reason === "connection";
+  const pauseTitle = waitingForPartner ? "Partner disconnected." :
+    connectionPaused ? "Both players are back." : "Turn paused.";
+  const pauseDescription = waitingForPartner
+    ? "The clock is stopped. Resume when both players are connected."
+    : connectionPaused ? "The clock is safe. Your tutor can resume when ready."
+      : "The clock is safe. Pick up when you’re ready.";
   return `${learnerHeader(s)}<section class="board"><aside class="deck-area">${deck}<p>${s.remaining} cards in the deck</p></aside>
     <div class="card-area"><div class="active-card ${s.card?.nonce !== lastNonce ? "dealing" : ""} ${describer ? "face-up" : "face-down"}">${cardFace(s)}</div>
     <div class="role-caption"><p class="eyebrow"><span>TURN ${s.turn} OF 2</span> · ${describer ? "YOU’RE DESCRIBING" : "YOUR PARTNER IS DESCRIBING"}</p><p>${describer ? "Find another way to say it." : "Guess the word out loud."}</p></div></div>
@@ -511,7 +550,7 @@ function board(s) {
       ${describer ? `<div class="resolutions">${button("correct", "Correct", "correct")}${button("skip", "Skip", "skip")}${button("oops", "I said one!", "oops")}</div>` : '<div class="guesser-note"><span>◌</span><div><strong>GUESSER</strong><p>Listen. Ask questions. <br>Follow the clues.</p></div></div>'}
     </aside></section><div class="feedback" aria-live="polite">${feedbackText(s)}</div>
     ${s.phase === "countdown" ? '<div class="countdown-overlay"><div><p class="eyebrow">GET READY</p><strong id="countdown-number">3</strong><p>Your card. Your voice. Go.</p></div></div>' : ""}
-    ${s.paused ? `<div class="pause-overlay"><div class="panel"><p class="eyebrow">TAKE YOUR TIME</p><h2>Turn paused.</h2><p>The clock is safe. Pick up when you’re ready.</p>${!learner ? `<div class="pause-actions">${button("resume", "▶ Resume turn", "primary")}${button("finish", "End game", "secondary end-game-button")}</div><div class="pause-invitation"><p class="pause-invite-label">Current learner link</p><div class="link-row invite-link-row"><span class="invite-link-label" aria-hidden="true">↗ &nbsp; Current link</span><input id="invite-link" class="invite-link-input" aria-label="Current learner link" aria-hidden="true" tabindex="-1" readonly value="${escape(joinUrl())}">${button("copy", "Copy link", "primary")}</div><p class="pause-invite-note">Your learner’s existing browser can reconnect. Replacing the link revokes their access, but keeps this game’s score.</p>${button("replace-learner", "Replace learner link", "text-button pause-replace-link")}</div>` : "<p>Your tutor will resume the game.</p>"}</div></div>` : ""}`;
+    ${s.paused ? `<div class="pause-overlay"><div class="panel"><p class="eyebrow">TAKE YOUR TIME</p><h2>${pauseTitle}</h2><p>${pauseDescription}</p>${!learner ? `<div class="pause-actions">${button("resume", "▶ Resume turn", "primary", !s.connected.tutor || !s.connected.learner)}${button("finish", "End game", "secondary end-game-button")}</div><details class="pause-invitation" ${replacementReady() ? "open" : ""}><summary>Invitation &amp; reconnect</summary><div class="pause-invitation-content">${invitationLink()}${button("replace-learner", "Reset invitation", "text-button pause-replace-link")}</div></details>` : "<p>Your tutor will resume the game.</p>"}</div></div>` : ""}`;
 }
 function feedbackText(s) {
   return !s.feedback
@@ -529,13 +568,13 @@ function between(s) {
     finished = s.phase === "finished";
   const ready = s.ready.includes(s.actor);
   return `${learnerHeader(s)}<section class="between"><div class="results-deck">${deck}</div><div class="result-panel panel ${switching ? "switch-panel" : ""}"><p class="eyebrow">${finished ? "THANKS FOR PLAYING" : switching ? "TIME’S UP · SWAP ROLES" : "TWO VOICES. ONE GREAT ROUND."}</p>
-    <h1>${finished ? "Keep the conversation going." : switching ? (s.role === "Describer" ? "Your turn to describe." : "Your turn to guess.") : "Look what you cleared."}</h1>
+    <h1>${finished ? "That’s a wrap!" : switching ? (s.role === "Describer" ? "Your turn to describe." : "Your turn to guess.") : "Look what you cleared."}</h1>
     <div class="result-score"><strong>${s.score}</strong><span>shared ${s.score === 1 ? "point" : "points"}${switching ? " so far" : ""}</span></div>
     ${s.best !== null ? `<p class="best">Session best <strong>${s.best}</strong>${!switching && s.score === s.best ? " ✦" : ""}</p>` : ""}
     ${s.finalCard && !finished ? `<div class="final-card"><span>At the horn</span><strong>${escape(s.finalCard.target)}</strong>${s.finalCard.credited ? "<small>✓ Credited</small>" : s.canCredit ? button("late-correct", "They said it before the horn · +1", "text-button") : ""}</div>` : ""}
-    ${switching ? `<p class="switch-copy">${ready ? "Waiting for your partner to get ready." : "Take a breath. Both of you tap ready to begin."}</p><div class="switch-actions">${button("ready", ready ? "✓ Ready" : "I’m ready", "primary", ready)}${!learner ? button("finish", "End game", "secondary end-game-button") : ""}</div>` : finished ? `<p>Your lesson call stays open. Take those new ways of saying things with you.</p>${!learner ? button("new-session", "Start a new game", "primary") : ""}` : `<div class="result-actions">${!learner ? button("replay", "▶ Play Another Round", "primary", !s.connected.learner) + button("finish", "End game", "secondary end-game-button") : "<p>Your partner can start another round or finish.</p>"}</div>`}
+    ${switching ? `<p class="switch-copy">${ready ? "Waiting for your partner to get ready." : "Take a breath. Both of you tap ready to begin."}</p><div class="switch-actions">${button("ready", ready ? "✓ Ready" : "I’m ready", "primary", ready)}${!learner ? button("finish", "End game", "secondary end-game-button") : ""}</div>` : finished ? (!learner ? button("new-session", "Start a new game", "primary") : "") : `<div class="result-actions">${!learner ? button("replay", "▶ Play Another Round", "primary", !s.connected.learner) + button("finish", "End game", "secondary end-game-button") : "<p>Your partner can start another round or finish.</p>"}</div>`}
     ${!switching && s.review.length ? `<details class="review"><summary>Talk through ${s.review.length} unresolved ${s.review.length === 1 ? "card" : "cards"} <span>Optional</span></summary><div>${s.review.map((c) => `<article><strong>${escape(c.target)}</strong><small>${c.result === "oops" ? "Oops" : c.result === "skip" ? "Skipped" : "At the horn"}</small><p>${c.forbidden.map(escape).join(" · ")}</p></article>`).join("")}</div></details>` : ""}
-    ${!learner && switching ? `<div class="switch-maintenance">${button("replace-learner", "Replace learner link", "text-button small")}${!s.connected.learner ? `<div class="link-row"><input id="invite-link" aria-label="Learner invite link" readonly value="${escape(joinUrl())}">${button("copy", "Copy link", "primary")}</div>` : ""}</div>` : ""}</div></section>`;
+    ${!learner && switching ? `<div class="switch-maintenance">${button("replace-learner", "Reset invitation", "text-button small")}${!s.connected.learner || replacementReady() ? invitationLink() : ""}</div>` : ""}</div></section>`;
 }
 function render() {
   const s = state;
@@ -547,6 +586,7 @@ function render() {
   }
   const focused = document.activeElement?.dataset?.action;
   const reviewOpen = document.querySelector(".review")?.open;
+  const pauseInviteOpen = document.querySelector(".pause-invitation")?.open;
   if (
     lastNonce &&
     s.card?.nonce &&
@@ -575,6 +615,8 @@ function render() {
       : between(s);
   if (reviewOpen && document.querySelector(".review"))
     document.querySelector(".review").open = true;
+  if (pauseInviteOpen && document.querySelector(".pause-invitation"))
+    document.querySelector(".pause-invitation").open = true;
   if (focused)
     document
       .querySelector(`[data-action="${focused}"]`)
@@ -617,13 +659,17 @@ function updateControls() {
       failed ||
       state?.phase !== "active" ||
       !!state?.paused ||
+      !state?.connected?.tutor ||
+      !state?.connected?.learner ||
       Date.now() + offset >= state?.deadline;
   }
   for (const el of document.querySelectorAll(
     '[data-action="start"],[data-action="replay"],[data-action="ready"],[data-action="late-correct"],[data-action="finish"],[data-action="replace-learner"],[data-action="resume"]',
   )) {
     if (["finish", "replace-learner", "resume"].includes(el.dataset.action))
-      el.disabled = busy || failed;
+      el.disabled = busy || failed ||
+        (el.dataset.action === "resume" &&
+          (!state?.connected?.tutor || !state?.connected?.learner));
     else if (busy) el.disabled = true;
   }
   const partnerDisconnected =
@@ -632,13 +678,10 @@ function updateControls() {
     !state.connected[learner ? "tutor" : "learner"];
   const timedPlay = state && ["countdown", "active"].includes(state.phase);
 
-  if (partnerDisconnected && timedPlay) {
-    notify(
-      state.paused
-        ? "Your partner is reconnecting. The turn is paused."
-        : "Your partner is reconnecting. The clock continues unless the tutor pauses.",
-      { persistent: true },
-    );
+  if (partnerDisconnected && timedPlay && !state.paused) {
+    notify("Your partner is reconnecting. The clock will pause automatically.", {
+      persistent: true,
+    });
   } else if (
     !failed &&
     document
@@ -703,12 +746,12 @@ function tick() {
     lastCount = count;
   }
   if (
-    Date.now() - lastSync > 4000 &&
+    Date.now() - lastSync > (liveMode ? 12000 : 4000) &&
     ["active", "countdown"].includes(state.phase)
   ) {
     failed = true;
     notify(
-      "Reconnecting… Your turn clock continues. Actions will return when connected.",
+      "Connection lost. Reconnecting to check the turn.",
       { persistent: true },
     );
   }
@@ -746,6 +789,14 @@ function confirmEndGame() {
   const dialog = document.querySelector("#end-game-confirm");
   if (!dialog || dialog.open) return Promise.resolve(false);
   dialog.returnValue = "";
+  const waiting = state?.phase === "waiting";
+  dialog.querySelector("#end-game-eyebrow").textContent = waiting ? "CANCEL INVITATION" : "END SHARED GAME";
+  dialog.querySelector("#end-game-title").textContent = waiting ? "Cancel this game?" : "End this game for both players?";
+  dialog.querySelector("#end-game-description").textContent = waiting
+    ? "This invitation will stop working. You can create another game whenever you like."
+    : "This closes the game for both players. It cannot be resumed.";
+  dialog.querySelector('[value="cancel"]').textContent = waiting ? "Keep invitation" : "Keep playing";
+  dialog.querySelector('[value="end"]').textContent = waiting ? "Cancel game" : "End game";
   return new Promise((resolve) => {
     dialog.addEventListener("close", () => resolve(dialog.returnValue === "end"), { once: true });
     dialog.showModal();
@@ -792,9 +843,14 @@ async function act(action) {
     );
   if (action === "new-session") {
     if (learner || !owner || !gameLearnerId) return;
+    const nextLive = liveMode || LIVE_PREVIEW;
     roomEpoch++;
+    stopLive();
+    replacementInvite = null;
     clearTimeout(pollTimer);
     session = uuid();
+    liveMode = nextLive;
+    if (liveMode) storage.set(liveRoomKey(session), "live");
     storage.set(roomKey(owner, gameLearnerId), session);
     state = null;
     pending = null;
@@ -839,9 +895,10 @@ async function sendPending() {
     );
     if (pendingEpoch !== roomEpoch) return;
     pending = null;
+    if (operation.action === "replace-learner") replacementInvite = state?.invite || null;
     notify(
       operation.action === "replace-learner"
-        ? "New learner link ready. Copy it and share it with your learner."
+        ? "Previous invitation disabled. Copy the new link to reconnect."
         : "",
     );
   } catch (error) {
@@ -865,18 +922,28 @@ async function sendPending() {
 }
 function schedulePoll() {
   clearTimeout(pollTimer);
-  if (!session) return;
+  if (!session || liveMode) return;
   pollTimer = setTimeout(poll, state?.phase === "finished" ? 3000 : retryDelay);
 }
 function showEntryError(error) {
+  // A claimed invitation cannot open another learner seat in a new browser.
+  // Keep that restriction, but explain the recovery path without server jargon.
+  const claimedInvitation =
+    learner &&
+    error.status === 403 &&
+    error.message === "This learner seat is already in use. Ask your tutor for a replacement link.";
+  const message = claimedInvitation
+    ? "This invitation has already been used. If you can't get back into the game, ask your tutor for a new link."
+    : error.message;
   state = null;
   lastKey = "";
   lastNonce = null;
   pending = null;
   failed = true;
   clearTimeout(pollTimer);
+  stopLive();
   document.documentElement.style.setProperty("--heat", "0");
-  app.innerHTML = `<section class="entry-error panel">${brand}<h1>Let’s get you connected.</h1><p>${escape(error.message)}</p>${button("retry", "Try again", "primary")}${!learner && owner ? button("new-session", "Create a fresh game", "text-button") : ""}</section>`;
+  app.innerHTML = `<section class="entry-error panel">${brand}<h1>Let’s get you connected.</h1><p>${escape(message)}</p>${claimedInvitation ? "" : button("retry", "Try again", "primary")}${!learner && owner ? button("new-session", "Create a fresh game", "text-button") : ""}</section>`;
   notify("");
 }
 async function poll() {
@@ -909,8 +976,78 @@ async function poll() {
   }
   if (pollEpoch === roomEpoch) schedulePoll();
 }
+function receiveLiveState(frame, epoch, selectedSession) {
+  if (epoch !== roomEpoch || selectedSession !== session || !liveMode) return;
+  const next = {
+    ...frame.state,
+    ...(!learner ? { invite: frame.invite } : {}),
+  };
+  if (!learner && next.atlasSessionId !== gameLearnerId) {
+    showEntryError(new Error("This room belongs to a different Atlas learner."));
+    return;
+  }
+  offset = next.serverNow - Date.now();
+  lastSync = Date.now();
+  failed = false;
+  if (!state || next.revision >= state.revision) {
+    state = next;
+    render();
+    if (learner) applyGameTheme(state.theme);
+    else syncAtlasContinuity(state);
+  }
+}
+async function startLiveRoom(epoch) {
+  stopLive();
+  if (LOCAL) throw new Error("Live rooms require the Atlas backend.");
+  const selectedSession = session;
+  const client = new ForbiddenWordsLiveClient({
+    api: API, session: selectedSession,
+    actor: learner ? "learner" : "tutor",
+    getAuthorization: async () => {
+      if (learner) return "";
+      const current = await window.AtlasCloud.getSession();
+      if (!current || current.user.id !== owner)
+        throw new Error("Your Atlas account changed. Reload to continue.");
+      return current.access_token;
+    },
+    getTicketPayload: async () => learner
+      ? { credential, invite }
+      : { atlasSessionId: gameLearnerId },
+    onState: frame => receiveLiveState(frame, epoch, selectedSession),
+    onHeartbeat: serverNow => {
+      if (epoch !== roomEpoch || selectedSession !== session) return;
+      lastSync = Date.now();
+      if (typeof serverNow === "number") offset = serverNow - Date.now();
+    },
+    onStatus: connected => {
+      if (epoch !== roomEpoch || selectedSession !== session) return;
+      failed = !connected;
+      if (connected) {
+        notify("");
+        if (!learner && state && state.theme !== tutorTheme())
+          void syncTutorTheme(tutorTheme());
+        // Preserve uncertain actions and their IDs through a reconnect.
+        if (pending && !busy) void sendPending();
+      } else {
+        notify("Connection interrupted. Reconnecting…", { persistent: true });
+      }
+      if (state) updateControls();
+    },
+    onFatal: error => {
+      if (epoch === roomEpoch && selectedSession === session)
+        showEntryError(error);
+    },
+  });
+  liveClient = client;
+  if (!learner) {
+    await client.initialize({ atlasSessionId: gameLearnerId });
+    if (epoch !== roomEpoch || selectedSession !== session) return;
+  }
+  client.connect();
+}
 async function boot() {
   clearTimeout(pollTimer);
+  stopLive();
   const bootEpoch = roomEpoch;
   try {
     if (learner) {
@@ -922,12 +1059,14 @@ async function boot() {
       if (invite) storage.set(`fw:invite:${session}`, invite);
       // Invite secrets never enter query strings, referrers or network request URLs.
       history.replaceState(null, "", `${location.pathname}${location.search}`);
-      await request("join", { invite });
+      if (liveMode) await startLiveRoom(bootEpoch);
+      else await request("join", { invite });
     } else {
       if (!owner && !(await setupTutor())) return;
       if (bootEpoch !== roomEpoch) return;
       if (!session) return showNoLearnerRoom();
-      await request("create", { theme: tutorTheme() });
+      if (liveMode) await startLiveRoom(bootEpoch);
+      else await request("create", { theme: tutorTheme() });
     }
     if (bootEpoch === roomEpoch) schedulePoll();
   } catch (error) {
@@ -1011,13 +1150,21 @@ document.addEventListener("keydown", (event) => {
   }
 });
 window.addEventListener("online", () => {
-  clearTimeout(pollTimer);
-  poll();
+  if (liveMode) liveClient?.connect();
+  else {
+    clearTimeout(pollTimer);
+    poll();
+  }
 });
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden && state) {
-    clearTimeout(pollTimer);
-    poll();
+    if (liveMode) {
+      liveClient?.connect();
+      liveClient?.heartbeat();
+    } else {
+      clearTimeout(pollTimer);
+      poll();
+    }
   }
 });
 window.addEventListener("atlas:session-change", (event) => {

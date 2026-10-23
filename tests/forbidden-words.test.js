@@ -29,11 +29,16 @@ const fs = require("node:fs");
   assert.equal(s.startsAt, now + 3000);
   assert.equal(s.deadline, now + 123000);
   assert.equal(view(s, "tutor", now, 1).turnMs, 120000);
-  let secret = CARDS[s.card.index];
-  let guessed = JSON.stringify(view(s, "learner", now, 1));
-  assert.ok(!guessed.includes(secret.target));
-  for (const w of secret.forbidden) assert.ok(!guessed.includes(`"${w}"`));
-  assert.deepEqual(Object.keys(view(s, "learner", now, 1).card), ["nonce"]);
+  const learnerProjection = view(s, "learner", now, 1);
+  // Inspect the private-card projection, not unrelated public strings such as
+  // the selected UI theme ("light") that may also appear on a forbidden card.
+  assert.deepEqual(Object.keys(learnerProjection.card), ["nonce"]);
+  assert.equal(learnerProjection.card.nonce, s.card.nonce);
+  assert.equal(learnerProjection.atlasSessionId, undefined);
+  assert.equal(learnerProjection.history, undefined);
+  assert.equal(learnerProjection.pool, undefined);
+  assert.equal(learnerProjection.cursor, undefined);
+  assert.deepEqual(learnerProjection.review, []);
   assert.throws(() =>
     act("tutor", "correct", now + 2000, { card: s.card.nonce }),
   );
@@ -62,6 +67,9 @@ const fs = require("node:fs");
   act("tutor", "pause", now + 5000);
   advance(s, now + 90000);
   assert.equal(s.phase, "active");
+  // The tutor cannot resume until both seats are present again.
+  assert.throws(() => act("tutor", "resume", now + 90000), /both players reconnect/);
+  act("learner", "poll", now + 89999);
   act("tutor", "resume", now + 90000);
   assert.equal(s.deadline, now + 208000);
   const final = s.card.nonce;
@@ -152,26 +160,83 @@ const fs = require("node:fs");
     assert.equal(game.phase, "finished");
     assert.throws(() => endAction("tutor", "finish", at + 200001));
   }
-  // Immutable Atlas ownership lives in the same server state as the room.
+  // An abandoned participant freezes the clock on the server and the
+  // original time is restored only after both reconnect. No scores can change.
+  const disconnected = initialState(300000);
+  disconnected.learnerHash = "connected-learner";
+  disconnected.seen.learner = 300000;
+  const dact = (actor, action, at, extra = {}) => command(
+    disconnected, actor, {
+      action, id: crypto.randomUUID(),
+      round: disconnected.round, turn: disconnected.turn, ...extra,
+    }, at,
+  );
+  dact("tutor", "start", 300000);
+  dact("learner", "poll", 303100);
+  dact("tutor", "poll", 303100);
+  const expectedDeadline = disconnected.deadline;
+  const offlineAt = 303100 + 12001;
+  dact("tutor", "poll", offlineAt);
+  assert.equal(disconnected.phase, "active");
+  assert.equal(disconnected.paused.reason, "connection");
+  assert.equal(disconnected.paused.at, 303100);
+  assert.equal(disconnected.paused.remaining, expectedDeadline - 303100);
+  const frozenCard = disconnected.card.nonce;
+  const frozenScore = disconnected.score;
+  assert.throws(
+    () => dact("tutor", "correct", offlineAt + 1, { card: frozenCard }),
+    /paused/,
+  );
+  assert.equal(disconnected.card.nonce, frozenCard);
+  assert.equal(disconnected.score, frozenScore);
+  assert.throws(() => dact("tutor", "resume", offlineAt + 2), /both players reconnect/);
+  dact("learner", "poll", offlineAt + 3);
+  assert.equal(disconnected.paused.reason, "connection");
+  const returned = offlineAt + 4;
+  dact("tutor", "resume", returned);
+  assert.equal(disconnected.paused, null);
+  assert.equal(disconnected.deadline, returned + expectedDeadline - 303100);
+
+  // Losing the tutor also freezes a learner's visible turn, including when
+  // the tutor browser is closed entirely.
+  const tutorLost = returned + 12001;
+  dact("learner", "poll", tutorLost);
+  assert.equal(disconnected.paused.reason, "connection");
+  assert.equal(view(disconnected, "learner", tutorLost, 10).connected.tutor, false);
+  assert.throws(() => dact("learner", "resume", tutorLost + 1), /Only the tutor/);
+  dact("tutor", "poll", tutorLost + 2);
+  dact("tutor", "resume", tutorLost + 3);
+  assert.equal(disconnected.paused, null);
+
+  // Countdown also freezes rather than slipping into active play while
+  // the learner is absent, with the countdown restored on reconnection.
+  const countdownRoom = initialState(500000);
+  countdownRoom.learnerHash = "connected";
+  countdownRoom.seen.learner = 500000;
+  const cact = (actor, action, at) => command(countdownRoom, actor, {
+    action, id: crypto.randomUUID(), round: countdownRoom.round,
+    turn: countdownRoom.turn,
+  }, at);
+  cact("tutor", "start", 500000);
+  cact("tutor", "poll", 515000);
+  assert.equal(countdownRoom.phase, "countdown");
+  assert.equal(countdownRoom.paused.reason, "connection");
+  assert.equal(countdownRoom.paused.countdown, 3000);
+  cact("learner", "poll", 515001);
+  cact("tutor", "resume", 515002);
+  assert.equal(countdownRoom.startsAt, 518002);
+  assert.equal(countdownRoom.deadline, 638002);
+
+  // Ownership is established at creation, never changed through game commands.
   const scopedGame = initialState(40000);
-  const bind = (actor, atlasSessionId, id = crypto.randomUUID()) =>
-    command(scopedGame, actor, {
-      action: "bind-learner", id, round: scopedGame.round,
-      turn: scopedGame.turn, atlasSessionId,
-    }, 40010);
-  assert.equal(view(scopedGame, "learner", 40000, 0).atlasSessionId, undefined);
-  assert.throws(() => bind("learner", "session-alex"), /already belongs/);
-  bind("tutor", "session-alex");
-  assert.equal(scopedGame.atlasSessionId, "session-alex");
+  scopedGame.atlasSessionId = "session-alex";
   assert.equal(view(scopedGame, "tutor", 40010, 1).atlasSessionId, "session-alex");
   assert.equal(view(scopedGame, "learner", 40010, 1).atlasSessionId, undefined);
-  assert.throws(() => bind("tutor", "session-blair"), /already belongs/);
-  assert.equal(scopedGame.atlasSessionId, "session-alex");
-  const invalidGame = initialState(40000);
-  assert.throws(() => command(invalidGame, "tutor", {
+  assert.throws(() => command(scopedGame, "tutor", {
     action: "bind-learner", id: crypto.randomUUID(),
-    round: 0, turn: 0, atlasSessionId: "../wrong",
-  }, 40010), /Invalid Atlas learner context/);
+    round: 0, turn: 0, atlasSessionId: "session-blair",
+  }, 40010), /Unknown action/);
+  assert.equal(scopedGame.atlasSessionId, "session-alex");
 
   const tutorPage = fs.readFileSync(
     "arcade/forbidden-words/index.html",
@@ -273,6 +338,7 @@ const fs = require("node:fs");
     session: "room-alex", atlasSession: selected, roomEpoch: 0,
     state: { phase: "active" }, pending: { action: "skip" }, busy: true,
     failed: false, retryDelay: 650, lastKey: "cached",
+    liveClient: null, liveMode: false, liveRoomKey: id => `fw:transport:${id}`,
     lastNonce: "secret", lastPhase: "active", lastFeedback: null,
     pollTimer: 1, app: { innerHTML: "" }, brand: "Brand", deck: "Deck",
     window: { AtlasBridge: { readActiveSession: () => selected } },
@@ -309,9 +375,69 @@ const fs = require("node:fs");
   assert.ok(!tutorPage.includes('id="recover-legacy-confirm"'));
   assert.ok(!learnerPage.includes('id="recover-legacy-confirm"'));
   assert.ok(!client.includes("recover-legacy"));
+  assert.ok(!client.includes('extra.atlasSessionId === null'));
+  assert.ok(client.includes('data.state.atlasSessionId !== gameLearnerId'));
   assert.ok(!client.includes("No Forbidden Words game is linked"));
   assert.ok(!client.includes("Played before this update"));
   assert.ok(!gameCss.includes(".room-recovery"));
+
+
+  // Invitations rotate on a confirmed server reply; show persistent replacement
+  // feedback only for the matching token, never for a different room/invite.
+  const inviteSnippet = client.slice(
+    client.indexOf("function replacementReady()"),
+    client.indexOf("function landing(s)"),
+  );
+  assert.ok(inviteSnippet.includes("function invitationLink()"));
+  const inviteHarness = {
+    state: { invite: "original" },
+    replacementInvite: null,
+    escape: x => String(x),
+    joinUrl: () => "https://example.test/join",
+    button: (_action, label) => label,
+  };
+  vm.runInNewContext(inviteSnippet + ";this.makeInvite = invitationLink;", inviteHarness);
+  assert.ok(inviteHarness.makeInvite().includes("Private game link"));
+  assert.ok(inviteHarness.makeInvite().includes("Copy link"));
+  assert.ok(!inviteHarness.makeInvite().includes("Previous invitation disabled"));
+  inviteHarness.replacementInvite = "replacement";
+  inviteHarness.state.invite = "replacement";
+  assert.ok(inviteHarness.makeInvite().includes("Replacement link"));
+  assert.ok(inviteHarness.makeInvite().includes("Copy new link"));
+  assert.ok(inviteHarness.makeInvite().includes("Previous invitation disabled"));
+  inviteHarness.state.invite = "other-session-token";
+  assert.ok(inviteHarness.makeInvite().includes("Private game link"));
+  assert.ok(!inviteHarness.makeInvite().includes("Previous invitation disabled"));
+
+  // The learner sees an actionable message for a claimed invitation, not a
+  // retry button that cannot reclaim a seat from a different browser.
+  const entrySnippet = client.slice(
+    client.indexOf("function showEntryError(error)"),
+    client.indexOf("async function poll()"),
+  );
+  const entryHarness = {
+    learner: true, state: {}, lastKey: "", lastNonce: "", pending: null,
+    failed: false, pollTimer: 1, app: { innerHTML: "" },
+    document: { documentElement: { style: { setProperty: () => {} } } },
+    brand: "Forbidden Words", owner: null,
+    escape: value => String(value),
+    button: (_action, label) => label,
+    clearTimeout: () => {}, notify: () => {}, stopLive: () => {},
+  };
+  vm.runInNewContext(entrySnippet + ";this.displayEntryError = showEntryError;", entryHarness);
+  entryHarness.displayEntryError({
+    status: 403,
+    message: "This learner seat is already in use. Ask your tutor for a replacement link.",
+  });
+  assert.ok(entryHarness.app.innerHTML.includes("This invitation has already been used."));
+  assert.ok(entryHarness.app.innerHTML.includes("ask your tutor for a new link."));
+  assert.ok(!entryHarness.app.innerHTML.includes("Try again"));
+  entryHarness.displayEntryError({ status: 503, message: "Connection failed." });
+  assert.ok(entryHarness.app.innerHTML.includes("Connection failed."));
+  assert.ok(entryHarness.app.innerHTML.includes("Try again"));
+  assert.ok(client.includes('finished ? "That’s a wrap!"'));
+  assert.ok(!client.includes("Your lesson call stays open."));
+  assert.ok(!client.includes("Take those new ways of saying things with you."));
 
   const setupTutorBlock = client.slice(
     client.indexOf("async function setupTutor()"),
@@ -363,12 +489,21 @@ const fs = require("node:fs");
   assert.ok(!learnerPage.includes('id="end-game-confirm"'));
   assert.ok(client.includes("function confirmEndGame()"));
   assert.ok(client.includes('dialog.returnValue === "end"'));
-  assert.ok(client.includes('button("finish", "End game", "entry-footer-action end-game-action")'));
+  assert.ok(client.includes('button("finish", "Cancel game", "entry-footer-action end-game-action")'));
+  assert.ok(client.includes('dialog.querySelector("#end-game-title").textContent = waiting ? "Cancel this game?"'));
+  assert.ok(tutorPage.includes('id="end-game-eyebrow"'));
   assert.ok(client.includes('button("finish", "End game", "secondary end-game-button")'));
-  assert.ok(client.includes('class="pause-invitation"'));
+  assert.ok(client.includes('<details class="pause-invitation"'));
+  assert.ok(client.includes("Invitation &amp; reconnect"));
+  assert.ok(client.includes('button("replace-learner", "Reset invitation"'));
+  assert.ok(client.includes("replacementInvite = state?.invite || null"));
+  assert.ok(tutorPage.includes("Reset invitation?"));
+  assert.ok(gameCss.includes(".pause-invitation summary:focus-visible {"));
   assert.ok(client.includes('id="invite-link" class="invite-link-input"'));
   assert.ok(gameCss.includes(".pause-actions {"));
   assert.ok(gameCss.includes(".pause-invitation {"));
+  assert.ok(!client.includes("Current learner link"));
+  assert.ok(!client.includes("Replace learner link"));
   assert.ok(tutorPage.includes('method="dialog" class="fw-confirm-actions"'));
   assert.ok(tutorPage.includes('value="cancel" autofocus'));
   assert.ok(tutorPage.includes('value="replace"'));
@@ -453,7 +588,7 @@ const fs = require("node:fs");
   assert.ok(!gameCss.includes(".invite-tools {"));
   assert.ok(client.includes('joined ? button("start", "▶ Start Round"'));
   assert.ok(gameCss.includes("min-height: calc(100svh - 72px);"));
-  assert.ok(gameCss.includes(".landing .invite-link-input,\n.pause-overlay .invite-link-input {"));
+  assert.ok(gameCss.includes(".landing .invite-link-input,\n.pause-overlay .invite-link-input,\n.switch-maintenance .invite-link-input {"));
   assert.ok(client.includes('entry-footer-action entry-footer-maintenance'));
   assert.ok(!client.includes("ⓘ How to Play"));
   assert.ok(!client.includes('class="waiting-label"'));
@@ -498,7 +633,9 @@ const fs = require("node:fs");
   assert.ok(gameCss.includes("overflow-wrap: normal;"));
   assert.ok(gameCss.includes("word-break: normal;"));
   assert.ok(!gameCss.includes("overflow-wrap: anywhere;"));
-  assert.ok(client.includes("<h2>Turn paused.</h2>"));
+  assert.ok(client.includes('connectionPaused ? "Both players are back." : "Turn paused."'));
+  assert.ok(client.includes('waitingForPartner ? "Partner disconnected."'));
+  assert.ok(client.includes('!s.connected.tutor || !s.connected.learner'));
   assert.ok(client.includes('id="clock">02:00</strong>'));
   assert.ok(client.includes("const turnMs = state.turnMs || 120000;"));
   assert.ok(client.includes("ms / turnMs"));
@@ -520,7 +657,8 @@ const fs = require("node:fs");
   assert.ok(gameCss.includes("left: 50%;"));
   assert.ok(gameCss.includes("body:has(#notice:not(:empty)) .feedback"));
   assert.ok(client.includes('["countdown", "active"].includes(state.phase)'));
-  assert.ok(client.includes("The turn is paused."));
+  assert.ok(client.includes("The clock is stopped. Resume when both players are connected."));
+  assert.ok(!client.includes("The clock continues unless the tutor pauses."));
   assert.ok(gameCss.includes("width: max-content;"));
   assert.ok(gameCss.includes("max-width: min(680px, calc(100vw - 32px));"));
   const excludes = fs.readFileSync(".assetsignore", "utf8");

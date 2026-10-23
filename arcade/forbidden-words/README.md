@@ -8,7 +8,11 @@ product specification supplied for this build is `GAME.md` in the handoff worksp
 - `index.html`, `join.html`, `app.mjs`, `game.css`: tutor and sealed learner views.
 - `server/cards.mjs`: 141 learner-appropriate cards; never served as a static asset.
 - `server/game.mjs`: rules, role changes, timing, scoring and explicit role projections.
-- `server/http.mjs`: this game's HTTP transport and seat authorization.
+- `server/http.mjs`: this game's existing HTTP transport and seat authorization.
+- `server/live-room.mjs`: authoritative Durable Object, durable game state,
+  private hibernating WebSockets and one-use connection tickets.
+- `server/live-http.mjs`: staged, gated Worker transport enforcing authentic
+  tutor identity, existing cross-game quotas and approved WebSocket origins.
 - `dev/`: local PostgreSQL-backed verification, isolated from deployed runtime.
 - `shared/worker.js`: the existing Atlas backend dispatches `/forbidden-words/*` and
   supplies its existing authenticated-account verifier. It does not contain game rules.
@@ -18,6 +22,59 @@ product specification supplied for this build is `GAME.md` in the handoff worksp
 Existing Arcade chrome, catalog, access/sign-in and scoped resource-share URL building
 remain their existing owners. The learner page loads no tutor workspace/navigation code.
 The generic resource share grant is not treated as session authorization.
+
+## Live-room backend (Batches 2–3, not deployed)
+
+The backend source now includes `ForbiddenWordsLiveRoom`, generated into the
+existing `shared/worker.js` and configured as a SQLite-backed Durable Object
+through declarative Wrangler exports. A public route is now staged under `/forbidden-words/live/*`, but returns
+404 unless `ATLAS_FORBIDDEN_WORDS_LIVE_ENABLED` is explicitly set to `true`.
+The current HTTP/Supabase game remains the only production game.
+
+The private Durable Object accepts internal `/initialize` (owner + Atlas learner),
+`/ticket` (validated tutor or learner identity), and `/socket` (one-use
+30-second ticket carried in the WebSocket subprotocol, never in a URL).
+The room persists the existing game state through hibernation and streams
+role-projected updates; its alarm drives deadlines, disconnect pauses and
+six-hour expiration. The Worker authenticates tutors and reserves exactly one minimal Supabase
+metadata row through the existing atomic quota RPC; it never stores live cards
+or gameplay state there. The old HTTP handler rejects these reservation rows.
+On End Game, the room marks the reservation finished (retrying after transient
+RPC failure). Live room state remains exclusively in the Durable Object.
+
+WebSocket upgrade tickets are one-use, consumed transactionally and echoed as
+the selected subprotocol; no token goes into a URL. During timed play, heartbeat
+messages update presence and the existing 12-second threshold preserves a brief
+disconnect grace. Reconnection restores the same game without resetting cards
+or scores. This remains **undeployed and not browser-integrated**; the real
+Cloudflare runtime and two-browser acceptance gates are still outstanding.
+
+## Browser live transport (Batch 4, not deployed)
+
+`app.mjs` supports a room-specific, **explicit opt-in** live transport via
+`live-client.mjs`. A tutor creating a new room at
+`/arcade/forbidden-words/?fw-live=1` saves the transport with that new room ID;
+an existing bookmarked HTTP room **does not change protocols**. The tutor's
+share link contains `live=1` in the query, a random room ID, and the existing
+invitation secret only in the URL fragment. Learners persist their own private
+seat credential locally as before. No connection ticket or seat credential
+appears in a network URL.
+
+The client requests a short-lived ticket over authenticated HTTPS (tutor) or
+by seat credential (learner), opens the room socket, and consumes role-projected
+state push frames. Commands are only considered complete after the Worker
+acknowledges their exact ID; a socket interruption retains the command ID for
+an idempotent retry. A heartbeat every four seconds maintains presence without
+full state broadcast or Supabase game writes. Timers remain locally rendered
+against the authoritative server deadline; reconnect refreshes the projection
+without re-creating the game.
+
+**Release gate:** The browser path is not activated on the live website
+automatically. The backend `ATLAS_FORBIDDEN_WORDS_LIVE_ENABLED` switch remains
+off in Cloudflare; no `atlas-ai` Worker deployment has occurred. Actual
+Cloudflare WebSocket runtime checks and two-browser acceptance are mandatory
+before enabling it for real tutors. No HTTP fallback is permitted for a live
+room: mixing transports would create competing game authority.
 
 ## Session contract
 
@@ -49,9 +106,14 @@ most twenty retained sessions per owner.
 A turn starts at database time + 3 seconds and ends exactly 120 seconds later. Clients
 render from that deadline and a measured server-time offset. Polling every 650 ms
 synchronizes scores and roles; timer rendering is local and continuous. A paused turn
-stores remaining duration. Disconnection does not reset or silently pause the clock.
-Browser actions disable while connection is stale; uncertain commands retry with the
-same ID. Reload restores the same seat, card, score and deadline. Expired/revoked seats
+stores remaining duration. If either seat misses its 12-second presence
+window during timed play, the server automatically pauses the turn and
+restores the time since the last confirmed heartbeat. Both players must
+reconnect before the tutor can explicitly resume; neither browser may
+continue scoring while paused. The initial 12-second window avoids pauses
+from momentary connection hiccups; a browser cannot detect a sudden tab
+closure instantly without a live connection channel. Browser actions disable
+while the connection is stale; uncertain commands retry with the same ID. Reload restores the same seat, card, score and deadline. Expired/revoked seats
 show an entry error rather than keeping an actionable stale board. Poll failures back
 off to five seconds. Both players must mark ready for turn two; reconnecting completes
 that readiness handshake if both already marked ready.
@@ -88,9 +150,9 @@ six hours). Different browsers do not share these local bookmarks; a future
 cross-device room discovery feature would need a separate authenticated
 server lookup.
 
-The backend continues to accept previously unbound rooms for compatibility,
-but the game presents no legacy-game migration or recovery UI. New games
-are scoped to the selected learner from the outset.
+Every new room requires a valid Atlas learner ID at creation, and the backend
+rejects unassigned older rooms rather than silently linking them to a learner.
+The obsolete one-time legacy binding command and its recovery UI are retired.
 
 The existing server quota (three unfinished rooms per owner) still applies;
 switching learners alone never consumes a room. Account ownership/authorisation,

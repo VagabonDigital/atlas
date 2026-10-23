@@ -92,20 +92,20 @@
     <dialog id="replace-learner-confirm" aria-labelledby="replace-learner-title" aria-describedby="replace-learner-description">
       <div class="fw-confirm-inner">
         <p class="eyebrow">GAME INVITATION</p>
-        <h2 id="replace-learner-title">Replace learner link?</h2>
+        <h2 id="replace-learner-title">Reset invitation?</h2>
         <p id="replace-learner-description">
-          Your current learner will lose access. The game and score stay the
-          same. Share the new link with your replacement learner.
+          This disables the previous invitation and disconnects the invited player.
+          Your game and score stay the same. Share the new link to reconnect.
         </p>
         <form method="dialog" class="fw-confirm-actions">
-          <button class="secondary" value="cancel" autofocus>Keep current link</button>
-          <button class="primary" value="replace">Replace link</button>
+          <button class="secondary" value="cancel" autofocus>Keep invitation</button>
+          <button class="primary" value="replace">Reset invitation</button>
         </form>
       </div>
     </dialog>
     <dialog id="end-game-confirm" aria-labelledby="end-game-title" aria-describedby="end-game-description">
       <div class="fw-confirm-inner">
-        <p class="eyebrow">END SHARED GAME</p>
+        <p class="eyebrow" id="end-game-eyebrow">END SHARED GAME</p>
         <h2 id="end-game-title">End this game for both players?</h2>
         <p id="end-game-description">
           This closes the current game for you and your learner. You can start
