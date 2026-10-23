@@ -222,26 +222,16 @@ const fs = require("node:fs");
   assert.equal(countdownRoom.startsAt, 518002);
   assert.equal(countdownRoom.deadline, 638002);
 
-  // Immutable Atlas ownership lives in the same server state as the room.
+  // Ownership is established at creation, never changed through game commands.
   const scopedGame = initialState(40000);
-  const bind = (actor, atlasSessionId, id = crypto.randomUUID()) =>
-    command(scopedGame, actor, {
-      action: "bind-learner", id, round: scopedGame.round,
-      turn: scopedGame.turn, atlasSessionId,
-    }, 40010);
-  assert.equal(view(scopedGame, "learner", 40000, 0).atlasSessionId, undefined);
-  assert.throws(() => bind("learner", "session-alex"), /already belongs/);
-  bind("tutor", "session-alex");
-  assert.equal(scopedGame.atlasSessionId, "session-alex");
+  scopedGame.atlasSessionId = "session-alex";
   assert.equal(view(scopedGame, "tutor", 40010, 1).atlasSessionId, "session-alex");
   assert.equal(view(scopedGame, "learner", 40010, 1).atlasSessionId, undefined);
-  assert.throws(() => bind("tutor", "session-blair"), /already belongs/);
-  assert.equal(scopedGame.atlasSessionId, "session-alex");
-  const invalidGame = initialState(40000);
-  assert.throws(() => command(invalidGame, "tutor", {
+  assert.throws(() => command(scopedGame, "tutor", {
     action: "bind-learner", id: crypto.randomUUID(),
-    round: 0, turn: 0, atlasSessionId: "../wrong",
-  }, 40010), /Invalid Atlas learner context/);
+    round: 0, turn: 0, atlasSessionId: "session-blair",
+  }, 40010), /Unknown action/);
+  assert.equal(scopedGame.atlasSessionId, "session-alex");
 
   const tutorPage = fs.readFileSync(
     "arcade/forbidden-words/index.html",
@@ -379,6 +369,8 @@ const fs = require("node:fs");
   assert.ok(!tutorPage.includes('id="recover-legacy-confirm"'));
   assert.ok(!learnerPage.includes('id="recover-legacy-confirm"'));
   assert.ok(!client.includes("recover-legacy"));
+  assert.ok(!client.includes('extra.atlasSessionId === null'));
+  assert.ok(client.includes('data.state.atlasSessionId !== gameLearnerId'));
   assert.ok(!client.includes("No Forbidden Words game is linked"));
   assert.ok(!client.includes("Played before this update"));
   assert.ok(!gameCss.includes(".room-recovery"));

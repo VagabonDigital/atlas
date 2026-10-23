@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { database, OWNER } from "./database.mjs";
 import { handleForbiddenWords, token } from "../server/http.mjs";
+import { initialState } from "../server/game.mjs";
 const { db, rpc } = await database();
 const env = { ALLOWED_ORIGIN: "https://atlas.test" };
 const session = crypto.randomUUID(),
@@ -16,7 +17,11 @@ async function call(body, expected = 200, tutor = false, route = "session") {
         Origin: env.ALLOWED_ORIGIN,
         ...(tutor ? { Authorization: "Bearer tutor" } : {}),
       },
-      body: JSON.stringify({ session, id: crypto.randomUUID(), ...scope, ...body }),
+      body: JSON.stringify({
+          session, id: crypto.randomUUID(), ...scope,
+          ...(tutor ? { atlasSessionId: "session-default" } : {}),
+          ...body,
+        }),
     }),
     env,
     {
@@ -37,6 +42,8 @@ async function call(body, expected = 200, tutor = false, route = "session") {
 }
 try {
   await call({ action: "create" }, 401, false, "create");
+  await call({ action: "create", atlasSessionId: null }, 400, true, "create");
+  await call({ action: "create", atlasSessionId: "../wrong" }, 400, true, "create");
   let tutor = await call({ action: "create", theme: "night" }, 200, true, "create");
   assert.equal(tutor.theme, "night");
   const invite = tutor.invite;
@@ -196,7 +203,7 @@ try {
           "Content-Type": "application/json",
           Authorization: "Bearer verified-tutor",
         },
-        body: JSON.stringify({ session, action: "poll" }),
+        body: JSON.stringify({ session, action: "poll", atlasSessionId: "session-default" }),
       }),
       workerEnv,
     );
@@ -311,27 +318,25 @@ try {
   });
   assert.equal(newSeat.atlasSessionId, undefined);
 
-  // Legacy rooms are never silently attributed. Explicit tutor binding is
-  // atomic, permanent, and visible only on the authenticated tutor projection.
+  // An ownership command must not reassign an existing room.
+  await call({
+    session: scopedRoom, action: "bind-learner", atlasSessionId: "session-alex",
+  }, 400, true);
+  assert.equal(
+    (await call({ session: scopedRoom, action: "poll", atlasSessionId: "session-alex" }, 200, true)).atlasSessionId,
+    "session-alex",
+  );
+  // Simulate an old unbound database record; neither seat can revive it.
   const legacyRoom = crypto.randomUUID();
-  let olderTutor = await call({ session: legacyRoom, action: "create" }, 200, true, "create");
-  assert.equal(olderTutor.atlasSessionId, null);
-  await call({ session: legacyRoom, action: "poll", atlasSessionId: "session-blair" }, 409, true);
-  olderTutor = await call({
-    session: legacyRoom, action: "bind-learner",
-    atlasSessionId: "session-blair",
-  }, 200, true);
-  assert.equal(olderTutor.atlasSessionId, "session-blair");
+  const oldState = initialState(0);
+  oldState.invite = token();
+  await rpc("forbidden_words_create", {
+    p_id: legacyRoom, p_owner: OWNER, p_state: oldState,
+  });
+  await call({ session: legacyRoom, action: "poll" }, 410, true);
   await call({
-    session: legacyRoom, action: "bind-learner",
-    atlasSessionId: "session-alex",
-  }, 409, true);
-  await call({
-    session: legacyRoom, action: "poll", atlasSessionId: "session-alex",
-  }, 409, true);
-  await call({
-    session: legacyRoom, action: "poll", atlasSessionId: "session-blair",
-  }, 200, true);
+    session: legacyRoom, action: "join", credential: token(), invite: oldState.invite,
+  }, 410);
   const denied = await handleForbiddenWords(
     new Request("https://api.test/forbidden-words/session", {
       method: "POST",
