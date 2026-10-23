@@ -169,6 +169,8 @@ test('New Run clears only the active run and preserves learner and tutor history
   assert.deepEqual(after.millionaire.exposures, previous.exposures);
   assert.deepEqual(after.millionaire.events, previous.events);
   assert.deepEqual(after.millionaire.results, previous.results);
+  assert.equal(store.sessionBest('learner-a'), 8000);
+  assert.equal(store.sessionBest('learner-b'), 0);
   assert.deepEqual(after.lastResult, { prize: 8000, outcome: 'walked away', highest: 3 });
   assert.deepEqual(registry.sessionStates['learner-b']['arcade:millionaire'], other);
   assert.equal(registry.sessionStates.shared['arcade:millionaire'].millionaire.tutorExposures[questionId].count, 2);
