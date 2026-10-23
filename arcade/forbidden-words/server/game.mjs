@@ -150,16 +150,7 @@ export function command(s, actor, input, now) {
     "The game has moved to another turn. Please try again.",
   );
   const tutor = actor === "tutor";
-  if (action === "bind-learner") {
-    requireThat(tutor && !s.atlasSessionId, "This game already belongs to an Atlas learner.", 409);
-    requireThat(
-      typeof input.atlasSessionId === "string" &&
-        /^[a-zA-Z0-9_-]{1,160}$/.test(input.atlasSessionId),
-      "Invalid Atlas learner context.",
-      400,
-    );
-    s.atlasSessionId = input.atlasSessionId;
-  } else if (action === "theme") {
+  if (action === "theme") {
     requireThat(tutor, "Only the tutor can change the game theme.", 403);
     requireThat(
       input.theme === "light" || input.theme === "night",
