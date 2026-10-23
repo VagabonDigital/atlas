@@ -658,7 +658,7 @@
         0 0 18px #f8d08955;
       color: #fff1df;
       text-align: center;
-      transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease, background 180ms ease;
+      transition: transform 220ms cubic-bezier(.2,.8,.2,1), box-shadow 240ms ease, filter 240ms ease, background 240ms ease;
     }
     .stage.entrance .board-start::before {
       content: '';
@@ -691,8 +691,8 @@
       transition: box-shadow 180ms ease;
     }
     .stage.entrance .board-start:hover {
-      transform: translate(-50%, -2px);
-      filter: brightness(1.04) saturate(1.05);
+      transform: translate(-50%, -4px);
+      filter: brightness(1.11) saturate(1.12);
       background: linear-gradient(180deg,
         #fff6d1 0%, #e5bf8a 8%, #aa6c43 16%,
         #bd8c57 80%, #fff1cb 95%, #a7773e 100%);
@@ -701,8 +701,8 @@
         inset 0 -3px 0 #70421c,
         0 3px 0 #ffe8b5,
         0 8px 0 #986b3c,
-        0 14px 24px #67412599,
-        0 0 24px #f8d08977;
+        0 16px 28px #674125aa,
+        0 0 32px 6px #ffce7588;
     }
     .stage.entrance .board-start:hover::before {
       background: linear-gradient(180deg, #87627a, #6d4563 28%, #4f2946 64%, #31152f);
@@ -712,13 +712,49 @@
         inset 4px 0 8px #ebcaaf33,
         inset -4px 0 8px #e8beaa22;
     }
-    .stage.entrance .board-start:hover::after { box-shadow: 0 0 8px #ffe8a7dd; }
+    .stage.entrance .board-start:hover::after { box-shadow: 0 0 12px 3px #ffe8a7ee; }
+    /* A single light sweep across the inset face, not a looping marquee. */
+    .board-start-glint {
+      position: absolute;
+      inset: 6px 7px 7px;
+      z-index: 1;
+      border-radius: 34px;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .board-start-glint::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      bottom: -40%;
+      left: -48%;
+      width: 38%;
+      background: linear-gradient(90deg, transparent 0%, #ffe6be0a 24%, #fff9de44 50%, #ffe8c00b 76%, transparent 100%);
+      transform: skewX(-23deg) translateX(0);
+      transition: transform 650ms cubic-bezier(.25,.6,.2,1);
+    }
+    .stage.entrance .board-start:hover .board-start-glint::before {
+      transform: skewX(-23deg) translateX(480%);
+    }
+    .stage.entrance .board-start:active {
+      transform: translate(-50%, 1px);
+      box-shadow: inset 0 2px 3px #fff7, inset 0 -3px 0 #70421c, 0 2px 0 #986b3c, 0 4px 8px #67412580;
+    }
     .stage.entrance .board-start:hover .board-start-label {
       text-shadow: 0 2px 2px #15091a, 0 -1px #fff3df77, 0 0 10px #fff1c055;
     }
     .stage.entrance .board-start:hover .board-start-lights i {
-      filter: brightness(1.08);
-      box-shadow: 0 0 7px 3px #ffdf92d6, 0 0 14px 6px #f7bf68aa, inset 0 1px 2px #fff;
+      filter: brightness(1.35);
+      box-shadow: 0 0 8px 4px #fff0b8ee, 0 0 20px 8px #ffc267cc, inset 0 1px 2px #fff;
+    }
+    .stage.entrance .board-start:hover .board-start-lights i:nth-child(2) { transition-delay: 55ms; }
+    .stage.entrance .board-start:hover .board-start-lights i:nth-child(3) { transition-delay: 110ms; }
+    @media (prefers-reduced-motion: reduce) {
+      .stage.entrance .board-start, .stage.entrance .board-start::before,
+      .stage.entrance .board-start::after, .board-start-glint::before,
+      .board-start-label, .board-start-lights i { transition: none; }
+      .stage.entrance .board-start:hover { transform: translateX(-50%); }
+      .stage.entrance .board-start:hover .board-start-glint::before { transform: none; }
     }
     .stage.entrance .board-start:focus-visible {
       outline: 3px solid #6d3974;
@@ -872,6 +908,7 @@
       <div id="board" class="board" role="group" aria-label="Ranked responses"></div>
       <button id="board-start" class="board-start" type="button">
         <span class="board-start-lights" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="board-start-glint" aria-hidden="true"></span>
         <span class="board-start-label">Start Match</span>
         <span class="board-start-lights" aria-hidden="true"><i></i><i></i><i></i></span>
       </button>
