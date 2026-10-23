@@ -1,4 +1,4 @@
-import {boards} from './content.mjs';
+import {boards,legacyBoards} from './content.mjs';
 import {chooseBoards,createMatch,resolveAnswer,applyResolution,revealMissed,nextRound,winner} from './engine.mjs';
 
 const $=s=>document.querySelector(s);
@@ -44,7 +44,7 @@ function readSnapshot(sessionId){
     if(!record||record.status==='complete')return null;
     const saved=record.familyFeud;
     if(!saved||saved.version!==1||!Array.isArray(saved.boardIds)||saved.boardIds.length!==3)return null;
-    const selected=saved.boardIds.map(id=>boards.find(board=>board.id===id));
+    const selected=saved.boardIds.map(id=>boards.find(board=>board.id===id)||legacyBoards.find(board=>board.id===id));
     if(selected.some(board=>!board)||new Set(saved.boardIds).size!==3)return null;
     const pair=(value,max=Infinity)=>Array.isArray(value)&&value.length===2&&value.every(n=>Number.isInteger(n)&&n>=0&&n<=max);
     const player=n=>n===0||n===1;
@@ -166,6 +166,10 @@ function render({flash=-1,scores=state?.scores,active=state?.active}={}){
   if (soundSlot && soundButton.parentElement !== soundSlot) soundSlot.append(soundButton);
   document.documentElement.style.setProperty('--active',active===1?'#9990ed':'#ff902e');
   $('#heading').innerHTML=state?`<span class="round-kicker">${state.phase==='final'?'MATCH COMPLETE':`ROUND ${state.round+1} OF 3`}</span><h1>${state.phase==='final'?'You met the crowd.':esc(state.boards[state.round].question)}</h1>`:'<h1>FAMILY<br>FEUD</h1><p>You know your answer.<br>Do you know everyone else’s?</p>';
+  const activeBoard=state?.boards[state.round];
+  $('#provenance').textContent=activeBoard?.kind==='season26'
+    ? 'SEASON 26 · ARCHIVED SURVEY RESULTS'
+    : activeBoard ? 'ILLUSTRATIVE BOARD · NOT SURVEY DATA' : 'SEASON 26 · SURVEY GAME';
   renderBoard(flash);renderPlayers(scores,active);renderDock(active);$('#feedback').textContent=message;
 }
 function focusAnswer(){if(!busy&&state?.phase==='playing')$('#answer')?.focus({preventScroll:true});}
