@@ -115,7 +115,7 @@
     .host-submit:disabled{opacity:.34;cursor:default}
 
     .show[data-screen="game"] .show-footer{display:flex;gap:8px;align-items:center}
-    .show[data-screen="game"] #reset-session{
+    .show[data-screen="game"] #new-run{
       min-height:30px;
       display:flex;
       align-items:center;
@@ -134,7 +134,7 @@
       opacity:.78;
       transition:color .18s,opacity .18s;
     }
-    .show[data-screen="game"] #reset-session:hover{
+    .show[data-screen="game"] #new-run:hover{
       border:0;
       background:transparent;
       color:#efb0a7;
@@ -151,7 +151,7 @@
       .host-confidence button{flex:1;min-height:29px;padding:5px 4px;font-size:10px}
       .host-submit{width:100%;min-height:29px;padding:5px 8px;font-size:11px}
       .show[data-screen="game"] .show-footer{left:auto;right:12px;gap:5px}
-      .show[data-screen="game"] #reset-session{min-height:30px;padding:6px 4px;font-size:10px}
+      .show[data-screen="game"] #new-run{min-height:30px;padding:6px 4px;font-size:10px}
       .show[data-screen="game"] .question-tools{left:12px;right:auto}
     }
   </style>
@@ -234,7 +234,7 @@
       <button id="finish" class="outline">Finish</button>
     </section>
     <footer class="show-footer">
-      <button id="reset-session" class="quiet" hidden>Reset session</button>
+      <button id="new-run" class="quiet" hidden>New Run</button>
       <button id="sound" class="quiet arcade-game-chrome-utility" type="button" aria-label="Sound" aria-pressed="false">Sound off</button>
     </footer>
     <div id="celebration" class="celebration" aria-hidden="true"></div>
