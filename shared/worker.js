@@ -2016,6 +2016,12 @@ const { handleForbiddenWords, handleForbiddenWordsLive, ForbiddenWordsLiveRoomBa
           await this.persist(room, now);
           if (input.action !== "poll" || room.game.phase !== previousPhase ||
               !!room.game.paused !== wasPaused) this.publish(room, now);
+          // WebSocket delivery alone is not proof a command was committed.
+          // Acknowledgements make ambiguous retries safe with the same action ID.
+          if (input.action === "poll")
+            this.send(ws, { type: "heartbeat", serverNow: now });
+          else
+            this.send(ws, { type: "ack", id: input.id });
           // Finished games relinquish one of the tutor's three room slots.
           if (room.game.phase === "finished" && !room.quotaReleased) {
             try {
@@ -2027,7 +2033,15 @@ const { handleForbiddenWords, handleForbiddenWordsLive, ForbiddenWordsLiveRoomBa
             }
           }
         } catch (error) {
-          this.send(ws, { type: "error", error: error instanceof GameError ? error.message : "Invalid command." });
+          let id = null;
+          if (typeof message === "string") {
+            try { id = JSON.parse(message)?.id ?? null; } catch { /* invalid JSON */ }
+          }
+          this.send(ws, {
+            type: "error", id,
+            status: error instanceof GameError ? error.status : 503,
+            error: error instanceof GameError ? error.message : "Invalid command.",
+          });
         }
       }
 
