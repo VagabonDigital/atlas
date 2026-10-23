@@ -928,15 +928,20 @@ function schedulePoll() {
   pollTimer = setTimeout(poll, state?.phase === "finished" ? 3000 : retryDelay);
 }
 function showEntryError(error) {
-  // A claimed invitation cannot open another learner seat in a new browser.
-  // Keep that restriction, but explain the recovery path without server jargon.
-  const claimedInvitation =
-    learner &&
-    error.status === 403 &&
-    error.message === "This learner seat is already in use. Ask your tutor for a replacement link.";
-  const message = claimedInvitation
-    ? "This invitation has already been used. If you can't get back into the game, ask your tutor for a new link."
-    : error.message;
+  // A claimed, replaced or expired learner seat cannot be repaired by
+  // resubmitting the same invitation. HTTP and WebSocket servers use different
+  // wording, so rely on the status instead of matching an exact sentence.
+  const unavailableSeat = learner && (error.status === 403 || error.status === 410);
+  const claimedSeat =
+    learner && error.status === 403 &&
+    /learner seat is already in use/i.test(error.message || "");
+  const message = claimedSeat
+    ? "This invitation has already been used in another browser. Reopen the original learner window, or ask your tutor to reset the invitation and send a new link."
+    : learner && error.status === 410
+      ? "This game has expired. Ask your tutor to start a new game and share a new invitation."
+      : unavailableSeat
+        ? "This invitation can no longer be used. Ask your tutor to reset the invitation and send a new link."
+        : error.message;
   state = null;
   lastKey = "";
   lastNonce = null;
@@ -945,7 +950,7 @@ function showEntryError(error) {
   clearTimeout(pollTimer);
   stopLive();
   document.documentElement.style.setProperty("--heat", "0");
-  app.innerHTML = `<section class="entry-error panel">${brand}<h1>Let’s get you connected.</h1><p>${escape(message)}</p>${claimedInvitation ? "" : button("retry", "Try again", "primary")}${!learner && owner ? button("new-session", "Create a fresh game", "text-button") : ""}</section>`;
+  app.innerHTML = `<section class="entry-error panel">${brand}<h1>Let’s get you connected.</h1><p>${escape(message)}</p>${unavailableSeat ? "" : button("retry", "Try again", "primary")}${!learner && owner ? button("new-session", "Create a fresh game", "text-button") : ""}</section>`;
   notify("");
 }
 async function poll() {
