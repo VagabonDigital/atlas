@@ -91,6 +91,10 @@ function restoreRunAtCover() {
     lastQuestion = null;
     resumeOnCover = true;
     $('#start').textContent = 'Continue Run';
+    // Normalize older untouched snapshots that were incorrectly counted as Question 1.
+    if (savedRun.engaged !== runEngaged) {
+      storage.saveRun(context.id, { ...savedRun, engaged: runEngaged }, candidate.publicView());
+    }
   } else storage.clearRun(context.id);
 }
 function start() {
