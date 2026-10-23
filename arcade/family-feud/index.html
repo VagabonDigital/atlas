@@ -627,29 +627,50 @@
         grid-template-columns: 1fr;
       }
     }
-    /* Cover details belong to the game machine, not beneath Start Match.
-       Keep gameplay stage sizing and the survey provenance untouched. */
-    .stage:not(.entrance) .cover-meta {
-      display: none;
-    }
-    .stage.entrance .cover-meta {
+    /* Provenance is a proud, cover-only feature, not gameplay chrome. */
+    .stage:not(.entrance) .survey-credentials { display: none; }
+    .stage.entrance .survey-credentials {
       align-self: center;
-      margin: 0;
+      display: flex;
+      flex: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      width: min(92%, 465px);
+      min-height: 64px;
+      padding: 9px 14px;
+      border: 1px solid #d5ad77;
+      border-radius: 17px;
+      background: linear-gradient(180deg, #fffaf1, #f1e6d6);
+      color: #32132e;
+      box-shadow: inset 0 1px 0 #fff, 0 2px 0 #c1a07866;
       text-align: center;
-      color: #614257;
-      font-size: 14px;
-      font-weight: 800;
-      letter-spacing: 1.6px;
-      line-height: 1.2;
-      text-shadow: 0 1px #fff8;
+    }
+    .survey-credentials:hover { background: #fff8eb; border-color: #b88848; }
+    .survey-credentials:focus-visible { outline: 3px solid #563458; outline-offset: 3px; }
+    .credentials-title {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      font-size: clamp(12px, 1.25vw, 17px); font-weight: 800;
+      letter-spacing: .25px; white-space: nowrap;
+    }
+    .credentials-star { font-size: 19px; color: #9a673b; line-height: 1; }
+    .credentials-info { font-size: 18px; color: #766573; line-height: 1; }
+    .credentials-subtitle {
+      color: #665864; font-size: clamp(11px, 1vw, 14px);
+      font-weight: 800; letter-spacing: 1.3px; line-height: 1.2;
     }
     @media (min-width: 900px) {
-      .stage.entrance .machine {
-        gap: clamp(22px, 2.9dvh, 28px);
+      .stage.entrance .machine { height: 86%; gap: clamp(15px, 1.9dvh, 18px); }
+      .stage.entrance .question h1 { margin-bottom: clamp(14px, 2dvh, 20px); }
+    }
+    @media (max-width: 700px) {
+      .stage.entrance .survey-credentials {
+        min-height: 56px; width: 95%; padding: 7px 8px; gap: 3px;
       }
-      .stage.entrance .question h1 {
-        margin-bottom: clamp(17px, 2.3dvh, 24px);
-      }
+      .credentials-title { font-size: clamp(11px, 2.8vw, 14px); gap: 6px; }
+      .credentials-star, .credentials-info { font-size: 15px; }
+      .credentials-subtitle { font-size: 10px; letter-spacing: 1px; }
     }
     #new-match {
       opacity: .78;
@@ -672,6 +693,15 @@
     #new-match-dialog p { font-size: 15px; line-height: 1.5; margin: 0 0 18px; }
     #new-match-dialog .dialog-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
     #new-match-dialog .dialog-actions button { min-height: 42px; }
+    #survey-info {
+      width: min(400px, calc(100vw - 32px)); padding: 24px;
+      border: 1px solid #cba674; border-radius: 18px;
+      background: #fff7ea; color: #32132e;
+      box-shadow: 0 24px 70px #26132377;
+    }
+    #survey-info h2 { margin: 0 0 12px; font-size: 23px; }
+    #survey-info p { font-size: 15px; line-height: 1.5; margin: 0 0 14px; }
+    #survey-info .secondary { margin-top: 3px; min-height: 42px; }
     @media (max-width: 560px) {
       #game-chrome .small-brand { display: none; }
       #game-utilities { gap: 4px; }
@@ -679,10 +709,6 @@
     }
     @media (max-width: 700px) {
       .stage.entrance .board { margin-bottom: 8px; }
-      .stage.entrance .cover-meta {
-        font-size: 11px;
-        letter-spacing: 1.2px;
-      }
     }
   </style>
 </head>
@@ -694,9 +720,12 @@
   <main id="stage" class="stage entrance">
     <section class="machine" aria-label="Survey Machine">
       <div id="heading" class="question"></div>
+      <button class="survey-credentials" type="button" popovertarget="survey-info" aria-label="About the real Family Feud questions">
+        <span class="credentials-title"><span class="credentials-star" aria-hidden="true">★</span> REAL FAMILY FEUD QUESTIONS <span class="credentials-info" aria-hidden="true">ⓘ</span></span>
+        <span class="credentials-subtitle">2 PLAYERS · 3 ROUNDS</span>
+      </button>
       <div id="board" class="board" role="group" aria-label="Ranked responses"></div>
       <p class="provenance" id="provenance">SEASON 26 · SURVEY GAME</p>
-      <p class="cover-meta">2 PLAYERS · 3 ROUNDS</p>
     </section>
     <section class="console" aria-label="Contestants and answer controls">
       <div id="player-0" class="contestant player-a"></div>
@@ -712,6 +741,12 @@
       <button id="confirm-new-match" type="button" class="primary">Start New Match</button>
     </div>
   </dialog>
+  <div id="survey-info" popover role="dialog" aria-labelledby="survey-info-title" aria-describedby="survey-info-description">
+    <h2 id="survey-info-title">Real Family Feud Questions</h2>
+    <p id="survey-info-description">These are real questions from Season 26 of the American TV show <em>Family Feud</em>, with their original answers, rankings and scores.</p>
+    <p>Guess naturally — you don't need to match the exact wording on the board.</p>
+    <button class="secondary" type="button" popovertarget="survey-info" popovertargetaction="hide">Got it</button>
+  </div>
   <div id="atlas-session-panel-root"></div>
   <script src="../../shared/atlas-bridge.js"></script>
   <script src="../../shared/atlas-session-panel.js"></script>

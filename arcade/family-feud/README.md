@@ -99,6 +99,10 @@ leaves gameplay untouched. Pending animations cannot apply old-match results
 after confirmation or cross-session switching. This uses AtlasBridge's existing
 browser-local continuity, not cross-device or server-side game storage.
 
+The cover features a clickable Season 26 authenticity plaque above the six
+answer shutters. Its native popover explains the use of genuine TV questions,
+rankings and points, and naturally phrased guesses. It is hidden during play.
+
 Previously seen board IDs continue to be stored in browser-local storage to
 prefer fresh boards in later matches. Sound starts off and can be enabled with
 the top-right control. Keyboard Enter submits; all other actions use standard
