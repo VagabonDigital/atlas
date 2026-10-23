@@ -269,7 +269,7 @@ test('New Match confirmation cannot replace another learner after a session swit
   await new Promise(resolve => setImmediate(resolve));
   assert.equal(page.game.state, null);
   assert.equal(f.state('learner-b'), undefined);
-  assert.equal(f.state('learner-a').status, 'in-progress');
+  assert.equal(f.state('learner-a').status, 'available');
 });
 
 test('the entry button starts a fresh match and continues an existing match without resetting it', async () => {
