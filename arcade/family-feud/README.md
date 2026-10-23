@@ -16,12 +16,12 @@ node arcade/family-feud/dev/serve.mjs
 Open `http://127.0.0.1:4177/arcade/family-feud/`. No build or production dependency install is required.
 The server is a loopback-only development utility, not deployment infrastructure.
 Finish returns to Arcade. Session names are captured on Start Match; the bridge's
-named learner is Player 2, with Player 1/Player 2 fallbacks. No extra name setup.
+named learner is Player 2, with Player 1/Player 2 fallbacks. The learner opens Round 1; later rounds start with the trailing player (or alternate when tied). No extra name setup.
 
 ## Content and matching
 
-The first curated content batch contains **five real six-answer US Season 26
-survey boards**: archived survey numbers 19, 85, 111, 121 and 137. Original
+The first two curated content batches contain **ten real six-answer US Season 26
+survey boards**: archived survey numbers 19, 85, 111, 121, 137, 3, 61, 117, 136 and 151. Original
 question wording, six ranked answer labels and point values are preserved in
 `content.mjs`. Their source is the
 [Season 26 six-answer archive](https://mstiescott.neocities.org/feud26_6).
@@ -51,7 +51,7 @@ have separate outcomes; errors preserve the exact entry and turn for retry.
 Add new natural paraphrases on the basis of manual playtesting.
 
 Replay prefers unseen selected boards and clearly discloses reuse when the
-five-board pool is exhausted.
+ten-board pool is exhausted.
 ## Verification
 
 ```sh

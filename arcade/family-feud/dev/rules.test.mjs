@@ -53,10 +53,10 @@ test('fresh legacyBoards preferred; exhaustion never prevents a full replay',()=
   assert.equal(chooseBoards(legacyBoards,legacyBoards.map(b=>b.id)).length,3);
 });
 
-test('first sourced batch preserves exactly five original Season 26 six-answer records',()=>{
-  assert.equal(boards.length,5);
+test('first two sourced batches preserve ten original Season 26 six-answer records',()=>{
+  assert.equal(boards.length,10);
   assert.equal(legacyBoards.length,7);
-  assert.deepEqual(boards.map(b=>b.sourceSurveyId),[19,85,111,121,137]);
+  assert.deepEqual(boards.map(b=>b.sourceSurveyId),[19,85,111,121,137,3,61,117,136,151]);
   assert.equal(new Set([...boards,...legacyBoards].map(b=>b.id)).size,boards.length+legacyBoards.length);
   for(const b of boards){
     const raw=source.find(entry=>entry.id===b.sourceSurveyId);
@@ -83,8 +83,8 @@ test('all approved aliases map to one and only one source answer',()=>{
       excluded++;
     }
   }
-  assert.ok(accepted>=200);
-  assert.ok(excluded>=50);
+  assert.ok(accepted>=400);
+  assert.ok(excluded>=150);
 });
 test('conversational forms, British English, near misses and board-specific collisions',()=>{
   const byId=id=>boards.find(b=>b.sourceSurveyId===id);
@@ -107,6 +107,14 @@ test('conversational forms, British English, near misses and board-specific coll
   assert.equal(resolveAnswer(byId(85),'doctor').index,1);
   assert.equal(resolveAnswer(byId(137),'stare back').index,0);
   assert.equal(resolveAnswer(byId(137),'look away').index,4);
+});
+test('Batch 2 natural guesses, boundary cases and multi-answer rejection',()=>{
+  const get=id=>boards.find(b=>b.sourceSurveyId===id);
+  for(const [id,samples] of [[3,["feeling scrambled","easygoing","hard-boiled","sunny side up","devilish","my brain is fried"]],[61,["family emergency","desperate for the loo","i didn't know i was speeding","late for my shift","the throttle jammed","anniversary dinner"]],[117,["a draw bridge","torture chamber","watchtower","no indoor plumbing","knights in armour","a pet dragon"]],[136,["when will i be born","what's for dinner","have you picked my name","are you my mum","what's that sound","where am i"]],[151,["screech owl","yowling cat","a laughing hyena","braying","chimpanzee","humpback whale"]]]){
+    for(const [index,phrase] of samples.entries())assert.deepEqual(resolveAnswer(get(id),phrase),{kind:'match',index},id+' '+phrase);
+  }
+  for(const [id,phrase] of [[3,"poached"],[3,"omelette"],[61,"late for a flight"],[61,"brakes failed"],[117,"swimming pool"],[117,"dragon statue"],[136,"who is my dad"],[136,"am i hungry"],[151,"dolphin"],[151,"horse"]])assert.equal(resolveAnswer(get(id),phrase).kind,'miss',id+' '+phrase);
+  for(const [id,phrase] of [[3,"scrambled or fried"],[61,"toilet or emergency"],[117,"knights and dragons"],[136,"where am i or when do i get out"],[151,"cat and hyena"]])assert.equal(resolveAnswer(get(id),phrase).kind,'ambiguous',id+' '+phrase);
 });
 test('three-round matches select sourced boards and never legacy fixtures',()=>{
   const selected=chooseBoards(boards,[],()=>0.37);

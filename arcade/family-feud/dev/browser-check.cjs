@@ -139,7 +139,7 @@ const {pathToFileURL}=require('node:url');
  }
  assert.match(await page.locator('#board h2').innerText(),/draw/);
  assert.equal(new Set(second).size,3);
- // With a five-board pool, reuse becomes necessary. Prefer every remaining unseen board.
+ // Prioritise remaining unseen boards; reuse is permitted only when the pool runs low.
  assert.equal(second.filter(id=>!seenBeforeReplay.includes(id)).length,Math.min(3,unseenBeforeReplay.length));
  if(unseenBeforeReplay.length<=3)assert.ok(unseenBeforeReplay.every(id=>second.includes(id)));
  await page.screenshot({path:path.join(dir,'draw-1024.png')});
