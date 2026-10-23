@@ -1791,7 +1791,7 @@ const { handleForbiddenWords, ForbiddenWordsLiveRoomBase } = (() => {
     const TICKET_MS = 30 * 1000;
     const CONTEXT = /^[a-zA-Z0-9_-]{1,160}$/;
     const HEX = /^[0-9a-f]{64}$/;
-    const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const ROOM_OWNER_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     const json = (data, status = 200) => new Response(JSON.stringify(data), {
       status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store, private" },
     });
@@ -1858,7 +1858,7 @@ const { handleForbiddenWords, ForbiddenWordsLiveRoomBase } = (() => {
           const { pathname } = new URL(request.url);
           if (pathname === "/initialize" && request.method === "POST") {
             const input = await request.json();
-            if (!UUID.test(input.owner || "") || !CONTEXT.test(input.atlasSessionId || ""))
+            if (!ROOM_OWNER_UUID.test(input.owner || "") || !CONTEXT.test(input.atlasSessionId || ""))
               throw new GameError("Invalid tutor context.", 400);
             const present = await this.ctx.storage.get("room");
             if (present) {
