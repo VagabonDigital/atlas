@@ -20,20 +20,38 @@ named learner is Player 2, with Player 1/Player 2 fallbacks. No extra name setup
 
 ## Content and matching
 
-The six included boards are **illustrative fixtures, not genuine survey results**.
-This is disclosed on the stage throughout play. No respondents or raw responses
-are fabricated. Replace these boards with audited, genuine survey data before
-using this as a production survey game. Each concept includes aliases, boundaries,
-excluded neighbours and a place for original responses. Replay prefers unseen
-boards and explicitly discloses when reuse is necessary.
+The first curated content batch contains **five real six-answer US Season 26
+survey boards**: archived survey numbers 19, 85, 111, 121 and 137. Original
+question wording, six ranked answer labels and point values are preserved in
+`content.mjs`. Their source is the
+[Season 26 six-answer archive](https://mstiescott.neocities.org/feud26_6).
+Atlas did **not** conduct these surveys. They are archive transcriptions, not
+Atlas respondent data.
 
-Matching is local: normalized aliases, conservative edit distance, then bounded
-authored paraphrase/framing rules against the six concepts. It does not call an
-LLM, infer broadly associated concepts, or expose hidden suggestions. New natural
-paraphrases will need codebook additions based on human playtesting. Clear misses,
-multi-answer ambiguity, duplicates and technical errors have separate outcomes.
-Technical failures preserve the exact entry and turn for retry.
+The repository-only research collection
+`dev/season26-six-answer-raw.json` currently contains 161 six-answer survey
+records. It is excluded from the deployed static site by the existing
+`arcade/**/dev/` asset exclusion. This raw source is separate from the
+playable, hand-curated `boards` collection in `content.mjs`. Expand the
+playable library only after selecting a suitable question, verifying its source
+numbers and writing and testing its answer codebook.
 
+The seven former **illustrative development boards** remain under
+`legacyBoards` exclusively to restore previously saved matches. New matches
+never select them. Their illustrative provenance remains visible if an old
+match is resumed.
+
+Matching remains local: normalized aliases, conservative edit distance, then
+bounded authored paraphrase/framing rules against the six concepts. Each
+source answer has Atlas-authored accepted expressions, a meaning boundary and
+explicitly excluded near neighbours. Recognition changes **do not** alter the
+original display label or score. It does not call an LLM or guess loosely
+associated meanings. Multi-answer ambiguity, duplicates and technical errors
+have separate outcomes; errors preserve the exact entry and turn for retry.
+Add new natural paraphrases on the basis of manual playtesting.
+
+Replay prefers unseen selected boards and clearly discloses reuse when the
+five-board pool is exhausted.
 ## Verification
 
 ```sh
@@ -46,7 +64,9 @@ Playwright module path if it is not on Node's module path, and optionally
 `FF_BROWSER` to an installed Chromium executable. Run the local server first.
 Screenshots are written to `dev/evidence/` (ignored).
 
-The focused checks cover save/restore, refresh, learner-session switching,
+The focused checks cover sourced data fidelity, curated alias and exclusion
+matching, saved legacy-board restoration, save/restore, refresh,
+learner-session switching,
 all three rounds, completion and replay as well as authored aliases, paraphrases,
 typos, unrelated neighbours, concept collisions, elimination and solo continuation,
 starter rules, scoring, all-found and missed-board endings, complete three-round
