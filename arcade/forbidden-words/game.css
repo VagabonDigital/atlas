@@ -311,7 +311,8 @@ body:before {
   margin-bottom: 24px;
 }
 .landing .invite-link-row,
-.pause-overlay .invite-link-row {
+.pause-overlay .invite-link-row,
+.switch-maintenance .invite-link-row {
   position: relative;
   min-height: 54px;
   align-items: center;
@@ -326,7 +327,8 @@ body:before {
   font-weight: 600;
 }
 .landing .invite-link-input,
-.pause-overlay .invite-link-input {
+.pause-overlay .invite-link-input,
+.switch-maintenance .invite-link-input {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -334,11 +336,13 @@ body:before {
   opacity: 0;
 }
 .landing .invite-link-row.manual-copy .invite-link-label,
-.pause-overlay .invite-link-row.manual-copy .invite-link-label {
+.pause-overlay .invite-link-row.manual-copy .invite-link-label,
+.switch-maintenance .invite-link-row.manual-copy .invite-link-label {
   display: none;
 }
 .landing .invite-link-row.manual-copy .invite-link-input,
-.pause-overlay .invite-link-row.manual-copy .invite-link-input {
+.pause-overlay .invite-link-row.manual-copy .invite-link-input,
+.switch-maintenance .invite-link-row.manual-copy .invite-link-input {
   position: static;
   flex: 1;
   width: 100%;
@@ -1212,15 +1216,24 @@ html[data-theme="night"] .invite-link-label {
 }
 .pause-invitation {
   border-top: 1px solid #d9e5f4;
-  margin-top: 22px;
-  padding-top: 17px;
+  margin-top: 24px;
+  padding-top: 14px;
   text-align: left;
 }
-.pause-invitation .pause-invite-label {
+.pause-invitation summary {
+  cursor: pointer;
   color: #3c587a;
-  font-size: 13px;
-  font-weight: 800;
-  margin: 0 0 9px;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 9px 2px;
+}
+.pause-invitation summary:focus-visible {
+  outline: 3px solid #1679e9;
+  outline-offset: 3px;
+  border-radius: 5px;
+}
+.pause-invitation-content {
+  padding-top: 10px;
 }
 .pause-invitation .invite-link-row {
   min-height: 51px;
@@ -1229,14 +1242,16 @@ html[data-theme="night"] .invite-link-label {
 .pause-invitation .invite-link-label {
   font-size: 13px;
 }
-.pause-invitation .pause-invite-note {
-  font-size: 12px;
-  line-height: 1.55;
-  margin: 0 0 5px;
-}
 #app .pause-replace-link {
   margin: 0;
-  padding: 8px 0;
+  padding: 6px 0;
+}
+.replacement-note {
+  color: #3d628a;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 0 0 14px;
 }
 #app .end-game-action {
   color: #9a4b56;
@@ -2085,7 +2100,7 @@ html[data-theme="night"] .pause-overlay .invite-link-input {
 html[data-theme="night"] .pause-invitation {
   border-color: #304a63;
 }
-html[data-theme="night"] .pause-invite-label {
+html[data-theme="night"] .pause-invitation summary {
   color: #bdd5ef;
 }
 html[data-theme="night"] #app .end-game-action,
