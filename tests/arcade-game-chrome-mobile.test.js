@@ -166,7 +166,7 @@ assert.ok(
 
 assert.match(
   forbiddenApp,
-  /ArcadeGameChrome\.mountGame\(\{[\s\S]*?session:\s*false,[\s\S]*?search:\s*false,[\s\S]*?appearance:\s*false,[\s\S]*?mobileMenu:\s*true/,
+  /ArcadeGameChrome\.mountGame\(\{[\s\S]*?session:\s*false,[\s\S]*?search:\s*false,[\s\S]*?appearance:\s*true,[\s\S]*?mobileMenu:\s*true/,
   "Forbidden Words active play should hide Atlas session/search controls while retaining appearance and the game-owned mobile utility menu",
 );
 
