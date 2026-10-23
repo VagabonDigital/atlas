@@ -46,7 +46,7 @@ const {pathToFileURL}=require('node:url');
   await page.setViewportSize({width,height:720});
   const header=await page.evaluate(()=>{
    const brand=document.querySelector('#game-chrome > .small-brand').getBoundingClientRect();
-   const back=document.querySelector('#return-slot').getBoundingClientRect();
+   const back=document.querySelector('#game-chrome .arcade-game-chrome-game-return').getBoundingClientRect();
    const utilities=document.querySelector('#game-utilities').getBoundingClientRect();
    return {
     offset:(brand.left+brand.right)/2-innerWidth/2,
@@ -55,7 +55,7 @@ const {pathToFileURL}=require('node:url');
    };
   });
   assert.ok(Math.abs(header.offset)<=1,`Header title shifted at ${width}px: ${header.offset}px`);
-  assert.ok(header.leftGap>=8&&header.rightGap>=8,`Header controls overlap title at ${width}px`);
+  assert.ok(header.leftGap>=8&&header.rightGap>=8,`Header controls overlap title at ${width}px: ${JSON.stringify(header)}`);
  }
  await page.setViewportSize({width:1280,height:720});
  const firstQuestion=await page.locator('#heading h1').innerText();
