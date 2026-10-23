@@ -165,7 +165,7 @@ try {
     action: "start", id: makeId(), round: 0, turn: 0,
   }));
   assert.equal(learner.latest().state.phase, "countdown");
-  assert.ok(tutor.latest().state.card.target);
+  assert.ok(tutor.frames.filter(frame => frame.type === "state").at(-1).state.card.target);
   assert.deepEqual(Object.keys(learner.latest().state.card), ["nonce"]);
 
   // Closing a real socket does not burn the clock instantly: allow the

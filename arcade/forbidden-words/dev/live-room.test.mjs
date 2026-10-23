@@ -80,18 +80,22 @@ try {
   });
   const tutor = await connect(tutorTicket);
   const learner = await connect(learnerTicket);
+  const latestTutorState = () => tutor.frames.filter(frame => frame.type === "state").at(-1);
   assert.equal(tutor.latest().state.atlasSessionId, learnerContext);
   assert.equal(tutor.latest().state.actor, "tutor");
   assert.equal(learner.latest().state.actor, "learner");
   assert.equal(learner.latest().state.atlasSessionId, undefined);
   assert.equal(learner.latest().invite, undefined);
-  assert.equal(tutor.latest().invite, invite);
+  assert.equal(latestTutorState().invite, invite);
   await connect(tutorTicket, room, 403); // Tickets cannot be replayed.
   assert.equal(sockets.filter(ws => ws.readyState === 1).length, 2);
 
-  await room.webSocketMessage(tutor, JSON.stringify(action("start")));
+  const startId = crypto.randomUUID();
+  await room.webSocketMessage(tutor, JSON.stringify(action("start", {}, startId)));
+  assert.equal(tutor.latest().type, "ack");
+  assert.equal(tutor.latest().id, startId);
   assert.equal(learner.latest().state.phase, "countdown");
-  assert.equal(tutor.latest().state.card.target.length > 0, true);
+  assert.equal(latestTutorState().state.card.target.length > 0, true);
   assert.deepEqual(Object.keys(learner.latest().state.card), ["nonce"]);
   assert.equal(context.storage.nextAlarm > Date.now(), true);
   let stored = await context.storage.get("room");
@@ -102,6 +106,8 @@ try {
   const correctId = crypto.randomUUID();
   await room.webSocketMessage(tutor, JSON.stringify(action("correct", { round: 1, turn: 1, card }, correctId)));
   assert.equal((await context.storage.get("room")).game.score, 1);
+  assert.equal(tutor.latest().type, "ack");
+  assert.equal(tutor.latest().id, correctId);
   assert.equal(learner.latest().state.score, 1);
   assert.equal(learner.latest().state.card.target, undefined);
   await room.webSocketMessage(tutor, JSON.stringify(action("correct", { round: 1, turn: 1, card }, correctId)));
@@ -110,25 +116,28 @@ try {
     round: 1, turn: 1, card: (await context.storage.get("room")).game.card.nonce,
   })));
   assert.equal(learner.latest().type, "error");
+  assert.equal(learner.latest().status, 403);
   assert.equal((await context.storage.get("room")).game.score, 1);
 
   const restored = new ForbiddenWordsLiveRoomBase(context, {});
   await restored.webSocketMessage(learner, JSON.stringify({ action: "poll" }));
+  assert.equal(learner.latest().type, "heartbeat");
+  assert.equal(typeof learner.latest().serverNow, "number");
   // Heartbeats intentionally do not broadcast an unchanged state.
   assert.equal((await context.storage.get("room")).game.score, 1);
   assert.equal(learner.frames.filter(frame => frame.type === "state").at(-1).state.score, 1);
-  assert.equal(tutor.latest().state.score, 1);
+  assert.equal(latestTutorState().state.score, 1);
 
   await restored.webSocketMessage(tutor, JSON.stringify(action("pause", { round: 1, turn: 1 })));
   assert.ok((await context.storage.get("room")).game.paused);
   await restored.webSocketMessage(tutor, JSON.stringify(action("replace-learner", { round: 1, turn: 1 })));
   assert.equal(learner.readyState, 3);
-  assert.notEqual(tutor.latest().invite, invite);
+  assert.notEqual(latestTutorState().invite, invite);
   assert.equal((await context.storage.get("room")).game.learnerHash, null);
   // Cloudflare cannot deliver further messages to the already-closed seat.
   assert.equal(learner.code, 4003);
   await call("/ticket", { actor: "learner", credential: token(), invite }, 403, restored);
-  const nextCredential = token(), nextInvite = tutor.latest().invite;
+  const nextCredential = token(), nextInvite = latestTutorState().invite;
   const { ticket: nextTicket } = await call("/ticket", {
     actor: "learner", credential: nextCredential, invite: nextInvite,
   }, 200, restored);
