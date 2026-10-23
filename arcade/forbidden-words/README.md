@@ -49,9 +49,14 @@ most twenty retained sessions per owner.
 A turn starts at database time + 3 seconds and ends exactly 120 seconds later. Clients
 render from that deadline and a measured server-time offset. Polling every 650 ms
 synchronizes scores and roles; timer rendering is local and continuous. A paused turn
-stores remaining duration. Disconnection does not reset or silently pause the clock.
-Browser actions disable while connection is stale; uncertain commands retry with the
-same ID. Reload restores the same seat, card, score and deadline. Expired/revoked seats
+stores remaining duration. If either seat misses its 12-second presence
+window during timed play, the server automatically pauses the turn and
+restores the time since the last confirmed heartbeat. Both players must
+reconnect before the tutor can explicitly resume; neither browser may
+continue scoring while paused. The initial 12-second window avoids pauses
+from momentary connection hiccups; a browser cannot detect a sudden tab
+closure instantly without a live connection channel. Browser actions disable
+while the connection is stale; uncertain commands retry with the same ID. Reload restores the same seat, card, score and deadline. Expired/revoked seats
 show an entry error rather than keeping an actionable stale board. Poll failures back
 off to five seconds. Both players must mark ready for turn two; reconnecting completes
 that readiness handshake if both already marked ready.
