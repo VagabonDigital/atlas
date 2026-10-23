@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import vm from "node:vm";
 import { ForbiddenWordsLiveClient } from "../live-client.mjs";
 
 const session = "00000000-0000-4000-8000-000000000123";
@@ -111,8 +112,26 @@ try {
   assert.deepEqual(errors, []);
   assert.ok(received.length >= 3);
 
-  // The old polling path and WebSocket path remain independently gated.
+  // New production rooms default to live, explicit emergency opt-out stays
+  // HTTP, and local/offline test rooms never require the Cloudflare gateway.
+  // Evaluate the ACTUAL expression from app.mjs, not a duplicate policy.
   const app = fs.readFileSync(new URL("../app.mjs", import.meta.url), "utf8");
+  const defaultExpr = app.match(/^const LIVE_NEW_ROOMS = ([^;]+);$/m)?.[1];
+  assert.ok(defaultExpr, "Missing transport default policy");
+  const defaultMode = (search, local = false) => vm.runInNewContext(
+    `(() => {
+      const LOCAL = ${JSON.stringify(local)};
+      const params = new URLSearchParams(${JSON.stringify(search)});
+      return ${defaultExpr};
+    })()`, { URLSearchParams },
+  );
+  assert.equal(defaultMode(""), true, "Regular production URL creates live rooms");
+  assert.equal(defaultMode("?fw-live=1"), true, "Existing live preview URL still works");
+  assert.equal(defaultMode("?fw-live=0"), false, "Emergency opt-out creates HTTP rooms");
+  assert.equal(defaultMode("", true), false, "Local verification stays on HTTP");
+  assert.match(app, /const nextLive = LIVE_NEW_ROOMS;/);
+  assert.match(app, /liveMode = !!session && storage\.get\(liveRoomKey\(session\)\) === "live";/);
+  // Both legacy and live room IDs preserve their original transport on reload.
   assert.match(app, /if \(!session \|\| liveMode\) return;/);
   assert.match(app, /if \(liveMode\) url\.searchParams\.set\("live", "1"\)/);
   assert.match(app, /storage\.get\(liveRoomKey\(session\)\) === "live"/);
