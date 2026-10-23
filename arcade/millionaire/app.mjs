@@ -11,7 +11,7 @@ const escape = text => String(text).replace(/[&<>"']/g, char => ({ '&':'&amp;', 
 const lockIcon = '<svg viewBox="0 0 24 28"><path d="M6 11V7a6 6 0 0112 0v4h2v15H4V11zm3 0h6V7a3 3 0 00-6 0zm2 6v5h2v-5z"/></svg>';
 const Bridge = window.AtlasBridge;
 let game, context, visitSeen = new Set(), visitResults = [], lastQuestion, lastPhase;
-let isInspection = false, muted = true, dialogOrigin;
+let isInspection = false, muted = true, dialogOrigin, resumeOnCover = false;
 let hostDraftPick = null, hostDraftConfidence = 'Unsure';
 const storage = Bridge ? continuity(Bridge) : null;
 const showDirector = createShowDirector($('#show'));
@@ -69,6 +69,7 @@ $('#close-dialog').addEventListener('click', closeModal);
 $('#dialog').addEventListener('click', e => { if (e.target === $('#dialog')) closeModal(); });
 
 function start() {
+  resumeOnCover = false;
   const nextContext = storage.context();
   if (context && nextContext.id !== context.id) { visitSeen = new Set(); visitResults = []; }
   context = nextContext;
@@ -90,6 +91,7 @@ function finish({ clearContinuity = true } = {}) {
   if (clearContinuity && !isInspection && context) storage.clearRun(context.id);
   game = null; visitSeen = new Set(); visitResults = []; lastQuestion = null; lastPhase = null;
   resetHostDraft();
+  resumeOnCover = false; $('#start').textContent = 'Start Game';
   $('#show').dataset.screen = 'entrance'; $('#show').dataset.phase = ''; $('#show').dataset.pressure = '';
   $('#entrance').hidden = false; $('#board').hidden = true; $('#summary').hidden = true;
   $('#landing-chrome').hidden = false; $('#game-chrome').hidden = true;
@@ -218,7 +220,19 @@ function confirmNewRun() {
   };
 }
 
-$('#start').onclick = start; $('#again').onclick = start; $('#finish').onclick = finish;
+$('#start').onclick = () => {
+  if (!resumeOnCover || !game || !context || storage.context().id !== context.id) {
+    resumeOnCover = false;
+    start();
+    return;
+  }
+  // A valid restored run is already hydrated. Enter without starting a new one.
+  resumeOnCover = false;
+  window.AtlasSessionPanel?.close();
+  lastQuestion = null;
+  render();
+};
+$('#again').onclick = start; $('#finish').onclick = finish;
 all('[data-answer]').forEach(button => button.onclick = () => {
   const index = Number(button.dataset.answer);
   const phase = game?.publicView()?.phase;
@@ -298,8 +312,9 @@ try {
       if (game.restore(savedRun)) {
         visitSeen = new Set(savedRun.sessionSeen || []);
         lastQuestion = null;
-        window.AtlasSessionPanel?.close();
-        render();
+        resumeOnCover = true;
+        $('#start').textContent = 'Continue Run';
+        // Keep the existing entrance visible until the tutor explicitly continues.
       } else {
         game = null;
         storage.clearRun(context.id);
