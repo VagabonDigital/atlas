@@ -70,7 +70,7 @@ export function supabaseRpc(env) {
     return response.status === 204 ? null : response.json();
   };
 }
-async function bodyOf(request) {
+export async function bodyOf(request) {
   if (!request.headers.get("Content-Type")?.startsWith("application/json"))
     throw new GameError("JSON required.", 415);
   const reader = request.body?.getReader();
@@ -175,6 +175,10 @@ export async function handleForbiddenWords(
           410,
         );
       const s = row.state;
+      // Live rooms use this table only for quota metadata. Never let
+      // the old HTTP transport mutate their authoritative Durable Object game.
+      if (s.transport === "durable")
+        throw new GameError("This game uses a live connection. Reload the game.", 409);
       const now = Number(row.now);
       const actor = learner ? "learner" : "tutor";
       if (!learner && row.owner !== owner)

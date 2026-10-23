@@ -9,8 +9,10 @@ product specification supplied for this build is `GAME.md` in the handoff worksp
 - `server/cards.mjs`: 141 learner-appropriate cards; never served as a static asset.
 - `server/game.mjs`: rules, role changes, timing, scoring and explicit role projections.
 - `server/http.mjs`: this game's existing HTTP transport and seat authorization.
-- `server/live-room.mjs`: isolated **unrouted** Durable Object foundation for
-  durable game state, private hibernating WebSockets and one-use connection tickets.
+- `server/live-room.mjs`: authoritative Durable Object, durable game state,
+  private hibernating WebSockets and one-use connection tickets.
+- `server/live-http.mjs`: staged, gated Worker transport enforcing authentic
+  tutor identity, existing cross-game quotas and approved WebSocket origins.
 - `dev/`: local PostgreSQL-backed verification, isolated from deployed runtime.
 - `shared/worker.js`: the existing Atlas backend dispatches `/forbidden-words/*` and
   supplies its existing authenticated-account verifier. It does not contain game rules.
@@ -21,11 +23,12 @@ Existing Arcade chrome, catalog, access/sign-in and scoped resource-share URL bu
 remain their existing owners. The learner page loads no tutor workspace/navigation code.
 The generic resource share grant is not treated as session authorization.
 
-## Live-room backend (Batch 2, not deployed)
+## Live-room backend (Batches 2–3, not deployed)
 
 The backend source now includes `ForbiddenWordsLiveRoom`, generated into the
 existing `shared/worker.js` and configured as a SQLite-backed Durable Object
-through declarative Wrangler exports. **No public Worker route leads to it.**
+through declarative Wrangler exports. A public route is now staged under `/forbidden-words/live/*`, but returns
+404 unless `ATLAS_FORBIDDEN_WORDS_LIVE_ENABLED` is explicitly set to `true`.
 The current HTTP/Supabase game remains the only production game.
 
 The private Durable Object accepts internal `/initialize` (owner + Atlas learner),
@@ -33,10 +36,18 @@ The private Durable Object accepts internal `/initialize` (owner + Atlas learner
 30-second ticket carried in the WebSocket subprotocol, never in a URL).
 The room persists the existing game state through hibernation and streams
 role-projected updates; its alarm drives deadlines, disconnect pauses and
-six-hour expiration. The room itself does not yet enforce the global per-tutor
-quota. **It must not be publicly routed until the authentication, quota and
-rollout-gating batch is complete.** This is a private backend foundation and
-is not a replacement for acceptance testing on Cloudflare's runtime.
+six-hour expiration. The Worker authenticates tutors and reserves exactly one minimal Supabase
+metadata row through the existing atomic quota RPC; it never stores live cards
+or gameplay state there. The old HTTP handler rejects these reservation rows.
+On End Game, the room marks the reservation finished (retrying after transient
+RPC failure). Live room state remains exclusively in the Durable Object.
+
+WebSocket upgrade tickets are one-use, consumed transactionally and echoed as
+the selected subprotocol; no token goes into a URL. During timed play, heartbeat
+messages update presence and the existing 12-second threshold preserves a brief
+disconnect grace. Reconnection restores the same game without resetting cards
+or scores. This remains **undeployed and not browser-integrated**; the real
+Cloudflare runtime and two-browser acceptance gates are still outstanding.
 
 ## Session contract
 

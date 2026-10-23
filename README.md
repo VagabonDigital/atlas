@@ -207,8 +207,10 @@ reconcile the current dashboard bindings/variables and explicitly use
 The repository now stages a SQLite-backed `ForbiddenWordsLiveRoom` Durable Object
 class and `FORBIDDEN_WORDS_LIVE` binding for the next Arcade implementation batch.
 The game-specific source is `arcade/forbidden-words/server/live-room.mjs`, embedded
-by the existing backend generator. **No public route calls this class** and its
-production namespace has not been created by this repository change. Do **not**
+by the existing backend generator. The Worker includes a disabled-by-default live route; absent the exact
+`ATLAS_FORBIDDEN_WORDS_LIVE_ENABLED=true` setting, it returns 404 and the
+existing HTTP route remains in control. The production namespace has not
+been created by this repository change. Do **not**
 deploy this Worker configuration until the live-room account-authorisation,
 quota, runtime verification and rollout gates are approved. The Cloudflare
 declarative `exports` lifecycle cannot be rolled back across the first class

@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "start": "node serve.mjs",
-    "test": "node integration.test.mjs && node live-room.test.mjs"
+    "test": "node integration.test.mjs && node live-room.test.mjs && node live-gateway.test.mjs"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "5.20261001.1",

@@ -29,11 +29,16 @@ const fs = require("node:fs");
   assert.equal(s.startsAt, now + 3000);
   assert.equal(s.deadline, now + 123000);
   assert.equal(view(s, "tutor", now, 1).turnMs, 120000);
-  let secret = CARDS[s.card.index];
-  let guessed = JSON.stringify(view(s, "learner", now, 1));
-  assert.ok(!guessed.includes(secret.target));
-  for (const w of secret.forbidden) assert.ok(!guessed.includes(`"${w}"`));
-  assert.deepEqual(Object.keys(view(s, "learner", now, 1).card), ["nonce"]);
+  const learnerProjection = view(s, "learner", now, 1);
+  // Inspect the private-card projection, not unrelated public strings such as
+  // the selected UI theme ("light") that may also appear on a forbidden card.
+  assert.deepEqual(Object.keys(learnerProjection.card), ["nonce"]);
+  assert.equal(learnerProjection.card.nonce, s.card.nonce);
+  assert.equal(learnerProjection.atlasSessionId, undefined);
+  assert.equal(learnerProjection.history, undefined);
+  assert.equal(learnerProjection.pool, undefined);
+  assert.equal(learnerProjection.cursor, undefined);
+  assert.deepEqual(learnerProjection.review, []);
   assert.throws(() =>
     act("tutor", "correct", now + 2000, { card: s.card.nonce }),
   );
