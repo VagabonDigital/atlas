@@ -74,7 +74,6 @@ function generatedBlock() {
     "    /* arcade/forbidden-words/server/http.mjs */",
     indent(http),
     "",
-    "",
     "    /* arcade/forbidden-words/server/live-room.mjs */",
     indent(live),
     "",
