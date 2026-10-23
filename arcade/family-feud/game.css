@@ -20,6 +20,8 @@
   --game-chrome-control-muted: #42243c;
 }
 #game-chrome { position: fixed; inset: 12px 18px auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; z-index: 20; }
+/* Centre the game identity independently of unequal left/right utility widths. */
+#game-chrome > .small-brand { position: absolute; left: 50%; transform: translateX(-50%); pointer-events: none; }
 #game-chrome .arcade-game-chrome-game-return { background: var(--game-chrome-cover-surface); }
 #game-utilities { display: flex; align-items: center; gap: 8px; }
 .sound:hover { background: var(--game-chrome-cover-hover); }
