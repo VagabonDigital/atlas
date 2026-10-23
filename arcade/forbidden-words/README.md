@@ -23,58 +23,50 @@ Existing Arcade chrome, catalog, access/sign-in and scoped resource-share URL bu
 remain their existing owners. The learner page loads no tutor workspace/navigation code.
 The generic resource share grant is not treated as session authorization.
 
-## Live-room backend (Batches 2–3, not deployed)
+## WebSocket rooms — production transport
 
-The backend source now includes `ForbiddenWordsLiveRoom`, generated into the
-existing `shared/worker.js` and configured as a SQLite-backed Durable Object
-through declarative Wrangler exports. A public route is now staged under `/forbidden-words/live/*`, but returns
-404 unless `ATLAS_FORBIDDEN_WORDS_LIVE_ENABLED` is explicitly set to `true`.
-The current HTTP/Supabase game remains the only production game.
+The Cloudflare `atlas-ai` Worker has the SQLite-backed
+`ForbiddenWordsLiveRoom` Durable Object deployed and connected through its
+`FORBIDDEN_WORDS_LIVE` binding. Cloudflare currently has
+`ATLAS_FORBIDDEN_WORDS_LIVE_ENABLED=true`. The initial two-browser test
+confirmed that live gameplay updates quickly, with automatic disconnect
+pausing. This is **manual smoke-test evidence**, not broad production
+reliability or load testing.
 
-The private Durable Object accepts internal `/initialize` (owner + Atlas learner),
-`/ticket` (validated tutor or learner identity), and `/socket` (one-use
-30-second ticket carried in the WebSocket subprotocol, never in a URL).
-The room persists the existing game state through hibernation and streams
-role-projected updates; its alarm drives deadlines, disconnect pauses and
-six-hour expiration. The Worker authenticates tutors and reserves exactly one minimal Supabase
-metadata row through the existing atomic quota RPC; it never stores live cards
-or gameplay state there. The old HTTP handler rejects these reservation rows.
-On End Game, the room marks the reservation finished (retrying after transient
-RPC failure). Live room state remains exclusively in the Durable Object.
+**New production games use WebSockets by default.** Visiting
+`/arcade/forbidden-words/` and selecting *Create Game* creates a new live
+room. The older `?fw-live=1` test URL remains equivalent. The temporary
+`?fw-live=0` escape hatch creates a **new** game using the existing
+Supabase/HTTP polling transport. Local/offline verification still uses HTTP.
+Do not silently change transport for an existing room: tutor browsers store
+each room's choice, and learner invitations include the live-room marker.
+Reloading a remembered HTTP room remains HTTP; rejoining a live room remains
+WebSocket. Never attempt to read a Durable Object room through the HTTP
+game endpoints.
 
-WebSocket upgrade tickets are one-use, consumed transactionally and echoed as
-the selected subprotocol; no token goes into a URL. During timed play, heartbeat
-messages update presence and the existing 12-second threshold preserves a brief
-disconnect grace. Reconnection restores the same game without resetting cards
-or scores. This remains **undeployed and not browser-integrated**; the real
-Cloudflare runtime and two-browser acceptance gates are still outstanding.
+The game-specific `server/live-http.mjs` gateway verifies tutor identity,
+reserves one minimal Supabase quota record (three unfinished games per owner),
+and issues short-lived tickets. `server/live-room.mjs` owns all cards,
+scores, turn state, private projections and WebSocket connections. No live
+gameplay state is stored in Supabase. The WebSocket client sends four-second
+heartbeats; the server preserves the existing twelve-second presence grace.
+Actions carry stable command IDs and are acknowledged after persistence, so
+ambiguous retries remain idempotent. Game completion releases the Supabase
+quota reservation, with alarm-based retries if the RPC temporarily fails.
 
-## Browser live transport (Batch 4, not deployed)
+**Operational rollback is not session migration.** To create a new legacy
+room, use `?fw-live=0`; to reverse the default for everyone, ship a
+frontend-only change to the default policy. Cloudflare's
+`ATLAS_FORBIDDEN_WORDS_LIVE_ENABLED` variable is an emergency backend
+kill switch, but disabling it prevents existing live rooms from connecting
+or recovering. Do not treat it as a seamless rollback to HTTP. Retain the
+Durable Object class/binding and existing HTTP transport while observing
+real sessions and before planning backend retirement.
 
-`app.mjs` supports a room-specific, **explicit opt-in** live transport via
-`live-client.mjs`. A tutor creating a new room at
-`/arcade/forbidden-words/?fw-live=1` saves the transport with that new room ID;
-an existing bookmarked HTTP room **does not change protocols**. The tutor's
-share link contains `live=1` in the query, a random room ID, and the existing
-invitation secret only in the URL fragment. Learners persist their own private
-seat credential locally as before. No connection ticket or seat credential
-appears in a network URL.
-
-The client requests a short-lived ticket over authenticated HTTPS (tutor) or
-by seat credential (learner), opens the room socket, and consumes role-projected
-state push frames. Commands are only considered complete after the Worker
-acknowledges their exact ID; a socket interruption retains the command ID for
-an idempotent retry. A heartbeat every four seconds maintains presence without
-full state broadcast or Supabase game writes. Timers remain locally rendered
-against the authoritative server deadline; reconnect refreshes the projection
-without re-creating the game.
-
-**Release gate:** The browser path is not activated on the live website
-automatically. The backend `ATLAS_FORBIDDEN_WORDS_LIVE_ENABLED` switch remains
-off in Cloudflare; no `atlas-ai` Worker deployment has occurred. Actual
-Cloudflare WebSocket runtime checks and two-browser acceptance are mandatory
-before enabling it for real tutors. No HTTP fallback is permitted for a live
-room: mixing transports would create competing game authority.
+Manual acceptance still needs continued testing of interrupted reconnects,
+role swaps, quota exhaustion and finished-room cleanup, plus runtime-log and
+cost review. Avoid claiming those are covered by the initial fast two-browser
+smoke test alone.
 
 ## Session contract
 
