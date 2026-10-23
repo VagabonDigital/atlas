@@ -204,7 +204,16 @@ Do not change the Cloudflare dashboard's `atlas-ai` bindings or deploy the Worke
 as part of this configuration-only step. Future Worker deployments must first
 reconcile the current dashboard bindings/variables and explicitly use
 `wrangler.atlas-ai.jsonc`; no backend auto-deployment workflow exists.
-The live-room Durable Object class and binding are a **later** implementation batch.
+The repository now stages a SQLite-backed `ForbiddenWordsLiveRoom` Durable Object
+class and `FORBIDDEN_WORDS_LIVE` binding for the next Arcade implementation batch.
+The game-specific source is `arcade/forbidden-words/server/live-room.mjs`, embedded
+by the existing backend generator. **No public route calls this class** and its
+production namespace has not been created by this repository change. Do **not**
+deploy this Worker configuration until the live-room account-authorisation,
+quota, runtime verification and rollout gates are approved. The Cloudflare
+declarative `exports` lifecycle cannot be rolled back across the first class
+creation, so retain the namespace/binding in rollback configurations and
+switch only game routing during a rollback.
 
 **The repository currently contains no GitHub Actions workflow that deploys this backend Worker.** Do not assume that editing backend source makes the production `atlas-ai` Worker current. The existing Cloudflare dashboard code-editor workflow remains available until a controlled CLI cutover is explicitly approved. Before any backend deployment, run `npm run build:atlas-ai-worker` and `npm run verify`; deployment of the complete source must preserve existing bindings, variables and secrets. The Wrangler dry-run step checks the future CLI bundle **without deploying it**.
 
