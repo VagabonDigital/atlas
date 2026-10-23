@@ -338,6 +338,7 @@ const fs = require("node:fs");
     session: "room-alex", atlasSession: selected, roomEpoch: 0,
     state: { phase: "active" }, pending: { action: "skip" }, busy: true,
     failed: false, retryDelay: 650, lastKey: "cached",
+    liveClient: null, liveMode: false, liveRoomKey: id => `fw:transport:${id}`,
     lastNonce: "secret", lastPhase: "active", lastFeedback: null,
     pollTimer: 1, app: { innerHTML: "" }, brand: "Brand", deck: "Deck",
     window: { AtlasBridge: { readActiveSession: () => selected } },
