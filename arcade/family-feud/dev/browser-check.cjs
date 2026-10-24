@@ -178,6 +178,32 @@ const {pathToFileURL}=require('node:url');
  assert.match(await page.locator('#feedback').innerText(),/Couldn’t check/);assert.equal(await page.locator('#answer').inputValue(),exact);assert.equal(await active(),same);assert.equal(await page.locator('.strike.used').count(),0);
  await page.screenshot({path:path.join(dir,'resolver-retry-1280.png')});
  await page.getByRole('button',{name:'Submit Answer',exact:true}).click();await ready();assert.equal(await page.locator('.revealed').count(),1);await fits();
+
+ // Mobile gameplay: test actual layout geometry, not only stylesheet selectors.
+ // The page may scroll on short screens, but the cabinet, score strip and
+ // speech controls must stay separate, readable and horizontally contained.
+ for(const [width,height] of [[360,640],[390,844],[768,900]]){
+  await page.setViewportSize({width,height});
+  const mobile=await page.evaluate(()=>{
+   const rect=selector=>{const {left,right,top,bottom,width,height}=document.querySelector(selector).getBoundingClientRect();return {left,right,top,bottom,width,height};};
+   return {viewport:innerWidth,scrollWidth:document.documentElement.scrollWidth,
+    stage:rect('#stage'),machine:rect('.machine'),question:rect('.question'),board:rect('#board'),
+    rows:document.querySelectorAll('#board .row').length,
+    console:rect('.console'),left:rect('#player-0'),right:rect('#player-1'),
+    dock:rect('#dock'),input:rect('#answer'),submit:rect('.submit'),
+    pass:rect('[data-action="pass"]')};
+  });
+  const contained=['stage','machine','board','console','input','submit','pass']
+   .every(key=>mobile[key].left>=-1&&mobile[key].right<=width+1);
+  assert.ok(contained&&mobile.scrollWidth<=width+1,JSON.stringify(mobile));
+  assert.ok(mobile.rows===6&&mobile.board.height>=250,JSON.stringify(mobile));
+  assert.ok(mobile.question.bottom<=mobile.board.top+1&&mobile.machine.bottom<=mobile.console.top+1,JSON.stringify(mobile));
+  assert.ok(mobile.left.right<mobile.right.left&&mobile.left.bottom<=mobile.dock.top+1&&mobile.right.bottom<=mobile.dock.top+1,JSON.stringify(mobile));
+  assert.ok(mobile.input.width>=Math.min(260,width*.65),JSON.stringify(mobile));
+  assert.ok(Math.abs(mobile.submit.top-mobile.pass.top)<=2&&mobile.submit.right<=mobile.pass.left+1,JSON.stringify(mobile));
+  await page.screenshot({path:path.join(dir,`gameplay-mobile-${width}.png`),fullPage:true});
+ }
+ await page.setViewportSize({width:1280,height:720});
  assert.deepEqual(errors,[]);
  console.log('errors',errors);await browser.close();
 })().catch(e=>{console.error(e);process.exit(1)});
