@@ -39,7 +39,7 @@ playable library only after screening a question for plausible successful guesse
 verifying its source numbers and writing and testing its answer codebook.
 This is an editorial selection judgement, not a measured learner success rate.
 
-## Season 25 source archive and Batches 21–23
+## Season 25 source archive and Batches 21–24
 
 The separate research file `dev/season25-six-answer-raw.json` contains
 **162 original six-answer Season 25 records** from
@@ -86,6 +86,16 @@ classroom-default standard. The full question and six answers passed the
 same editorial screen; wording, ranks and scores remain unchanged.
 Each answer has its own accepted expressions and explicit boundaries.
 
+**Batch 24** adds five different, fully screened Season 25 surveys:
+Miss Piggy's Halloween costume (#176), broken toilets (#193),
+events people get in shape for (#212), American tourist destinations (#229),
+and unlikely air-freshener scents (#262). The toilet and scent boards use
+ordinary situational/bodily humour without sexual framing or an intrusive
+personal prompt. The costume board has a recognisable character reference,
+but its most valuable answers remain understandable from the prompt.
+These surveys retain original questions, six answer labels, rankings and
+point values, with authored aliases and precise meaning boundaries.
+
 The original 40 held Season 26 boards remain held.
 
 The seven former **illustrative development boards** remain under
@@ -103,7 +113,7 @@ have separate outcomes; errors preserve the exact entry and turn for retry.
 Add new natural paraphrases on the basis of manual playtesting.
 
 Replay prefers unseen approved boards and clearly discloses reuse when the
-75-board playable pool is exhausted.
+80-board playable pool is exhausted.
 ## Verification
 
 ```sh
@@ -163,7 +173,7 @@ The famous-captains board passes despite two regional references. Cinderella
 stays held because an underwear answer ranks second. The complete review
 is recorded by source ID in `editorial.mjs`.
 
-After Batch 23, **75** sourced boards are approved and playable, while the
+After Batch 24, **80** sourced boards are approved and playable, while the
 original **40 held** Season 26 surveys remain unavailable in new matches.
 
 All 100 Season 26 surveys remain unchanged. The review is provisional editorial
