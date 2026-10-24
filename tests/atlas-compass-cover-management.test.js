@@ -305,6 +305,35 @@ assert.match(
     'Owned-subject entry must refresh the loader that requests the cover-fallback engine.'
 );
 
+// An open management menu needs overflow outside the card, but the
+// animated cover surface must still follow the card's rounded lower edge.
+const coverContentRule = source.match(
+    /\\.subject-card-content\\s*\\{([^}]+)\\}/
+)?.[1];
+
+assert.ok(
+    coverContentRule,
+    'Image-led content must retain its own clipping surface.'
+);
+
+assert.match(
+    coverContentRule,
+    /border-radius:\\s*0 0 17px 17px;/,
+    'Open menus must not expose square bottom corners of the content layer.'
+);
+
+assert.match(
+    coverContentRule,
+    /overflow:\\s*clip;/,
+    'The animated cover layer must remain clipped inside the content surface.'
+);
+
+assert.match(
+    source,
+    /\\.subject-card--owned:has\\([\\s\\S]*?overflow:\\s*visible;/,
+    'Management popups must remain visible outside the card boundaries.'
+);
+
 console.log(
     'Compass cover-management contract verified.'
 );
