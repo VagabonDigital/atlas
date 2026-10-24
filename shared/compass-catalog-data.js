@@ -41,7 +41,8 @@
         'travel-exploration',
         'humour-wit',
         'job-interviews-clear-answers',
-        'octopuses-change-colour'
+        'octopuses-change-colour',
+        'can-you-trust-your-own-memories'
     ];
 
     const COMPASS_SUBJECT_SHARE_GRANTS = Object.freeze({
@@ -1060,6 +1061,16 @@
             categoryId: 'you-your-mind',
             order: 20,
             hook: 'Talk about how people present themselves, how they want to be seen, and the gap between the real you and the shown you.'
+        },
+        {
+            id: 'can-you-trust-your-own-memories',
+            coverImage: "/assets/atlas-originals/memory-reliability.svg",
+            title: 'Can You Trust Your Own Memories?',
+            navTitle: 'Your Own Memories',
+            categoryId: 'you-your-mind',
+            order: 25,
+            available: true,
+            hook: 'Why can two people vividly remember the same event differently? Investigate false memories, suggestions, eyewitness confidence and the surprising gap between certainty and accuracy.'
         },
         {
             id: 'thinking-reasoning',
