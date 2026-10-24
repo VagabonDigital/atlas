@@ -53,10 +53,10 @@ test('fresh legacyBoards preferred; exhaustion never prevents a full replay',()=
   assert.equal(chooseBoards(legacyBoards,legacyBoards.map(b=>b.id)).length,3);
 });
 
-test('first nineteen sourced batches preserve ninety-five original Season 26 six-answer records',()=>{
-  assert.equal(boards.length,95);
+test('first twenty sourced batches preserve one hundred original Season 26 six-answer records',()=>{
+  assert.equal(boards.length,100);
   assert.equal(legacyBoards.length,7);
-  assert.deepEqual(boards.map(b=>b.sourceSurveyId),[19,85,111,121,137,3,61,117,136,151,35,50,54,92,104,21,107,135,144,153,8,12,72,147,159,40,82,118,130,152,26,36,64,91,141,39,58,62,74,109,6,70,131,139,143,29,60,89,128,145,27,57,67,99,129,14,31,48,76,98,24,41,79,90,155,4,9,18,77,134,10,114,115,140,161,33,51,94,97,123,13,44,88,95,158,7,28,38,47,81,46,56,66,100,160]);
+  assert.deepEqual(boards.map(b=>b.sourceSurveyId),[19,85,111,121,137,3,61,117,136,151,35,50,54,92,104,21,107,135,144,153,8,12,72,147,159,40,82,118,130,152,26,36,64,91,141,39,58,62,74,109,6,70,131,139,143,29,60,89,128,145,27,57,67,99,129,14,31,48,76,98,24,41,79,90,155,4,9,18,77,134,10,114,115,140,161,33,51,94,97,123,13,44,88,95,158,7,28,38,47,81,46,56,66,100,160,1,59,110,119,154]);
   assert.equal(new Set([...boards,...legacyBoards].map(b=>b.id)).size,boards.length+legacyBoards.length);
   for(const b of boards){
     const raw=source.find(entry=>entry.id===b.sourceSurveyId);
@@ -329,6 +329,13 @@ test('Batch 19 natural guesses, exclusions and multi-answer turns',()=>{
   for(const [id,phrases] of [[46,["intoxicated","totally nude","laughing loudly","a white suit","running late","high on weed"]],[56,["seeing a doctor","gym changing room","nudist resort","steam room","spray tanning salon","poolside shower"]],[66,["zimmer frame","a dirty bedpan","false teeth thrown","one of the residents","an electric wheelchair","a used nappy"]],[100,["fresh snow","a bowl of white rice","as pale as a ghost","pale as a sheet","white as heck","sliced white bread"]],[160,["empathetic","doing the washing up","always tell the truth","laid back","make better decisions","plan romantic dates"]]])for(const [index,phrase] of phrases.entries())assert.deepEqual(resolveAnswer(get(id),phrase),{kind:'match',index},id+' '+phrase);
   for(const [id,phrases] of [[46,["quiet","at noon","wearing red","early","without flowers"]],[56,["at the supermarket","on a bus","dining in a restaurant","at a cinema","in a classroom"]],[66,["a toothbrush","a television","a plate of food","a broom","a football"]],[100,["milk","paper","cloud","chalk","cotton"]],[160,["rich","tall","athletic","funny","famous"]]])for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'miss',id+' '+phrase);
   for(const [id,phrases] of [[46,["drunk or stoned","naked and happy"]],[56,["gym or pool","spa and tanning salon"]],[66,["cane or wheelchair","dentures and bedpan"]],[100,["snow or rice","ghost and bread"]],[160,["kind or honest","smart and romantic"]]])for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'ambiguous',id+' '+phrase);
+});
+
+test('Batch 20 natural guesses, exclusions and multi-answer turns',()=>{
+  const get=id=>boards.find(b=>b.sourceSurveyId===id);
+  for(const [id,phrases] of [[1,["wade into the water","a romantic commitment","armchair","get in a car","start a new job","an exciting story"]],[59,["give her a mint","call it quits","plug my nose","overlook it","let her know","avoid kissing"]],[110,["chilled water","portable air conditioner","cannabidiol","ice cream cones","fireball whiskey","red dress"]],[119,["a bottle of wine","noise cancelling headphones","book a holiday","a day at the spa","box of chocolates","marijuana"]],[154,["i am cheating","i hate my boss","i feel lonely","i robbed a bank","i let one rip","i put on weight"]]])for(const [index,phrase] of phrases.entries())assert.deepEqual(resolveAnswer(get(id),phrase),{kind:'match',index},id+' '+phrase);
+  for(const [id,phrases] of [[1,["dancing","swimming lesson","school","a movie","traffic"]],[59,["offer flowers","marry her","eat garlic","cover my eyes","visit a dentist alone"]],[110,["ski passes","winter boots","blue clothes","a hat","televisions"]],[119,["a new television","board games","a book","an umbrella","new shoes"]],[154,["my favourite food","my dog's name","i like summer","where i went today","i am hungry"]]])for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'miss',id+' '+phrase);
+  for(const [id,phrases] of [[1,["pool or relationship","bed and car"]],[59,["gum or break up","hold nose and tell her"]],[110,["ice or ice cream","alcohol and cannabis"]],[119,["beer or weed","vacation and massage"]],[154,["affair or robbery","sad and farted"]]])for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'ambiguous',id+' '+phrase);
 });
 
 test('three-round matches select sourced boards and never legacy fixtures',()=>{
