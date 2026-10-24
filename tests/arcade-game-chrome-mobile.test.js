@@ -122,21 +122,21 @@ assert.ok(
   "simple headers should separate game identity from the Back control without changing game-owned markup",
 );
 
-for (const [name, source] of [
-  ["Tomorrow Got Weird", tomorrow],
-  ["Truth Trap", truthTrap],
-  ["Would You Rather", wouldYouRather],
+for (const [name, source, stateId] of [
+  ["Tomorrow Got Weird", tomorrow, 'id="progress-label"'],
+  ["Truth Trap", truthTrap, 'id="hdr-position"'],
+  ["Would You Rather", wouldYouRather, 'id="remaining-count"'],
 ]) {
   assert.ok(
     source.includes('class="header-left"') &&
       source.includes('id="arcade-game-return-root"') &&
       source.includes('class="header-center"'),
-    name + " should retain the simple Back / identity / state header structure",
+    name + " should retain the Back / identity / state header structure",
   );
-  assert.match(
-    source,
-    /class="header-right" id="arcade-game-actions-root"><\/div>/,
-    name + " should keep an empty right shared-action slot so the shared three-zone layout applies",
+  assert.ok(
+    source.includes('class="header-right" id="arcade-game-actions-root">') &&
+      source.includes(stateId),
+    name + " should retain its game-owned progress indicator in the right action slot",
   );
 }
 
