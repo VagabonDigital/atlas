@@ -477,10 +477,17 @@ function updateTutorHeader(s) {
     utilitiesRoot.innerHTML = headerUtilities();
     if (focusedAction) utilitiesRoot.querySelector(`[data-action="${focusedAction}"]`)?.focus({ preventScroll: true });
   }
-  // Preserve the focused button and avoid flicker on repeated state pushes.
+  // Heartbeats/state pushes must not replace the focused Pause/Resume DOM.
   if (pauseRoot) {
-    const pauseMarkup = headerPause(s);
-    if (pauseRoot.innerHTML !== pauseMarkup) pauseRoot.innerHTML = pauseMarkup;
+    const nextAction = ["active", "countdown"].includes(s.phase)
+      ? (s.paused ? "resume" : "pause")
+      : null;
+    const currentAction = pauseRoot.querySelector("[data-action]")?.dataset.action || null;
+    if (currentAction !== nextAction) {
+      const focused = pauseRoot.contains(document.activeElement);
+      pauseRoot.innerHTML = headerPause(s);
+      if (focused) pauseRoot.querySelector("button")?.focus({ preventScroll: true });
+    }
   }
 }
 function replacementReady() {
