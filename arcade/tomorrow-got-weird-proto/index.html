@@ -2723,6 +2723,13 @@
       const launch = document.getElementById('launch');
       const button = document.getElementById('launch-button');
 
+      const isUpgradeClinic = state.current === 7;
+      arrival.querySelector('.proto-arrival-kicker').textContent =
+        'Future signal acquired / ' + String(state.current + 1).padStart(2, '0');
+      arrival.querySelector('h2').innerHTML = isUpgradeClinic
+        ? 'The Upgrade <span>Clinic</span>'
+        : 'Future <span>' + String(state.current + 1).padStart(2, '0') + '</span>';
+
       launch.style.display = 'none';
       launch.classList.remove('is-crossing');
       button.disabled = false;
