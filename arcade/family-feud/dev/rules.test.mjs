@@ -53,10 +53,10 @@ test('fresh legacyBoards preferred; exhaustion never prevents a full replay',()=
   assert.equal(chooseBoards(legacyBoards,legacyBoards.map(b=>b.id)).length,3);
 });
 
-test('first eleven sourced batches preserve fifty-five original Season 26 six-answer records',()=>{
-  assert.equal(boards.length,55);
+test('first twelve sourced batches preserve sixty original Season 26 six-answer records',()=>{
+  assert.equal(boards.length,60);
   assert.equal(legacyBoards.length,7);
-  assert.deepEqual(boards.map(b=>b.sourceSurveyId),[19,85,111,121,137,3,61,117,136,151,35,50,54,92,104,21,107,135,144,153,8,12,72,147,159,40,82,118,130,152,26,36,64,91,141,39,58,62,74,109,6,70,131,139,143,29,60,89,128,145,27,57,67,99,129]);
+  assert.deepEqual(boards.map(b=>b.sourceSurveyId),[19,85,111,121,137,3,61,117,136,151,35,50,54,92,104,21,107,135,144,153,8,12,72,147,159,40,82,118,130,152,26,36,64,91,141,39,58,62,74,109,6,70,131,139,143,29,60,89,128,145,27,57,67,99,129,14,31,48,76,98]);
   assert.equal(new Set([...boards,...legacyBoards].map(b=>b.id)).size,boards.length+legacyBoards.length);
   for(const b of boards){
     const raw=source.find(entry=>entry.id===b.sourceSurveyId);
@@ -260,6 +260,16 @@ test('Batch 11 natural guesses, boundary exclusions and multiple-answer turns',(
   for(const [id,phrases] of [[27,["he is tall","he is a firefighter","has a beard","his red suit","wears glasses"]],[57,["a suitcase","the oven","a toilet roll","air freshener","someone else's lunch"]],[67,["a pet dog","their education","toothpaste","a bathroom","a shared car"]],[99,["singing","playing the flute","eating apples","putting on mascara","hugging"]],[129,["on a bus","at a beach","in my living room","on an airplane","in a park"]]])
     for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'miss',id+' '+phrase);
   for(const [id,phrases] of [[27,["red hair or red nose","big feet and likes burgers"]],[57,["flowers or candles","fridge and tissue"]],[67,["clothes or food","toothbrush and bath"]],[99,["kissing or smiling","trumpet and lipstick"]],[129,["at work or in the shop","car and restaurant"]]])
+    for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'ambiguous',id+' '+phrase);
+});
+
+test('Batch 12 natural guesses, exclusions and multi-answer turns',()=>{
+  const get=id=>boards.find(b=>b.sourceSurveyId===id);
+  for(const [id,phrases] of [[14,["her flying umbrella","bottomless bag","hat with flowers","her skirt","a posh english voice","be able to sing"]],[31,["foot odour spray","put on some socks","men's fragrance","deodorant stick","rub lotion on his feet","bicarbonate of soda"]],[48,["brush my teeth","comb my hair","my filthy toilet","shower tiles","washing up sink","groom my dog"]],[76,["tay tay","queen bey","cher","mother monster","adele adkins","titanic song singer"]],[98,["an absolute loser","really lame","lazybones","compulsive liar","loudmouth","my secret lover"]]])
+    for(const [index,phrase] of phrases.entries())assert.deepEqual(resolveAnswer(get(id),phrase),{kind:'match',index},id+' '+phrase);
+  for(const [id,phrases] of [[14,["a wand","american accent","briefcase","guitar","parachute"]],[31,["baking powder","wash his feet","new insoles","shampoo","foot bath"]],[48,["cat fur","carpet","floor mop","a garden hose","bathroom mirror"]],[76,["rihanna","dua lipa","madonna","mariah carey","shakira"]],[98,["stupid","bossy","greedy","late","incompetent"]]])
+    for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'miss',id+' '+phrase);
+  for(const [id,phrases] of [[14,["umbrella or hat","bag and dress"]],[31,["foot powder or deodorant","socks and cologne"]],[48,["teeth or hair","shower and sink"]],[76,["taylor or beyonce","adele and cher"]],[98,["loser or liar","lazy and loud"]]])
     for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'ambiguous',id+' '+phrase);
 });
 
