@@ -53,10 +53,10 @@ test('fresh legacyBoards preferred; exhaustion never prevents a full replay',()=
   assert.equal(chooseBoards(legacyBoards,legacyBoards.map(b=>b.id)).length,3);
 });
 
-test('first fifteen sourced batches preserve seventy-five original Season 26 six-answer records',()=>{
-  assert.equal(boards.length,75);
+test('first sixteen sourced batches preserve eighty original Season 26 six-answer records',()=>{
+  assert.equal(boards.length,80);
   assert.equal(legacyBoards.length,7);
-  assert.deepEqual(boards.map(b=>b.sourceSurveyId),[19,85,111,121,137,3,61,117,136,151,35,50,54,92,104,21,107,135,144,153,8,12,72,147,159,40,82,118,130,152,26,36,64,91,141,39,58,62,74,109,6,70,131,139,143,29,60,89,128,145,27,57,67,99,129,14,31,48,76,98,24,41,79,90,155,4,9,18,77,134,10,114,115,140,161]);
+  assert.deepEqual(boards.map(b=>b.sourceSurveyId),[19,85,111,121,137,3,61,117,136,151,35,50,54,92,104,21,107,135,144,153,8,12,72,147,159,40,82,118,130,152,26,36,64,91,141,39,58,62,74,109,6,70,131,139,143,29,60,89,128,145,27,57,67,99,129,14,31,48,76,98,24,41,79,90,155,4,9,18,77,134,10,114,115,140,161,33,51,94,97,123]);
   assert.equal(new Set([...boards,...legacyBoards].map(b=>b.id)).size,boards.length+legacyBoards.length);
   for(const b of boards){
     const raw=source.find(entry=>entry.id===b.sourceSurveyId);
@@ -295,6 +295,16 @@ test('Batch 15 natural guesses, exclusions and multi-answer turns',()=>{
   for(const [id,phrases] of [[10,["jump a hurdle","a waist girdle","a little turtle","the name myrtle","the wordle game","fertile land"]],[114,["during mass","at a cemetery","during a business meeting","at the dentist","in a toilet cubicle","at the shops"]],[115,["jingle","the phrase hells bells","the song silver bells","marriage bells","cathedral bells","festive bells"]],[140,["captain crunch","hook from peter pan","steve rogers","bob keeshan","james kirk","jack sparrow"]],[161,["manhattan","music city usa","beverly hills","french capital","london uk","miami beach"]]])for(const [index,phrase] of phrases.entries())assert.deepEqual(resolveAnswer(get(id),phrase),{kind:'match',index},id+' '+phrase);
   for(const [id,phrases] of [[10,["purple","burden","curdle","word","tortoise"]],[114,["at the beach","inside a cinema","at a concert","in the park","at a birthday party"]],[115,["telephone bells","school bells","door bells","blue bells","cow bells"]],[140,["captain nemo","captain planet","picard","horatio hornblower","captain marvel"]],[161,["rome","berlin","sydney","tokyo","san francisco"]]])for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'miss',id+' '+phrase);
   for(const [id,phrases] of [[10,["hurdle or turtle","girdle and wordle"]],[114,["church or funeral","hospital and shop"]],[115,["jingle bells or silver bells","wedding and christmas bells"]],[140,["captain hook or captain kirk","captain america and captain kangaroo"]],[161,["paris or london","new york and miami"]]])for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'ambiguous',id+' '+phrase);
+});
+
+test('Batch 16 natural guesses, exclusions and multi-answer turns',()=>{
+  const get=id=>boards.find(b=>b.sourceSurveyId===id);
+  for(const [id,phrases] of [[33,["my girlfriend","mum","my work colleague","my bestie","my daughter","my tutor"]],[51,["a band","cocktails","playing games","old family videos","telling jokes","balloons falling on everyone"]],[94,["queen in drag","drag racing cars","the show dragnet","such a drag","a mythical dragon","drag racing track"]],[97,["walking through manhattan","the windy city","the vegas strip","san fran","capital of france","the emerald city in oz"]],[123,["his famous moustache","money symbol","sparkling teeth","shiny bald head","designer suit","family feud sign"]]])
+    for(const [index,phrase] of phrases.entries())assert.deepEqual(resolveAnswer(get(id),phrase),{kind:'match',index},id+' '+phrase);
+  for(const [id,phrases] of [[33,["my neighbour","delivery driver","a barber","my boss","someone on the bus"]],[51,["a cake","flowers","a slideshow of photos","fireworks","party invitations"]],[94,["dragging luggage","rug","dragonfly","drag someone","strip club"]],[97,["london","seattle","rome","los angeles","tokyo"]],[123,["full beard","dancing shoes","bat symbol","glasses","a crown"]]])
+    for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'miss',id+' '+phrase);
+  for(const [id,phrases] of [[33,["mum or dad","my girlfriend and my teacher"]],[51,["music or jokes","open bar and balloon drop"]],[94,["dragnet or dragon","drag queen and drag race"]],[97,["new york or paris","chicago and vegas"]],[123,["moustache or bald head","suit and dollar sign"]]])
+    for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'ambiguous',id+' '+phrase);
 });
 
 test('three-round matches select sourced boards and never legacy fixtures',()=>{
