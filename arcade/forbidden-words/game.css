@@ -1225,6 +1225,21 @@ html[data-theme="night"] .invite-link-label {
   padding-top: 14px;
   text-align: left;
 }
+/* Advanced recovery stays secondary to Start / Resume controls. */
+.landing .connection-options {
+  margin-top: 6px;
+  padding-top: 0;
+  border-top: 0;
+  text-align: center;
+}
+.landing .connection-options .pause-invitation-content {
+  text-align: left;
+}
+.switch-maintenance .connection-options {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
 .pause-invitation summary {
   cursor: pointer;
   color: #3c587a;
