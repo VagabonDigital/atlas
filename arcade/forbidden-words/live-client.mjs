@@ -21,6 +21,8 @@ export class ForbiddenWordsLiveClient {
     this.closed = false;
     this.connected = false;
     this.socket = null;
+    this.suspended = false;
+    this.connectionGeneration = 0;
     this.inFlight = new Map();
     this.reconnectDelay = 500;
     this.reconnectTimer = null;
@@ -56,17 +58,27 @@ export class ForbiddenWordsLiveClient {
     return this.post("create", payload);
   }
   connect() {
-    if (this.closed || this.connecting || this.connected ||
+    if (this.closed || this.suspended || this.connecting || this.connected ||
         (this.socket && this.socket.readyState <= 1)) return;
+    const generation = ++this.connectionGeneration;
     this.connecting = true;
-    this.startConnection().catch(error => this.connectionFailed(error))
-      .finally(() => { this.connecting = false; });
+    this.startConnection(generation)
+      .catch(error => {
+        if (generation === this.connectionGeneration && !this.suspended)
+          this.connectionFailed(error);
+      })
+      .finally(() => {
+        // A suspended page can resume while a ticket request is in flight.
+        // The old request must never unset a newer connection's guard.
+        if (generation === this.connectionGeneration) this.connecting = false;
+      });
   }
-  async startConnection() {
+  async startConnection(generation) {
     const ticketData = await this.post("ticket", {
       actor: this.actor, ...(await this.getTicketPayload()),
     });
-    if (this.closed) return;
+    if (this.closed || this.suspended ||
+        generation !== this.connectionGeneration) return;
     const url = new URL(this.api + "live/socket");
     url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
     url.searchParams.set("session", this.session);
@@ -120,7 +132,7 @@ export class ForbiddenWordsLiveClient {
     };
   }
   connectionFailed(error) {
-    if (this.closed) return;
+    if (this.closed || this.suspended) return;
     if ([401, 403, 404, 410].includes(error.status)) {
       this.onFatal(error);
       this.close();
@@ -143,7 +155,7 @@ export class ForbiddenWordsLiveClient {
     this.retry();
   }
   retry() {
-    if (this.closed || this.reconnectTimer) return;
+    if (this.closed || this.suspended || this.reconnectTimer) return;
     const delay = this.reconnectDelay;
     this.reconnectDelay = Math.min(5000, this.reconnectDelay * 2);
     this.reconnectTimer = setTimeout(() => {
@@ -187,8 +199,36 @@ export class ForbiddenWordsLiveClient {
       }
     });
   }
+  // pagehide can move a document into the back/forward cache. Park the
+  // socket without discarding room identity; pageshow restores it.
+  suspend() {
+    if (this.closed || this.suspended) return;
+    this.suspended = true;
+    this.connectionGeneration++;
+    this.connecting = false;
+    clearTimeout(this.reconnectTimer);
+    this.reconnectTimer = null;
+    this.stopHeartbeat();
+    const ws = this.socket;
+    this.socket = null;
+    const wasConnected = this.connected;
+    this.connected = false;
+    for (const [id, entry] of this.inFlight) {
+      clearTimeout(entry.timer);
+      entry.reject(new Error("Connection interrupted. Retrying the game action."));
+      this.inFlight.delete(id);
+    }
+    ws?.close(1001, "Page hidden");
+    if (wasConnected) this.onStatus(false);
+  }
+  resume() {
+    if (this.closed || !this.suspended) return;
+    this.suspended = false;
+    this.connect();
+  }
   close() {
     this.closed = true;
+    this.connectionGeneration++;
     this.stopHeartbeat();
     clearTimeout(this.reconnectTimer);
     for (const [id, entry] of this.inFlight) {

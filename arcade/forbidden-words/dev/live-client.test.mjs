@@ -112,6 +112,58 @@ try {
   assert.deepEqual(errors, []);
   assert.ok(received.length >= 3);
 
+  // Browser back/forward cache: park the socket, do not open duplicates while
+  // frozen, and reconnect to the SAME room when pageshow restores the page.
+  const beforePark = sockets.at(-1);
+  client.suspend();
+  assert.equal(client.connected, false);
+  assert.equal(beforePark.readyState, 3);
+  const parkedCount = sockets.length;
+  client.connect();
+  await new Promise(resolve => setTimeout(resolve, 5));
+  assert.equal(sockets.length, parkedCount, "A parked page must not connect");
+  client.resume();
+  await wait(() => client.connected && sockets.length === parkedCount + 1);
+  assert.equal(sockets.at(-1).url.search, "?session=" + session);
+  assert.equal(client.connected, true);
+  client.resume();
+  client.connect();
+  await new Promise(resolve => setTimeout(resolve, 5));
+  assert.equal(sockets.length, parkedCount + 1, "Restoration must open only one socket");
+
+  // A suspended page can have an unfinished ticket fetch. Any old response
+  // must be ignored even if it arrives after the newer connection is ready.
+  const outstanding = [];
+  const backgroundClient = new ForbiddenWordsLiveClient({
+    api, session, actor: "tutor",
+    getTicketPayload: async () => ({ atlasSessionId: "atlas-student" }),
+    getAuthorization: async () => "test-user-token",
+    fetchImpl: () => new Promise(resolve => outstanding.push(resolve)),
+    WebSocketImpl: FakeWebSocket,
+    onState: () => {},
+    onStatus: () => {},
+    onFatal: error => { throw error; },
+  });
+  try {
+    backgroundClient.connect();
+    await wait(() => outstanding.length === 1);
+    backgroundClient.suspend();
+    backgroundClient.resume();
+    await wait(() => outstanding.length === 2);
+    const beforeTicket = sockets.length;
+    const ticketResponse = () => new Response(JSON.stringify({
+      ok: true, ticket: "b".repeat(64),
+    }), { status: 200, headers: { "Content-Type": "application/json" } });
+    outstanding[0](ticketResponse());
+    await new Promise(resolve => setTimeout(resolve, 5));
+    assert.equal(sockets.length, beforeTicket, "Old ticket must never create a socket");
+    outstanding[1](ticketResponse());
+    await wait(() => backgroundClient.connected);
+    assert.equal(sockets.length, beforeTicket + 1);
+  } finally {
+    backgroundClient.close();
+  }
+
   // New production rooms default to live, explicit emergency opt-out stays
   // HTTP, and local/offline test rooms never require the Cloudflare gateway.
   // Evaluate the ACTUAL expression from app.mjs, not a duplicate policy.
@@ -137,7 +189,27 @@ try {
   assert.match(app, /storage\.get\(liveRoomKey\(session\)\) === "live"/);
   assert.match(app, /if \(liveMode\) await startLiveRoom\(bootEpoch\)/);
   assert.match(app, /if \(liveMode\) storage\.set\(liveRoomKey\(session\), "live"\)/);
-  console.log("Forbidden Words browser transport: gated sessions, private ticket protocol, push, acknowledgements, retry with same ID and legacy isolation passed.");
+  const lifecycleSource = app.slice(
+    app.indexOf('window.addEventListener("pagehide"'),
+    app.indexOf('window.addEventListener("online"'),
+  );
+  assert.ok(lifecycleSource.includes('window.addEventListener("pageshow"'));
+  const lifecycleCallbacks = {};
+  let parked = 0, restored = 0;
+  vm.runInNewContext(lifecycleSource, {
+    liveMode: true,
+    liveClient: { suspend: () => parked++, resume: () => restored++ },
+    window: { addEventListener: (type, callback) => {
+      lifecycleCallbacks[type] = callback;
+    } },
+  });
+  lifecycleCallbacks.pagehide();
+  lifecycleCallbacks.pageshow({ persisted: false });
+  lifecycleCallbacks.pageshow({ persisted: true });
+  assert.equal(parked, 1);
+  assert.equal(restored, 1, "Only BFCache page restoration reopens the socket");
+
+  console.log("Forbidden Words browser transport: live session recovery, BFCache lifecycle, acknowledgements and legacy isolation passed.");
 } finally {
   client.close();
 }
