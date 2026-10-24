@@ -60,17 +60,17 @@ assert.equal(
 
 assert.match(
     arcade,
-    /'arcade:forbidden-words': '\.\.\/assets\/hub\/forbidden-words\.png'/
+    /'arcade:forbidden-words': '\.\.\/assets\/hub\/forbidden-words\.webp'/
 );
 
 assert.match(
     atlas,
-    /'arcade:forbidden-words': '\.\/assets\/hub\/forbidden-words\.png'/
+    /'arcade:forbidden-words': '\.\/assets\/hub\/forbidden-words\.webp'/
 );
 
 assert.doesNotMatch(
     arcade + atlas,
-    /forbidden-words\.webp/
+    /forbidden-words\.png/
 );
 
 const accessById =
