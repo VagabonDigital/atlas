@@ -2689,7 +2689,7 @@
     // A clearly perceptible, single-step speed change, not a frame-by-frame ramp.
     const PROTO_IGNITION_MS = 900;
     const PROTO_PULL_MS = 1200;
-    const PROTO_IGNITION_RATE = 24;
+    const PROTO_IGNITION_RATES = [16, 12, 8, 3];
 
     function configurePrototypePortal() {
       const video = document.getElementById('proto-portal-video');
@@ -2709,6 +2709,21 @@
       video.play().catch(() => {});
     }
 
+    function acceleratePrototypePortal(video) {
+      if (!video) return;
+
+      // Playback-rate limits vary by browser. A rejected rate must never
+      // interrupt the crossing or leave the Enter Tomorrow button disabled.
+      for (const rate of PROTO_IGNITION_RATES) {
+        try {
+          video.playbackRate = rate;
+          return;
+        } catch {
+          // Try the next supported speed; normal playback remains a fallback.
+        }
+      }
+    }
+
     async function crossIntoTomorrow() {
       if (crossingInProgress) return false;
 
@@ -2722,9 +2737,9 @@
       button.disabled = true;
 
       if (!reducedMotion) {
-        // Immediately triple the footage speed. Hold the shot so the change
-        // registers, then retain the already-approved camera pull and flash.
-        if (video) video.playbackRate = PROTO_IGNITION_RATE;
+        // Instantly use the fastest supported video speed, then retain
+        // the established pull and flash. No gradual ramp.
+        acceleratePrototypePortal(video);
         launch.classList.add('is-igniting');
         await new Promise(resolve => setTimeout(resolve, PROTO_IGNITION_MS));
         launch.classList.remove('is-igniting');
@@ -2752,7 +2767,9 @@
       launch.style.display = 'none';
       launch.classList.remove('is-igniting', 'is-crossing');
       const video = document.getElementById('proto-portal-video');
-      if (video) video.playbackRate = 1;
+      if (video) {
+        try { video.playbackRate = 1; } catch { /* Keep arrival usable. */ }
+      }
       button.disabled = false;
       crossingInProgress = false;
 
