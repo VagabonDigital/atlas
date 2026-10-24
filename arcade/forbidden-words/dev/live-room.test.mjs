@@ -78,8 +78,8 @@ try {
   const { ticket: learnerTicket } = await call("/ticket", {
     actor: "learner", credential, invite,
   });
-  const tutor = await connect(tutorTicket);
-  const learner = await connect(learnerTicket);
+  let tutor = await connect(tutorTicket);
+  let learner = await connect(learnerTicket);
   const latestTutorState = () => tutor.frames.filter(frame => frame.type === "state").at(-1);
   assert.equal(tutor.latest().state.atlasSessionId, learnerContext);
   assert.equal(tutor.latest().state.actor, "tutor");
@@ -145,6 +145,65 @@ try {
   assert.equal(recovered.score, frozen.score);
   await restored.webSocketMessage(tutor, JSON.stringify(action("resume", { round: 1, turn: 1 })));
   assert.equal((await context.storage.get("room")).game.paused, null);
+
+  // Both seats expire with 18 seconds left. Recover in either order, on
+  // existing sockets or replacement connections, without resetting the game.
+  const realNow = Date.now;
+  let clock = realNow();
+  Date.now = () => clock;
+  try {
+    for (const replacement of [false, true]) {
+      for (const first of ["tutor", "learner"]) {
+        const second = first === "tutor" ? "learner" : "tutor";
+        stored = await context.storage.get("room");
+        stored.game.paused = null;
+        stored.game.phase = "active";
+        stored.game.startsAt = clock - 102000;
+        stored.game.deadline = clock + 18000;
+        stored.game.seen = { tutor: clock, learner: clock };
+        const before = structuredClone(stored.game);
+        await context.storage.put("room", stored);
+        clock += 12001;
+        await restored.alarm();
+        assert.deepEqual(latestTutorState().state.connected, { tutor: false, learner: false });
+        assert.equal(latestTutorState().state.paused.remaining, 18000);
+        const recover = async actor => {
+          if (replacement) {
+            const payload = actor === "tutor"
+              ? { actor, owner, atlasSessionId: learnerContext }
+              : { actor, credential };
+            const { ticket } = await call("/ticket", payload, 200, restored);
+            const socket = await connect(ticket, restored);
+            if (actor === "tutor") tutor = socket;
+            else learner = socket;
+          } else {
+            await restored.webSocketMessage(actor === "tutor" ? tutor : learner, JSON.stringify({ action: "poll" }));
+          }
+        };
+        await recover(first);
+        assert.equal(latestTutorState().state.connected[second], false);
+        clock += 4000;
+        await recover(second);
+        for (const socket of [tutor, learner]) {
+          const projected = socket.frames.filter(frame => frame.type === "state").at(-1).state;
+          assert.deepEqual(projected.connected, { tutor: true, learner: true });
+          assert.equal(projected.paused.remaining, 18000);
+          assert.equal(projected.score, before.score);
+          assert.equal(projected.card.nonce, before.card.nonce);
+        }
+        await restored.webSocketMessage(learner, JSON.stringify(action("resume", { round: 1, turn: 1 })));
+        assert.equal(learner.latest().type, "error");
+        await restored.webSocketMessage(tutor, JSON.stringify(action("resume", { round: 1, turn: 1 })));
+        const resumed = (await context.storage.get("room")).game;
+        assert.equal(resumed.paused, null);
+        assert.equal(resumed.deadline - clock, 18000);
+        assert.deepEqual(resumed.card, before.card);
+        assert.equal(resumed.score, before.score);
+      }
+    }
+  } finally {
+    Date.now = realNow;
+  }
 
   await restored.webSocketMessage(tutor, JSON.stringify(action("pause", { round: 1, turn: 1 })));
   assert.ok((await context.storage.get("room")).game.paused);
