@@ -1274,7 +1274,7 @@
         },
         {
             id: 'forests-that-glow-at-night',
-            coverImage: "https://images.unsplash.com/photo-1782811469054-cb9aae85a119?auto=format&fit=crop&w=1600&q=85",
+            coverImage: "https://www.planetnatural.com/wp-content/uploads/2024/10/Plants-That-Glow-In-The-Dark.jpg",
             title: 'The Forests That Glow at Night',
             navTitle: 'Glowing Forests',
             categoryId: 'society-the-world',
@@ -1284,7 +1284,7 @@
         },
         {
             id: 'why-certain-songs-give-us-chills',
-            coverImage: "https://images.unsplash.com/photo-1778778985021-b5d69ac092ca?auto=format&fit=crop&w=1600&q=85",
+            coverImage: "https://encoreentertainment.net/wp-content/uploads/2023/10/goosebumps-music-frisson-asmr-1.webp",
             title: 'Why Certain Songs Give Us Chills',
             navTitle: 'Songs That Give Us Chills',
             categoryId: 'culture-life',
@@ -1294,7 +1294,7 @@
         },
         {
             id: 'the-zombie-ant-fungus',
-            coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Paraponera_clavata_with_Cordyceps_fungus_%281%29.jpg/1280px-Paraponera_clavata_with_Cordyceps_fungus_%281%29.jpg",
+            coverImage: "https://b2408965.assetcdn.net/2.0/2408965/wp-content/uploads/ZombieAntFungus_Photo-from-AndreasKay.jpeg?lossy=2&strip=1&webp=1&size=971x0",
             title: 'The Zombie Ant Fungus',
             navTitle: 'Zombie Ant Fungus',
             categoryId: 'society-the-world',

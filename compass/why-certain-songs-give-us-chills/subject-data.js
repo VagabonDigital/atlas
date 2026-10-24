@@ -3,7 +3,7 @@
   Editorial migration from Atlas Backup v3, 24 October 2026.
   Private owner, learner, continuity and account data excluded.
   Subject-specific review: science, conversation quality and optional paths.
-  Cover: angpw napt / Unsplash License; source https://unsplash.com/photos/concert-crowd-with-hands-up-under-colorful-stage-lights-dve0UreWOek
+  Cover: founder-selected externally hosted image — https://encoreentertainment.net/wp-content/uploads/2023/10/goosebumps-music-frisson-asmr-1.webp
 */
 
 const MODULE = {
@@ -13,7 +13,7 @@ const MODULE = {
     "title": "Why Certain Songs Give Us Chills",
     "titleHtml": "Why Certain Songs Give Us Chills",
     "navTitle": "Songs That Give Us Chills",
-    "bgImage": "https://images.unsplash.com/photo-1778778985021-b5d69ac092ca?auto=format&fit=crop&w=1600&q=85"
+    "bgImage": "https://encoreentertainment.net/wp-content/uploads/2023/10/goosebumps-music-frisson-asmr-1.webp"
 };
 
 const subjectCopy = {
