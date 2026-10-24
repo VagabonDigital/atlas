@@ -91,8 +91,8 @@ test('phone cover keeps the Family Feud logo subordinate to the cabinet', () => 
     assert.ok(logoRule, 'entrance logo should have a phone-specific rule');
     assert.match(
         logoRule,
-        /font-size:\s*clamp\(33px, 9\.8vw, 45px\);/,
-        'phone logo should be around 12% smaller than the original cover'
+        /font-size:\s*clamp\(29px, 8\.6vw, 40px\);/,
+        'phone logo should retain the deliberately reduced mobile scale'
     );
     assert.match(
         html,
