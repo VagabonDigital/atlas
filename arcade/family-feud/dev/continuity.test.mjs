@@ -199,11 +199,12 @@ test('Family Feud snapshots restore across reload, remain learner-specific, and 
 });
 
 
-test('a newly started match uses only sourced Season 26 boards',async()=>{
+test('a new match uses only approved sourced boards from either season',async()=>{
   const f=fixture(),page=f.launch();
   await page.game.start();
   assert.equal(page.game.state.boards.length,3);
-  assert.equal(page.game.state.boards.every(b=>b.kind==='season26'),true);
+  assert.equal(page.game.state.boards.every(b=>['season25','season26'].includes(b.kind)),true);
+  assert.equal(page.game.state.boards.every(b=>playableBoards.some(a=>a.id===b.id)),true);
 });
 
 test('held historic surveys cannot bypass the review gate through Continue',async()=>{
