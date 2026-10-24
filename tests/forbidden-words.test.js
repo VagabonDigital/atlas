@@ -469,10 +469,10 @@ const fs = require("node:fs");
     role: "Describer", card: { nonce: "card" },
     score: 1, remaining: 130, played: 1, turn: 1, round: 1,
   };
-  const renderPaused = s => {
+  const renderPaused = (s, isLearner = false) => {
     // board(s) returns markup rather than writing into the app root.
     const local = {
-      learner: false, deck: "DECK", lastNonce: null, lastFeedback: null,
+      learner: isLearner, deck: "DECK", lastNonce: null, lastFeedback: null,
       button: (action, label) => `BUTTON:${action}:${label}`,
       invitationLink: () => "PRIVATE-LINK-MARKER",
       connectionOptions: recoveryContext.makeConnectionOptions,
@@ -499,11 +499,32 @@ const fs = require("node:fs");
   assert.ok(scoredMarkup.includes('class="score-bump" aria-hidden="true">+1'));
   assert.ok(scoredMarkup.includes('class="feedback" aria-live="polite"'));
   const missing = renderPaused({ ...pausedState, connected: { tutor: true, learner: false } });
-  assert.ok(missing.includes("Partner disconnected."));
+  assert.ok(missing.includes("Game paused"));
+  assert.ok(missing.includes("Your learner is away from the game. The clock has stopped, and your progress is safe."));
   assert.ok(missing.includes("Connection options"));
   assert.match(missing, /<details[^>]*data-learner-present="false"[^>]*\bopen\b/);
   assert.ok(missing.includes("PRIVATE-LINK-MARKER"));
   assert.ok(missing.includes("Reset invitation"));
+  // Away is inferred from presence, not treated as proof of a network fault.
+  // The learner sees the missing tutor; the tutor sees the missing learner.
+  const missingTutor = renderPaused({
+    ...pausedState, connected: { tutor: false, learner: true },
+  }, true);
+  assert.ok(missingTutor.includes("Game paused"));
+  assert.ok(missingTutor.includes("Your tutor is away from the game. The clock has stopped, and your progress is safe."));
+  assert.ok(missingTutor.includes("Your tutor can resume the game when they return."));
+  assert.ok(!missingTutor.includes("Partner disconnected."));
+  assert.ok(!missingTutor.includes("BUTTON:resume:"));
+  const learnerReunited = renderPaused(pausedState, true);
+  assert.ok(learnerReunited.includes("Ready to resume"));
+  assert.ok(learnerReunited.includes("Both players are connected."));
+  assert.ok(learnerReunited.includes("Your tutor will resume the game."));
+  const manualPause = renderPaused({
+    ...pausedState, paused: { remaining: 60000 },
+  });
+  assert.ok(manualPause.includes("Game paused"));
+  assert.ok(!manualPause.includes("Ready to resume"));
+  assert.ok(!manualPause.includes("away from the game"));
 
   const betweenContext = {
     learner: false, deck: "DECK", learnerHeader: () => "",
@@ -890,8 +911,9 @@ const fs = require("node:fs");
   assert.ok(gameCss.includes("overflow-wrap: normal;"));
   assert.ok(gameCss.includes("word-break: normal;"));
   assert.ok(!gameCss.includes("overflow-wrap: anywhere;"));
-  assert.ok(client.includes('connectionPaused ? "Both players are back." : "Turn paused."'));
-  assert.ok(client.includes('waitingForPartner ? "Partner disconnected."'));
+  assert.ok(client.includes('connectionPaused && !waitingForPartner ? "Ready to resume" : "Game paused"'));
+  assert.ok(!client.includes("Partner disconnected."));
+  assert.ok(!client.includes("Both players are back."));
   assert.ok(client.includes('!s.connected.tutor || !s.connected.learner'));
   assert.ok(client.includes('id="clock">02:00</strong>'));
   assert.ok(client.includes("const turnMs = state.turnMs || 120000;"));
