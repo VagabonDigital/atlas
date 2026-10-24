@@ -21,3 +21,6 @@ Thumbs.db
 desktop.ini
 
 arcade/two-keys/dev/.local-db/
+
+# Unlicensed design-preview footage stays local to the TGW prototype.
+arcade/tomorrow-got-weird-proto/portal-istock-test.mp4
