@@ -2335,6 +2335,10 @@
      RESPONSIVE
      ============================================================ */
 
+    @media (max-width: 380px) {
+      .header-position { display: none; }
+    }
+
     @media (max-width: 600px) {
       #game::before { opacity: 0.2; }
       html[data-theme="night"] #game::before { opacity: 0.15; }
@@ -2455,7 +2459,7 @@
 
   <!-- ============================================================ GAME SCREEN -->
   <div id="game" role="main">
-    <header class="game-header">
+    <header class="game-header arcade-game-chrome-centered-title">
       <div class="header-left">
         <div id="arcade-game-return-root"></div>
       </div>

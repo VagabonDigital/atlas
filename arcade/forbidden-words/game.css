@@ -3026,6 +3026,9 @@ html[data-theme="night"] #rules .atlas-modal-close:active {
     text-overflow: ellipsis;
   }
 }
+@media (max-width: 380px) {
+  #playing-chrome .brand { font-size: 15px; letter-spacing: -1.1px; }
+}
 @media (max-width: 520px) {
   /* A round label is present on the game board; prioritise header controls. */
   #playing-chrome #fw-header-round { display: none; }

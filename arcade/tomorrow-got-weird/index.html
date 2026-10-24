@@ -1440,6 +1440,10 @@
       }
     }
 
+    @media (max-width: 380px) {
+      #progress-label { display: none; }
+    }
+
     @media (max-width: 520px) {
       /* Compact counters keep the centred title away from the mobile menu. */
       #progress-label { font-size: 10px; letter-spacing: .02em; }
@@ -1539,7 +1543,7 @@
      GAME SCREEN
      ============================================================ -->
   <div id="game">
-    <header id="hdr">
+    <header id="hdr" class="arcade-game-chrome-centered-title">
       <div class="header-left">
         <div id="arcade-game-return-root"></div>
       </div>

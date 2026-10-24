@@ -643,6 +643,14 @@ html.theme-changing .arcade-game-chrome-game-icon-btn {
     justify-self: end;
   }
 
+  /* Games that deliberately centre their identity keep equal-width side
+     zones even after opt-in appearance actions populate the right slot.
+     On very narrow screens, each game may compact its progress label. */
+  .arcade-game-chrome-host.arcade-game-chrome-centered-title {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
+    grid-template-areas: "left context actions" !important;
+  }
+
   .arcade-game-chrome-game-direct {
     display: none !important;
   }
