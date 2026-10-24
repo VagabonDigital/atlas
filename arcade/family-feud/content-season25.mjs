@@ -109,4 +109,28 @@ export const season25Boards = [
     concept("SMACKS FOOD", 5, "smacks food|smacks their food|chews loudly|loud chewing|eats loudly|noisy eating|eats noisily|eats with mouth open|smacks lips|smacking lips|chomps popcorn|chews with mouth open|crunches loudly|eats loudly in the cinema", "Noisy eating or lip-smacking, not talking at the screen.", ["talks loudly","snores"]),
     concept("SNORES", 4, "snores|snore|snoring|snores loudly|starts snoring|falls asleep and snores|sleeping and snoring|loud snoring|makes snoring noises|snores during the movie", "Audible snoring, not just falling asleep silently.", ["coughing","talking"]),
   ]),
+  season25Board("s25-six-086", "Name something that happens every time you go to a restaurant in hell.", 247, [
+    concept("BURNT/BAD FOOD", 64, "burnt food|burned food|the food is burnt|the food is burned|burned dinner|burnt meals|burnt dinner|burned meals|food tastes awful|bad food|terrible food|horrible food|food tastes terrible|everything is overcooked|overcooked food|the meal is burnt|bad tasting food", "Bad or burnt meals, not the restaurant literally catching fire.", ["no ice","food catches fire"]),
+    concept("NO ICE WATER", 11, "no ice water|no ice|water without ice|warm water|hot water|not cold water|no cold water|no chilled water|only warm water|water is warm|they never give ice|ice is unavailable|they have no ice", "No ice or cold water, not burning food.", ["burnt dinner","long wait"]),
+    concept("HOT/CATCH FIRE", 9, "hot|too hot|everything is hot|restaurant is too hot|the food catches fire|food catches fire|on fire|the table catches fire|everything catches fire|flames everywhere|burning restaurant|fire starts|burst into flames|catches fire|it is roasting hot", "Excessive heat or things igniting, distinct from an overcooked meal.", ["burnt food","no ice"]),
+    concept("OUT OF FOOD", 3, "out of food|no food left|they run out of food|they ran out of food|food runs out|there is no food|there is nothing to eat|sold out of food|empty kitchen|no meals available|kitchen has no food|nothing on the menu is available", "Kitchen runs out of food or meals; not simply bad cooking.", ["bad food","waiter is missing"]),
+    concept("LONG WAIT/NO STAFF", 3, "long wait|wait forever|slow service|very slow service|long queue|long line|no staff|no waiters|no waiter|no servers|no service|waiting ages|takes forever|understaffed|not enough staff|never get served", "Long waits or absent staff, not a shortage of food.", ["no food left","burnt food"]),
+    concept("HAIR/SPIT IN FOOD", 2, "hair in the food|hair in food|find a hair in the food|hair in my meal|a hair in the soup|spit in food|spit in the food|saliva in food|spitting in food|spitting on food|someone spat in the food|spit in my dinner", "Unhygienic hair or spit found in the food, not ordinary poor flavour.", ["bad food","burnt meal"]),
+  ]),
+  season25Board("s25-six-130", "I'm too afraid to run with the bulls, but I am up for running with what animal?", 291, [
+    concept("THE PUPPIES", 33, "puppies|puppy|the puppies|little puppies|a puppy|dogs|dogs and puppies|a bunch of puppies|baby dogs|young dogs|cute puppies", "Running with puppies or dogs, not cats or other animals.", ["kittens","bunnies"]),
+    concept("THE TURTLES", 17, "turtles|turtle|the turtles|a turtle|tortoises|tortoise|a tortoise|the tortoises|slow turtles|little turtles", "Running with turtles or tortoises, not sloths.", ["sloths","puppies"]),
+    concept("THE KITTIES", 15, "kitties|kitty|kittens|kitten|cats|cat|little cats|baby cats|the kittens|the kitties|a kitten|the cats", "Running with kittens or cats, not puppies.", ["puppies","chickens"]),
+    concept("THE SLOTHS", 8, "sloths|sloth|the sloths|a sloth|slow sloths|lazy sloths|some sloths", "Running with sloths, not tortoises.", ["turtles","snails"]),
+    concept("THE BUNNIES", 5, "bunnies|bunny|rabbits|rabbit|the bunnies|a bunny|baby rabbits|the rabbits|little rabbits|a rabbit", "Running with rabbits or bunnies, not kittens.", ["kitties","chickens"]),
+    concept("THE CHICKENS", 4, "chickens|chicken|the chickens|a chicken|hens|hen|a hen|the hens|baby chickens|chicks|little chicks|the chicks", "Running with chickens or hens, not other birds.", ["turkeys","ducks"]),
+  ]),
+  season25Board("s25-six-152", "A young pop star aspires to be as big as who?", 313, [
+    concept("ELVIS", 26, "elvis|elvis presley|the king of rock and roll|elvis the king|the king elvis|presley|the king of rock", "The singer Elvis Presley, not Michael Jackson's King of Pop.", ["michael jackson","the king of pop"]),
+    concept("MICHAEL JACKSON", 18, "michael jackson|mj|michael jackson the singer|king of pop|the king of pop|jackson the singer|michael joe jackson", "The singer Michael Jackson, not Elvis.", ["elvis","janet jackson"]),
+    concept("TAYLOR SWIFT", 6, "taylor swift|taylor|taylor alison swift|the eras tour singer|swift|tswift", "Taylor Swift, not any other singer.", ["beyonce","madonna"]),
+    concept("BEYONCE", 6, "beyonce|beyoncé|beyonce knowles|beyoncé knowles|queen bey|queen b|beyonce knowles carter|beyoncé knowles carter", "Beyoncé the singer, not Taylor Swift.", ["taylor swift","madonna"]),
+    concept("JUSTIN BIEBER", 5, "justin bieber|bieber|justin drew bieber|jb the singer|the bieber|justin bieber the singer", "Justin Bieber, not other singers named Justin.", ["justin timberlake","madonna"]),
+    concept("MADONNA", 5, "madonna|madonna ciccone|madonna the singer|queen of pop|the queen of pop|madonna louise ciccone", "Madonna the singer, not other pop singers.", ["beyonce","michael jackson"]),
+  ]),
 ];
