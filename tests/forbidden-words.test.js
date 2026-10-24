@@ -409,6 +409,95 @@ const fs = require("node:fs");
   assert.ok(inviteHarness.makeInvite().includes("Private game link"));
   assert.ok(!inviteHarness.makeInvite().includes("Previous invitation disabled"));
 
+  // Invite/replacement controls belong to connection recovery, not play.
+  // Test the actual waiting, paused, and role-swap render functions against
+  // connected and disconnected states for the tutor.
+  const phaseRender = (start, end, name) => {
+    const app = { innerHTML: "" };
+    const context = {
+      learner: false, app, brand: "Forbidden Words", deck: "DECK",
+      escape: x => String(x), lastNonce: null,
+      button: (action, label) => `BUTTON:${action}:${label}`,
+      invitationLink: () => "PRIVATE-LINK-MARKER",
+      replacementReady: () => false,
+      learnerHeader: () => "", pile: () => "", cardFace: () => "",
+      feedbackText: () => "",
+    };
+    const snippet = client.slice(client.indexOf(start), client.indexOf(end));
+    assert.ok(snippet.startsWith(start), "Could not locate " + name);
+    vm.runInNewContext(snippet + ";this.display = " + name + ";", context);
+    return { display: context.display, app };
+  };
+  const waitingView = phaseRender("function landing(s)", "function joinUrl()", "landing");
+  const waiting = { connected: { tutor: true, learner: false }, invite: "token" };
+  waitingView.display(waiting);
+  assert.ok(waitingView.app.innerHTML.includes("Invite your learner"));
+  assert.ok(waitingView.app.innerHTML.includes("PRIVATE-LINK-MARKER"));
+  assert.ok(waitingView.app.innerHTML.includes("Reset invitation"));
+  waitingView.display({ ...waiting, connected: { tutor: true, learner: true } });
+  assert.ok(waitingView.app.innerHTML.includes("Ready to play?"));
+  assert.ok(waitingView.app.innerHTML.includes("Start Round"));
+  assert.ok(waitingView.app.innerHTML.includes("Cancel game"));
+  assert.ok(!waitingView.app.innerHTML.includes("PRIVATE-LINK-MARKER"));
+  assert.ok(!waitingView.app.innerHTML.includes("Reset invitation"));
+
+  const pausedState = {
+    phase: "active", paused: { reason: "connection", remaining: 60000 },
+    connected: { tutor: true, learner: true },
+    role: "Describer", card: { nonce: "card" },
+    score: 1, remaining: 130, played: 1, turn: 1, round: 1,
+  };
+  const renderPaused = s => {
+    // board(s) returns markup rather than writing into the app root.
+    const local = {
+      learner: false, deck: "DECK", lastNonce: null,
+      button: (action, label) => `BUTTON:${action}:${label}`,
+      invitationLink: () => "PRIVATE-LINK-MARKER",
+      replacementReady: () => false, learnerHeader: () => "",
+      pile: () => "", cardFace: () => "", feedbackText: () => "",
+    };
+    const snippet = client.slice(client.indexOf("function board(s)"), client.indexOf("function feedbackText(s)"));
+    vm.runInNewContext(snippet + ";this.boardView = board;", local);
+    return local.boardView(s);
+  };
+  const resumed = renderPaused(pausedState);
+  assert.ok(resumed.includes("Resume turn"));
+  assert.ok(resumed.includes("End game"));
+  assert.ok(!resumed.includes("PRIVATE-LINK-MARKER"));
+  assert.ok(!resumed.includes("Reset invitation"));
+  assert.ok(!resumed.includes("Invitation &amp; reconnect"));
+  const missing = renderPaused({ ...pausedState, connected: { tutor: true, learner: false } });
+  assert.ok(missing.includes("Partner disconnected."));
+  assert.ok(missing.includes("Invitation &amp; reconnect"));
+  assert.ok(missing.includes("PRIVATE-LINK-MARKER"));
+  assert.ok(missing.includes("Reset invitation"));
+
+  const betweenContext = {
+    learner: false, deck: "DECK", learnerHeader: () => "",
+    button: (action, label) => `BUTTON:${action}:${label}`,
+    invitationLink: () => "PRIVATE-LINK-MARKER",
+    escape: x => String(x),
+  };
+  const betweenSnippet = client.slice(
+    client.indexOf("function between(s)"),
+    client.indexOf("function render()"),
+  );
+  vm.runInNewContext(betweenSnippet + ";this.betweenView = between;", betweenContext);
+  const swapState = {
+    phase: "switch", role: "Guesser", actor: "tutor", ready: [],
+    score: 2, best: null, finalCard: null, review: [],
+    connected: { tutor: true, learner: true },
+  };
+  const normalSwap = betweenContext.betweenView(swapState);
+  assert.ok(normalSwap.includes("I’m ready"));
+  assert.ok(!normalSwap.includes("PRIVATE-LINK-MARKER"));
+  assert.ok(!normalSwap.includes("Reset invitation"));
+  const recoverySwap = betweenContext.betweenView({
+    ...swapState, connected: { tutor: true, learner: false },
+  });
+  assert.ok(recoverySwap.includes("PRIVATE-LINK-MARKER"));
+  assert.ok(recoverySwap.includes("Reset invitation"));
+
   // The learner sees actionable recovery for both the old HTTP and new
   // live-room errors, never an endless retry for a claimed/replaced seat.
   const entrySnippet = client.slice(
