@@ -3,7 +3,7 @@
   Editorial migration from Atlas Backup v3, 24 October 2026.
   Private owner, learner, continuity and account data excluded.
   Subject-specific review: science, conversation quality and optional paths.
-  Cover: Clancy Brett / Unsplash License; source https://unsplash.com/photos/a-glowing-green-bioluminescent-mushroom-in-a-dark-forest-9Xcgjyv0EBg
+  Cover: founder-selected externally hosted image — https://www.planetnatural.com/wp-content/uploads/2024/10/Plants-That-Glow-In-The-Dark.jpg
 */
 
 const MODULE = {
@@ -13,7 +13,7 @@ const MODULE = {
     "title": "The Forests That Glow at Night",
     "titleHtml": "The Forests That Glow at Night",
     "navTitle": "Glowing Forests",
-    "bgImage": "https://images.unsplash.com/photo-1782811469054-cb9aae85a119?auto=format&fit=crop&w=1600&q=85"
+    "bgImage": "https://www.planetnatural.com/wp-content/uploads/2024/10/Plants-That-Glow-In-The-Dark.jpg"
 };
 
 const subjectCopy = {

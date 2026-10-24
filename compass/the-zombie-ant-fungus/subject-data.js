@@ -3,7 +3,7 @@
   Editorial migration from Atlas Backup v3, 24 October 2026.
   Private owner, learner, continuity and account data excluded.
   Subject-specific review: science, conversation quality and optional paths.
-  Cover: James Marchment / Insects Unlocked, CC0; source https://commons.wikimedia.org/wiki/File:Paraponera_clavata_with_Cordyceps_fungus_(1).jpg
+  Cover: founder-selected externally hosted image — https://b2408965.assetcdn.net/2.0/2408965/wp-content/uploads/ZombieAntFungus_Photo-from-AndreasKay.jpeg?lossy=2&strip=1&webp=1&size=971x0
 */
 
 const MODULE = {
@@ -13,7 +13,7 @@ const MODULE = {
     "title": "The Zombie Ant Fungus",
     "titleHtml": "The Zombie Ant Fungus",
     "navTitle": "Zombie Ant Fungus",
-    "bgImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Paraponera_clavata_with_Cordyceps_fungus_%281%29.jpg/1280px-Paraponera_clavata_with_Cordyceps_fungus_%281%29.jpg"
+    "bgImage": "https://b2408965.assetcdn.net/2.0/2408965/wp-content/uploads/ZombieAntFungus_Photo-from-AndreasKay.jpeg?lossy=2&strip=1&webp=1&size=971x0"
 };
 
 const subjectCopy = {
