@@ -581,7 +581,7 @@ const fs = require("node:fs");
     }
     assert.equal((html.match(/class="rules-steps"/g) || []).length, 1);
   }
-  assert.ok(gameCss.includes('html[data-theme="night"] #rules {'));
+  assert.ok(gameCss.includes('html[data-theme="night"] :is(#rules, #replace-learner-confirm, #end-game-confirm) {'));
   assert.ok(gameCss.includes('background: radial-gradient('));
   assert.ok(gameCss.includes('html[data-theme="night"] #rules .rules-footnote'));
   assert.ok(gameCss.includes('html[data-theme="night"] dialog {'),
