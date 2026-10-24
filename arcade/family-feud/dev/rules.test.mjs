@@ -53,10 +53,10 @@ test('fresh legacyBoards preferred; exhaustion never prevents a full replay',()=
   assert.equal(chooseBoards(legacyBoards,legacyBoards.map(b=>b.id)).length,3);
 });
 
-test('first twelve sourced batches preserve sixty original Season 26 six-answer records',()=>{
-  assert.equal(boards.length,60);
+test('first thirteen sourced batches preserve sixty-five original Season 26 six-answer records',()=>{
+  assert.equal(boards.length,65);
   assert.equal(legacyBoards.length,7);
-  assert.deepEqual(boards.map(b=>b.sourceSurveyId),[19,85,111,121,137,3,61,117,136,151,35,50,54,92,104,21,107,135,144,153,8,12,72,147,159,40,82,118,130,152,26,36,64,91,141,39,58,62,74,109,6,70,131,139,143,29,60,89,128,145,27,57,67,99,129,14,31,48,76,98]);
+  assert.deepEqual(boards.map(b=>b.sourceSurveyId),[19,85,111,121,137,3,61,117,136,151,35,50,54,92,104,21,107,135,144,153,8,12,72,147,159,40,82,118,130,152,26,36,64,91,141,39,58,62,74,109,6,70,131,139,143,29,60,89,128,145,27,57,67,99,129,14,31,48,76,98,24,41,79,90,155]);
   assert.equal(new Set([...boards,...legacyBoards].map(b=>b.id)).size,boards.length+legacyBoards.length);
   for(const b of boards){
     const raw=source.find(entry=>entry.id===b.sourceSurveyId);
@@ -270,6 +270,16 @@ test('Batch 12 natural guesses, exclusions and multi-answer turns',()=>{
   for(const [id,phrases] of [[14,["a wand","american accent","briefcase","guitar","parachute"]],[31,["baking powder","wash his feet","new insoles","shampoo","foot bath"]],[48,["cat fur","carpet","floor mop","a garden hose","bathroom mirror"]],[76,["rihanna","dua lipa","madonna","mariah carey","shakira"]],[98,["stupid","bossy","greedy","late","incompetent"]]])
     for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'miss',id+' '+phrase);
   for(const [id,phrases] of [[14,["umbrella or hat","bag and dress"]],[31,["foot powder or deodorant","socks and cologne"]],[48,["teeth or hair","shower and sink"]],[76,["taylor or beyonce","adele and cher"]],[98,["loser or liar","lazy and loud"]]])
+    for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'ambiguous',id+' '+phrase);
+});
+
+test('Batch 13 natural guesses, neighbour exclusions and multi-answer attempts',()=>{
+  const get=id=>boards.find(b=>b.sourceSurveyId===id);
+  for(const [id,phrases] of [[24,["a cheeky wink","flutter my lashes","lock eyes","wiggle eyebrows","widen my eyes","narrow your eyes"]],[41,["grapefruit juice in eye","they bite my hand","choke on a piece","the fruit falls","citrus allergy","they spit it out"]],[79,["wash his false hair","detangle with a comb","hoover the wig","stick hairpiece to head","ditch the hairpiece","puff it up"]],[90,["a pile of paperwork","empty wrappers","a turd","a nasty bug","wilted flowers","an insulting note"]],[155,["big moth","a fat grub","housefly","tarantula","a damselfly","ladybug"]]])
+    for(const [index,phrase] of phrases.entries())assert.deepEqual(resolveAnswer(get(id),phrase),{kind:'match',index},id+' '+phrase);
+  for(const [id,phrases] of [[24,["blinking normally","look away","roll my eyes","cry","look down"]],[41,["a bad taste","spit juice in their face","they burp","i burn the food","it is unripe"]],[79,["cut the toupee","dye the wig","sell it","buy new hair","put on a hat"]],[90,["birthday cake","a healthy plant","a thank you card","an ordinary cup","a work computer"]],[155,["butterfly","ant","bee","mosquito","earthworm"]]])
+    for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'miss',id+' '+phrase);
+  for(const [id,phrases] of [[24,["wink or stare","bat my eyes and raise an eyebrow"]],[41,["juice or biting","they choke and spit it out"]],[79,["wash or brush","vacuum and glue"]],[90,["trash or poop","a rat and a dead plant"]],[155,["moth or beetle","fly and spider"]]])
     for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'ambiguous',id+' '+phrase);
 });
 
