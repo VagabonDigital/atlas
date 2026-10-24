@@ -549,7 +549,7 @@ const fs = require("node:fs");
   // changing allowed clues, round timing, or point handling.
   for (const html of [tutorPage, learnerPage]) {
     for (const clause of [
-      "Find another way.", "Keep your lesson call open",
+      "Find another way.", "keep your lesson call open",
       "four forbidden words", "Ordinary word endings",
       "No spelling, letter hints, rhymes, translation, typing, drawing",
       "Normal gestures are fine", "If a possible rule break isn't clear",
