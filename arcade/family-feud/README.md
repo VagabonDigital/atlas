@@ -39,6 +39,36 @@ playable library only after screening a question for plausible successful guesse
 verifying its source numbers and writing and testing its answer codebook.
 This is an editorial selection judgement, not a measured learner success rate.
 
+## Season 25 source archive and Batch 21
+
+The separate research file `dev/season25-six-answer-raw.json` contains
+**162 original six-answer Season 25 records** from
+[the Season 25 archive](https://mstiescott.neocities.org/feud25_6).
+Its internal IDs **162–323** continue after Season 26's **1–161**, making
+them unique across both archives. These are **Atlas research identifiers**,
+not the website's own season numbering. Each Season 25 playable board also
+records `sourceSeason: 25` and its archive position as `sourceOrdinal`.
+
+The raw Season 25 file stays under `dev/`, excluded from the published
+site. One source inconsistency is deliberately preserved: Season 25 ID
+**306** prints `total_points: 70` even though its six original response
+points add up to **80**. The original archive also prints 70; do not
+silently adjust the survey or its answers to fix that discrepancy.
+
+**Batch 21** adds five individually screened, genuinely sourced boards
+in `content-season25.mjs`, each with a locally authored answer-recognition
+codebook: runaway dog (#183), Bigfoot's camping complaints (#187), a
+friend evading the restaurant bill (#188), modern Little Red Riding Hood
+(#252), and a clown wedding (#282). The five retain their original question
+wording, all six labels, rankings and scores. Each round accurately shows
+whether its source is Season 25 or Season 26. New survey IDs are not
+automatically playable just because they are in either JSON archive.
+
+This season-specific file lives with Family Feud rather than a shared game
+system: it owns a distinct, durable season's authored surveys without
+moving or rewriting the existing 100 Season 26 boards in `content.mjs`.
+The original 40 held Season 26 boards remain held.
+
 The seven former **illustrative development boards** remain under
 `legacyBoards` exclusively to restore previously saved matches. New matches
 never select them. Their illustrative provenance remains visible if an old
@@ -54,7 +84,7 @@ have separate outcomes; errors preserve the exact entry and turn for retry.
 Add new natural paraphrases on the basis of manual playtesting.
 
 Replay prefers unseen approved boards and clearly discloses reuse when the
-60-board playable pool is exhausted.
+65-board playable pool is exhausted.
 ## Verification
 
 ```sh
@@ -113,6 +143,9 @@ answer is non-graphic historical fantasy. **Now 60 approved and 40 held.**
 The famous-captains board passes despite two regional references. Cinderella
 stays held because an underwear answer ranks second. The complete review
 is recorded by source ID in `editorial.mjs`.
+
+After Batch 21, **65** sourced boards are approved and playable, while the
+original **40 held** Season 26 surveys remain unavailable in new matches.
 
 All 100 Season 26 surveys remain unchanged. The review is provisional editorial
 judgement, not measured tutor/learner playtest evidence. Replacements from
