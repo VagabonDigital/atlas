@@ -39,7 +39,7 @@ playable library only after screening a question for plausible successful guesse
 verifying its source numbers and writing and testing its answer codebook.
 This is an editorial selection judgement, not a measured learner success rate.
 
-## Season 25 source archive and Batches 21–25
+## Season 25 source archive and Batches 21–26
 
 The separate research file `dev/season25-six-answer-raw.json` contains
 **162 original six-answer Season 25 records** from
@@ -105,6 +105,16 @@ vampire material stays within familiar fantasy. All six original labels,
 point values and question wording are unchanged, and per-concept authored
 recognition rules accompany each board.
 
+**Batch 26** adds five Season 25 surveys: US music cities (#220), messy
+childhood behaviours (#231), things with spikes (#266), people who
+might welcome you like a dog (#290), and reasons someone sounds unusual
+when speaking (#296). The city board uses a geographically bounded clue
+rather than open-ended US trivia. The speech question includes one
+mild alcohol-reference answer among six everyday explanations; no
+personal disclosure or intoxication is encouraged. The questions,
+rankings, labels and points remain source-exact; all 30 concepts have
+authored recognition rules.
+
 The original 40 held Season 26 boards remain held.
 
 The seven former **illustrative development boards** remain under
@@ -122,7 +132,7 @@ have separate outcomes; errors preserve the exact entry and turn for retry.
 Add new natural paraphrases on the basis of manual playtesting.
 
 Replay prefers unseen approved boards and clearly discloses reuse when the
-85-board playable pool is exhausted.
+90-board playable pool is exhausted.
 ## Verification
 
 ```sh
@@ -182,7 +192,7 @@ The famous-captains board passes despite two regional references. Cinderella
 stays held because an underwear answer ranks second. The complete review
 is recorded by source ID in `editorial.mjs`.
 
-After Batch 25, **85** sourced boards are approved and playable, while the
+After Batch 26, **90** sourced boards are approved and playable, while the
 original **40 held** Season 26 surveys remain unavailable in new matches.
 
 All 100 Season 26 surveys remain unchanged. The review is provisional editorial
