@@ -74,7 +74,7 @@ test('first twenty sourced batches preserve one hundred original Season 26 six-a
   }
 });
 
-test('Season 25 research source remains complete and Batches 21–23 retain original six answers',()=>{
+test('Season 25 research source remains complete and Batches 21–24 retain original six answers',()=>{
   assert.equal(source25.length,162);
   assert.deepEqual(source25.map(x=>x.id),Array.from({length:162},(_,i)=>i+162));
   assert.ok(source25.every(x=>typeof x.question==='string'&&x.question.length>12&&x.answers?.length===6));
@@ -82,7 +82,7 @@ test('Season 25 research source remains complete and Batches 21–23 retain orig
   const totalMismatches=source25.filter(x=>x.answers.reduce((sum,a)=>sum+a.points,0)!==x.total_points).map(x=>x.id);
   assert.deepEqual(totalMismatches,[306]);
   assert.equal(source25.find(x=>x.id===306).total_points,70);
-  const screened=[183,187,188,252,282,172,205,224,256,273,189,225,247,291,313];
+  const screened=[183,187,188,252,282,172,205,224,256,273,189,225,247,291,313,176,193,212,229,262];
   assert.deepEqual(season25Boards.map(b=>b.sourceSurveyId),screened);
   for(const b of season25Boards){
     const original=source25.find(x=>x.id===b.sourceSurveyId);
@@ -134,11 +134,29 @@ test('Batch 23 recognises real alternative phrasings for all 30 original answers
   }
 });
 
+test('Batch 24 supports natural guesses for every original Season 25 source answer',()=>{
+  const examples=[
+    [176,['a blonde wig','fancy dress','false eyelashes','pearl necklace','feather boa','pink bow']],
+    [193,['in the woods','public toilet','the neighbor’s house','in the shower','a plastic bucket','kitchen sink']],
+    [212,['my wedding','half marathon','beach holiday','school reunion','boxing match','a modelling audition']],
+    [229,['visit Mexico','France','the United Kingdom','Canada','Italy','the Bahamas']],
+    [262,['boiled broccoli','passing gas','skunk spray','wet puppy','dirty socks','stinky trash']],
+  ];
+  for(const [id,phrases] of examples){
+    const board=season25Boards.find(b=>b.sourceSurveyId===id);
+    assert.ok(board,'Missing Batch 24 board '+id);
+    for(const [i,phrase] of phrases.entries()){
+      assert.deepEqual(resolveAnswer(board,phrase),{kind:'match',index:i},id+' '+phrase);
+    }
+  }
+  assert.ok(season25Boards.every(board=>playableBoards.some(b=>b.id===board.id)));
+});
+
 test('default pool includes only explicitly approved classroom-ready boards',()=>{
   const approved=new Set(editorialReview.approvedSourceIds);
   const held=new Set(Object.keys(editorialReview.heldReasons).map(Number));
   assert.equal(boards.length,100);
-  assert.equal(approved.size,75);
+  assert.equal(approved.size,80);
   assert.equal(held.size,40);
   assert.equal(new Set([...approved,...held]).size,boards.length+season25Boards.length);
   for(const b of [...boards,...season25Boards]){
