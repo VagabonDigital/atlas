@@ -502,6 +502,12 @@ function invitationLink() {
   const copyLabel = fresh ? "Copy new link" : "Copy link";
   return `<div class="link-row invite-link-row"><span class="invite-link-label" aria-hidden="true">↗ &nbsp; ${label}</span><input id="invite-link" class="invite-link-input" aria-label="${label}" aria-hidden="true" tabindex="-1" readonly value="${escape(joinUrl())}">${button("copy", copyLabel, "primary")}</div>${fresh ? '<p class="replacement-note" role="status">Previous invitation disabled. Share this new link to reconnect.</p>' : ""}`;
 }
+// Advanced recovery stays available even when the learner's seat is marked
+// present (for instance, when switching devices). Keep the game action first.
+function connectionOptions(s) {
+  const present = !!s.connected.learner;
+  return `<details class="pause-invitation connection-options" data-learner-present="${present}" ${!present || replacementReady() ? "open" : ""}><summary>Connection options</summary><div class="pause-invitation-content">${invitationLink()}${button("replace-learner", "Reset invitation", "text-button pause-replace-link")}</div></details>`;
+}
 function landing(s) {
   const joined = s?.connected.learner;
   app.innerHTML = `<section class="landing"><div class="landing-identity">${brand}<p class="premise">Describe the word. <br>Lose the obvious language.</p><div class="hero-deck">${deck}<span class="spark one">✦</span><span class="spark two">✧</span></div><p class="caption">Two voices. One clock. Find another way.</p></div>
@@ -509,7 +515,7 @@ function landing(s) {
     <p>${learner ? "Listen to the clues and guess aloud." : joined ? "Both of you are connected." : "Send a private game invitation to your learner."}</p>
     ${!learner && s && !joined ? invitationLink() : ""}
     <div class="connection"><span class="connection-dot ${joined ? "online" : ""}"></span><div><strong>${learner ? "Connected to the game" : joined ? "Your learner is here" : s ? "Waiting for your learner…" : "Ready for a live lesson?"}</strong><p>${learner ? "Your tutor will start the round." : joined ? "You can start the first round." : s ? "They’ll appear here when connected." : "Sign in to create your private game."}</p></div></div>
-    ${learner ? "" : !s ? button("sign-in", "Sign in to host", "primary start-button") : joined ? button("start", "▶ Start Round", "primary start-button") : ""}
+    ${learner ? "" : !s ? button("sign-in", "Sign in to host", "primary start-button") : joined ? button("start", "▶ Start Round", "primary start-button") + connectionOptions(s) : ""}
     ${learner
       ? `<div class="entry-footer learner-entry-footer">
           ${button("rules", "How to play", "entry-footer-action")}
@@ -573,7 +579,7 @@ function board(s) {
       ${describer ? `<div class="resolutions">${button("correct", "Correct", "correct")}${button("skip", "Skip", "skip")}${button("oops", "I said one!", "oops")}</div>` : '<div class="guesser-note"><span>◌</span><div><strong>GUESSER</strong><p>Listen. Ask questions. <br>Follow the clues.</p></div></div>'}
     </aside></section><div class="feedback" aria-live="polite">${feedbackText(s)}</div>
     ${s.phase === "countdown" ? '<div class="countdown-overlay"><div><p class="eyebrow">GET READY</p><strong id="countdown-number">3</strong><p>Your card. Your voice. Go.</p></div></div>' : ""}
-    ${s.paused ? `<div class="pause-overlay"><div class="panel"><p class="eyebrow">TAKE YOUR TIME</p><h2>${pauseTitle}</h2><p>${pauseDescription}</p>${!learner ? `<div class="pause-actions">${button("resume", "▶ Resume turn", "primary", !s.connected.tutor || !s.connected.learner)}${button("finish", "End game", "secondary end-game-button")}</div>${!s.connected.learner ? `<details class="pause-invitation" ${replacementReady() ? "open" : ""}><summary>Invitation &amp; reconnect</summary><div class="pause-invitation-content">${invitationLink()}${button("replace-learner", "Reset invitation", "text-button pause-replace-link")}</div></details>` : ""}` : "<p>Your tutor will resume the game.</p>"}</div></div>` : ""}`;
+    ${s.paused ? `<div class="pause-overlay"><div class="panel"><p class="eyebrow">TAKE YOUR TIME</p><h2>${pauseTitle}</h2><p>${pauseDescription}</p>${!learner ? `<div class="pause-actions">${button("resume", "▶ Resume turn", "primary", !s.connected.tutor || !s.connected.learner)}${button("finish", "End game", "secondary end-game-button")}</div>${connectionOptions(s)}` : "<p>Your tutor will resume the game.</p>"}</div></div>` : ""}`;
 }
 function feedbackText(s) {
   return !s.feedback
@@ -597,7 +603,7 @@ function between(s) {
     ${s.finalCard && !finished ? `<div class="final-card"><span>At the horn</span><strong>${escape(s.finalCard.target)}</strong>${s.finalCard.credited ? "<small>✓ Credited</small>" : s.canCredit ? button("late-correct", "They said it before the horn · +1", "text-button") : ""}</div>` : ""}
     ${switching ? `<p class="switch-copy">${ready ? "Waiting for your partner to get ready." : "Take a breath. Both of you tap ready to begin."}</p><div class="switch-actions">${button("ready", ready ? "✓ Ready" : "I’m ready", "primary", ready)}${!learner ? button("finish", "End game", "secondary end-game-button") : ""}</div>` : finished ? (!learner ? button("new-session", "Start a new game", "primary") : "") : `<div class="result-actions">${!learner ? button("replay", "▶ Play Another Round", "primary", !s.connected.learner) + button("finish", "End game", "secondary end-game-button") : "<p>Your partner can start another round or finish.</p>"}</div>`}
     ${!switching && s.review.length ? `<details class="review"><summary>Talk through ${s.review.length} unresolved ${s.review.length === 1 ? "card" : "cards"} <span>Optional</span></summary><div>${s.review.map((c) => `<article><strong>${escape(c.target)}</strong><small>${c.result === "oops" ? "Oops" : c.result === "skip" ? "Skipped" : "At the horn"}</small><p>${c.forbidden.map(escape).join(" · ")}</p></article>`).join("")}</div></details>` : ""}
-    ${!learner && switching && !s.connected.learner ? `<div class="switch-maintenance">${button("replace-learner", "Reset invitation", "text-button small")}${invitationLink()}</div>` : ""}</div></section>`;
+    ${!learner && !finished ? `<div class="switch-maintenance">${connectionOptions(s)}</div>` : ""}</div></section>`;
 }
 function render() {
   const s = state;
@@ -609,7 +615,9 @@ function render() {
   }
   const focused = document.activeElement?.dataset?.action;
   const reviewOpen = document.querySelector(".review")?.open;
-  const pauseInviteOpen = document.querySelector(".pause-invitation")?.open;
+  const previousConnectionOptions = document.querySelector(".connection-options");
+  const optionsWereOpen = previousConnectionOptions?.open;
+  const previousLearnerPresence = previousConnectionOptions?.dataset.learnerPresent;
   if (
     lastNonce &&
     s.card?.nonce &&
@@ -638,8 +646,12 @@ function render() {
       : between(s);
   if (reviewOpen && document.querySelector(".review"))
     document.querySelector(".review").open = true;
-  if (pauseInviteOpen && document.querySelector(".pause-invitation"))
-    document.querySelector(".pause-invitation").open = true;
+  const currentConnectionOptions = document.querySelector(".connection-options");
+  // Preserve the tutor's disclosure preference across state pushes, but
+  // automatically expand on disconnect and collapse on reconnection.
+  if (currentConnectionOptions && previousConnectionOptions &&
+      currentConnectionOptions.dataset.learnerPresent === previousLearnerPresence)
+    currentConnectionOptions.open = optionsWereOpen;
   if (focused)
     document
       .querySelector(`[data-action="${focused}"]`)
