@@ -107,3 +107,24 @@ test('gameplay remains governed by separate non-entrance selectors', () => {
     assert.match(html, /\.stage:not\(\.entrance\) \.board-start \{ display: none; \}/);
     assert.match(stylesheet, /\.stage:not\(\.entrance\) \.question/);
 });
+
+const mobileGameplayAnchor = 'In-play phone/tablet composition: full-width speech controls';
+const mobileGameplayStart = html.indexOf(mobileGameplayAnchor);
+assert.ok(mobileGameplayStart >= 0, 'Family Feud mobile gameplay rules must exist');
+const mobileGameplay = html.slice(mobileGameplayStart, html.indexOf('  </style>', mobileGameplayStart));
+
+test('phone gameplay grows naturally rather than crushing the board into a fixed viewport', () => {
+    assert.match(mobileGameplay, /@media \(max-width: 820px\)/);
+    assert.match(mobileGameplay, /\.stage:not\(\.entrance\) \{[^}]*height: auto;[^}]*display: flex;/);
+    assert.match(mobileGameplay, /\.stage:not\(\.entrance\) \.question \{[^}]*height: auto;[^}]*min-height: 0;/);
+    assert.match(mobileGameplay, /\.stage:not\(\.entrance\) \.board \{[^}]*height: clamp\(252px, 42dvh, 352px\);/);
+    assert.match(mobileGameplay, /\.stage:not\(\.entrance\) \.board:not\(\.final-board\) \{[^}]*grid-template-rows: repeat\(6, minmax\(0, 1fr\)\);/);
+});
+
+test('phone gameplay gives both scores a row and the answer dock the entire width', () => {
+    assert.match(mobileGameplay, /grid-template-areas: "player-a player-b" "dock dock";/);
+    assert.match(mobileGameplay, /\.stage:not\(\.entrance\) \.dock \{[^}]*grid-area: dock;/);
+    assert.match(mobileGameplay, /\.stage:not\(\.entrance\) #answer-form input \{[^}]*font-size: 16px;/);
+    assert.match(mobileGameplay, /\.stage:not\(\.entrance\) #answer-form \.actions button \{[^}]*min-height: 44px;/);
+    assert.match(mobileGameplay, /\.stage:not\(\.entrance\) \.reveal-actions \{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/);
+});

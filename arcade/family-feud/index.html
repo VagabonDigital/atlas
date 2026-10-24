@@ -1023,6 +1023,198 @@
       #game-utilities { gap: 4px; }
       #new-match, #sound { padding-inline: 8px; font-size: 11px; }
     }
+
+    /* In-play phone/tablet composition: full-width speech controls, two compact
+       scores, and a legible six-row board. Short screens may scroll instead of
+       compressing the question, shutters or keyboard controls into each other.
+       Entrance and wide-screen gameplay retain their own compositions. */
+    @media (max-width: 820px) {
+      .stage:not(.entrance) {
+        width: min(100%, 560px);
+        height: auto;
+        min-height: 0;
+        max-height: none;
+        margin: 82px auto 24px;
+        padding: 0 12px 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+      }
+      .stage:not(.entrance) .machine {
+        width: 100%;
+        max-width: none;
+        height: auto;
+        max-height: none;
+        min-height: 0;
+        flex: none;
+        padding: 12px 10px 11px;
+        border-radius: 36px 36px 20px 20px;
+      }
+      .stage:not(.entrance) .question {
+        height: auto;
+        min-height: 0;
+        flex: none;
+        margin-bottom: 11px;
+        padding: 10px 12px 12px;
+        border-radius: 27px;
+      }
+      .stage:not(.entrance) .question h1 {
+        max-width: 100%;
+        font-size: clamp(19px, 4.8vw, 25px);
+        line-height: 1.15;
+        letter-spacing: -.6px;
+        text-wrap: balance;
+      }
+      .stage:not(.entrance) .question .round-kicker {
+        font-size: 10px;
+        letter-spacing: 1.3px;
+        margin-bottom: 5px;
+      }
+      .stage:not(.entrance) .board {
+        width: 100%;
+        height: clamp(252px, 42dvh, 352px);
+        min-height: 0;
+        flex: none;
+        gap: 5px;
+        padding: 6px;
+        border-radius: 23px;
+      }
+      .stage:not(.entrance) .board:not(.final-board) {
+        display: grid;
+        grid-template-rows: repeat(6, minmax(0, 1fr));
+      }
+      .stage:not(.entrance) .row {
+        grid-template-columns: 38px minmax(0, 1fr) 39px;
+        border-radius: 15px;
+      }
+      .stage:not(.entrance) .rank {
+        font-size: 22px;
+        border-radius: 13px 7px 7px 13px;
+      }
+      .stage:not(.entrance) .answer {
+        padding: 0 3px;
+        font-size: clamp(12px, 3.6vw, 17px);
+        line-height: 1.05;
+        letter-spacing: -.25px;
+        overflow-wrap: anywhere;
+      }
+      .stage:not(.entrance) .value { font-size: 17px; }
+      .stage:not(.entrance) .provenance {
+        margin-top: 8px;
+        font-size: 8px;
+        letter-spacing: .9px;
+      }
+      .stage:not(.entrance) .console {
+        width: 100%;
+        min-height: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-areas: "player-a player-b" "dock dock";
+        gap: 10px;
+        padding: 17px 12px 12px;
+        border-radius: 28px;
+      }
+      .stage:not(.entrance) .player-a { grid-area: player-a; }
+      .stage:not(.entrance) .player-b { grid-area: player-b; }
+      .stage:not(.entrance) .contestant {
+        min-width: 0;
+        min-height: 64px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-rows: auto auto;
+        align-content: center;
+        justify-items: start;
+        gap: 3px 5px;
+        padding: 8px 9px;
+        border-radius: 17px;
+      }
+      .stage:not(.entrance) .contestant .name {
+        grid-column: 1;
+        grid-row: 1;
+        width: 100%;
+        font-size: clamp(10px, 2.9vw, 12px);
+        letter-spacing: .4px;
+      }
+      .stage:not(.entrance) .contestant .score {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+        align-self: center;
+        font-size: clamp(27px, 7vw, 34px);
+        letter-spacing: -1px;
+      }
+      .stage:not(.entrance) .contestant .strikes {
+        grid-column: 1;
+        grid-row: 2;
+        gap: 5px;
+        margin: 0;
+      }
+      .stage:not(.entrance) .strike { width: 14px; height: 14px; }
+      .stage:not(.entrance) .contestant .contribution {
+        grid-column: 1 / -1;
+        margin: 0;
+        font-size: 10px;
+      }
+      .stage:not(.entrance) .turn-label {
+        top: -12px;
+        right: 6px;
+        font-size: 9px;
+        padding: 4px 8px;
+      }
+      .stage:not(.entrance) .dock {
+        grid-area: dock;
+        width: 100%;
+        gap: 3px;
+      }
+      .stage:not(.entrance) #answer-form { gap: 8px; }
+      .stage:not(.entrance) #answer-form input {
+        width: 100%;
+        height: 46px;
+        padding: 0 15px;
+        font-size: 16px;
+      }
+      .stage:not(.entrance) #answer-form .actions { gap: 9px; }
+      .stage:not(.entrance) #answer-form .actions button {
+        height: 44px;
+        min-height: 44px;
+      }
+      .stage:not(.entrance) #answer-form .actions .primary {
+        min-width: 0;
+        padding: 8px 12px;
+        font-size: 15px;
+      }
+      .stage:not(.entrance) #answer-form .actions .secondary {
+        min-width: 78px;
+        padding: 8px 12px;
+        font-size: 14px;
+      }
+      .stage:not(.entrance) .dock > .feedback {
+        min-height: 0;
+        font-size: 13px;
+        padding: 3px 5px;
+      }
+      .stage:not(.entrance) .dock > .feedback:empty { display: none; }
+      .stage:not(.entrance) .reveal-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+      .stage:not(.entrance) .reveal-actions button,
+      .stage:not(.entrance) .phase-actions button {
+        min-height: 44px;
+        padding: 8px 10px;
+        font-size: 14px;
+      }
+      .stage:not(.entrance) .phase-end-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .stage:not(.entrance) .final-board h2 { font-size: clamp(28px, 8vw, 42px); }
+      .stage:not(.entrance) .final-scores {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+    }
   </style>
 </head>
 <body>
