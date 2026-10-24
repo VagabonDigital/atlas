@@ -175,7 +175,8 @@
 
     body {
       min-height: 100vh;
-      overflow-x: hidden;
+      /* clip avoids creating a scroll container that breaks the sticky game header. */
+      overflow-x: clip;
       background:
         radial-gradient(circle at 14% 20%,
           rgba(8, 127, 152, 0.09),
@@ -1692,19 +1693,22 @@
     .support-copy strong { color: var(--ink); font-size: 14px; font-weight: 750; line-height: 1.15; }
     .support-copy small { color: var(--ink-soft); font-size: 11px; font-weight: 500; line-height: 1.35; }
     .support-arrow { color: var(--module-color); font-size: 17px; opacity: .68; }
-    .support-button:hover,
-    .support-button[aria-pressed="true"] {
+    .scenario-console #btn-missions:is(:hover, [aria-pressed="true"]),
+    .scenario-console #btn-survival:is(:hover, [aria-pressed="true"]),
+    .scenario-console #btn-weirder:is(:hover, [aria-pressed="true"]) {
       transform: translateY(-2px);
-      border-color: var(--module-color) !important;
-      background: var(--tgw-module) !important;
+      border-color: var(--module-color);
+      background: var(--tgw-module);
       box-shadow: 0 0 0 2px color-mix(in srgb, var(--module-color) 17%, transparent), 0 10px 23px rgba(22, 46, 76, .14);
     }
     .support-button[aria-pressed="true"] .support-arrow {
       transform: rotate(90deg);
       opacity: 1;
     }
-    html[data-theme="night"] .support-button:hover,
-    html[data-theme="night"] .support-button[aria-pressed="true"] {
+    html[data-theme="night"] .scenario-console #btn-missions:is(:hover, [aria-pressed="true"]),
+    html[data-theme="night"] .scenario-console #btn-survival:is(:hover, [aria-pressed="true"]),
+    html[data-theme="night"] .scenario-console #btn-weirder:is(:hover, [aria-pressed="true"]) {
+      background: var(--tgw-module);
       box-shadow: 0 0 0 2px color-mix(in srgb, var(--module-color) 27%, transparent), 0 12px 26px rgba(0,0,0,.32);
     }
     #support-panel {
@@ -1818,7 +1822,7 @@
       .console-caption { font-size: 11px; }
       #support-panel { padding: 18px; }
     }
-    @media (max-width: 460px) {
+    @media (max-width: 600px) {
       .console-heading { display: block; }
       .console-caption { display: block; margin-top: 5px; }
       .support-switch { grid-template-columns: 1fr; }
