@@ -673,6 +673,7 @@
     .header-right {
       display: flex;
       flex: 1;
+      min-width: 0;
       align-items: center;
     }
 
@@ -686,6 +687,7 @@
 
     .header-right {
       justify-content: flex-end;
+      gap: 0.8rem;
     }
 
     .header-title {
@@ -2345,6 +2347,16 @@
       .header-title {
         font-size: 0.9rem;
       }
+      .header-right { gap: 0.5rem; }
+      /* Keep the complete case label accessible while shortening its
+         visual presentation beside the mobile appearance control. */
+      .header-position { font-size: 0; }
+      .header-position::after {
+        content: attr(data-short);
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
 
       .game-main {
         padding: 1.15rem 0.85rem 2rem;
@@ -2446,14 +2458,15 @@
     <header class="game-header">
       <div class="header-left">
         <div id="arcade-game-return-root"></div>
-        <span class="header-title">Truth<span> Trap</span></span>
       </div>
 
       <div class="header-center">
-        <span class="header-position" id="hdr-position" aria-live="polite">Case 1 of 20</span>
+        <span class="header-title">Truth<span> Trap</span></span>
       </div>
 
-      <div class="header-right" id="arcade-game-actions-root"></div>
+      <div class="header-right" id="arcade-game-actions-root">
+        <span class="header-position" id="hdr-position" aria-live="polite" data-short="1 / 20">Case 1 of 20</span>
+      </div>
     </header>
 
     <!-- Progress strip -->
@@ -3036,7 +3049,10 @@
     function updateHeader() {
       const pos = 'Case ' + (ST.currentIndex + 1) + ' of ' + TOTAL_CASES;
       const hdrPos = document.getElementById('hdr-position');
-      if (hdrPos) hdrPos.textContent = pos;
+      if (hdrPos) {
+        hdrPos.textContent = pos;
+        hdrPos.dataset.short = (ST.currentIndex + 1) + ' / ' + TOTAL_CASES;
+      }
 
       const btnPrev = document.getElementById('btn-prev');
       const btnNext = document.getElementById('btn-next');

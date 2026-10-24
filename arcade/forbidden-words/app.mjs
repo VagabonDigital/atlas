@@ -470,7 +470,10 @@ function updateTutorHeader(s) {
   const utilitiesRoot = document.querySelector("#fw-header-utilities");
   const pauseRoot = document.querySelector("#fw-header-pause");
   if (brandRoot) brandRoot.innerHTML = brand;
-  if (roundRoot) roundRoot.textContent = `ROUND ${s.round || 1}`;
+  if (roundRoot) {
+    roundRoot.textContent = `ROUND ${s.round || 1}`;
+    roundRoot.dataset.round = String(s.round || 1);
+  }
   if (utilitiesRoot && utilitiesRoot.innerHTML !== headerUtilities()) {
     const focusedAction = utilitiesRoot.contains(document.activeElement)
       ? document.activeElement.dataset.action : null;

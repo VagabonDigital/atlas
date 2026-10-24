@@ -227,6 +227,7 @@
     .header-right {
       display: flex;
       flex: 1;
+      min-width: 0;
       align-items: center;
     }
 
@@ -240,6 +241,7 @@
 
     .header-right {
       justify-content: flex-end;
+      gap: 12px;
     }
 
     .header-title {
@@ -1161,6 +1163,11 @@
     }
 
     @media (max-width: 560px) {
+      .header-title { font-size: 1rem; letter-spacing: 1px; }
+      .header-right { gap: 7px; }
+      /* The full "remaining" label stays in the accessible text. */
+      .header-remaining { font-size: 0; }
+      .header-remaining strong { font-size: 0.77rem; }
       .game-main {
         padding: 24px 14px 50px;
       }
@@ -1225,16 +1232,17 @@
     <header class="game-header">
       <div class="header-left">
         <div id="arcade-game-return-root"></div>
-        <span class="header-title">Would You Rather</span>
       </div>
 
       <div class="header-center">
+        <span class="header-title">Would You Rather</span>
+      </div>
+
+      <div class="header-right" id="arcade-game-actions-root">
         <span class="header-remaining">
           <strong id="remaining-count">50</strong> remaining
         </span>
       </div>
-
-      <div class="header-right" id="arcade-game-actions-root"></div>
     </header>
 
     <main class="game-main">
