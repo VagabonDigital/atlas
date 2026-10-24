@@ -54,7 +54,7 @@ have separate outcomes; errors preserve the exact entry and turn for retry.
 Add new natural paraphrases on the basis of manual playtesting.
 
 Replay prefers unseen approved boards and clearly discloses reuse when the
-30-board playable pool is exhausted.
+61-board playable pool is exhausted.
 ## Verification
 
 ```sh
@@ -79,41 +79,42 @@ The game has no debug controls, answer reveal shortcuts, or hidden text in shutt
 
 ## Classroom-default editorial gate
 
-Family Feud has **one reviewed board pool**, with no tutor-facing category,
-18+ selector or content badge. The new game-specific `editorial.mjs` owns
-long-lived editorial approval decisions and exclusion reasons. Original survey
-questions, six answer labels, values and recognition rules remain in
-`content.mjs`, their existing owner. Any new source board is excluded from
-new matches until explicitly approved in `editorial.mjs`.
+**One approved board pool; no visible categories or maturity setting.**
+`editorial.mjs` owns explicit approval IDs and hold reasons; new surveys
+are not playable until approved. Original survey questions, six ranked
+answers and points are never edited to make content qualify.
 
-Every candidate must meet all five standards, including its **complete original
-question and all six answers**:
+Review the question and **all six answers**, including point distribution:
 
-1. **Tutor/learner comfort:** suitable for a first lesson with an unknown
-   learner, including younger learners; avoid sexual, personally intimate,
-   humiliating, body-shaming, substance-centred or needlessly divisive material.
-2. **International accessibility:** a learner outside the US can meaningfully
-   guess without knowing niche celebrities, brands or local institutions.
-3. **Entertaining play:** imaginative, funny or observational rather than merely
-   uncontroversial.
-4. **Fair guessing:** six intelligible, distinct and discoverable concepts;
-   no arbitrary celebrity trivia or overlapping concepts posing as a fair board.
-5. **Conversational value:** invites explaining, comparing or playful reasoning
-   without pressuring anyone into sensitive personal disclosures.
+1. **Tutor comfort:** would this be natural in a first lesson with an unknown,
+   potentially younger learner? Hold genuinely intrusive, distressing, demeaning
+   or adult material. Harmless romance, body humour, mild slang and fantasy
+   scenarios do not automatically disqualify a board.
+2. **International access:** enough meaningful guesses should be accessible
+   without niche American cultural knowledge. A few obscure US answers are
+   acceptable; a question needing a specialised reference to make sense is not.
+3. **Entertainment:** imagination, humour, observation or a genuine surprise,
+   rather than a merely harmless but boring question.
+4. **Guessability:** six meaningfully distinct answers and several plausible
+   scoring opportunities. Obscure lower answers are fine; opaque main answers
+   or wildly unconstrained questions are not.
+5. **Conversation:** playful reasoning, vocabulary and comparisons without
+   demanding a personal disclosure or inviting targeted insults.
 
-The initial conservative **editorial desk screen** approved **30** sourced
-boards for new matches and put **70 on hold**. Every one of the original **100**
-Season 26 surveys remains fully authored and preserved, with reason groups for
-held boards in `editorial.mjs`. A held board is not deleted or disguised as
-modified survey data. These are preliminary editorial decisions—not measured
-learner success rates or proof from tutor/learner playtests. Replacements from
-other seasons must meet the same criteria before selection. The aim remains
-100 **approved** boards, not 100 indiscriminately available records.
+Apply proportional whole-board judgement, not an isolated-word blacklist.
+Even one significantly uncomfortable revealed answer may justify a hold.
 
-If an old saved sourced match contains a newly held board, that learner's
-snapshot is retired when the game opens, preventing Continue from revealing
-it. Safe saved source matches and historical illustrative-board matches remain
-restorable. No other product, shared Arcade system or visible game mode changes.
+The first screen approved 30 and held 70 boards. A complete second review
+reinstated **31**, leaving **61 approved** for new matches and **39 held**.
+The famous-captains board passes despite two regional references. Cinderella
+stays held because an underwear answer ranks second. The complete review
+is recorded by source ID in `editorial.mjs`.
+
+All 100 Season 26 surveys remain unchanged. The review is provisional editorial
+judgement, not measured tutor/learner playtest evidence. Replacements from
+other seasons need the same approval. Our goal remains 100 **approved** boards.
+Old snapshots containing a held survey cannot be resumed; approved-sourced and
+legacy illustrative matches remain restorable. No new UI or shared system.
 
 ## Atlas Continue
 
