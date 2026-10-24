@@ -20,10 +20,10 @@ named learner is Player 2, with Player 1/Player 2 fallbacks. The learner opens R
 
 ## Content and matching
 
-The first ten curated content batches contain **fifty real six-answer US Season 26
+The first eleven curated content batches contain **fifty-five real six-answer US Season 26
 survey boards**: archived survey numbers 19, 85, 111, 121, 137, 3, 61, 117, 136, 151,
 35, 50, 54, 92, 104, 21, 107, 135, 144, 153, 8, 12, 72, 147, 159, 40, 82, 118,
-130, 152, 26, 36, 64, 91, 141, 39, 58, 62, 74, 109, 6, 70, 131, 139, 143, 29, 60, 89, 128 and 145. Original
+130, 152, 26, 36, 64, 91, 141, 39, 58, 62, 74, 109, 6, 70, 131, 139, 143, 29, 60, 89, 128, 145, 27, 57, 67, 99 and 129. Original
 question wording, six ranked answer labels and point values are preserved in
 `content.mjs`. Their source is the
 [Season 26 six-answer archive](https://mstiescott.neocities.org/feud26_6).
@@ -54,7 +54,7 @@ have separate outcomes; errors preserve the exact entry and turn for retry.
 Add new natural paraphrases on the basis of manual playtesting.
 
 Replay prefers unseen selected boards and clearly discloses reuse when the
-fifty-board pool is exhausted.
+fifty-five-board pool is exhausted.
 ## Verification
 
 ```sh
