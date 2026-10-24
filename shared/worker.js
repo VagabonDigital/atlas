@@ -2003,6 +2003,7 @@ const { handleForbiddenWords, handleForbiddenWordsLive, ForbiddenWordsLiveRoomBa
           const now = Date.now();
           const previousPhase = room.game.phase;
           const wasPaused = !!room.game.paused;
+          const presenceRecovered = now - room.game.seen[auth.actor] >= PRESENCE_MS;
           // Establish an absence before a returning heartbeat can refresh seen[].
           pauseOnDisconnect(room.game, now);
           advance(room.game, now);
@@ -2015,7 +2016,7 @@ const { handleForbiddenWords, handleForbiddenWordsLive, ForbiddenWordsLiveRoomBa
           }
           await this.persist(room, now);
           if (input.action !== "poll" || room.game.phase !== previousPhase ||
-              !!room.game.paused !== wasPaused) this.publish(room, now);
+              !!room.game.paused !== wasPaused || presenceRecovered) this.publish(room, now);
           // WebSocket delivery alone is not proof a command was committed.
           // Acknowledgements make ambiguous retries safe with the same action ID.
           if (input.action === "poll")

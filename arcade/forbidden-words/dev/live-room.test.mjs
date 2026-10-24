@@ -128,6 +128,24 @@ try {
   assert.equal(learner.frames.filter(frame => frame.type === "state").at(-1).state.score, 1);
   assert.equal(latestTutorState().state.score, 1);
 
+  // A delayed heartbeat can return on the SAME socket after an alarm pause.
+  // Both boards must learn that presence recovered so Resume becomes usable.
+  stored = await context.storage.get("room");
+  stored.game.seen.learner = Date.now() - 12050;
+  await context.storage.put("room", stored);
+  await restored.alarm();
+  assert.equal(latestTutorState().state.connected.learner, false);
+  const frozen = (await context.storage.get("room")).game;
+  assert.equal(frozen.paused.reason, "connection");
+  await restored.webSocketMessage(learner, JSON.stringify({ action: "poll" }));
+  assert.equal(latestTutorState().state.connected.learner, true);
+  const recovered = (await context.storage.get("room")).game;
+  assert.deepEqual(recovered.paused, frozen.paused);
+  assert.deepEqual(recovered.card, frozen.card);
+  assert.equal(recovered.score, frozen.score);
+  await restored.webSocketMessage(tutor, JSON.stringify(action("resume", { round: 1, turn: 1 })));
+  assert.equal((await context.storage.get("room")).game.paused, null);
+
   await restored.webSocketMessage(tutor, JSON.stringify(action("pause", { round: 1, turn: 1 })));
   assert.ok((await context.storage.get("room")).game.paused);
   await restored.webSocketMessage(tutor, JSON.stringify(action("replace-learner", { round: 1, turn: 1 })));
