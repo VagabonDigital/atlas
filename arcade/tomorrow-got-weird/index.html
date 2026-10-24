@@ -175,7 +175,8 @@
 
     body {
       min-height: 100vh;
-      overflow-x: hidden;
+      /* clip avoids creating a scroll container that breaks the sticky game header. */
+      overflow-x: clip;
       background:
         radial-gradient(circle at 14% 20%,
           rgba(8, 127, 152, 0.09),
@@ -1463,6 +1464,387 @@
     }
 
     /* ============================================================
+       FUTURE TRANSMISSION — GAMEPLAY IDENTITY PASS
+       This game owns these styles; the shared Arcade header and game state
+       stay unchanged. Existing portal poster is reused, not duplicated.
+       ============================================================ */
+    :root {
+      --tgw-stage: #e9eff7;
+      --tgw-glass: rgba(251, 253, 255, .94);
+      --tgw-panel: rgba(248, 250, 255, .94);
+      --tgw-panel-edge: #bfcfe1;
+      --tgw-console: linear-gradient(135deg, rgba(233, 243, 251, .98), rgba(246, 237, 249, .97));
+      --tgw-module: linear-gradient(150deg, #fff, #f6f9ff);
+      --tgw-shadow: 0 28px 70px rgba(22, 40, 78, .22), 0 3px 12px rgba(22, 40, 78, .08);
+      --tgw-hero-text: #172137;
+      --tgw-nav-text: #30435f;
+    }
+    html[data-theme="night"] {
+      --tgw-stage: #060e23;
+      --tgw-glass: rgba(12, 22, 43, .96);
+      --tgw-panel: rgba(13, 26, 47, .96);
+      --tgw-panel-edge: rgba(92, 166, 199, .40);
+      --tgw-console: linear-gradient(130deg, rgba(12, 30, 53, .98), rgba(30, 19, 49, .98));
+      --tgw-module: linear-gradient(145deg, #172e48, #18233b);
+      --tgw-shadow: 0 30px 80px rgba(0, 0, 0, .52), 0 0 35px rgba(0, 216, 236, .07);
+      --tgw-hero-text: #edf5ff;
+      --tgw-nav-text: #d1e5f4;
+    }
+    #game {
+      position: relative;
+      isolation: isolate;
+      background: var(--tgw-stage);
+    }
+    /* Same world as the opening video, without moving scenery behind text. */
+    #game::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 67% 88% at 50% 40%,
+          rgba(239, 245, 251, .96) 0%,
+          rgba(236, 242, 251, .90) 50%,
+          rgba(229, 237, 249, .63) 100%),
+        url("portal-poster.png") center center / cover no-repeat;
+    }
+    html[data-theme="night"] #game::before {
+      background:
+        radial-gradient(ellipse 66% 88% at 50% 40%,
+          rgba(5, 13, 29, .94) 0%,
+          rgba(5, 13, 29, .84) 52%,
+          rgba(5, 13, 29, .58) 100%),
+        url("portal-poster.png") center center / cover no-repeat;
+    }
+    #game > #main { position: relative; z-index: 1; }
+    #main {
+      width: min(1040px, calc(100% - 44px));
+      padding: clamp(28px, 4.8vh, 48px) 0 60px;
+    }
+    #scenario-card {
+      isolation: isolate;
+      min-height: clamp(320px, 38vh, 420px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: clamp(34px, 4.7vw, 64px);
+      border: 1px solid var(--tgw-panel-edge);
+      border-radius: 26px;
+      background: linear-gradient(132deg, var(--tgw-glass), var(--tgw-panel));
+      box-shadow: var(--tgw-shadow), inset 0 1px 0 rgba(255,255,255,.85);
+    }
+    html[data-theme="night"] #scenario-card {
+      box-shadow: var(--tgw-shadow), inset 0 1px 0 rgba(183, 242, 252, .12);
+    }
+    #scenario-card::before {
+      height: 5px;
+      box-shadow: 0 0 14px rgba(22, 170, 196, .29);
+    }
+    /* Quiet side-window artwork connects the scenario to the cover. */
+    #scenario-card::after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      inset: 5px 0 0 49%;
+      pointer-events: none;
+      background: url("portal-poster.png") 63% center / cover no-repeat;
+      opacity: .16;
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 77%);
+      mask-image: linear-gradient(90deg, transparent, #000 77%);
+    }
+    html[data-theme="night"] #scenario-card::after { opacity: .28; }
+    .scenario-meta {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 28px;
+      gap: 16px;
+    }
+    .scenario-emoji {
+      position: relative;
+      width: 62px;
+      height: 62px;
+      border: 1px solid rgba(8, 127, 152, .28);
+      border-radius: 20px;
+      background: linear-gradient(145deg, rgba(196, 232, 244, .89), rgba(247, 216, 242, .75));
+      box-shadow: 0 9px 23px rgba(24, 75, 112, .12), inset 0 1px 0 rgba(255,255,255,.85);
+      font-size: 29px;
+      transform: rotate(-4deg);
+    }
+    html[data-theme="night"] .scenario-emoji {
+      border-color: rgba(0,216,236,.35);
+      background: linear-gradient(145deg, rgba(15, 90, 121, .75), rgba(85, 28, 107, .65));
+      box-shadow: 0 9px 22px rgba(0,0,0,.24), inset 0 1px 0 rgba(204,248,255,.13);
+    }
+    .scenario-identity { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+    .scenario-channel {
+      color: var(--magenta);
+      font-family: var(--font-meta);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    .scenario-number {
+      color: var(--cyan);
+      font-size: 12px;
+      letter-spacing: .15em;
+    }
+    .scenario-state { margin-left: auto; }
+    .scenario-question {
+      position: relative;
+      z-index: 1;
+      max-width: 36ch;
+      color: var(--tgw-hero-text);
+      font-size: clamp(29px, 3vw, 43px);
+      font-weight: 760;
+      letter-spacing: -.038em;
+      line-height: 1.18;
+      text-wrap: balance;
+    }
+    .scenario-corner {
+      position: absolute;
+      right: 30px;
+      bottom: 19px;
+      color: var(--ink-faint);
+      font: 700 10px/1.3 var(--font-meta);
+      letter-spacing: .16em;
+      opacity: .7;
+    }
+
+    /* The three conversational mechanics are actual choices, not anonymous tabs. */
+    .scenario-console {
+      position: relative;
+      margin-top: 16px;
+      padding: 19px 20px 20px;
+      border: 1px solid var(--tgw-panel-edge);
+      border-radius: 22px;
+      background: var(--tgw-console);
+      box-shadow: 0 11px 30px rgba(25, 49, 88, .11);
+    }
+    html[data-theme="night"] .scenario-console {
+      box-shadow: 0 14px 34px rgba(0,0,0,.3), inset 0 1px 0 rgba(163,229,255,.07);
+    }
+    .console-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+      margin: 0 3px 12px;
+    }
+    .console-heading > span:first-child {
+      color: var(--ink);
+      font: 800 10px/1.4 var(--font-meta);
+      letter-spacing: .19em;
+      text-transform: uppercase;
+    }
+    .console-caption {
+      color: var(--ink-soft);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .support-switch { margin-top: 0; gap: 12px; }
+    .support-button {
+      --module-color: var(--cyan);
+      position: relative;
+      justify-content: flex-start;
+      gap: 12px;
+      min-height: 80px;
+      padding: 13px 16px;
+      border: 1px solid var(--tgw-panel-edge);
+      border-radius: 15px;
+      background: var(--tgw-module);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.66), 0 3px 7px rgba(22,46,76,.05);
+      color: var(--ink);
+      text-align: left;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
+    }
+    html[data-theme="night"] .support-button {
+      box-shadow: inset 0 1px 0 rgba(199,233,255,.08);
+    }
+    #btn-survival { --module-color: var(--amber); }
+    #btn-weirder { --module-color: var(--magenta); }
+    .support-button::before {
+      content: "";
+      position: absolute;
+      top: 13px;
+      bottom: 13px;
+      left: 0;
+      width: 3px;
+      border-radius: 0 5px 5px 0;
+      background: var(--module-color);
+      opacity: .78;
+    }
+    .support-glyph {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 37px;
+      width: 37px;
+      height: 37px;
+      border: 1px solid currentColor;
+      border-radius: 11px;
+      color: var(--module-color);
+      background: rgba(133, 172, 207, .08);
+      font-size: 21px;
+      line-height: 1;
+    }
+    .support-copy { flex: 1; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+    .support-copy strong { color: var(--ink); font-size: 14px; font-weight: 750; line-height: 1.15; }
+    .support-copy small { color: var(--ink-soft); font-size: 11px; font-weight: 500; line-height: 1.35; }
+    .support-arrow { color: var(--module-color); font-size: 17px; opacity: .68; }
+    .scenario-console #btn-missions:is(:hover, [aria-pressed="true"]),
+    .scenario-console #btn-survival:is(:hover, [aria-pressed="true"]),
+    .scenario-console #btn-weirder:is(:hover, [aria-pressed="true"]) {
+      transform: translateY(-2px);
+      border-color: var(--module-color);
+      background: var(--tgw-module);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--module-color) 17%, transparent), 0 10px 23px rgba(22, 46, 76, .14);
+    }
+    .support-button[aria-pressed="true"] .support-arrow {
+      transform: rotate(90deg);
+      opacity: 1;
+    }
+    html[data-theme="night"] .scenario-console #btn-missions:is(:hover, [aria-pressed="true"]),
+    html[data-theme="night"] .scenario-console #btn-survival:is(:hover, [aria-pressed="true"]),
+    html[data-theme="night"] .scenario-console #btn-weirder:is(:hover, [aria-pressed="true"]) {
+      background: var(--tgw-module);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--module-color) 27%, transparent), 0 12px 26px rgba(0,0,0,.32);
+    }
+    #support-panel {
+      margin: 16px 0 0;
+      padding: 22px 25px;
+      border: 1px solid var(--tgw-panel-edge);
+      border-left: 4px solid var(--cyan);
+      border-radius: 14px;
+      background: var(--tgw-panel);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.15);
+      animation: tgw-support-enter 210ms ease-out both;
+    }
+    #support-panel[data-mode="survival"] { border-left-color: var(--amber); }
+    #support-panel[data-mode="weirder"] { border-left-color: var(--magenta); }
+    .support-panel-header { display: flex; flex-direction: column; gap: 5px; margin-bottom: 13px; }
+    .support-panel-header span {
+      color: var(--ink-faint);
+      font: 700 10px/1.35 var(--font-meta);
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .support-panel-header strong {
+      color: var(--ink);
+      font-size: 17px;
+      font-weight: 750;
+    }
+    #support-panel[data-mode="survival"] .support-panel-header strong { color: var(--amber); }
+    #support-panel[data-mode="weirder"] .support-panel-header strong { color: var(--magenta); }
+    .prompt-list { gap: 10px; }
+    .prompt-list li { padding-left: 20px; font-size: 15px; line-height: 1.55; }
+    .support-text { font-size: 16px; color: var(--ink); line-height: 1.65; }
+
+    /* The progression rail belongs to the same imagined console. */
+    .scenario-footer {
+      margin-top: 17px;
+      padding: 16px 20px;
+      border-color: var(--tgw-panel-edge);
+      border-radius: 20px;
+      background: var(--tgw-panel);
+      box-shadow: 0 9px 25px rgba(25, 49, 88, .10);
+    }
+    html[data-theme="night"] .scenario-footer {
+      box-shadow: 0 12px 30px rgba(0,0,0,.3);
+    }
+    #scenario-dots {
+      background: linear-gradient(90deg, var(--line-strong), var(--line-strong)) center / 100% 1px no-repeat;
+    }
+    .scenario-dot {
+      width: 11px;
+      height: 11px;
+      flex-basis: 11px;
+      border-width: 1.5px;
+      background: var(--tgw-panel);
+    }
+    .scenario-dot.current {
+      box-shadow: 0 0 0 4px var(--cyan-soft), 0 0 13px var(--cyan);
+    }
+    .scenario-dot.current.survived {
+      box-shadow: 0 0 0 4px var(--cyan-soft), 0 0 12px var(--green);
+    }
+    .btn-nav {
+      color: var(--tgw-nav-text);
+      background: var(--tgw-module);
+      border-color: var(--tgw-panel-edge);
+      border-radius: 10px;
+      min-height: 42px;
+    }
+    .btn-complete:not(.done) {
+      background: var(--tgw-module);
+      border-color: var(--tgw-panel-edge);
+      color: var(--tgw-nav-text);
+    }
+    .btn-complete.done { box-shadow: 0 7px 22px rgba(8, 121, 87, .21); }
+    .btn-reset { color: var(--ink-soft); }
+    @keyframes tgw-support-enter {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 850px) {
+      #main { width: min(100% - 28px, 1040px); padding-top: 25px; }
+      .scenario-question { font-size: clamp(25px, 4.3vw, 36px); }
+      .support-button { gap: 9px; padding: 12px; }
+      .support-glyph { flex-basis: 32px; width: 32px; height: 32px; }
+      .support-copy small { font-size: 10px; }
+    }
+    @media (max-width: 700px) {
+      #game::before {
+        background:
+          linear-gradient(rgba(239,245,251,.90), rgba(235,242,251,.90)),
+          url("portal-poster.png") center / cover no-repeat;
+      }
+      html[data-theme="night"] #game::before {
+        background:
+          linear-gradient(rgba(5,13,29,.85), rgba(5,13,29,.91)),
+          url("portal-poster.png") center / cover no-repeat;
+      }
+      #main { width: calc(100% - 24px); padding: 18px 0 38px; }
+      #scenario-card { min-height: 285px; padding: 28px 22px 34px; border-radius: 20px; }
+      .scenario-meta { margin-bottom: 22px; gap: 12px; }
+      .scenario-emoji { width: 49px; height: 49px; font-size: 24px; border-radius: 15px; }
+      .scenario-question { font-size: clamp(24px, 5.4vw, 32px); line-height: 1.22; }
+      .scenario-corner { right: 20px; bottom: 11px; font-size: 8px; }
+      .scenario-console { padding: 15px; margin-top: 12px; }
+      .support-switch { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+      .support-button { flex-direction: column; align-items: flex-start; min-height: 103px; padding: 11px; gap: 7px; }
+      .support-copy { gap: 4px; }
+      .support-copy strong { font-size: 12px; }
+      .support-copy small { font-size: 10px; }
+      .support-arrow { display: none; }
+      .scenario-footer { gap: 13px; margin-top: 12px; }
+      .console-caption { font-size: 11px; }
+      #support-panel { padding: 18px; }
+    }
+    @media (max-width: 600px) {
+      .console-heading { display: block; }
+      .console-caption { display: block; margin-top: 5px; }
+      .support-switch { grid-template-columns: 1fr; }
+      .support-button {
+        flex-direction: row;
+        align-items: center;
+        min-height: 67px;
+        gap: 12px;
+        padding: 9px 13px;
+      }
+      .support-copy strong { font-size: 14px; }
+      .support-copy small { font-size: 11px; }
+      .support-arrow { display: block; }
+      .scenario-corner { opacity: .35; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #support-panel { animation: none; }
+      .support-button, .scenario-dot { transition: none; }
+      .support-button:hover { transform: none; }
+    }
+
+    /* ============================================================
      REDUCED MOTION
      ============================================================ */
 
@@ -1563,29 +1945,46 @@
       <section id="scenario-card">
         <div class="scenario-meta">
           <span class="scenario-emoji" id="sc-emoji" aria-hidden="true"></span>
-          <span class="scenario-number" id="scenario-number">Scenario 1</span>
+          <div class="scenario-identity">
+            <span class="scenario-channel">Incoming future</span>
+            <span class="scenario-number" id="scenario-number">Scenario 1</span>
+          </div>
           <span class="scenario-state">Survived</span>
         </div>
         <h2 class="scenario-question" id="sc-question"></h2>
+        <span class="scenario-corner" aria-hidden="true">TGW // ALT-REALITY</span>
       </section>
 
-      <div class="support-switch" aria-label="Push the scenario">
-        <button class="support-button" id="btn-missions" type="button" aria-pressed="false"
-          onclick="toggleSupport('missions')">
-          Mission prompts
-        </button>
-        <button class="support-button" id="btn-survival" type="button" aria-pressed="false"
-          onclick="toggleSupport('survival')">
-          Survival mode
-        </button>
-        <button class="support-button" id="btn-weirder" type="button" aria-pressed="false"
-          onclick="toggleSupport('weirder')">
-          Make it weirder
-        </button>
-      </div>
+      <section class="scenario-console" aria-label="Conversation challenges">
+        <div class="console-heading">
+          <span>Push the scenario</span>
+          <span class="console-caption">Choose a way to take the conversation further</span>
+        </div>
+        <div class="support-switch" aria-label="Choose a challenge">
+          <button class="support-button" id="btn-missions" type="button" aria-pressed="false"
+            aria-controls="support-panel" onclick="toggleSupport('missions')">
+            <span class="support-glyph" aria-hidden="true">✦</span>
+            <span class="support-copy"><strong>Mission prompts</strong><small>Explore the consequences</small></span>
+            <span class="support-arrow" aria-hidden="true">↗</span>
+          </button>
+          <button class="support-button" id="btn-survival" type="button" aria-pressed="false"
+            aria-controls="support-panel" onclick="toggleSupport('survival')">
+            <span class="support-glyph" aria-hidden="true">◈</span>
+            <span class="support-copy"><strong>Survival mode</strong><small>Think fast, speak first</small></span>
+            <span class="support-arrow" aria-hidden="true">↗</span>
+          </button>
+          <button class="support-button" id="btn-weirder" type="button" aria-pressed="false"
+            aria-controls="support-panel" onclick="toggleSupport('weirder')">
+            <span class="support-glyph" aria-hidden="true">↝</span>
+            <span class="support-copy"><strong>Make it weirder</strong><small>Add a new complication</small></span>
+            <span class="support-arrow" aria-hidden="true">↗</span>
+          </button>
+        </div>
 
-      <section id="support-panel" hidden>
-        <div id="support-content"></div>
+        <section id="support-panel" hidden aria-labelledby="support-heading" aria-live="polite">
+          <div class="support-panel-header"><span>New transmission</span><strong id="support-heading"></strong></div>
+          <div id="support-content"></div>
+        </section>
       </section>
 
       <div class="scenario-footer">
@@ -2392,6 +2791,12 @@
 
       const scenario = SCENARIOS[state.current];
       panel.hidden = false;
+      panel.dataset.mode = openSupport;
+      document.getElementById('support-heading').textContent = ({
+        missions: 'Explore this future',
+        survival: 'Your survival challenge',
+        weirder: 'The future just changed'
+      })[openSupport];
 
       if (openSupport === 'missions') {
         content.innerHTML =

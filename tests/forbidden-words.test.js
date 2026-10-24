@@ -469,10 +469,10 @@ const fs = require("node:fs");
     role: "Describer", card: { nonce: "card" },
     score: 1, remaining: 130, played: 1, turn: 1, round: 1,
   };
-  const renderPaused = s => {
+  const renderPaused = (s, isLearner = false) => {
     // board(s) returns markup rather than writing into the app root.
     const local = {
-      learner: false, deck: "DECK", lastNonce: null,
+      learner: isLearner, deck: "DECK", lastNonce: null, lastFeedback: null,
       button: (action, label) => `BUTTON:${action}:${label}`,
       invitationLink: () => "PRIVATE-LINK-MARKER",
       connectionOptions: recoveryContext.makeConnectionOptions,
@@ -490,12 +490,41 @@ const fs = require("node:fs");
   assert.ok(resumed.includes("PRIVATE-LINK-MARKER"));
   assert.ok(resumed.includes("Reset invitation"));
   assert.match(resumed, /<details[^>]*data-learner-present="true"[^>]*>/);
+  // Rapid resolutions use a single short +1 near the score, not an
+  // on-screen toast that competes with subsequent clue cards.
+  const scoredState = { ...pausedState, feedback: {
+    nonce: "credit-1", result: "correct", target: "Forest",
+  } };
+  const scoredMarkup = renderPaused(scoredState);
+  assert.ok(scoredMarkup.includes('class="score-bump" aria-hidden="true">+1'));
+  assert.ok(scoredMarkup.includes('class="feedback" aria-live="polite"'));
   const missing = renderPaused({ ...pausedState, connected: { tutor: true, learner: false } });
-  assert.ok(missing.includes("Partner disconnected."));
+  assert.ok(missing.includes("Game paused"));
+  assert.ok(missing.includes("Your learner is away from the game. The clock has stopped, and your progress is safe."));
   assert.ok(missing.includes("Connection options"));
   assert.match(missing, /<details[^>]*data-learner-present="false"[^>]*\bopen\b/);
   assert.ok(missing.includes("PRIVATE-LINK-MARKER"));
   assert.ok(missing.includes("Reset invitation"));
+  // Away is inferred from presence, not treated as proof of a network fault.
+  // The learner sees the missing tutor; the tutor sees the missing learner.
+  const missingTutor = renderPaused({
+    ...pausedState, connected: { tutor: false, learner: true },
+  }, true);
+  assert.ok(missingTutor.includes("Game paused"));
+  assert.ok(missingTutor.includes("Your tutor is away from the game. The clock has stopped, and your progress is safe."));
+  assert.ok(missingTutor.includes("Your tutor can resume the game when they return."));
+  assert.ok(!missingTutor.includes("Partner disconnected."));
+  assert.ok(!missingTutor.includes("BUTTON:resume:"));
+  const learnerReunited = renderPaused(pausedState, true);
+  assert.ok(learnerReunited.includes("Ready to resume"));
+  assert.ok(learnerReunited.includes("Both players are connected."));
+  assert.ok(learnerReunited.includes("Your tutor will resume the game."));
+  const manualPause = renderPaused({
+    ...pausedState, paused: { remaining: 60000 },
+  });
+  assert.ok(manualPause.includes("Game paused"));
+  assert.ok(!manualPause.includes("Ready to resume"));
+  assert.ok(!manualPause.includes("away from the game"));
 
   const betweenContext = {
     learner: false, deck: "DECK", learnerHeader: () => "",
@@ -536,6 +565,42 @@ const fs = require("node:fs");
   // preserve the tutor's open/closed choice.
   assert.ok(client.includes("previousLearnerPresence"));
   assert.ok(client.includes("currentConnectionOptions.dataset.learnerPresent === previousLearnerPresence"));
+
+  // Tutor and learner use the same friendlier rulebook without quietly
+  // changing allowed clues, round timing, or point handling.
+  for (const html of [tutorPage, learnerPage]) {
+    for (const clause of [
+      "Find another way.", "keep your lesson call open",
+      "four forbidden words", "Ordinary word endings",
+      "No spelling, letter hints, rhymes, translation, typing, drawing",
+      "Normal gestures are fine", "If a possible rule break isn't clear",
+      "Correct", "Skip", "I said one!", "two-minute turn",
+      "Different derived words are allowed", "last card afterward",
+    ]) {
+      assert.ok(html.includes(clause), "Rulebook lost: " + clause);
+    }
+    assert.equal((html.match(/class="rules-steps"/g) || []).length, 1);
+  }
+  assert.ok(gameCss.includes('html[data-theme="night"] #rules {'));
+  assert.ok(gameCss.includes('background: radial-gradient('));
+  assert.ok(gameCss.includes('html[data-theme="night"] #rules .rules-footnote'));
+  assert.ok(gameCss.includes('html[data-theme="night"] dialog {'),
+    "Other Atlas dialogs must retain their shared theme");
+  // The visual card toast is gone; screen readers still hear the outcome.
+  const accessibleFeedback = client.slice(
+    client.indexOf("function feedbackText(s)"),
+    client.indexOf("function between(s)"),
+  );
+  const announce = { escape: x => String(x) };
+  vm.runInNewContext(accessibleFeedback + ";this.describeFeedback = feedbackText;", announce);
+  assert.equal(announce.describeFeedback({ feedback: { result: "correct", target: "Forest" } }),
+    "Correct: Forest. One point.");
+  assert.equal(announce.describeFeedback({ feedback: { result: "skip" } }), "Card skipped.");
+  assert.equal(announce.describeFeedback({ feedback: { result: "oops" } }), "Forbidden word. Next card.");
+  assert.ok(gameCss.includes("clip-path: inset(50%);"));
+  assert.ok(gameCss.includes("@keyframes score-bump"));
+  assert.ok(gameCss.includes("@media (prefers-reduced-motion: reduce)"));
+  assert.ok(!gameCss.includes("position: fixed;\n  bottom: 24px;\n  left: 50%;\n  transform: translateX(-50%);\n  background: #fffef4;"));
 
   // The learner sees actionable recovery for both the old HTTP and new
   // live-room errors, never an endless retry for a claimed/replaced seat.
@@ -827,8 +892,8 @@ const fs = require("node:fs");
   assert.ok(gameCss.includes("margin: 0;"));
   assert.ok(client.includes('{ correct: "1", skip: "2", oops: "3" }'));
   assert.ok(client.includes('aria-keyshortcuts="${shortcut}"'));
-  assert.ok(tutorPage.includes("Keyboard shortcuts: 1 = Correct"));
-  assert.ok(learnerPage.includes("Keyboard shortcuts: 1 = Correct"));
+  assert.ok(tutorPage.includes("Keyboard: 1 Correct · 2 Skip · 3 I said one!"));
+  assert.ok(learnerPage.includes("Keyboard: 1 Correct · 2 Skip · 3 I said one!"));
   assert.ok(gameCss.includes("justify-content: center;"));
   assert.ok(!gameCss.includes(".resolutions button > span {"));
   assert.ok(!gameCss.includes(".skip > span {"));
@@ -846,14 +911,15 @@ const fs = require("node:fs");
   assert.ok(gameCss.includes("overflow-wrap: normal;"));
   assert.ok(gameCss.includes("word-break: normal;"));
   assert.ok(!gameCss.includes("overflow-wrap: anywhere;"));
-  assert.ok(client.includes('connectionPaused ? "Both players are back." : "Turn paused."'));
-  assert.ok(client.includes('waitingForPartner ? "Partner disconnected."'));
+  assert.ok(client.includes('connectionPaused && !waitingForPartner ? "Ready to resume" : "Game paused"'));
+  assert.ok(!client.includes("Partner disconnected."));
+  assert.ok(!client.includes("Both players are back."));
   assert.ok(client.includes('!s.connected.tutor || !s.connected.learner'));
   assert.ok(client.includes('id="clock">02:00</strong>'));
   assert.ok(client.includes("const turnMs = state.turnMs || 120000;"));
   assert.ok(client.includes("ms / turnMs"));
-  assert.ok(tutorPage.includes("Clear cards for 2 minutes"));
-  assert.ok(learnerPage.includes("You each describe for 2 minutes."));
+  assert.ok(tutorPage.includes("Swap after two minutes."));
+  assert.ok(learnerPage.includes("Swap after two minutes."));
   assert.ok(!client.includes("Conversation paused."));
   assert.ok(gameCss.includes('.pause-overlay h2 {\n  font-family: "Manrope", Arial, sans-serif;'));
   assert.ok(gameCss.includes(".switch-panel {"));
@@ -868,9 +934,10 @@ const fs = require("node:fs");
   assert.ok(client.includes('class="switch-maintenance"'));
   assert.ok(gameCss.includes("#notice:not(:empty) {"));
   assert.ok(gameCss.includes("left: 50%;"));
-  assert.ok(gameCss.includes("body:has(#notice:not(:empty)) .feedback"));
+  assert.ok(!gameCss.includes("body:has(#notice:not(:empty)) .feedback"));
+  assert.ok(gameCss.includes(".feedback {\n  position: absolute;"), "Card feedback is screen-reader-only");
   assert.ok(client.includes('["countdown", "active"].includes(state.phase)'));
-  assert.ok(client.includes("The clock is stopped. Resume when both players are connected."));
+  assert.ok(client.includes("The clock has stopped, and your progress is safe."));
   assert.ok(!client.includes("The clock continues unless the tutor pauses."));
   assert.ok(gameCss.includes("width: max-content;"));
   assert.ok(gameCss.includes("max-width: min(680px, calc(100vw - 32px));"));
