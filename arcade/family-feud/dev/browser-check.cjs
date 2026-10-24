@@ -4,7 +4,8 @@ const path=require('node:path');
 const assert=require('node:assert/strict');
 const {pathToFileURL}=require('node:url');
 (async()=>{
- const {boards}=await import(pathToFileURL(path.resolve(__dirname,'../content.mjs')));
+ // Lookup questions using the game's actual approved two-season pool.
+ const {playableBoards:boards}=await import(pathToFileURL(path.resolve(__dirname,'../editorial.mjs')));
  const browser=await chromium.launch({headless:true,...(process.env.FF_BROWSER?{executablePath:process.env.FF_BROWSER}:{})});
  const page=await browser.newPage({viewport:{width:1280,height:720}});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -84,6 +85,8 @@ const {pathToFileURL}=require('node:url');
  const active=()=>page.locator('.contestant.active .name').innerText();
  await fits();assert.deepEqual(await page.locator('.answer').allTextContents(),Array(6).fill(''));
  const b=await board(),before=await active();
+ assert.ok(b,'The current question must exist in the reviewed pool');
+ assert.equal(await page.locator('#provenance').innerText(),`SEASON ${b.sourceSeason||26} · ARCHIVED SURVEY RESULTS`);
  await answer('keys or phone');assert.match(await page.locator('#feedback').innerText(),/one specific answer/);assert.equal(await active(),before);
  await ready();await page.getByRole('textbox',{name:'Your answer'}).fill(b.concepts[0].aliases[1]);await page.getByRole('button',{name:'Submit Answer',exact:true}).click();
  await page.locator('.just-revealed').waitFor();await page.waitForTimeout(200);await page.screenshot({path:path.join(dir,'reveal-in-motion-1024.png')});await ready();assert.equal(await page.locator('.revealed').count(),1);
