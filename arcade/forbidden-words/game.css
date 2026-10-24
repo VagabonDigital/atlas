@@ -353,10 +353,9 @@ body:before {
 .invite-link-row .primary {
   align-self: stretch;
 }
-/* This button sits flush inside a clipped link field: hover feedback must
-   change colour, not lift the button through the container's top edge. */
-#app .landing .invite-link-row button.primary:is(:hover, :active):not(:disabled),
-#app .pause-overlay .invite-link-row button.primary:is(:hover, :active):not(:disabled) {
+/* Copy Link sits flush inside a clipped field in landing, pause and
+   role-switch views: hover/press feedback must never lift or clip it. */
+#app .invite-link-row button.primary:is(:hover, :active):not(:disabled) {
   transform: none;
 }
 .link-row input {
