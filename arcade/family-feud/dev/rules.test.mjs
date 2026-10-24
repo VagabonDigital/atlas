@@ -53,10 +53,10 @@ test('fresh legacyBoards preferred; exhaustion never prevents a full replay',()=
   assert.equal(chooseBoards(legacyBoards,legacyBoards.map(b=>b.id)).length,3);
 });
 
-test('first seven sourced batches preserve thirty-five original Season 26 six-answer records',()=>{
-  assert.equal(boards.length,35);
+test('first eight sourced batches preserve forty original Season 26 six-answer records',()=>{
+  assert.equal(boards.length,40);
   assert.equal(legacyBoards.length,7);
-  assert.deepEqual(boards.map(b=>b.sourceSurveyId),[19,85,111,121,137,3,61,117,136,151,35,50,54,92,104,21,107,135,144,153,8,12,72,147,159,40,82,118,130,152,26,36,64,91,141]);
+  assert.deepEqual(boards.map(b=>b.sourceSurveyId),[19,85,111,121,137,3,61,117,136,151,35,50,54,92,104,21,107,135,144,153,8,12,72,147,159,40,82,118,130,152,26,36,64,91,141,39,58,62,74,109]);
   assert.equal(new Set([...boards,...legacyBoards].map(b=>b.id)).size,boards.length+legacyBoards.length);
   for(const b of boards){
     const raw=source.find(entry=>entry.id===b.sourceSurveyId);
@@ -221,6 +221,16 @@ test('Batch 7 natural guesses, exclusions, neighbouring concepts and multi-answe
     assert.equal(resolveAnswer(get(id),phrase).kind,'ambiguous',id+' '+phrase);
   for(const [id,phrase,index] of [[36,'his walk',3],[36,'muscles',1],[64,'sharp teeth',3],[64,'he bites',4],[91,'deodorant',0],[91,'aftershave',4],[141,'bike',3],[141,'motorbike',1],[141,'electric scooter',4]])
     assert.deepEqual(resolveAnswer(get(id),phrase),{kind:'match',index},id+' '+phrase);
+});
+
+test('Batch 8 natural guesses, exclusions and one-answer turns',()=>{
+  const get=id=>boards.find(b=>b.sourceSurveyId===id);
+  for(const [id,samples] of [[39,["working at christmas","his beer belly","the north pole","hanging out with elves","toys everywhere","his red suit"]],[58,["freezing weather","waddling on ice","eating raw fish","melting ice","looking like a waiter","swimming in the ocean"]],[62,["sniffing","balance glasses on your nose","snoring","blow your nose","wear a nose ring","sneeze properly"]],[74,["pet rabbit","magic stick","his cape","magic coin","stage assistant","illusion secrets"]],[109,["a baby onesie","baby cot","baby nappies","home pregnancy test","parenting tips","baby name ideas"]]])
+    for(const [index,phrase] of samples.entries())assert.deepEqual(resolveAnswer(get(id),phrase),{kind:'match',index},id+' '+phrase);
+  for(const [id,samples] of [[39,["reindeer","he is always late","cookies","expensive sleigh","christmas pudding"]],[58,["being unable to fly","hunting seals","eating squid","laying eggs"]],[62,["wear earrings","cough","wear contact lenses","taste"]],[74,["playing cards","a dove","poker chips","a ticket to the show"]],[109,["baby stroller","an ultrasound","ovulation test","children's storybooks"]]])
+    for(const phrase of samples)assert.equal(resolveAnswer(get(id),phrase).kind,'miss',id+' '+phrase);
+  for(const [id,samples] of [[39,["big belly or elves","north pole and toys"]],[58,["waddling or swimming","cold and global warming"]],[62,["sneeze or sniff","glasses and nose ring"]],[74,["rabbit or wand","cash and secrets"]],[109,["crib or nappies","pregnancy test and baby names"]]])
+    for(const phrase of samples)assert.equal(resolveAnswer(get(id),phrase).kind,'ambiguous',id+' '+phrase);
 });
 
 test('three-round matches select sourced boards and never legacy fixtures',()=>{
