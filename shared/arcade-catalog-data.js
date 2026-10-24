@@ -251,7 +251,7 @@
             unitLabel: 'Questions',
             total: 10,
             artId: 'millionaire',
-            coverImage: '/assets/hub/millionaire.png',
+            coverImage: '/assets/hub/millionaire.webp',
             accent: '#d8ad49',
             order: 5,
             launchUrl: './millionaire/index.html'
