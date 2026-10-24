@@ -238,7 +238,7 @@
             unitLabel: 'Rounds',
             total: 3,
             artId: 'familyFeud',
-            coverImage: '/arcade/family-feud/assets/family-feud-cover.png',
+            coverImage: '/assets/hub/family-feud.webp',
             accent: '#ff902e',
             order: 7,
             launchUrl: './family-feud/index.html'
