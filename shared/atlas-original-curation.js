@@ -91,6 +91,7 @@
 
         try {
             const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw === null) return normalizeStore(null);
             parsed = raw ? JSON.parse(raw) : null;
         } catch { }
 
@@ -214,47 +215,58 @@
         const list = Array.isArray(subjects)
             ? [...subjects]
             : [];
+        const savedOrder = readStore().order;
 
-        const ids = list
-            .map(subject => normalizeRegistryId(subject?.registryId))
-            .filter(Boolean);
+        // The catalogue is the default, not an implicit custom preference.
+        // Rendering must not persist an order merely because subjects exist.
+        if (!savedOrder.length) return list;
 
-        const store = readStore();
-        const order = [...store.order];
-        const seen = new Set(order);
-        let changed = false;
-
-        ids.forEach(id => {
-            if (seen.has(id)) return;
-            seen.add(id);
-            order.push(id);
-            changed = true;
-        });
-
-        if (changed) {
-            writeStore({
-                ...store,
-                order
-            });
-        }
-
-        const position = new Map(
-            order.map((id, index) => [id, index])
+        const savedPosition = new Map(
+            savedOrder.map((id, index) => [id, index])
+        );
+        const cataloguePosition = new Map(
+            list.map((subject, index) => [
+                normalizeRegistryId(subject?.registryId),
+                index
+            ])
         );
 
-        return list.sort((left, right) => {
-            const leftId = normalizeRegistryId(left?.registryId);
-            const rightId = normalizeRegistryId(right?.registryId);
+        // Preserve the relative order of previously known Originals.
+        const ordered = list
+            .filter(subject =>
+                savedPosition.has(
+                    normalizeRegistryId(subject?.registryId)
+                )
+            )
+            .sort((left, right) =>
+                savedPosition.get(
+                    normalizeRegistryId(left?.registryId)
+                ) -
+                savedPosition.get(
+                    normalizeRegistryId(right?.registryId)
+                )
+            );
 
-            const leftIndex = position.has(leftId)
-                ? position.get(leftId)
-                : Number.MAX_SAFE_INTEGER;
-            const rightIndex = position.has(rightId)
-                ? position.get(rightId)
-                : Number.MAX_SAFE_INTEGER;
+        // Place new Originals at catalogue positions without disturbing
+        // the established relationship between previously known subjects.
+        list.forEach((subject, catalogueIndex) => {
+            const id = normalizeRegistryId(subject?.registryId);
+            if (savedPosition.has(id)) return;
 
-            return leftIndex - rightIndex;
+            const nextIndex = ordered.findIndex(candidate =>
+                cataloguePosition.get(
+                    normalizeRegistryId(candidate?.registryId)
+                ) > catalogueIndex
+            );
+
+            if (nextIndex < 0) {
+                ordered.push(subject);
+            } else {
+                ordered.splice(nextIndex, 0, subject);
+            }
         });
+
+        return ordered;
     }
 
     function moveVisible(registryId, direction, visibleIds, allIds) {
@@ -277,9 +289,11 @@
 
         const targetId = visible[targetVisibleIndex];
         const store = readStore();
+        // allIds reflects the current shelf, including hidden Originals.
+        // A first manual move must use the positions the tutor actually sees.
         const order = normalizeOrder([
-            ...store.order,
             ...all,
+            ...store.order,
             ...visible
         ]);
 
