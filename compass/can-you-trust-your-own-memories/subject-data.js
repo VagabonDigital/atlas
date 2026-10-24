@@ -13,7 +13,7 @@ const MODULE = {
     "title": "Can You Trust Your Own Memories?",
     "titleHtml": "Can You Trust <em>Your Own Memories?</em>",
     "navTitle": "Your Own Memories",
-    "bgImage": "/assets/atlas-originals/memory-reliability.svg"
+    "bgImage": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZFLDa1hAygLeh7xvbsj7cI84xpaEA1RAu5sECXCUlnw&s=10"
 };
 
 const subjectCopy = {

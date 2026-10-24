@@ -28,6 +28,7 @@
     ];
 
     const COMPASS_PILOT_ORDER = [
+        'can-you-trust-your-own-memories',
         'odyssey-worth-the-hype',
         'game-theory',
         'stories-screen',
@@ -41,8 +42,7 @@
         'travel-exploration',
         'humour-wit',
         'job-interviews-clear-answers',
-        'octopuses-change-colour',
-        'can-you-trust-your-own-memories'
+        'octopuses-change-colour'
     ];
 
     const COMPASS_SUBJECT_SHARE_GRANTS = Object.freeze({
@@ -1064,7 +1064,7 @@
         },
         {
             id: 'can-you-trust-your-own-memories',
-            coverImage: "/assets/atlas-originals/memory-reliability.svg",
+            coverImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZFLDa1hAygLeh7xvbsj7cI84xpaEA1RAu5sECXCUlnw&s=10",
             title: 'Can You Trust Your Own Memories?',
             navTitle: 'Your Own Memories',
             categoryId: 'you-your-mind',
