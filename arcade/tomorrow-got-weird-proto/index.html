@@ -1855,6 +1855,182 @@
         animation: none;
       }
     }
+    /* ============================================================
+       PROTO · PORTAL-TO-ARRIVAL EXPERIMENT
+       Only affects the isolated experimental game's entry sequence.
+       ============================================================ */
+    #launch {
+      background: #061425;
+      isolation: isolate;
+    }
+    #launch::before,
+    html[data-theme="light"] #launch::before,
+    html[data-theme="night"] #launch::before {
+      background:
+        radial-gradient(ellipse 55% 60% at 50% 50%, rgba(4, 11, 31, .36) 0%, rgba(4, 10, 26, .15) 42%, rgba(3, 8, 22, .55) 100%),
+        linear-gradient(180deg, rgba(3, 8, 23, .18), rgba(3, 8, 23, .46));
+    }
+    #launch .launch-video {
+      transform: scale(1);
+      transform-origin: 50% 50%;
+      filter: brightness(.92) contrast(1.02) saturate(1.08);
+      transition:
+        transform 1200ms cubic-bezier(.50, .02, .90, .48),
+        filter 1200ms ease-in;
+      will-change: transform;
+    }
+    #launch.is-crossing .launch-video {
+      transform: scale(3.1);
+      filter: brightness(1.65) saturate(1.15) blur(3px);
+    }
+    #launch::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+      opacity: 0;
+      background: radial-gradient(circle at center, #ffffff 0%, #d9f5ff 42%, #99bfff 100%);
+    }
+    #launch.is-crossing::after {
+      animation: proto-portal-flash 1200ms ease-in both;
+    }
+    #launch .launch-card.proto-launch {
+      width: min(720px, 100%);
+      padding: 36px 20px;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      text-align: center;
+      text-shadow: 0 3px 32px rgba(0, 9, 30, .7);
+    }
+    #launch .proto-launch .launch-kicker {
+      margin-bottom: 20px;
+      color: #bbecff;
+      font-size: 12px;
+      letter-spacing: .24em;
+    }
+    #launch .proto-launch .launch-title {
+      margin: 0 0 16px;
+      color: #fff;
+      font-size: clamp(52px, 7.6vw, 112px);
+      line-height: .92;
+      letter-spacing: -.064em;
+      text-wrap: balance;
+    }
+    #launch .proto-launch .launch-title > span:not(.proto-wordmark) {
+      color: #ff67b5;
+    }
+    #launch .proto-launch .launch-title .proto-wordmark {
+      color: #c6eaff;
+      text-shadow: none;
+      font-size: .14em;
+      letter-spacing: .28em;
+      margin-top: 1.1em;
+    }
+    #launch .proto-launch .launch-copy {
+      max-width: none;
+      margin: 0 0 30px;
+      color: #ebf4ff;
+      font-size: clamp(15px, 1.6vw, 19px);
+      line-height: 1.5;
+    }
+    #launch .proto-launch #launch-button {
+      min-height: 56px;
+      padding: 0 30px;
+      border: 1px solid rgba(173, 244, 255, .8);
+      border-radius: 100px;
+      background: #e7faff;
+      color: #10314c;
+      font-size: 16px;
+      text-shadow: none;
+      box-shadow: 0 6px 36px rgba(22, 198, 248, .25);
+    }
+    #launch .proto-launch #launch-button:hover {
+      transform: translateY(-2px) scale(1.025);
+      box-shadow: 0 8px 46px rgba(22, 198, 248, .42);
+    }
+    #launch .proto-launch #launch-button:disabled {
+      cursor: default;
+      transform: none;
+      opacity: 1;
+    }
+    #launch.is-crossing .proto-launch {
+      animation: proto-portal-copy-out 330ms ease-in both;
+      pointer-events: none;
+    }
+    @keyframes proto-portal-copy-out {
+      to { opacity: 0; transform: scale(.91); filter: blur(8px); }
+    }
+    @keyframes proto-portal-flash {
+      0%, 52% { opacity: 0; }
+      78% { opacity: .18; }
+      100% { opacity: 1; }
+    }
+    #proto-arrival {
+      position: fixed;
+      inset: 0;
+      z-index: 1100;
+      display: grid;
+      place-items: center;
+      padding: 32px;
+      text-align: center;
+      color: #fff;
+      background:
+        linear-gradient(125deg, rgba(7, 15, 47, .91), rgba(46, 18, 79, .64)),
+        url("../tomorrow-got-weird/portal-poster.png") center center / cover no-repeat;
+      pointer-events: none;
+      animation: proto-arrival-in-out 1350ms ease both;
+    }
+    #proto-arrival[hidden] { display: none; }
+    .proto-arrival-content { max-width: 880px; text-shadow: 0 4px 38px rgba(0, 0, 0, .6); }
+    .proto-arrival-kicker {
+      margin: 0 0 14px;
+      font-family: var(--font-meta);
+      font-weight: 750;
+      color: #8ce8fb;
+      letter-spacing: .23em;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+    #proto-arrival h2 {
+      font-family: var(--font-body);
+      font-size: clamp(44px, 8vw, 100px);
+      line-height: .97;
+      letter-spacing: -.065em;
+      margin: 0 0 18px;
+    }
+    #proto-arrival h2 span { color: #ff86c3; }
+    #proto-arrival .proto-arrival-content > p:last-child {
+      font-size: clamp(15px, 2vw, 20px);
+      margin: 0;
+      color: #e9f5ff;
+    }
+    @keyframes proto-arrival-in-out {
+      0% { opacity: 0; }
+      22%, 65% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    @media (max-width: 700px) {
+      #launch .launch-card.proto-launch { padding: 24px 0; }
+      #launch .proto-launch .launch-kicker { font-size: 10px; letter-spacing: .16em; }
+      #launch .proto-launch .launch-title { font-size: clamp(45px, 11vw, 76px); }
+      #launch .proto-launch .launch-copy { margin-bottom: 24px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #launch .launch-video, #launch.is-crossing .launch-video {
+        transition: none;
+        transform: none;
+        filter: brightness(.9);
+      }
+      #launch.is-crossing .proto-launch, #launch.is-crossing::after, #proto-arrival {
+        animation: none;
+      }
+      #launch.is-crossing .proto-launch { opacity: 0; }
+    }
     /* Prototype labels only; keep the original TGW layout and artwork. */
     .launch-title .proto-wordmark { display: block; margin-top: .55em; color: var(--ink-soft); font-family: var(--font-meta); font-size: .24em; font-weight: 750; letter-spacing: .17em; }
     .hdr-logo .proto-header-tag { margin-left: .55em; color: var(--magenta); font-size: .68em; letter-spacing: .06em; }
@@ -1869,25 +2045,32 @@
      ============================================================ -->
   <div id="launch">
 
-    <video class="launch-video" autoplay muted loop playsinline preload="auto" poster="../tomorrow-got-weird/portal-poster.png"
-      aria-hidden="true">
-      <source src="../tomorrow-got-weird/portal.mp4" type="video/mp4">
-    </video>
+    <!-- Uses the local-only test clip when present; otherwise falls back to
+         the existing TGW portal. Never bundle the watermarked test asset. -->
+    <video id="proto-portal-video" class="launch-video" autoplay muted loop playsinline preload="auto"
+      src="portal-istock-test.mp4" poster="../tomorrow-got-weird/portal-poster.png" aria-hidden="true"></video>
 
-    <section class="launch-card" aria-labelledby="launch-title">
-      <p class="launch-kicker">Arcade · 25 Future scenarios</p>
+    <section class="launch-card proto-launch" aria-labelledby="launch-title">
+      <p class="launch-kicker">25 impossible futures · an Atlas experiment</p>
       <h1 class="launch-title" id="launch-title">Tomorrow <span>Got Weird</span><span class="proto-wordmark">— PROTO</span></h1>
-      <p class="launch-copy">
-        Step into futures that went completely off script. Make your call, face the consequences, and see who you
-        become.
-      </p>
+      <p class="launch-copy">One portal. Countless ways tomorrow could go wrong.</p>
       <button class="btn-launch" id="launch-button" type="button" onclick="startGame()">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
           <path d="M3 2l9 5-9 5V2z" fill="currentColor" />
         </svg>
-        Start sequence
+        Enter Tomorrow
       </button>
     </section>
+  </div>
+
+  <!-- Temporary destination cue for evaluating the crossing. It is not
+       the final Upgrade Clinic environment or the two-person game design. -->
+  <div id="proto-arrival" role="status" aria-live="polite" hidden>
+    <div class="proto-arrival-content">
+      <p class="proto-arrival-kicker">Future signal acquired / 08</p>
+      <h2>The Upgrade <span>Clinic</span></h2>
+      <p>You've arrived. The choices are yours.</p>
+    </div>
   </div>
 
   <!-- ============================================================
@@ -2489,19 +2672,70 @@
       const launchButton = document.getElementById('launch-button');
       if (!launchButton) return;
 
-      const anonymousPreview = false; // Direct prototype links can be played without an account.
-
-      const buttonLabel = anonymousPreview
-        ? 'Play with free account'
-        : covered > 0
-          ? 'Continue sequence'
-          : 'Start sequence';
+      const buttonLabel = 'Enter Tomorrow';
 
       launchButton.innerHTML =
         '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
         '<path d="M3 2l9 5-9 5V2z" fill="currentColor"/>' +
         '</svg>' +
         buttonLabel;
+    }
+
+    /* ============================================================
+       PROTO ENTRY · LOCAL FOOTAGE FALLBACK + TRANSITION
+       This is a test of crossing feel, not the final arrival scene.
+       ============================================================ */
+    let crossingInProgress = false;
+
+    function configurePrototypePortal() {
+      const video = document.getElementById('proto-portal-video');
+      if (!video) return;
+
+      const fallbackUrl = new URL('../tomorrow-got-weird/portal.mp4', window.location.href).href;
+      video.addEventListener('error', () => {
+        if (video.src === fallbackUrl) return;
+        video.src = fallbackUrl;
+        video.load();
+        video.play().catch(() => {});
+      });
+      video.play().catch(() => {});
+    }
+
+    async function crossIntoTomorrow() {
+      if (crossingInProgress) return false;
+
+      const launch = document.getElementById('launch');
+      const button = document.getElementById('launch-button');
+      crossingInProgress = true;
+      button.disabled = true;
+      launch.classList.add('is-crossing');
+
+      const reducedMotion = window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!reducedMotion) {
+        await new Promise(resolve => setTimeout(resolve, 1200));
+      }
+      return true;
+    }
+
+    function revealPrototypeArrival() {
+      const arrival = document.getElementById('proto-arrival');
+      const launch = document.getElementById('launch');
+      const button = document.getElementById('launch-button');
+
+      launch.style.display = 'none';
+      launch.classList.remove('is-crossing');
+      button.disabled = false;
+      crossingInProgress = false;
+
+      arrival.hidden = false;
+      const reducedMotion = window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reducedMotion) {
+        arrival.hidden = true;
+      } else {
+        setTimeout(() => { arrival.hidden = true; }, 1350);
+      }
     }
 
     async function startGame(
@@ -2544,8 +2778,18 @@
         }
       }
 
-      session =
-        Bridge.readActiveSession();
+      if (!await crossIntoTomorrow()) return;
+
+      session = Bridge.readActiveSession();
+
+      // Seed the first unplayed prototype visit to the Upgrade Clinic.
+      // Later visits preserve the tester's own navigation and progress.
+      if (!state.protoArrivalSeeded) {
+        if (state.current === 0 && countCompleted() === 0) {
+          state.current = 7;
+        }
+        state.protoArrivalSeeded = true;
+      }
 
       window.AtlasAnalytics?.arcadeGameStart(
         'tomorrow-got-weird-proto'
@@ -2555,9 +2799,9 @@
       saveState();
       touchActivity();
       document.getElementById('finish').classList.remove('visible');
-      document.getElementById('launch').style.display = 'none';
       document.getElementById('game').style.display = 'block';
       render();
+      revealPrototypeArrival();
     }
 
     function go(direction) {
@@ -2948,6 +3192,8 @@
           '<p class="launch-copy">The shared Atlas runtime did not load. Check shared/atlas-bridge.js.</p>';
         return;
       }
+
+      configurePrototypePortal();
 
       window.AtlasAnalytics?.resourceOpen({
         resourceType: 'game',
