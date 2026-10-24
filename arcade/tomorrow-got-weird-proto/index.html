@@ -2048,7 +2048,7 @@
     <!-- Uses the local-only test clip when present; otherwise falls back to
          the existing TGW portal. Never bundle the watermarked test asset. -->
     <video id="proto-portal-video" class="launch-video" autoplay muted loop playsinline preload="auto"
-      src="portal-istock-test.mp4" poster="../tomorrow-got-weird/portal-poster.png" aria-hidden="true"></video>
+      poster="../tomorrow-got-weird/portal-poster.png" aria-hidden="true"></video>
 
     <section class="launch-card proto-launch" aria-labelledby="launch-title">
       <p class="launch-kicker">25 impossible futures · an Atlas experiment</p>
@@ -2692,12 +2692,16 @@
       if (!video) return;
 
       const fallbackUrl = new URL('../tomorrow-got-weird/portal.mp4', window.location.href).href;
+      // Attach the error listener before attempting the optional local asset.
+      // Otherwise a fast 404 could arrive before DOMContentLoaded.
       video.addEventListener('error', () => {
         if (video.src === fallbackUrl) return;
         video.src = fallbackUrl;
         video.load();
         video.play().catch(() => {});
       });
+      video.src = new URL('portal-istock-test.mp4', window.location.href).href;
+      video.load();
       video.play().catch(() => {});
     }
 
