@@ -53,4 +53,20 @@ export const season25Boards = [
     concept("SQUIRT FLOWERS", 4, "squirt flowers|squirting flowers|squirting flower|water spraying flower|water flower|clown flower|water pistol flower|flowers that spray water|trick flowers", "Trick flowers that spray water, not ordinary bouquets.", ["real flowers","bouquet"]),
     concept("JOKES/LAUGHS", 4, "jokes|laughs|jokes and laughs|joke|a joke|laughter|gags|funny jokes|a funny joke|giggles|humour|humor", "Jokes, laughs or humour exchanged as gifts, not clown objects.", ["horns","balloons"]),
   ]),
+  season25Board("s25-six-011", "Name something you'd buy if vampires moved in next door.", 172, [
+    concept("GARLIC", 57, "garlic|garlic cloves|cloves of garlic|a bulb of garlic|garlic bulbs|garlic necklace|garlic spray|buy garlic|some garlic", "Actual garlic used to discourage vampires, not a cross or stakes.", ["cross","wooden stake","locks"]),
+    concept("NEW HOUSE", 13, "new house|another house|new home|move house|move away|move out|move somewhere else|relocate|change houses|different house|a new apartment|a new flat", "Moving home or buying another home to escape the new neighbours.", ["new locks","garlic","lock"]),
+    concept("CROSS", 13, "cross|a cross|crucifix|a crucifix|holy cross|cross necklace|religious cross|christian cross|a crucifix necklace", "A cross or crucifix against fictional vampires, not a stake or garlic.", ["wooden stake","garlic"]),
+    concept("STAKE/WEAPON", 10, "stake|wooden stake|stakes|wooden stakes|a stake|a weapon|weapon|weapons|a sword|sword|knife|a knife|a wooden stake|vampire stake", "A defensive stake or weapon, not a crucifix or door lock.", ["cross","locks","garlic"]),
+    concept("BLOOD WELCOME GIFT", 3, "blood welcome gift|blood as a gift|blood|bag of blood|a blood bag|bottle of blood|blood donation|give them blood|welcome gift of blood|blood for them", "An ironic blood-themed welcome gift for the fictional neighbours.", ["garlic","wooden stake"]),
+    concept("NEW LOCKS", 3, "new locks|locks|stronger locks|door locks|lock|a lock|change the locks|replace locks|security locks|padlocks|a padlock|deadbolt|new door locks", "Installing new locks for home security, not moving to a different home.", ["new house","move away"]),
+  ]),
+  season25Board("s25-six-044", "Be honest -- you have more pictures of your dog than you do of who?", 205, [
+    concept("SPOUSE/MATE", 48, "spouse|partner|husband|wife|my partner|my spouse|my husband|my wife|boyfriend|girlfriend|my boyfriend|my girlfriend|significant other|my other half|my mate", "A romantic partner or spouse, not a child, sibling or the respondent.", ["myself","my kids","my mum"]),
+    concept("MYSELF", 22, "myself|me|myself of course|pictures of me|photos of me|selfies|selfie|photos of myself|my own face|self portraits|pictures of myself", "The respondent themselves, including their selfies.", ["my children","my mother"]),
+    concept("KID/GRANDKID", 13, "kid|kids|child|children|my children|my kids|my child|son|daughter|my son|my daughter|grandchild|grandchildren|grandkids|grandkid|grandson|granddaughter|my baby", "Own children or grandchildren, not siblings or a spouse.", ["sister","brother","mother"]),
+    concept("MOTHER", 8, "mother|mum|mom|my mom|my mum|my mother|mummy|mommy|mama|ma|my mama", "The respondent's mother, not another relative.", ["father","my children","sister"]),
+    concept("SIBLING", 3, "sibling|siblings|brother|sister|my brother|my sister|my siblings|brothers and sisters|my brothers|my sisters", "A brother or sister, not children, parents or spouse.", ["mother","son","daughter"]),
+    concept("CAT", 2, "cat|cats|my cat|the cat|our cat|kitty|kitten|kittens|the family cat|my kitten|pet cat", "The family's cat, not their dog or another relative.", ["dog","puppy","myself"]),
+  ]),
 ];
