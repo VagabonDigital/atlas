@@ -820,6 +820,15 @@
       }
     });
 
+    // A game may explicitly reuse only the responsive menu shell for its own
+    // utilities. Otherwise no empty/global hamburger is rendered on mobile.
+    if (
+      !controls.querySelector('.arcade-game-chrome-game-menu-item') &&
+      settings.mobileMenu !== true
+    ) {
+      controls.querySelector('.arcade-game-chrome-game-actions')?.remove();
+    }
+
     // When appearance is the only menu action, the hamburger adds a needless
     // extra tap. Keep the existing direct theme button visible on mobile.
     // Games with their own mobile menu (e.g. Forbidden Words) retain it.
@@ -835,15 +844,6 @@
         ?.classList.remove('arcade-game-chrome-game-direct');
       controls.querySelector('.arcade-game-chrome-game-menu-toggle')?.remove();
       controls.querySelector('.arcade-game-chrome-game-menu')?.remove();
-    }
-
-    // A game may explicitly reuse only the responsive menu shell for its own
-    // utilities. Otherwise no empty/global hamburger is rendered on mobile.
-    if (
-      !controls.querySelector('.arcade-game-chrome-game-menu-item') &&
-      settings.mobileMenu !== true
-    ) {
-      controls.querySelector('.arcade-game-chrome-game-actions')?.remove();
     }
 
     const returnTarget = getRoot(settings.returnRoot) || root;
