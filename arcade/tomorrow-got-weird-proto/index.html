@@ -1879,6 +1879,10 @@
         filter 1200ms ease-in;
       will-change: transform;
     }
+    /* Ignition is motion in the footage, before the camera moves forward. */
+    #launch.is-igniting .launch-video {
+      filter: brightness(1.07) contrast(1.05) saturate(1.12);
+    }
     #launch.is-crossing .launch-video {
       transform: scale(3.1);
       filter: brightness(1.65) saturate(1.15) blur(3px);
@@ -1958,6 +1962,7 @@
       transform: none;
       opacity: 1;
     }
+    #launch.is-igniting .proto-launch,
     #launch.is-crossing .proto-launch {
       animation: proto-portal-copy-out 330ms ease-in both;
       pointer-events: none;
@@ -2686,6 +2691,9 @@
        This is a test of crossing feel, not the final arrival scene.
        ============================================================ */
     let crossingInProgress = false;
+    const PROTO_IGNITION_MS = 1500;
+    const PROTO_PULL_MS = 1200;
+    const PROTO_IGNITION_MAX_RATE = 2.6;
 
     function configurePrototypePortal() {
       const video = document.getElementById('proto-portal-video');
@@ -2705,19 +2713,50 @@
       video.play().catch(() => {});
     }
 
+    function ignitePrototypePortal(video) {
+      // The footage itself accelerates from 1x to 2.6x over 1.5 seconds.
+      // Keep this separate from the existing accelerating camera zoom.
+      return new Promise(resolve => {
+        const startedAt = performance.now();
+        function tick(now) {
+          const progress = Math.min(1, (now - startedAt) / PROTO_IGNITION_MS);
+          const eased = progress * progress;
+          if (video) {
+            video.playbackRate = 1 + (PROTO_IGNITION_MAX_RATE - 1) * eased;
+          }
+          if (progress < 1) {
+            requestAnimationFrame(tick);
+          } else {
+            resolve();
+          }
+        }
+        requestAnimationFrame(tick);
+      });
+    }
+
     async function crossIntoTomorrow() {
       if (crossingInProgress) return false;
 
       const launch = document.getElementById('launch');
       const button = document.getElementById('launch-button');
-      crossingInProgress = true;
-      button.disabled = true;
-      launch.classList.add('is-crossing');
-
+      const video = document.getElementById('proto-portal-video');
       const reducedMotion = window.matchMedia &&
         window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      crossingInProgress = true;
+      button.disabled = true;
+
       if (!reducedMotion) {
-        await new Promise(resolve => setTimeout(resolve, 1200));
+        // First the tunnel speeds up; only then are we pulled into it.
+        if (video) video.playbackRate = 1;
+        launch.classList.add('is-igniting');
+        await ignitePrototypePortal(video);
+        launch.classList.remove('is-igniting');
+      }
+
+      launch.classList.add('is-crossing');
+      if (!reducedMotion) {
+        await new Promise(resolve => setTimeout(resolve, PROTO_PULL_MS));
       }
       return true;
     }
@@ -2735,7 +2774,9 @@
         : 'Future <span>' + String(state.current + 1).padStart(2, '0') + '</span>';
 
       launch.style.display = 'none';
-      launch.classList.remove('is-crossing');
+      launch.classList.remove('is-igniting', 'is-crossing');
+      const video = document.getElementById('proto-portal-video');
+      if (video) video.playbackRate = 1;
       button.disabled = false;
       crossingInProgress = false;
 
