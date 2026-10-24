@@ -54,7 +54,7 @@ have separate outcomes; errors preserve the exact entry and turn for retry.
 Add new natural paraphrases on the basis of manual playtesting.
 
 Replay prefers unseen approved boards and clearly discloses reuse when the
-61-board playable pool is exhausted.
+60-board playable pool is exhausted.
 ## Verification
 
 ```sh
@@ -105,7 +105,11 @@ Apply proportional whole-board judgement, not an isolated-word blacklist.
 Even one significantly uncomfortable revealed answer may justify a hold.
 
 The first screen approved 30 and held 70 boards. A complete second review
-reinstated **31**, leaving **61 approved** for new matches and **39 held**.
+reinstated **31**, initially leaving **61 approved** and **39 held**.
+A follow-up review held survey #6 (Sleeping Beauty) again: although the six
+answers are innocent bedtime habits, the question's bedroom innuendo could be
+awkward in a first lesson. Survey #117 (castle) remains approved: its dungeon
+answer is non-graphic historical fantasy. **Now 60 approved and 40 held.**
 The famous-captains board passes despite two regional references. Cinderella
 stays held because an underwear answer ranks second. The complete review
 is recorded by source ID in `editorial.mjs`.
