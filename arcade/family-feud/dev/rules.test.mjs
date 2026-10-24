@@ -75,17 +75,17 @@ test('default pool includes only explicitly approved classroom-ready boards',()=
   const approved=new Set(editorialReview.approvedSourceIds);
   const held=new Set(Object.keys(editorialReview.heldReasons).map(Number));
   assert.equal(boards.length,100);
-  assert.equal(approved.size,61);
-  assert.equal(held.size,39);
+  assert.equal(approved.size,60);
+  assert.equal(held.size,40);
   assert.equal(new Set([...approved,...held]).size,boards.length);
   for(const b of boards){
     assert.ok(approved.has(b.sourceSurveyId)!==held.has(b.sourceSurveyId),b.id+' requires one editorial decision');
     if(held.has(b.sourceSurveyId))assert.ok(editorialReview.heldReasons[b.sourceSurveyId].length>15);
   }
   assert.deepEqual(new Set(playableBoards.map(b=>b.sourceSurveyId)),approved);
-  for(const id of [1,7,8,10,14,18,24,26,28,38,41,44,46,47,50,51,56,59,66,67,74,79,88,90,91,94,97,98,110,119,123,134,139,151,152,154,155,160,161])
+  for(const id of [1,6,7,8,10,14,18,24,26,28,38,41,44,46,47,50,51,56,59,66,67,74,79,88,90,91,94,97,98,110,119,123,134,139,151,152,154,155,160,161])
     assert.ok(!playableBoards.some(b=>b.sourceSurveyId===id),'Held survey '+id);
-  for(const id of [4,6,9,12,21,27,35,36,39,60,61,64,70,76,77,81,92,95,99,100,107,109,114,115,117,129,130,131,140,147,159]) assert.ok(playableBoards.some(b=>b.sourceSurveyId===id),'Reapproved '+id);
+  for(const id of [4,9,12,21,27,35,36,39,60,61,64,70,76,77,81,92,95,99,100,107,109,114,115,117,129,130,131,140,147,159]) assert.ok(playableBoards.some(b=>b.sourceSurveyId===id),'Reapproved '+id);
   for(const random of [()=>0,()=>.3,()=>.7,()=>.99]){
     const matchBoards=chooseBoards(playableBoards,[],random);
     assert.equal(matchBoards.length,3);
