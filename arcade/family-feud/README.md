@@ -116,12 +116,14 @@ rankings, labels and points remain source-exact; all 30 concepts have
 authored recognition rules.
 
 **Batch 27** adds five more original Season 25 surveys: a husband trying
-to avoid buying a second ticket (#195), things you put a finger into
-(#297), affectionate animal nicknames (#301), round white objects (#314),
-and well-paid occupations someone might not want (#323). Mild body
-humour and relationship framing remain non-intrusive and conversational.
+to avoid buying a second ticket (#195), office property that could get you into trouble if taken home
+(#269), affectionate animal nicknames (#301), round white objects (#314),
+and well-paid occupations someone might not want (#323). The office prompt offers everyday work vocabulary and a playful final
+answer, without the unwanted innuendo of the retired finger question.
 Original questions, six survey labels, rankings and points stay
 unchanged; each answer has its own authored aliases and exclusions.
+The superseded Season 25 research ID #297 remains only in the development
+archive and is neither approved nor included in the deployed board code.
 
 The original 40 held Season 26 boards remain held.
 

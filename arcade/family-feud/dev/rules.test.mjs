@@ -82,7 +82,7 @@ test('Season 25 research source remains complete and Batches 21–27 retain orig
   const totalMismatches=source25.filter(x=>x.answers.reduce((sum,a)=>sum+a.points,0)!==x.total_points).map(x=>x.id);
   assert.deepEqual(totalMismatches,[306]);
   assert.equal(source25.find(x=>x.id===306).total_points,70);
-  const screened=[183,187,188,252,282,172,205,224,256,273,189,225,247,291,313,176,193,212,229,262,198,228,243,261,316,220,231,266,290,296,195,297,301,314,323];
+  const screened=[183,187,188,252,282,172,205,224,256,273,189,225,247,291,313,176,193,212,229,262,198,228,243,261,316,220,231,266,290,296,195,269,301,314,323];
   assert.deepEqual(season25Boards.map(b=>b.sourceSurveyId),screened);
   for(const b of season25Boards){
     const original=source25.find(x=>x.id===b.sourceSurveyId);
@@ -185,7 +185,7 @@ test('Batch 26 preserves fair recognition for all thirty original survey concept
 test('Batch 27 recognises thirty original survey answers in natural phrasing',()=>{
   const examples=[
     [195,['at the movies','on an airplane','live music concert','baseball game','city bus','on a train']],
-    [297,['jar of peanut butter','ear canal','nostril','inside my mouth','rubber glove','wet mud']],
+    [269,['work laptop','photocopier','petty cash','confidential files','company van','office assistant']],
     [301,['kitty cat','female tiger','honey bunny','vixen','female deer','lioness']],
     [314,['white golf ball','ball of snow','oyster pearl','marshmallow candy','baseball','cotton wool ball']],
     [323,['medical doctor','solicitor','stockbroker','prime minister','sewer worker','lorry driver']],
@@ -196,6 +196,13 @@ test('Batch 27 recognises thirty original survey answers in natural phrasing',()
     for(const [i,phrase] of phrases.entries())
       assert.deepEqual(resolveAnswer(board,phrase),{kind:'match',index:i},id+' '+phrase);
   }
+});
+
+test('the retired finger prompt stays in research only, not the playable pool',()=>{
+  assert.ok(source25.some(entry=>entry.id===297));
+  assert.ok(!season25Boards.some(b=>b.sourceSurveyId===297));
+  assert.ok(!editorialReview.approvedSourceIds.includes(297));
+  assert.ok(playableBoards.some(b=>b.sourceSurveyId===269));
 });
 
 test('default pool includes only explicitly approved classroom-ready boards',()=>{
