@@ -28,7 +28,7 @@ The core product loop is **Create → Shape → Teach → Continuity**. Reposito
 | `tests/` | Root Atlas regression and source-contract tests. |
 | `scripts/` | Repository tooling, including the root test runner and Compass cover projection check. |
 | `supabase/migrations/` | Source-controlled Atlas database evolution files. See `supabase/README.md`. |
-| `.github/workflows/` | Permanent repository CI. |
+| `tests/` and game-local `dev/` checks | On-demand regression and browser verification. |
 
 ## Runtime architecture
 
@@ -114,7 +114,7 @@ npm run verify
 
 Runs every root `tests/*.test.js` file independently.
 
-The suite contains historical source-shape contracts as well as current runtime/VM regressions. Every discovered root test is blocking: any test failure makes `npm test` exit non-zero and fails CI.
+The suite contains historical source-shape contracts as well as current runtime/VM regressions. Every discovered root test is blocking when `npm test` is run: any test failure makes the command exit non-zero.
 
 There is no known-failure quarantine and no separate strict mode. A green root test run means the complete root suite passed.
 
@@ -127,15 +127,9 @@ npm run check:compass-covers
 verifies that shared Compass catalog cover metadata matches the canonical Original subject definitions.
 
 
-### CI
+### On-demand verification
 
-`.github/workflows/atlas-tests.yml` runs on pull requests and pushes to `main`.
-
-It currently provides:
-
-- **Atlas root verification** — syntax checks, the complete baseline-aware root suite and Compass cover drift verification;
-
-Historical SharedWorker Batch 1–6 workflows have been retired. Their final integration coverage is contained in the permanent root suite.
+GitHub Actions does not automatically run the Atlas verification suite or the Family Feud Chromium acceptance checks on pushes or pull requests. Existing checks remain available to run locally when a change warrants them; the game-specific checks live with their respective games.
 
 ## Deployment
 
@@ -157,7 +151,7 @@ The static asset directory remains the repository root:
 
 `.assetsignore` is therefore an important production boundary. Repository-only material — tests, migrations, scripts and backend source — is excluded from the client-side asset upload.
 
-Cloudflare's GitHub integration currently builds/deploys the public `atlas` Worker from changes on `main`. A successful repository push is still expected to pass the permanent GitHub CI checks as an independent regression signal.
+Cloudflare's GitHub integration currently builds/deploys the public `atlas` Worker from changes on `main`. This deployment is independent of optional, locally run tests.
 
 Cloudflare's production deploy and version commands explicitly use `wrangler.atlas-web.jsonc`; keep that filename aligned with the external build configuration.
 
@@ -214,7 +208,7 @@ This backend Worker is **not automatically deployed** when GitHub `main`
 changes. GitHub's public-site deployment is a separate process. Use these
 commands only for an intentional **backend** update:
 
-1. Verify the intended backend changes have been merged and CI has passed.
+1. Verify the intended backend changes are on `main` and perform the relevant checks before deployment.
    In **GitHub Desktop**, select `atlas` on `main`, click **Fetch origin**,
    then **Pull origin** if offered. Check for uncommitted changes first; never
    deploy an unknown or stale local version.
@@ -253,7 +247,7 @@ The shortcuts live in the existing root `package.json`:
 `npm.cmd run`. Without shortcuts, the underlying commands are
 `npx.cmd wrangler deploy --config wrangler.atlas-ai.jsonc --dry-run`
 and `npx.cmd wrangler deploy --config wrangler.atlas-ai.jsonc`.
-The GitHub Actions backend step is verification-only; it never deploys.
+There is no automatic GitHub Actions backend verification or deployment; backend releases use the explicit manual commands above.
 
 **Durable Object rollback:** after the first Cloudflare deployment, preserve
 the class/binding in future Worker configurations. To roll back Forbidden
