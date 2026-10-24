@@ -53,10 +53,10 @@ test('fresh legacyBoards preferred; exhaustion never prevents a full replay',()=
   assert.equal(chooseBoards(legacyBoards,legacyBoards.map(b=>b.id)).length,3);
 });
 
-test('first five sourced batches preserve twenty-five original Season 26 six-answer records',()=>{
-  assert.equal(boards.length,25);
+test('first six sourced batches preserve thirty original Season 26 six-answer records',()=>{
+  assert.equal(boards.length,30);
   assert.equal(legacyBoards.length,7);
-  assert.deepEqual(boards.map(b=>b.sourceSurveyId),[19,85,111,121,137,3,61,117,136,151,35,50,54,92,104,21,107,135,144,153,8,12,72,147,159]);
+  assert.deepEqual(boards.map(b=>b.sourceSurveyId),[19,85,111,121,137,3,61,117,136,151,35,50,54,92,104,21,107,135,144,153,8,12,72,147,159,40,82,118,130,152]);
   assert.equal(new Set([...boards,...legacyBoards].map(b=>b.id)).size,boards.length+legacyBoards.length);
   for(const b of boards){
     const raw=source.find(entry=>entry.id===b.sourceSurveyId);
@@ -178,6 +178,36 @@ test('Batch 5 everyday guesses, alternative phrasing, exclusions and multiple gu
   assert.deepEqual(resolveAnswer(get(8),"phone"),{kind:'match',index:0});
   assert.deepEqual(resolveAnswer(get(72),"rushes me"),{kind:'match',index:2});
   assert.deepEqual(resolveAnswer(get(72),"long wait"),{kind:'match',index:0});
+});
+
+test('Batch 6 guessable answers, natural expressions, exclusions and multi-answer rejection',()=>{
+  const get=id=>boards.find(b=>b.sourceSurveyId===id);
+  for(const [id,samples] of [
+    [40,["a stetson","cowgirl boots","a pony","texas longhorn","western saddle","a map of the state of texas"]],
+    [82,["a massage therapist","oral surgeon","hair colourist","someone who cracks your back","tattooist","personal trainer"]],
+    [118,["a bus seat","sole of a shoe","stuck in someone's hair","under a desk","back of my trousers","toilet seat"]],
+    [130,["my teenager","my girlfriend","my twin sister","my manager","my best friend","my hamster"]],
+    [152,["the lift goes down","sunset","temperature drops","raindrops falling","swallow a drink","a submersible"]]
+  ]) for(const [index,phrase] of samples.entries())
+    assert.deepEqual(resolveAnswer(get(id),phrase),{kind:'match',index},id+' '+phrase);
+  for(const [id,phrase] of [
+    [40,"horseshoe"],[40,"spurs"],[40,"american flag"],[40,"buffalo"],
+    [82,"nurse"],[82,"manicurist"],[82,"body piercer"],[82,"physiotherapist"],
+    [118,"bathroom floor"],[118,"pillow"],[118,"carpet"],[118,"hat"],
+    [130,"my mother"],[130,"my father"],[130,"a stranger"],[130,"my teacher"],
+    [152,"a staircase"],[152,"the moon"],[152,"snow"],[152,"sinking ship"]
+  ]) assert.equal(resolveAnswer(get(id),phrase).kind,'miss',id+' '+phrase);
+  for(const [id,phrase] of [
+    [40,"horse or saddle"],
+    [82,"massage therapist and tattoo artist"],
+    [118,"chair or toilet"],
+    [130,"boss or sister"],
+    [152,"rain or temperature"]
+  ]) assert.equal(resolveAnswer(get(id),phrase).kind,'ambiguous',id+' '+phrase);
+  assert.deepEqual(resolveAnswer(get(118),"toilet seat"),{kind:'match',index:5});
+  assert.deepEqual(resolveAnswer(get(118),"seat"),{kind:'match',index:0});
+  assert.deepEqual(resolveAnswer(get(40),"texas longhorn"),{kind:'match',index:3});
+  assert.deepEqual(resolveAnswer(get(40),"texas"),{kind:'match',index:5});
 });
 
 test('three-round matches select sourced boards and never legacy fixtures',()=>{
