@@ -4698,6 +4698,9 @@
       padding: 1.1rem 1.2rem 1.15rem;
       background: transparent;
       isolation: isolate;
+      /* The parent exposes its menu outside the card, so give the
+         independently clipped content the same rounded lower edge. */
+      border-radius: 0 0 17px 17px;
       /* The cover surface translates down in the resting state. Clip it
          here while the sibling management popup may overflow the card. */
       overflow: clip;
