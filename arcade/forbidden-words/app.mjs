@@ -565,12 +565,13 @@ function board(s) {
   const describer = s.role === "Describer";
   const waitingForPartner = !!s.paused && (!s.connected.tutor || !s.connected.learner);
   const connectionPaused = s.paused?.reason === "connection";
-  const pauseTitle = waitingForPartner ? "Partner disconnected." :
-    connectionPaused ? "Both players are back." : "Turn paused.";
+  // Presence only tells us a seat is away, not why it left the game.
+  // Keep the pause headline calm without implying a network fault.
+  const pauseTitle = connectionPaused && !waitingForPartner ? "Ready to resume" : "Game paused";
   const pauseDescription = waitingForPartner
-    ? "The clock is stopped. Resume when both players are connected."
-    : connectionPaused ? "The clock is safe. Your tutor can resume when ready."
-      : "The clock is safe. Pick up when you’re ready.";
+    ? `${learner ? "Your tutor" : "Your learner"} is away from the game. The clock has stopped, and your progress is safe.`
+    : connectionPaused ? "Both players are connected. The clock is safe and ready to resume."
+      : "The clock is stopped. Pick up when you’re ready.";
   return `${learnerHeader(s)}<section class="board"><aside class="deck-area">${deck}<p>${s.remaining} cards in the deck</p></aside>
     <div class="card-area"><div class="active-card ${s.card?.nonce !== lastNonce ? "dealing" : ""} ${describer ? "face-up" : "face-down"}">${cardFace(s)}</div>
     <div class="role-caption"><p class="eyebrow"><span>TURN ${s.turn} OF 2</span> · ${describer ? "YOU’RE DESCRIBING" : "YOUR PARTNER IS DESCRIBING"}</p><p>${describer ? "Find another way to say it." : "Guess the word out loud."}</p></div></div>
@@ -579,7 +580,7 @@ function board(s) {
       ${describer ? `<div class="resolutions">${button("correct", "Correct", "correct")}${button("skip", "Skip", "skip")}${button("oops", "I said one!", "oops")}</div>` : '<div class="guesser-note"><span>◌</span><div><strong>GUESSER</strong><p>Listen. Ask questions. <br>Follow the clues.</p></div></div>'}
     </aside></section><div class="feedback" aria-live="polite">${feedbackText(s)}</div>
     ${s.phase === "countdown" ? '<div class="countdown-overlay"><div><p class="eyebrow">GET READY</p><strong id="countdown-number">3</strong><p>Your card. Your voice. Go.</p></div></div>' : ""}
-    ${s.paused ? `<div class="pause-overlay"><div class="panel"><p class="eyebrow">TAKE YOUR TIME</p><h2>${pauseTitle}</h2><p>${pauseDescription}</p>${!learner ? `<div class="pause-actions">${button("resume", "▶ Resume turn", "primary", !s.connected.tutor || !s.connected.learner)}${button("finish", "End game", "secondary end-game-button")}</div>${connectionOptions(s)}` : "<p>Your tutor will resume the game.</p>"}</div></div>` : ""}`;
+    ${s.paused ? `<div class="pause-overlay"><div class="panel"><p class="eyebrow">TAKE YOUR TIME</p><h2>${pauseTitle}</h2><p>${pauseDescription}</p>${!learner ? `<div class="pause-actions">${button("resume", "▶ Resume turn", "primary", !s.connected.tutor || !s.connected.learner)}${button("finish", "End game", "secondary end-game-button")}</div>${connectionOptions(s)}` : `<p>${waitingForPartner ? "Your tutor can resume the game when they return." : "Your tutor will resume the game."}</p>`}</div></div>` : ""}`;
 }
 // Spoken acknowledgement for assistive technology. Ordinary card actions
 // already have a sound, animation and score change; no floating visual toast.
