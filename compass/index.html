@@ -2359,6 +2359,8 @@
       border-radius: 12px;
       background: var(--surface-panel);
       box-shadow: var(--shadow-md);
+      box-sizing: border-box;
+      scrollbar-width: thin;
     }
 
     .subject-card-menu.is-flipped {
@@ -4696,6 +4698,9 @@
       padding: 1.1rem 1.2rem 1.15rem;
       background: transparent;
       isolation: isolate;
+      /* The cover surface translates down in the resting state. Clip it
+         here while the sibling management popup may overflow the card. */
+      overflow: clip;
     }
 
     .subject-card-content::before {
@@ -4966,6 +4971,38 @@
       }
 
       .subject-card--cover:is(:hover, :has(:focus-visible))
+      .subject-card-hook {
+        clip-path: inset(0 0 0 0);
+      }
+
+      /* Keep the image reveal steady while the click-open management
+         menu is active, even if the pointer leaves the card. */
+      .subject-card--cover:has(.subject-card-manage-btn[aria-expanded="true"]) {
+        border-color: var(--subject-cover-border);
+        box-shadow: 0 12px 30px rgba(35, 58, 48, 0.13);
+        transform: none;
+      }
+
+      .subject-card--cover:has(.subject-card-manage-btn[aria-expanded="true"])
+      .btn-launch {
+        transform: none;
+      }
+
+      .subject-card--cover:has(.subject-card-manage-btn[aria-expanded="true"])
+      .subject-card-cover img {
+        transform: scale(1);
+      }
+
+      .subject-card--cover:has(.subject-card-manage-btn[aria-expanded="true"])
+      .subject-card-content::before,
+      .subject-card--cover:has(.subject-card-manage-btn[aria-expanded="true"])
+      .subject-card-header,
+      .subject-card--cover:has(.subject-card-manage-btn[aria-expanded="true"])
+      .subject-card-hook {
+        transform: translate3d(0, 0, 0);
+      }
+
+      .subject-card--cover:has(.subject-card-manage-btn[aria-expanded="true"])
       .subject-card-hook {
         clip-path: inset(0 0 0 0);
       }
@@ -8893,7 +8930,9 @@
       menu.classList.remove('is-flipped');
       menu.style.maxHeight = '';
       menu.style.overflowY = '';
+      menu.style.transform = '';
       menu.hidden = false;
+      button.setAttribute('aria-expanded', 'true');
 
       const menuRect = menu.getBoundingClientRect();
       const buttonRect = button.getBoundingClientRect();
@@ -8901,7 +8940,6 @@
         window.innerHeight ||
         document.documentElement.clientHeight;
       const viewportPadding = 12;
-      const menuGap = 8;
 
       const visibleHeaderBottom =
         ['.spine', '.mobile-header']
@@ -8942,30 +8980,47 @@
       const spaceAbove =
         buttonRect.top -
         usableViewportTop;
-      const openAbove =
-        menuRect.height > spaceBelow &&
-        spaceAbove > spaceBelow;
 
-      if (openAbove) {
+      if (
+        menuRect.height > spaceBelow &&
+        spaceAbove > spaceBelow
+      ) {
         menu.classList.add('is-flipped');
       }
 
-      const availableHeight =
-        Math.max(
-          0,
-          Math.floor(
-            (openAbove ? spaceAbove : spaceBelow) -
-            menuGap
-          )
-        );
+      // Use the full visible viewport before introducing a scrollbar.
+      // Neither anchored side may fit when the trigger is near its middle.
+      const viewportSpace = Math.max(
+        0,
+        viewportHeight -
+        usableViewportTop -
+        viewportPadding
+      );
 
-      if (menuRect.height > availableHeight) {
+      if (menuRect.height > viewportSpace) {
         menu.style.maxHeight =
-          availableHeight + 'px';
+          Math.floor(viewportSpace) + 'px';
         menu.style.overflowY = 'auto';
       }
 
-      button.setAttribute('aria-expanded', 'true');
+      // Shift the dropdown into view instead of allowing it behind
+      // the sticky header or making it needlessly scrollable.
+      const positionedRect = menu.getBoundingClientRect();
+      const preferredTop = Math.max(
+        usableViewportTop,
+        Math.min(
+          positionedRect.top,
+          viewportHeight -
+          viewportPadding -
+          positionedRect.height
+        )
+      );
+      const shift = preferredTop - positionedRect.top;
+
+      if (Math.abs(shift) >= 0.5) {
+        menu.style.transform =
+          'translateY(' + shift.toFixed(1) + 'px)';
+      }
     }
 
     function syncAnonymousCreatePreviewState(
@@ -18960,6 +19015,14 @@
         closeOwnedSubjectMenus();
       }
     });
+
+    // Keep menus anchored to the card they belong to; dismiss them if
+    // the page scrolls, but still allow scrolling inside a long dropdown.
+    window.addEventListener('scroll', e => {
+      if (e.target?.closest?.('.subject-card-menu')) return;
+      closeOwnedSubjectMenus();
+    }, true);
+    window.addEventListener('resize', closeOwnedSubjectMenus);
 
     document.addEventListener('keydown', e => {
       if (e.defaultPrevented) return;
