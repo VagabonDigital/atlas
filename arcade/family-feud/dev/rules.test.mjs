@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { boards,legacyBoards } from '../content.mjs';
+import { editorialReview,playableBoards } from '../editorial.mjs';
 import {resolveAnswer,createMatch,applyResolution,revealMissed,nextRound,winner,chooseBoards} from '../engine.mjs';
 
 const source = JSON.parse(readFileSync(new URL('./season26-six-answer-raw.json', import.meta.url), 'utf8'));
@@ -70,6 +71,28 @@ test('first twenty sourced batches preserve one hundred original Season 26 six-a
     assert.ok(b.concepts.every(c=>c.boundary&&Array.isArray(c.excluded)&&Array.isArray(c.rawPhrases)));
   }
 });
+test('default pool includes only explicitly approved classroom-ready boards',()=>{
+  const approved=new Set(editorialReview.approvedSourceIds);
+  const held=new Set(Object.keys(editorialReview.heldReasons).map(Number));
+  assert.equal(boards.length,100);
+  assert.equal(approved.size,30);
+  assert.equal(held.size,70);
+  assert.equal(new Set([...approved,...held]).size,boards.length);
+  for(const b of boards){
+    assert.ok(approved.has(b.sourceSurveyId)!==held.has(b.sourceSurveyId),b.id+' requires one editorial decision');
+    if(held.has(b.sourceSurveyId))assert.ok(editorialReview.heldReasons[b.sourceSurveyId].length>15);
+  }
+  assert.deepEqual(new Set(playableBoards.map(b=>b.sourceSurveyId)),approved);
+  for(const id of [1,7,14,38,46,56,66,94,100,110,119,140,154,160])
+    assert.ok(!playableBoards.some(b=>b.sourceSurveyId===id),'Held survey '+id);
+  for(const random of [()=>0,()=>.3,()=>.7,()=>.99]){
+    const matchBoards=chooseBoards(playableBoards,[],random);
+    assert.equal(matchBoards.length,3);
+    assert.ok(matchBoards.every(b=>approved.has(b.sourceSurveyId)));
+  }
+  assert.equal(approved.has(999),false); // A future new survey is not approved implicitly.
+});
+
 test('all approved aliases map to one and only one source answer',()=>{
   let accepted=0,excluded=0;
   for(const b of boards)for(const [i,c] of b.concepts.entries()){

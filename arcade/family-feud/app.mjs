@@ -1,4 +1,5 @@
 import {boards,legacyBoards} from './content.mjs';
+import {playableBoards} from './editorial.mjs';
 import {chooseBoards,createMatch,resolveAnswer,applyResolution,revealMissed,nextRound,winner} from './engine.mjs';
 
 const $=s=>document.querySelector(s);
@@ -15,6 +16,7 @@ if(typeof Image!=='undefined'){
 }
 let state=null,coverOpen=true,busy=false,phrase='',message='',muted=true,audio=null,names=['Player 1','Player 2'];
 let matchSessionId=null,matchGeneration=0,sessionLoaded=false,resetCandidate=null;
+const classroomPlayableIds=new Set(playableBoards.map(b=>b.id));
 let seen=[];
 try{seen=JSON.parse(localStorage.getItem('atlas:family-feud:seen')||'[]');if(!Array.isArray(seen))seen=[];}catch{}
 window.ArcadeGameChrome?.mountLanding({root:'#landing-chrome',appearance:false});
@@ -44,7 +46,7 @@ function readSnapshot(sessionId){
     if(!record||record.status==='complete')return null;
     const saved=record.familyFeud;
     if(!saved||saved.version!==1||!Array.isArray(saved.boardIds)||saved.boardIds.length!==3)return null;
-    const selected=saved.boardIds.map(id=>boards.find(board=>board.id===id)||legacyBoards.find(board=>board.id===id));
+    const selected=saved.boardIds.map(id=>playableBoards.find(board=>board.id===id)||legacyBoards.find(board=>board.id===id));
     if(selected.some(board=>!board)||new Set(saved.boardIds).size!==3)return null;
     const pair=(value,max=Infinity)=>Array.isArray(value)&&value.length===2&&value.every(n=>Number.isInteger(n)&&n>=0&&n<=max);
     const player=n=>n===0||n===1;
@@ -100,6 +102,19 @@ function loadActiveMatch(){
   if(sessionLoaded&&nextId===matchSessionId)return;
   ++matchGeneration;sessionLoaded=true;matchSessionId=nextId;
   const restored=readSnapshot(matchSessionId);
+  // Previous snapshots cannot expose held boards via Continue. Retire only
+  // this learner's affected state; safe and illustrative saves still restore.
+  if(!restored&&matchSessionId){
+    try{
+      const previous=window.AtlasBridge?.readRegistry?.()?.sessionStates?.[matchSessionId]?.[REGISTRY_ID];
+      if(previous?.familyFeud?.boardIds?.some(id=>boards.some(b=>b.id===id&&!classroomPlayableIds.has(id)))){
+        window.AtlasBridge?.upsertSessionState?.(matchSessionId,REGISTRY_ID,{
+          status:'available',progress:{covered:0,total:3,openEnded:false},
+          currentLabel:null,familyFeud:null
+        });
+      }
+    }catch{} // Persistence must not interrupt fresh play.
+  }
   state=restored?.match||null;
   coverOpen=true; // Reopening or switching learners always begins at the cover.
   busy=false;phrase='';message='';
@@ -212,7 +227,7 @@ function recordAtlasEngagement(){
 }
 async function start(){
   if(busy)return;
-  coverOpen=false;participantNames();state=createMatch(chooseBoards(boards,seen));saveMatch();recordAtlasPlay();await openRound();
+  coverOpen=false;participantNames();state=createMatch(chooseBoards(playableBoards,seen));saveMatch();recordAtlasPlay();await openRound();
 }
 function enterMatch(){
   if(busy)return;

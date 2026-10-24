@@ -53,8 +53,8 @@ associated meanings. Multi-answer ambiguity, duplicates and technical errors
 have separate outcomes; errors preserve the exact entry and turn for retry.
 Add new natural paraphrases on the basis of manual playtesting.
 
-Replay prefers unseen selected boards and clearly discloses reuse when the
-one-hundred-board pool is exhausted.
+Replay prefers unseen approved boards and clearly discloses reuse when the
+30-board playable pool is exhausted.
 ## Verification
 
 ```sh
@@ -76,6 +76,44 @@ starter rules, scoring, all-found and missed-board endings, complete three-round
 play, replay, win/draw, Finish, and an injected one-shot resolver failure/retry.
 Browser inspection covers 1280×720 and 1024×768, muted and reduced-motion operation.
 The game has no debug controls, answer reveal shortcuts, or hidden text in shutter DOM.
+
+## Classroom-default editorial gate
+
+Family Feud has **one reviewed board pool**, with no tutor-facing category,
+18+ selector or content badge. The new game-specific `editorial.mjs` owns
+long-lived editorial approval decisions and exclusion reasons. Original survey
+questions, six answer labels, values and recognition rules remain in
+`content.mjs`, their existing owner. Any new source board is excluded from
+new matches until explicitly approved in `editorial.mjs`.
+
+Every candidate must meet all five standards, including its **complete original
+question and all six answers**:
+
+1. **Tutor/learner comfort:** suitable for a first lesson with an unknown
+   learner, including younger learners; avoid sexual, personally intimate,
+   humiliating, body-shaming, substance-centred or needlessly divisive material.
+2. **International accessibility:** a learner outside the US can meaningfully
+   guess without knowing niche celebrities, brands or local institutions.
+3. **Entertaining play:** imaginative, funny or observational rather than merely
+   uncontroversial.
+4. **Fair guessing:** six intelligible, distinct and discoverable concepts;
+   no arbitrary celebrity trivia or overlapping concepts posing as a fair board.
+5. **Conversational value:** invites explaining, comparing or playful reasoning
+   without pressuring anyone into sensitive personal disclosures.
+
+The initial conservative **editorial desk screen** approved **30** sourced
+boards for new matches and put **70 on hold**. Every one of the original **100**
+Season 26 surveys remains fully authored and preserved, with reason groups for
+held boards in `editorial.mjs`. A held board is not deleted or disguised as
+modified survey data. These are preliminary editorial decisions—not measured
+learner success rates or proof from tutor/learner playtests. Replacements from
+other seasons must meet the same criteria before selection. The aim remains
+100 **approved** boards, not 100 indiscriminately available records.
+
+If an old saved sourced match contains a newly held board, that learner's
+snapshot is retired when the game opens, preventing Continue from revealing
+it. Safe saved source matches and historical illustrative-board matches remain
+restorable. No other product, shared Arcade system or visible game mode changes.
 
 ## Atlas Continue
 

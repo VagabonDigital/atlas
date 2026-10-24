@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import { boards,legacyBoards } from '../content.mjs';
+import { playableBoards } from '../editorial.mjs';
 import * as engine from '../engine.mjs';
 
 // Verify the actual app module with deterministic browser and AtlasBridge fakes.
@@ -50,7 +51,7 @@ function fixture() {
       }
     };
     const context = {
-      boards, legacyBoards, ...engine,
+      boards, legacyBoards, playableBoards, ...engine,
       window: {
         AtlasBridge: bridge, AtlasAnalytics: { arcadeGameStart() {} },
         ArcadeGameChrome: { mountLanding() {}, mountGame() {} },
@@ -203,6 +204,29 @@ test('a newly started match uses only sourced Season 26 boards',async()=>{
   await page.game.start();
   assert.equal(page.game.state.boards.length,3);
   assert.equal(page.game.state.boards.every(b=>b.kind==='season26'),true);
+});
+
+test('held historic surveys cannot bypass the review gate through Continue',async()=>{
+  const f=fixture(),page=f.launch();
+  await page.game.start();
+  assert.ok(page.game.state.boards.every(b=>playableBoards.some(a=>a.id===b.id)));
+  page.switchTo('learner-b');
+  await page.game.start();
+  const other=structuredClone(f.state('learner-b').familyFeud);
+  const held=boards.find(b=>!playableBoards.some(a=>a.id===b.id));
+  assert.ok(held);
+  f.state('learner-a').familyFeud.boardIds[0]=held.id;
+  f.state('learner-a').status='in-progress';
+  f.state('learner-a').progress.covered=1;
+  page.switchTo('learner-a');
+  assert.equal(page.game.state,null);
+  assert.equal(page.coverLabel(),'Start Match');
+  assert.equal(f.state('learner-a').familyFeud,null);
+  assert.equal(f.state('learner-a').status,'available');
+  assert.equal(f.state('learner-a').progress.covered,0);
+  assert.deepEqual(f.state('learner-b').familyFeud,other);
+  await page.game.start();
+  assert.ok(page.game.state.boards.every(b=>playableBoards.some(a=>a.id===b.id)));
 });
 
 test('previously saved illustrative matches still restore and continue',async()=>{
