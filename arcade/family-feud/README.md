@@ -39,7 +39,7 @@ playable library only after screening a question for plausible successful guesse
 verifying its source numbers and writing and testing its answer codebook.
 This is an editorial selection judgement, not a measured learner success rate.
 
-## Season 25 source archive and Batches 21–22
+## Season 25 source archive and Batches 21–23
 
 The separate research file `dev/season25-six-answer-raw.json` contains
 **162 original six-answer Season 25 records** from
@@ -77,6 +77,15 @@ gate explicitly includes those IDs; the other source-archive entries
 remain research-only. No new game modes, visible QA categories or
 cross-game infrastructure were added.
 
+**Batch 23** adds five further approved Season 25 surveys:
+nervous behaviour (#189), unpleasant cinema neighbours (#225),
+a restaurant in hell (#247), less frightening animals to run with (#291),
+and pop-star role models (#313). The cinema board contains a prominent
+but harmless bodily-humour answer, assessed under the existing proportional
+classroom-default standard. The full question and six answers passed the
+same editorial screen; wording, ranks and scores remain unchanged.
+Each answer has its own accepted expressions and explicit boundaries.
+
 The original 40 held Season 26 boards remain held.
 
 The seven former **illustrative development boards** remain under
@@ -94,7 +103,7 @@ have separate outcomes; errors preserve the exact entry and turn for retry.
 Add new natural paraphrases on the basis of manual playtesting.
 
 Replay prefers unseen approved boards and clearly discloses reuse when the
-70-board playable pool is exhausted.
+75-board playable pool is exhausted.
 ## Verification
 
 ```sh
@@ -154,7 +163,7 @@ The famous-captains board passes despite two regional references. Cinderella
 stays held because an underwear answer ranks second. The complete review
 is recorded by source ID in `editorial.mjs`.
 
-After Batch 22, **70** sourced boards are approved and playable, while the
+After Batch 23, **75** sourced boards are approved and playable, while the
 original **40 held** Season 26 surveys remain unavailable in new matches.
 
 All 100 Season 26 surveys remain unchanged. The review is provisional editorial
