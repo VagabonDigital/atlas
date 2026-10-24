@@ -454,6 +454,76 @@ const fs = require("node:fs");
   assert.ok(!client.includes("Your lesson call stays open."));
   assert.ok(!client.includes("Take those new ways of saying things with you."));
 
+  // Repeated pushed state must not rebuild the header's Pause/Resume
+  // button; replacing it made the control flash and lose focus mid-play.
+  const headerSnippet = client.slice(
+    client.indexOf("function updateTutorHeader(s)"),
+    client.indexOf("function replacementReady()"),
+  );
+  let pauseRenders = 0;
+  const pauseRoot = {
+    node: null,
+    querySelector: () => pauseRoot.node,
+    contains: () => false,
+    set innerHTML(value) {
+      pauseRenders++;
+      this.node = value ? {
+        dataset: { action: value.includes('data-action="resume"') ? "resume" : "pause" },
+      } : null;
+    },
+  };
+  const headerHarness = {
+    learner: false, brand: "", ensurePlayingChrome: () => {},
+    headerPause: s => '<button data-action="' + (s.paused ? "resume" : "pause") + '"></button>',
+    headerUtilities: () => "",
+    document: {
+      activeElement: null,
+      querySelector: selector => selector === "#fw-header-pause" ? pauseRoot : null,
+    },
+  };
+  vm.runInNewContext(headerSnippet + ";this.updateHeader = updateTutorHeader;", headerHarness);
+  const activeState = { phase: "active", round: 1, paused: null };
+  headerHarness.updateHeader(activeState);
+  headerHarness.updateHeader({ ...activeState });
+  assert.equal(pauseRenders, 1, "Pushed state cannot flash the Pause button");
+  headerHarness.updateHeader({ ...activeState, paused: { reason: "connection" } });
+  assert.equal(pauseRenders, 2, "A real pause must switch to Resume");
+  headerHarness.updateHeader({ ...activeState, paused: { reason: "connection" } });
+  assert.equal(pauseRenders, 2, "Repeated connection state cannot flash Resume");
+
+  // A four-second heartbeat/state push is not new tutor progress. Only
+  // room/round/status changes should write to Atlas cloud continuity.
+  const continuitySnippet = client.slice(
+    client.indexOf("function syncAtlasContinuity(s)"),
+    client.indexOf("function ensurePlayingChrome()"),
+  );
+  const continuityWrites = [];
+  const continuityHarness = {
+    learner: false, LOCAL: false, gameLearnerId: "lesson-1",
+    session: "room-1", lastContinuityKey: "",
+    REGISTRY_ID: "arcade:forbidden-words", URL,
+    location: { href: "https://atlasfortutors.com/arcade/forbidden-words/" },
+    window: { AtlasBridge: {
+      readActiveSession: () => ({ id: "lesson-1" }),
+      upsertSessionState: (...args) => continuityWrites.push(args),
+      touchRecentActivity: () => {},
+    } },
+  };
+  vm.runInNewContext(continuitySnippet + ";this.sync = syncAtlasContinuity;", continuityHarness);
+  continuityHarness.sync({ phase: "waiting", round: 0 });
+  continuityHarness.sync({ phase: "waiting", round: 0 });
+  continuityHarness.sync({ phase: "active", round: 1 });
+  continuityHarness.sync({ phase: "active", round: 1 });
+  continuityHarness.sync({ phase: "results", round: 1 });
+  continuityHarness.sync({ phase: "finished", round: 1 });
+  assert.equal(continuityWrites.length, 3,
+    "Repeated live state updates should not flood Supabase continuity saves");
+
+  // Visible background-tab wakeups rely on socket liveness rather than the
+  // frozen JavaScript timer's stale timestamp.
+  assert.match(client, /\(!liveMode \|\| !liveClient\?\.connected\)/);
+  assert.match(client, /if \(failed && liveClient\?\.connected\)/);
+
   const setupTutorBlock = client.slice(
     client.indexOf("async function setupTutor()"),
     client.indexOf("async function request("),
