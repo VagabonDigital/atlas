@@ -271,7 +271,7 @@
         },
         {
             registryId: 'arcade:tomorrow-got-weird',
-            publicAccess: 'preview',
+            publicAccess: 'full',
             title: 'Tomorrow Got Weird',
             premise: 'Step into strange future scenarios and decide what you would do next.',
             unitLabel: 'Scenarios',
@@ -295,7 +295,7 @@
         },
         {
             registryId: 'arcade:would-you-rather',
-            publicAccess: 'preview',
+            publicAccess: 'full',
             title: 'Would You Rather',
             premise: 'Choose between impossible options and explain what made you decide.',
             unitLabel: 'Questions',

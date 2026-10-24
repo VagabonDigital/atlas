@@ -218,12 +218,12 @@ function normalizeRepoPath(value) {
 
   assert.strictEqual(
     food.publicAccess,
-    'preview'
+    'full'
   );
 
   assert.strictEqual(
     tomorrow.publicAccess,
-    'preview'
+    'full'
   );
 }
 
