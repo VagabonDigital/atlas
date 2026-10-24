@@ -409,9 +409,28 @@ const fs = require("node:fs");
   assert.ok(inviteHarness.makeInvite().includes("Private game link"));
   assert.ok(!inviteHarness.makeInvite().includes("Previous invitation disabled"));
 
-  // Invite/replacement controls belong to connection recovery, not play.
-  // Test the actual waiting, paused, and role-swap render functions against
-  // connected and disconnected states for the tutor.
+  // Recovery must be accessible from a collapsed disclosure even when a
+  // learner's original seat is online (e.g. device switch). Missing learners
+  // should expand recovery automatically without displacing primary actions.
+  const recoveryContext = {
+    invitationLink: () => "PRIVATE-LINK-MARKER",
+    replacementReady: () => false,
+    button: (action, label) => `BUTTON:${action}:${label}`,
+  };
+  const recoverySnippet = client.slice(
+    client.indexOf("function connectionOptions(s)"),
+    client.indexOf("function landing(s)"),
+  );
+  vm.runInNewContext(recoverySnippet + ";this.makeConnectionOptions = connectionOptions;", recoveryContext);
+  const liveRecovery = recoveryContext.makeConnectionOptions({ connected: { learner: true } });
+  assert.match(liveRecovery, /<details[^>]*data-learner-present="true"[^>]*>/);
+  assert.ok(!/<details[^>]*\bopen\b/.test(liveRecovery));
+  assert.ok(liveRecovery.includes("<summary>Connection options</summary>"));
+  assert.ok(liveRecovery.includes("Reset invitation"));
+  assert.ok(liveRecovery.includes("PRIVATE-LINK-MARKER"));
+  const missingRecovery = recoveryContext.makeConnectionOptions({ connected: { learner: false } });
+  assert.match(missingRecovery, /<details[^>]*data-learner-present="false"[^>]*\bopen\b/);
+  assert.ok(missingRecovery.includes("Reset invitation"));
   const phaseRender = (start, end, name) => {
     const app = { innerHTML: "" };
     const context = {
@@ -419,6 +438,7 @@ const fs = require("node:fs");
       escape: x => String(x), lastNonce: null,
       button: (action, label) => `BUTTON:${action}:${label}`,
       invitationLink: () => "PRIVATE-LINK-MARKER",
+      connectionOptions: recoveryContext.makeConnectionOptions,
       replacementReady: () => false,
       learnerHeader: () => "", pile: () => "", cardFace: () => "",
       feedbackText: () => "",
@@ -438,8 +458,10 @@ const fs = require("node:fs");
   assert.ok(waitingView.app.innerHTML.includes("Ready to play?"));
   assert.ok(waitingView.app.innerHTML.includes("Start Round"));
   assert.ok(waitingView.app.innerHTML.includes("Cancel game"));
-  assert.ok(!waitingView.app.innerHTML.includes("PRIVATE-LINK-MARKER"));
-  assert.ok(!waitingView.app.innerHTML.includes("Reset invitation"));
+  assert.ok(waitingView.app.innerHTML.includes("Connection options"));
+  assert.ok(waitingView.app.innerHTML.includes("PRIVATE-LINK-MARKER"));
+  assert.ok(waitingView.app.innerHTML.includes("Reset invitation"));
+  assert.match(waitingView.app.innerHTML, /<details[^>]*data-learner-present="true"[^>]*>/);
 
   const pausedState = {
     phase: "active", paused: { reason: "connection", remaining: 60000 },
@@ -453,6 +475,7 @@ const fs = require("node:fs");
       learner: false, deck: "DECK", lastNonce: null,
       button: (action, label) => `BUTTON:${action}:${label}`,
       invitationLink: () => "PRIVATE-LINK-MARKER",
+      connectionOptions: recoveryContext.makeConnectionOptions,
       replacementReady: () => false, learnerHeader: () => "",
       pile: () => "", cardFace: () => "", feedbackText: () => "",
     };
@@ -463,12 +486,14 @@ const fs = require("node:fs");
   const resumed = renderPaused(pausedState);
   assert.ok(resumed.includes("Resume turn"));
   assert.ok(resumed.includes("End game"));
-  assert.ok(!resumed.includes("PRIVATE-LINK-MARKER"));
-  assert.ok(!resumed.includes("Reset invitation"));
-  assert.ok(!resumed.includes("Invitation &amp; reconnect"));
+  assert.ok(resumed.includes("Connection options"));
+  assert.ok(resumed.includes("PRIVATE-LINK-MARKER"));
+  assert.ok(resumed.includes("Reset invitation"));
+  assert.match(resumed, /<details[^>]*data-learner-present="true"[^>]*>/);
   const missing = renderPaused({ ...pausedState, connected: { tutor: true, learner: false } });
   assert.ok(missing.includes("Partner disconnected."));
-  assert.ok(missing.includes("Invitation &amp; reconnect"));
+  assert.ok(missing.includes("Connection options"));
+  assert.match(missing, /<details[^>]*data-learner-present="false"[^>]*\bopen\b/);
   assert.ok(missing.includes("PRIVATE-LINK-MARKER"));
   assert.ok(missing.includes("Reset invitation"));
 
@@ -476,6 +501,7 @@ const fs = require("node:fs");
     learner: false, deck: "DECK", learnerHeader: () => "",
     button: (action, label) => `BUTTON:${action}:${label}`,
     invitationLink: () => "PRIVATE-LINK-MARKER",
+    connectionOptions: recoveryContext.makeConnectionOptions,
     escape: x => String(x),
   };
   const betweenSnippet = client.slice(
@@ -490,13 +516,26 @@ const fs = require("node:fs");
   };
   const normalSwap = betweenContext.betweenView(swapState);
   assert.ok(normalSwap.includes("I’m ready"));
-  assert.ok(!normalSwap.includes("PRIVATE-LINK-MARKER"));
-  assert.ok(!normalSwap.includes("Reset invitation"));
+  assert.ok(normalSwap.includes("Connection options"));
+  assert.ok(normalSwap.includes("PRIVATE-LINK-MARKER"));
+  assert.ok(normalSwap.includes("Reset invitation"));
+  assert.match(normalSwap, /<details[^>]*data-learner-present="true"[^>]*>/);
   const recoverySwap = betweenContext.betweenView({
     ...swapState, connected: { tutor: true, learner: false },
   });
   assert.ok(recoverySwap.includes("PRIVATE-LINK-MARKER"));
   assert.ok(recoverySwap.includes("Reset invitation"));
+  assert.match(recoverySwap, /<details[^>]*data-learner-present="false"[^>]*\bopen\b/);
+  assert.ok(!betweenContext.betweenView({
+    ...swapState, phase: "finished",
+  }).includes("Connection options"));
+  assert.ok(betweenContext.betweenView({
+    ...swapState, phase: "results",
+  }).includes("Connection options"));
+  // Connection changes collapse/expand the options, but normal state pushes
+  // preserve the tutor's open/closed choice.
+  assert.ok(client.includes("previousLearnerPresence"));
+  assert.ok(client.includes("currentConnectionOptions.dataset.learnerPresent === previousLearnerPresence"));
 
   // The learner sees actionable recovery for both the old HTTP and new
   // live-room errors, never an endless retry for a claimed/replaced seat.
@@ -668,7 +707,7 @@ const fs = require("node:fs");
   assert.ok(tutorPage.includes('id="end-game-eyebrow"'));
   assert.ok(client.includes('button("finish", "End game", "secondary end-game-button")'));
   assert.ok(client.includes('<details class="pause-invitation"'));
-  assert.ok(client.includes("Invitation &amp; reconnect"));
+  assert.ok(client.includes("<summary>Connection options</summary>"));
   assert.ok(client.includes('button("replace-learner", "Reset invitation"'));
   assert.ok(client.includes("replacementInvite = state?.invite || null"));
   assert.ok(tutorPage.includes("Reset invitation?"));
