@@ -2,10 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { boards,legacyBoards } from '../content.mjs';
+import { season25Boards } from '../content-season25.mjs';
 import { editorialReview,playableBoards } from '../editorial.mjs';
 import {resolveAnswer,createMatch,applyResolution,revealMissed,nextRound,winner,chooseBoards} from '../engine.mjs';
 
 const source = JSON.parse(readFileSync(new URL('./season26-six-answer-raw.json', import.meta.url), 'utf8'));
+const source25 = JSON.parse(readFileSync(new URL('./season25-six-answer-raw.json', import.meta.url), 'utf8'));
 test('authored aliases resolve to exactly their own concepts',()=>{
   for(const b of legacyBoards)for(const [i,c] of b.concepts.entries())for(const a of c.aliases)assert.deepEqual(resolveAnswer(b,a),{kind:'match',index:i},`${b.id}: ${a}`);
 });
@@ -71,14 +73,45 @@ test('first twenty sourced batches preserve one hundred original Season 26 six-a
     assert.ok(b.concepts.every(c=>c.boundary&&Array.isArray(c.excluded)&&Array.isArray(c.rawPhrases)));
   }
 });
+
+test('Season 25 research source remains complete and Batch 21 retains original six answers',()=>{
+  assert.equal(source25.length,162);
+  assert.deepEqual(source25.map(x=>x.id),Array.from({length:162},(_,i)=>i+162));
+  assert.ok(source25.every(x=>typeof x.question==='string'&&x.question.length>12&&x.answers?.length===6));
+  // The original source itself prints 70 for #306 although its answer points add to 80.
+  const totalMismatches=source25.filter(x=>x.answers.reduce((sum,a)=>sum+a.points,0)!==x.total_points).map(x=>x.id);
+  assert.deepEqual(totalMismatches,[306]);
+  assert.equal(source25.find(x=>x.id===306).total_points,70);
+  const screened=[183,187,188,252,282];
+  assert.deepEqual(season25Boards.map(b=>b.sourceSurveyId),screened);
+  for(const b of season25Boards){
+    const original=source25.find(x=>x.id===b.sourceSurveyId);
+    assert.ok(original,b.id);
+    assert.equal(b.kind,'season25');
+    assert.equal(b.sourceSeason,25);
+    assert.equal(b.sourceOrdinal,b.sourceSurveyId-161);
+    assert.equal(b.sourceUrl,'https://mstiescott.neocities.org/feud25_6');
+    assert.equal(b.id,'s25-six-'+String(b.sourceOrdinal).padStart(3,'0'));
+    assert.equal(b.question,original.question);
+    assert.equal(b.originalWording,original.question);
+    assert.deepEqual(b.concepts.map(c=>({answer:c.label,points:c.value})),original.answers);
+    assert.equal(b.concepts.length,6);
+    for(const [i,c] of b.concepts.entries()){
+      for(const alias of c.aliases) assert.deepEqual(resolveAnswer(b,alias),{kind:'match',index:i},b.id+' alias '+alias);
+      for(const x of c.excluded) assert.ok(resolveAnswer(b,x).index!==i,b.id+' exclusion '+x);
+    }
+  }
+  assert.ok(season25Boards.every(b=>playableBoards.some(a=>a.id===b.id)));
+});
+
 test('default pool includes only explicitly approved classroom-ready boards',()=>{
   const approved=new Set(editorialReview.approvedSourceIds);
   const held=new Set(Object.keys(editorialReview.heldReasons).map(Number));
   assert.equal(boards.length,100);
-  assert.equal(approved.size,60);
+  assert.equal(approved.size,65);
   assert.equal(held.size,40);
-  assert.equal(new Set([...approved,...held]).size,boards.length);
-  for(const b of boards){
+  assert.equal(new Set([...approved,...held]).size,boards.length+season25Boards.length);
+  for(const b of [...boards,...season25Boards]){
     assert.ok(approved.has(b.sourceSurveyId)!==held.has(b.sourceSurveyId),b.id+' requires one editorial decision');
     if(held.has(b.sourceSurveyId))assert.ok(editorialReview.heldReasons[b.sourceSurveyId].length>15);
   }
@@ -96,7 +129,7 @@ test('default pool includes only explicitly approved classroom-ready boards',()=
 
 test('all approved aliases map to one and only one source answer',()=>{
   let accepted=0,excluded=0;
-  for(const b of boards)for(const [i,c] of b.concepts.entries()){
+  for(const b of [...boards,...season25Boards])for(const [i,c] of b.concepts.entries()){
     for(const alias of c.aliases){
       assert.deepEqual(resolveAnswer(b,alias),{kind:'match',index:i},b.id+' '+alias);
       accepted++;
