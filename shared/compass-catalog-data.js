@@ -1064,7 +1064,7 @@
         },
         {
             id: 'can-you-trust-your-own-memories',
-            coverImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZFLDa1hAygLeh7xvbsj7cI84xpaEA1RAu5sECXCUlnw&s=10",
+            coverImage: "https://i0.wp.com/mindfulspark.org/wp-content/uploads/2025/12/ian-dooley-FgSyP02I0gw-unsplash-1.jpg?resize=2048%2C1365&ssl=1",
             title: 'Can You Trust Your Own Memories?',
             navTitle: 'Your Own Memories',
             categoryId: 'you-your-mind',
