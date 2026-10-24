@@ -937,7 +937,7 @@ const fs = require("node:fs");
   assert.ok(!gameCss.includes("body:has(#notice:not(:empty)) .feedback"));
   assert.ok(gameCss.includes(".feedback {\n  position: absolute;"), "Card feedback is screen-reader-only");
   assert.ok(client.includes('["countdown", "active"].includes(state.phase)'));
-  assert.ok(client.includes("The clock is stopped. Resume when both players are connected."));
+  assert.ok(client.includes("The clock has stopped, and your progress is safe."));
   assert.ok(!client.includes("The clock continues unless the tutor pauses."));
   assert.ok(gameCss.includes("width: max-content;"));
   assert.ok(gameCss.includes("max-width: min(680px, calc(100vw - 32px));"));
