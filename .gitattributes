@@ -1,0 +1,6 @@
+# Atlas contract tests inspect source text and expect LF line endings.
+# Keep cross-platform checkouts consistent without changing the source code.
+*.html text eol=lf
+*.css  text eol=lf
+*.js   text eol=lf
+*.mjs  text eol=lf
