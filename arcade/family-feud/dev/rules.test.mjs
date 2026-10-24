@@ -53,10 +53,10 @@ test('fresh legacyBoards preferred; exhaustion never prevents a full replay',()=
   assert.equal(chooseBoards(legacyBoards,legacyBoards.map(b=>b.id)).length,3);
 });
 
-test('first sixteen sourced batches preserve eighty original Season 26 six-answer records',()=>{
-  assert.equal(boards.length,80);
+test('first seventeen sourced batches preserve eighty-five original Season 26 six-answer records',()=>{
+  assert.equal(boards.length,85);
   assert.equal(legacyBoards.length,7);
-  assert.deepEqual(boards.map(b=>b.sourceSurveyId),[19,85,111,121,137,3,61,117,136,151,35,50,54,92,104,21,107,135,144,153,8,12,72,147,159,40,82,118,130,152,26,36,64,91,141,39,58,62,74,109,6,70,131,139,143,29,60,89,128,145,27,57,67,99,129,14,31,48,76,98,24,41,79,90,155,4,9,18,77,134,10,114,115,140,161,33,51,94,97,123]);
+  assert.deepEqual(boards.map(b=>b.sourceSurveyId),[19,85,111,121,137,3,61,117,136,151,35,50,54,92,104,21,107,135,144,153,8,12,72,147,159,40,82,118,130,152,26,36,64,91,141,39,58,62,74,109,6,70,131,139,143,29,60,89,128,145,27,57,67,99,129,14,31,48,76,98,24,41,79,90,155,4,9,18,77,134,10,114,115,140,161,33,51,94,97,123,13,44,88,95,158]);
   assert.equal(new Set([...boards,...legacyBoards].map(b=>b.id)).size,boards.length+legacyBoards.length);
   for(const b of boards){
     const raw=source.find(entry=>entry.id===b.sourceSurveyId);
@@ -304,6 +304,16 @@ test('Batch 16 natural guesses, exclusions and multi-answer turns',()=>{
   for(const [id,phrases] of [[33,["my neighbour","delivery driver","a barber","my boss","someone on the bus"]],[51,["a cake","flowers","a slideshow of photos","fireworks","party invitations"]],[94,["dragging luggage","rug","dragonfly","drag someone","strip club"]],[97,["london","seattle","rome","los angeles","tokyo"]],[123,["full beard","dancing shoes","bat symbol","glasses","a crown"]]])
     for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'miss',id+' '+phrase);
   for(const [id,phrases] of [[33,["mum or dad","my girlfriend and my teacher"]],[51,["music or jokes","open bar and balloon drop"]],[94,["dragnet or dragon","drag queen and drag race"]],[97,["new york or paris","chicago and vegas"]],[123,["moustache or bald head","suit and dollar sign"]]])
+    for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'ambiguous',id+' '+phrase);
+});
+
+test('Batch 17 natural guesses, exclusions and multi-answer turns',()=>{
+  const get=id=>boards.find(b=>b.sourceSurveyId===id);
+  for(const [id,phrases] of [[13,["the police","CCTV cameras","a be back later sign","his girlfriend","his mum","another thief"]],[44,["bath towel","kitchen roll","his old t shirt","newspaper sheets","serviettes","loo roll"]],[88,["michael","matthew","marcus","maverick","malcolm","mason"]],[95,["crack him open","make a jar of peanut butter","put him in the oven","eat him whole","smash his monocle","rub out his eyes and mouth"]],[158,["puppy love","true love","first love","undying love","mad love","my love"]]])
+    for(const [index,phrase] of phrases.entries())assert.deepEqual(resolveAnswer(get(id),phrase),{kind:'match',index},id+' '+phrase);
+  for(const [id,phrases] of [[13,["an empty safe","a locked vault","a metal detector","a long queue","a barking dog"]],[44,["baby wipe","old socks","printer paper","a plastic bag","cotton wool"]],[88,["micah","martin","maxwell","morgan","miguel"]],[95,["steal his hat","take his cane","divorce him","hide his shoes","throw water on him"]],[158,["unconditional love","family love","platonic love","lost love","tough love"]]])
+    for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'miss',id+' '+phrase);
+  for(const [id,phrases] of [[13,["police or cameras","wife and mother"]],[44,["towels or paper towels","napkins and toilet paper"]],[88,["mike or matt","malcolm and mason"]],[95,["crack him or roast him","eat him and grind him"]],[158,["puppy or true love","first love and my love"]]])
     for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'ambiguous',id+' '+phrase);
 });
 
