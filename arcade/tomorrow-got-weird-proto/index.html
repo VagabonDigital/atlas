@@ -2691,9 +2691,10 @@
        This is a test of crossing feel, not the final arrival scene.
        ============================================================ */
     let crossingInProgress = false;
-    const PROTO_IGNITION_MS = 1500;
+    // A clearly perceptible, single-step speed change, not a frame-by-frame ramp.
+    const PROTO_IGNITION_MS = 900;
     const PROTO_PULL_MS = 1200;
-    const PROTO_IGNITION_MAX_RATE = 2.6;
+    const PROTO_IGNITION_RATE = 3;
 
     function configurePrototypePortal() {
       const video = document.getElementById('proto-portal-video');
@@ -2713,27 +2714,6 @@
       video.play().catch(() => {});
     }
 
-    function ignitePrototypePortal(video) {
-      // The footage itself accelerates from 1x to 2.6x over 1.5 seconds.
-      // Keep this separate from the existing accelerating camera zoom.
-      return new Promise(resolve => {
-        const startedAt = performance.now();
-        function tick(now) {
-          const progress = Math.min(1, (now - startedAt) / PROTO_IGNITION_MS);
-          const eased = progress * progress;
-          if (video) {
-            video.playbackRate = 1 + (PROTO_IGNITION_MAX_RATE - 1) * eased;
-          }
-          if (progress < 1) {
-            requestAnimationFrame(tick);
-          } else {
-            resolve();
-          }
-        }
-        requestAnimationFrame(tick);
-      });
-    }
-
     async function crossIntoTomorrow() {
       if (crossingInProgress) return false;
 
@@ -2747,10 +2727,11 @@
       button.disabled = true;
 
       if (!reducedMotion) {
-        // First the tunnel speeds up; only then are we pulled into it.
-        if (video) video.playbackRate = 1;
+        // Immediately triple the footage speed. Hold the shot so the change
+        // registers, then retain the already-approved camera pull and flash.
+        if (video) video.playbackRate = PROTO_IGNITION_RATE;
         launch.classList.add('is-igniting');
-        await ignitePrototypePortal(video);
+        await new Promise(resolve => setTimeout(resolve, PROTO_IGNITION_MS));
         launch.classList.remove('is-igniting');
       }
 
