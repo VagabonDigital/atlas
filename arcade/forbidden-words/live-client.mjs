@@ -58,7 +58,9 @@ export class ForbiddenWordsLiveClient {
     return this.post("create", payload);
   }
   connect() {
+    this.checkConnection();
     if (this.closed || this.suspended || this.connecting || this.connected ||
+        this.reconnectTimer ||
         (this.socket && this.socket.readyState <= 1)) return;
     const generation = ++this.connectionGeneration;
     this.connecting = true;
@@ -88,11 +90,7 @@ export class ForbiddenWordsLiveClient {
     ws.onopen = () => {
       if (this.closed || this.socket !== ws) return;
       this.lastReply = Date.now();
-      this.watchdogTimer = setInterval(() => {
-        if (!this.closed && this.socket === ws &&
-            Date.now() - this.lastReply > 16000)
-          ws.close();
-      }, 4000);
+      this.watchdogTimer = setInterval(() => this.checkConnection(), 4000);
     };
     ws.onmessage = event => {
       if (this.closed || this.socket !== ws) return;
@@ -130,6 +128,16 @@ export class ForbiddenWordsLiveClient {
     ws.onerror = () => {
       // onclose handles retries. No access to sensitive handshake details.
     };
+  }
+  checkConnection() {
+    const ws = this.socket;
+    if (this.closed || this.suspended || !ws || ws.readyState === 0 ||
+        Date.now() - this.lastReply <= 16000) return;
+    // A dead connection's close handshake may not finish promptly. Detach it
+    // now so watchdog/foreground recovery can reconnect without a page reload.
+    // Late events from this socket are ignored by the socket identity guards.
+    this.socketEnded(ws);
+    ws.close();
   }
   connectionFailed(error) {
     if (this.closed || this.suspended) return;

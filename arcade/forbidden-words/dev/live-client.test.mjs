@@ -248,3 +248,73 @@ try {
   globalThis.fetch = savedGlobalFetch;
 }
 console.log("Forbidden Words browser native fetch receiver: fresh room creation passed.");
+
+// Background timers can wake with a stale OPEN socket. A close handshake may
+// remain CLOSING while offline; recovery must not depend on its close event.
+const realInterval = globalThis.setInterval;
+const realNow = Date.now;
+const watchdogs = new Map();
+let recoveryClock = realNow();
+const pair = [];
+const recoveryStates = [];
+try {
+  Date.now = () => recoveryClock;
+  globalThis.setInterval = (callback, delay) => {
+    const timer = realInterval(callback, delay);
+    watchdogs.set(timer, callback);
+    return timer;
+  };
+  for (const actor of ["tutor", "learner"]) {
+    const states = [];
+    recoveryStates.push(states);
+    const recovering = new ForbiddenWordsLiveClient({
+      api, session, actor,
+      getTicketPayload: async () => ({ atlasSessionId: "atlas-student" }),
+      getAuthorization: async () => "test-user-token",
+      fetchImpl: originalFetch, WebSocketImpl: FakeWebSocket,
+      onState: frame => states.push(frame), onStatus: () => {}, onFatal: error => { throw error; },
+    });
+    recovering.reconnectDelay = 1;
+    pair.push(recovering);
+    recovering.connect();
+  }
+  await wait(() => pair.every(seat => seat.connected));
+  // A responsive existing socket after a 13-second background interval is
+  // retained: the established server presence timeout remains 12 seconds.
+  recoveryClock += 13000;
+  for (const seat of pair) {
+    const socket = seat.socket;
+    seat.connect();
+    seat.heartbeat();
+    assert.equal(seat.socket, socket);
+    assert.equal(seat.lastReply, recoveryClock);
+  }
+  const oldSockets = pair.map(seat => seat.socket);
+  for (const socket of oldSockets) {
+    socket.close = () => { socket.readyState = 2; }; // No close event yet.
+  }
+  recoveryClock += 17000;
+  // Tutor's watchdog wakes first; learner subsequently returns to foreground.
+  watchdogs.get(pair[0].watchdogTimer)();
+  assert.equal(pair[0].connected, false, "Watchdog must detach a stale socket without waiting for onclose");
+  await wait(() => pair[0].connected && pair[0].socket !== oldSockets[0]);
+  recoveryClock += 4000;
+  pair[1].connect(); // Actual foreground/online handler calls connect().
+  assert.equal(pair[1].connected, false, "Foreground recovery must not retain a stale connected guard");
+  await wait(() => pair[1].connected && pair[1].socket !== oldSockets[1]);
+  for (let i = 0; i < pair.length; i++) {
+    const replacement = pair[i].socket;
+    const stateCount = recoveryStates[i].length;
+    assert.equal(replacement.url.search, "?session=" + session);
+    oldSockets[i].onclose?.();
+    oldSockets[i].deliver({ type: "state", state: { phase: "finished" } });
+    assert.equal(pair[i].socket, replacement, "Late events must not disrupt the recovered seat");
+    assert.equal(pair[i].connected, true);
+    assert.equal(recoveryStates[i].length, stateCount, "Old socket messages must not reach the game UI");
+  }
+  console.log("Forbidden Words two-seat background recovery: existing sockets, stalled close, watchdog and foreground reconnect passed.");
+} finally {
+  for (const seat of pair) seat.close();
+  globalThis.setInterval = realInterval;
+  Date.now = realNow;
+}
