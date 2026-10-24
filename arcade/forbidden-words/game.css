@@ -2216,23 +2216,21 @@ html[data-theme="night"] .shortcut-note {
 html[data-theme="night"] dialog::backdrop {
   background: var(--atlas-modal-overlay-bg);
 }
-/* Forbidden Words owns this game-specific rules surface. Atlas's shared
-   Arcade modal tokens are warm charcoal, while this deck is midnight blue.
-   Other Arcade modals and the game's confirmation dialogs stay unchanged. */
-html[data-theme="night"] #rules {
+/* Forbidden Words' rules and confirmation dialogs share the game's
+   midnight-blue night palette; Atlas-wide modal tokens remain unchanged. */
+html[data-theme="night"] :is(#rules, #replace-learner-confirm, #end-game-confirm) {
   background: radial-gradient(circle at 95% 0%, rgba(45, 105, 160, 0.18), transparent 52%), #102338;
   color: #eef6ff;
   border-color: #355b80;
   box-shadow: 0 28px 90px rgba(0, 6, 18, 0.65), 0 0 0 1px rgba(108, 168, 230, 0.08);
 }
-html[data-theme="night"] #rules::backdrop {
+html[data-theme="night"] :is(#rules, #replace-learner-confirm, #end-game-confirm)::backdrop {
   background: rgba(3, 14, 27, 0.78);
 }
-html[data-theme="night"] #rules p,
-html[data-theme="night"] #rules li {
+html[data-theme="night"] :is(#rules, #replace-learner-confirm, #end-game-confirm) :is(p, li) {
   color: #c5d7e9;
 }
-html[data-theme="night"] #rules .eyebrow,
+html[data-theme="night"] :is(#rules, #replace-learner-confirm, #end-game-confirm) .eyebrow,
 html[data-theme="night"] #rules .shortcut-note {
   color: #91b9df;
 }
