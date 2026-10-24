@@ -706,7 +706,7 @@ const fs = require("node:fs");
   assert.ok(client.includes('dialog.querySelector("#end-game-title").textContent = waiting ? "Cancel this game?"'));
   assert.ok(tutorPage.includes('id="end-game-eyebrow"'));
   assert.ok(client.includes('button("finish", "End game", "secondary end-game-button")'));
-  assert.ok(client.includes('<details class="pause-invitation"'));
+  assert.ok(client.includes('<details class="pause-invitation connection-options"'));
   assert.ok(client.includes("<summary>Connection options</summary>"));
   assert.ok(client.includes('button("replace-learner", "Reset invitation"'));
   assert.ok(client.includes("replacementInvite = state?.invite || null"));
