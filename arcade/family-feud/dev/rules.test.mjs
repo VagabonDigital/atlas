@@ -53,10 +53,10 @@ test('fresh legacyBoards preferred; exhaustion never prevents a full replay',()=
   assert.equal(chooseBoards(legacyBoards,legacyBoards.map(b=>b.id)).length,3);
 });
 
-test('first three sourced batches preserve fifteen original Season 26 six-answer records',()=>{
-  assert.equal(boards.length,15);
+test('first four sourced batches preserve twenty original Season 26 six-answer records',()=>{
+  assert.equal(boards.length,20);
   assert.equal(legacyBoards.length,7);
-  assert.deepEqual(boards.map(b=>b.sourceSurveyId),[19,85,111,121,137,3,61,117,136,151,35,50,54,92,104]);
+  assert.deepEqual(boards.map(b=>b.sourceSurveyId),[19,85,111,121,137,3,61,117,136,151,35,50,54,92,104,21,107,135,144,153]);
   assert.equal(new Set([...boards,...legacyBoards].map(b=>b.id)).size,boards.length+legacyBoards.length);
   for(const b of boards){
     const raw=source.find(entry=>entry.id===b.sourceSurveyId);
@@ -124,6 +124,32 @@ test('Batch 3 realistic guesses, boundaries and multiple-answer turns',()=>{
   for(const [id,phrase] of [[35,"i regret it"],[35,"current boyfriend"],[50,"the house was empty"],[50,"shot at"],[54,"gift card"],[54,"headset"],[92,"escape plan"],[92,"compass"],[104,"coach"],[104,"hotel doorman"]])assert.equal(resolveAnswer(get(id),phrase).kind,'miss',id+' '+phrase);
   for(const [id,phrase] of [[35,"my ex or job"],[50,"dog bite or no loot"],[54,"phone and clothes"],[92,"rope or keys"],[104,"bouncer and bartender"]])assert.equal(resolveAnswer(get(id),phrase).kind,'ambiguous',id+' '+phrase);
 });
+test('Batch 4 natural guesses, exclusions and multiple-answer turns',()=>{
+  const get=id=>boards.find(b=>b.sourceSurveyId===id);
+  for(const [id,samples] of [
+    [21,["i smell bad","i talk too much","i bully my colleagues","they got sacked","my lunch smells awful","my desk is messy"]],
+    [107,["letting one rip","crying baby","belching","ambulance siren","someone bangs on the door","phone notification"]],
+    [135,["its own postcode","a lazy river","guest cottage","shopping centre","private jet","a screening room"]],
+    [144,["oral surgeon","hand jewellery model","nail salon worker","blackjack dealer","sleight of hand artist","bsl interpreter"]],
+    [153,["drive a truck","put on a jumper","drink from a glass","fit through a doorway","rest my head on a pillow","bend down to kiss"]]
+  ]) for(const [index,phrase] of samples.entries())
+    assert.deepEqual(resolveAnswer(get(id),phrase),{kind:'match',index},id+' '+phrase);
+  for(const [id,phrase] of [
+    [21,"they resigned"],[21,"i got fired"],[21,"i eat lunch"],[21,"i am disorganised"],
+    [107,"a door creaks"],[107,"sneezing"],[107,"a radio"],[107,"fire alarm"],
+    [135,"swimming pool"],[135,"big tv"],[135,"guest bedroom"],[135,"airport terminal"],
+    [144,"nurse"],[144,"pedicurist"],[144,"fashion model"],[144,"spoken language translator"],
+    [153,"ride a bike"],[153,"cooking"],[153,"open a door"],[153,"hug"]
+  ]) assert.equal(resolveAnswer(get(id),phrase).kind,'miss',id+' '+phrase);
+  for(const [id,phrase] of [
+    [21,"i stink or i talk too much"],
+    [107,"fart or burp"],
+    [135,"guest house or cinema"],
+    [144,"hand model or magician"],
+    [153,"eat or sleep"]
+  ]) assert.equal(resolveAnswer(get(id),phrase).kind,'ambiguous',id+' '+phrase);
+});
+
 test('three-round matches select sourced boards and never legacy fixtures',()=>{
   const selected=chooseBoards(boards,[],()=>0.37);
   assert.equal(selected.length,3);
