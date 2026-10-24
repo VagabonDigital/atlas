@@ -4946,31 +4946,63 @@
 
     /* The fixed footprint and bottom action stay put as the image yields to copy. */
     @media (hover: hover) and (pointer: fine) {
-      .subject-card--cover:is(:hover, :has(:focus-visible), :has(.subject-card-manage-btn[aria-expanded="true"])) {
+      .subject-card--cover:is(:hover, :has(:focus-visible)) {
         border-color: var(--subject-cover-border);
         box-shadow: 0 12px 30px rgba(35, 58, 48, 0.13);
         transform: none;
       }
 
-      .subject-card--cover:is(:hover, :has(.subject-card-manage-btn[aria-expanded="true"])) .btn-launch {
+      .subject-card--cover:hover .btn-launch {
         transform: none;
       }
 
-      .subject-card--cover:is(:hover, :has(:focus-visible), :has(.subject-card-manage-btn[aria-expanded="true"]))
+      .subject-card--cover:is(:hover, :has(:focus-visible))
       .subject-card-cover img {
         transform: scale(1);
       }
 
-      .subject-card--cover:is(:hover, :has(:focus-visible), :has(.subject-card-manage-btn[aria-expanded="true"]))
+      .subject-card--cover:is(:hover, :has(:focus-visible))
       .subject-card-content::before,
-      .subject-card--cover:is(:hover, :has(:focus-visible), :has(.subject-card-manage-btn[aria-expanded="true"]))
+      .subject-card--cover:is(:hover, :has(:focus-visible))
       .subject-card-header,
-      .subject-card--cover:is(:hover, :has(:focus-visible), :has(.subject-card-manage-btn[aria-expanded="true"]))
+      .subject-card--cover:is(:hover, :has(:focus-visible))
       .subject-card-hook {
         transform: translate3d(0, 0, 0);
       }
 
-      .subject-card--cover:is(:hover, :has(:focus-visible), :has(.subject-card-manage-btn[aria-expanded="true"]))
+      .subject-card--cover:is(:hover, :has(:focus-visible))
+      .subject-card-hook {
+        clip-path: inset(0 0 0 0);
+      }
+
+      /* Keep the image reveal steady while the click-open management
+         menu is active, even if the pointer leaves the card. */
+      .subject-card--cover:has(.subject-card-manage-btn[aria-expanded="true"]) {
+        border-color: var(--subject-cover-border);
+        box-shadow: 0 12px 30px rgba(35, 58, 48, 0.13);
+        transform: none;
+      }
+
+      .subject-card--cover:has(.subject-card-manage-btn[aria-expanded="true"])
+      .btn-launch {
+        transform: none;
+      }
+
+      .subject-card--cover:has(.subject-card-manage-btn[aria-expanded="true"])
+      .subject-card-cover img {
+        transform: scale(1);
+      }
+
+      .subject-card--cover:has(.subject-card-manage-btn[aria-expanded="true"])
+      .subject-card-content::before,
+      .subject-card--cover:has(.subject-card-manage-btn[aria-expanded="true"])
+      .subject-card-header,
+      .subject-card--cover:has(.subject-card-manage-btn[aria-expanded="true"])
+      .subject-card-hook {
+        transform: translate3d(0, 0, 0);
+      }
+
+      .subject-card--cover:has(.subject-card-manage-btn[aria-expanded="true"])
       .subject-card-hook {
         clip-path: inset(0 0 0 0);
       }
@@ -4995,7 +5027,7 @@
         transition: none;
       }
 
-      .subject-card--cover:is(:hover, :has(:focus-visible), :has(.subject-card-manage-btn[aria-expanded="true"])) {
+      .subject-card--cover:is(:hover, :has(:focus-visible)) {
         transform: none;
       }
     }
