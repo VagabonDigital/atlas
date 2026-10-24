@@ -56,6 +56,7 @@ let credential,
   busy = false,
   pending = null;
 let lastKey = "",
+  lastContinuityKey = "",
   lastNonce,
   lastPhase,
   lastFeedback,
@@ -241,9 +242,14 @@ function syncAtlasContinuity(s) {
     const finished = s.phase === "finished";
     const round = Math.max(1, Number(s.round) || 1);
     const launchUrl = new URL("./index.html", location.href).href;
+    // Live state is pushed frequently (including presence transitions).
+    // Atlas progress only changes when its learner/room, round or status does.
+    const status = finished ? "complete" : started ? "in-progress" : "available";
+    const continuityKey = JSON.stringify([gameLearnerId, session, status, round]);
+    if (continuityKey === lastContinuityKey) return;
     window.AtlasBridge.upsertSessionState(gameLearnerId, REGISTRY_ID, {
       world: "arcade",
-      status: finished ? "complete" : started ? "in-progress" : "available",
+      status,
       launchUrl,
       currentLabel: started ? `Round ${round}` : null,
       progress: started
@@ -259,6 +265,7 @@ function syncAtlasContinuity(s) {
         launchUrl,
       });
     }
+    lastContinuityKey = continuityKey;
   } catch {
     /* Continuity must never interrupt live play. */
   }
@@ -470,7 +477,11 @@ function updateTutorHeader(s) {
     utilitiesRoot.innerHTML = headerUtilities();
     if (focusedAction) utilitiesRoot.querySelector(`[data-action="${focusedAction}"]`)?.focus({ preventScroll: true });
   }
-  if (pauseRoot) pauseRoot.innerHTML = headerPause(s);
+  // Preserve the focused button and avoid flicker on repeated state pushes.
+  if (pauseRoot) {
+    const pauseMarkup = headerPause(s);
+    if (pauseRoot.innerHTML !== pauseMarkup) pauseRoot.innerHTML = pauseMarkup;
+  }
 }
 function replacementReady() {
   return !!replacementInvite && replacementInvite === state?.invite;
@@ -749,6 +760,7 @@ function tick() {
   }
   if (
     Date.now() - lastSync > (liveMode ? 12000 : 4000) &&
+    (!liveMode || !liveClient?.connected) &&
     ["active", "countdown"].includes(state.phase)
   ) {
     failed = true;
@@ -1025,6 +1037,13 @@ async function startLiveRoom(epoch) {
       if (epoch !== roomEpoch || selectedSession !== session) return;
       lastSync = Date.now();
       if (typeof serverNow === "number") offset = serverNow - Date.now();
+      // A healthy reply must clear a stale warning after a background tab
+      // wakes up; otherwise controls can remain disabled indefinitely.
+      if (failed && liveClient?.connected) {
+        failed = false;
+        notify("");
+        if (state) updateControls();
+      }
     },
     onStatus: connected => {
       if (epoch !== roomEpoch || selectedSession !== session) return;
@@ -1155,6 +1174,14 @@ document.addEventListener("keydown", (event) => {
     event.preventDefault();
     act(action);
   }
+});
+// Chrome can park a page with active WebSockets in the back-forward cache.
+// Stop the old socket on pagehide; reconnect to the SAME room on restore.
+window.addEventListener("pagehide", () => {
+  if (liveMode) liveClient?.suspend();
+});
+window.addEventListener("pageshow", (event) => {
+  if (liveMode && event.persisted) liveClient?.resume();
 });
 window.addEventListener("online", () => {
   if (liveMode) liveClient?.connect();
