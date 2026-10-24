@@ -820,6 +820,23 @@
       }
     });
 
+    // When appearance is the only menu action, the hamburger adds a needless
+    // extra tap. Keep the existing direct theme button visible on mobile.
+    // Games with their own mobile menu (e.g. Forbidden Words) retain it.
+    const menuItems = controls.querySelectorAll(
+      '.arcade-game-chrome-game-menu-item'
+    );
+    if (
+      settings.mobileMenu !== true &&
+      menuItems.length === 1 &&
+      menuItems[0].classList.contains('arcade-game-chrome-game-menu-appearance')
+    ) {
+      controls.querySelector('.arcade-game-chrome-game-appearance')
+        ?.classList.remove('arcade-game-chrome-game-direct');
+      controls.querySelector('.arcade-game-chrome-game-menu-toggle')?.remove();
+      controls.querySelector('.arcade-game-chrome-game-menu')?.remove();
+    }
+
     // A game may explicitly reuse only the responsive menu shell for its own
     // utilities. Otherwise no empty/global hamburger is rendered on mobile.
     if (
