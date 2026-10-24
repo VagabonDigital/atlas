@@ -238,7 +238,7 @@
             unitLabel: 'Rounds',
             total: 3,
             artId: 'familyFeud',
-            coverImage: '/arcade/family-feud/assets/family-feud-cover.png',
+            coverImage: '/assets/hub/family-feud.webp',
             accent: '#ff902e',
             order: 7,
             launchUrl: './family-feud/index.html'
@@ -264,6 +264,7 @@
             unitLabel: 'Cards',
             total: 141,
             artId: 'forbidden',
+            coverImage: '/assets/hub/forbidden-words.webp',
             accent: '#0762de',
             order: 4,
             launchUrl: './forbidden-words/index.html'
