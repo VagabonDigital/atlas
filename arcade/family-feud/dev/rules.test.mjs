@@ -53,10 +53,10 @@ test('fresh legacyBoards preferred; exhaustion never prevents a full replay',()=
   assert.equal(chooseBoards(legacyBoards,legacyBoards.map(b=>b.id)).length,3);
 });
 
-test('first nine sourced batches preserve forty-five original Season 26 six-answer records',()=>{
-  assert.equal(boards.length,45);
+test('first ten sourced batches preserve fifty original Season 26 six-answer records',()=>{
+  assert.equal(boards.length,50);
   assert.equal(legacyBoards.length,7);
-  assert.deepEqual(boards.map(b=>b.sourceSurveyId),[19,85,111,121,137,3,61,117,136,151,35,50,54,92,104,21,107,135,144,153,8,12,72,147,159,40,82,118,130,152,26,36,64,91,141,39,58,62,74,109,6,70,131,139,143]);
+  assert.deepEqual(boards.map(b=>b.sourceSurveyId),[19,85,111,121,137,3,61,117,136,151,35,50,54,92,104,21,107,135,144,153,8,12,72,147,159,40,82,118,130,152,26,36,64,91,141,39,58,62,74,109,6,70,131,139,143,29,60,89,128,145]);
   assert.equal(new Set([...boards,...legacyBoards].map(b=>b.id)).size,boards.length+legacyBoards.length);
   for(const b of boards){
     const raw=source.find(entry=>entry.id===b.sourceSurveyId);
@@ -240,6 +240,16 @@ test('Batch 9 natural guesses, boundaries and multiple-answer turns',()=>{
   for(const [id,phrases] of [[6,["sleeping","talk in her sleep","wear pyjamas","sweat","drinking water"]],[70,["hug","playing video games","looking at photos","selling online","checking messages"]],[131,["yawn","being bored","belch","silently smile","checking messages"]],[139,["saving money","smoking","cooking","listening","feeling sad"]],[143,["lizard","squirrel","smell","garbage","a stray dog"]]])
     for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'miss',id+' '+phrase);
   for(const [id,phrases] of [[6,["snoring and drooling","reading or watching television"]],[70,["kissing or eating","buying stuff and voting"]],[131,["slept or laughed","talking and farting"]],[139,["eating or drinking","shopping and worrying"]],[143,["rats or spiders","snake and raccoon"]]])
+    for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'ambiguous',id+' '+phrase);
+});
+
+test('Batch 10 natural guesses, exclusion boundaries and multi-answer attempts',()=>{
+  const get=id=>boards.find(b=>b.sourceSurveyId===id);
+  for(const [id,phrases] of [[29,["squeezing a tube of toothpaste","juice from a lemon","squeeze some ketchup","popping spots","water out of a towel","squeeze water out of sponge"]],[60,["i adore you","you look fantastic","thanks for all you do","let's hit the shops","i'll hoover","want to see a film"]],[89,["a wagging tail","cold wet nose","walking harness","my feeding bowl","dog mattress","woofing"]],[128,["three meals a day","somewhere to live","having a mum and dad","clothes on your back","annoying sister","common sense"]],[145,["heart surgeon","drain specialist","local councillor","nuclear reactor operator","sous chef","airline pilot"]]])
+    for(const [index,phrase] of phrases.entries())assert.deepEqual(resolveAnswer(get(id),phrase),{kind:'match',index},id+' '+phrase);
+  for(const [id,phrases] of [[29,["shampoo","squeezing toothpaste from a toothbrush","tomatoes","sweat","rubber duck"]],[60,["i'm sorry","you are clever","a new car","i'll cook at home","i bought eggs"]],[89,["paws","whiskers","kennel outdoors","dog toys","a human bed"]],[128,["a car","an education","grandparents","school bag","friends"]],[145,["nurse","electrician","judge","ordinary engineer","waiter"]]])
+    for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'miss',id+' '+phrase);
+  for(const [id,phrases] of [[29,["toothpaste or ketchup","washcloth and sponge"]],[60,["love you or thank you","shopping and cleaning"]],[89,["bark or tail","leash and bowl"]],[128,["food or house","parents and siblings"]],[145,["doctor or pilot","plumber and chef"]]])
     for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'ambiguous',id+' '+phrase);
 });
 
