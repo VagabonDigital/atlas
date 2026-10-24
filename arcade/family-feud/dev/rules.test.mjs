@@ -53,10 +53,10 @@ test('fresh legacyBoards preferred; exhaustion never prevents a full replay',()=
   assert.equal(chooseBoards(legacyBoards,legacyBoards.map(b=>b.id)).length,3);
 });
 
-test('first thirteen sourced batches preserve sixty-five original Season 26 six-answer records',()=>{
-  assert.equal(boards.length,65);
+test('first fourteen sourced batches preserve seventy original Season 26 six-answer records',()=>{
+  assert.equal(boards.length,70);
   assert.equal(legacyBoards.length,7);
-  assert.deepEqual(boards.map(b=>b.sourceSurveyId),[19,85,111,121,137,3,61,117,136,151,35,50,54,92,104,21,107,135,144,153,8,12,72,147,159,40,82,118,130,152,26,36,64,91,141,39,58,62,74,109,6,70,131,139,143,29,60,89,128,145,27,57,67,99,129,14,31,48,76,98,24,41,79,90,155]);
+  assert.deepEqual(boards.map(b=>b.sourceSurveyId),[19,85,111,121,137,3,61,117,136,151,35,50,54,92,104,21,107,135,144,153,8,12,72,147,159,40,82,118,130,152,26,36,64,91,141,39,58,62,74,109,6,70,131,139,143,29,60,89,128,145,27,57,67,99,129,14,31,48,76,98,24,41,79,90,155,4,9,18,77,134]);
   assert.equal(new Set([...boards,...legacyBoards].map(b=>b.id)).size,boards.length+legacyBoards.length);
   for(const b of boards){
     const raw=source.find(entry=>entry.id===b.sourceSurveyId);
@@ -281,6 +281,13 @@ test('Batch 13 natural guesses, neighbour exclusions and multi-answer attempts',
     for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'miss',id+' '+phrase);
   for(const [id,phrases] of [[24,["wink or stare","bat my eyes and raise an eyebrow"]],[41,["juice or biting","they choke and spit it out"]],[79,["wash or brush","vacuum and glue"]],[90,["trash or poop","a rat and a dead plant"]],[155,["moth or beetle","fly and spider"]]])
     for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'ambiguous',id+' '+phrase);
+});
+
+test('Batch 14 natural guesses, exclusions and multi-answer turns',()=>{
+  const get=id=>boards.find(b=>b.sourceSurveyId===id);
+  for(const [id,phrases] of [[4,["playing the trumpet","a bass tuba","silver flute","alto sax","a slide trombone","orchestral french horn"]],[9,["spitting sunflower seeds","adjusting his cup","saying bad words","slide into a base","throwing his baseball bat","wearing a baseball hat"]],[18,["he has no hair","his hair is short","too much hair wax","hair is knotted","he pulls away","dry flaky scalp"]],[77,["at the cathedral","school assembly","funeral service","in the playground","wedding reception","at the nursery"]],[134,["a huge belly","feeling bloated","a lovely belly","jiggly belly","belly sticks out","flabby stomach"]]])for(const [index,phrase] of phrases.entries())assert.deepEqual(resolveAnswer(get(id),phrase),{kind:'match',index},id+' '+phrase);
+  for(const [id,phrases] of [[4,["clarinet","piccolo","bugle","recorder","oboe"]],[9,["dance on the field","take off his cap","catching a cold","walking","cheering"]],[18,["curly hair","he wears sunglasses","lice","grey hair","has a beard"]],[77,["at a nightclub","in the car","concert hall","living room","on headphones"]],[134,["brilliant","blue","boring","bruised","black"]]])for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'miss',id+' '+phrase);
+  for(const [id,phrases] of [[4,["trumpet or tuba","flute and saxophone"]],[9,["spit or swear","scratch and wear a cap"]],[18,["bald or short hair","dandruff and greasy hair"]],[77,["school or daycare","funeral and wedding"]],[134,["big or bloated","beautiful and bouncy"]]])for(const phrase of phrases)assert.equal(resolveAnswer(get(id),phrase).kind,'ambiguous',id+' '+phrase);
 });
 
 test('three-round matches select sourced boards and never legacy fixtures',()=>{
