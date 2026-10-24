@@ -99,11 +99,13 @@ function makeRuntime(
 
   assert.deepStrictEqual(
     Array.from(fullSubjects),
-    runtime.window.CompassCatalogData
-      .getCompassSubjects()
-      .filter(subject => subject.status === 'available')
-      .map(subject => subject.id)
-      .sort()
+    Array.from(
+      runtime.window.CompassCatalogData
+        .getCompassSubjects()
+        .filter(subject => subject.status === 'available')
+        .map(subject => subject.id)
+        .sort()
+    )
   );
 
   const fullGames =
