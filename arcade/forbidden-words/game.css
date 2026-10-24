@@ -633,17 +633,22 @@ html[data-theme="night"] .invite-link-label {
 }
 
 .game-heading-left,
+.game-heading-center,
 .game-heading-right {
   display: flex;
   min-width: 0;
   align-items: center;
 }
-.game-heading-left {
-  gap: 10px;
-}
+.game-heading-left { gap: 10px; }
+.game-heading-center { justify-content: center; }
 .game-heading-right {
   justify-content: flex-end;
   gap: 8px;
+}
+#playing-chrome #fw-header-round {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  letter-spacing: .16em;
 }
 .game-heading .brand {
   font-size: clamp(24px, 2vw, 32px);
@@ -1219,6 +1224,21 @@ html[data-theme="night"] .invite-link-label {
   margin-top: 24px;
   padding-top: 14px;
   text-align: left;
+}
+/* Advanced recovery stays secondary to Start / Resume controls. */
+.landing .connection-options {
+  margin-top: 6px;
+  padding-top: 0;
+  border-top: 0;
+  text-align: center;
+}
+.landing .connection-options .pause-invitation-content {
+  text-align: left;
+}
+.switch-maintenance .connection-options {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
 }
 .pause-invitation summary {
   cursor: pointer;
@@ -2863,6 +2883,16 @@ html[data-theme="night"] #rules .atlas-modal-close:active {
   #chrome {
     padding: 0;
   }
+  /* The compact right-side count leaves space for the pause and menu. */
+  #playing-chrome #fw-header-round {
+    font-size: 0;
+    letter-spacing: 0;
+  }
+  #playing-chrome #fw-header-round::after {
+    content: "R" attr(data-round);
+    font-size: 10px;
+    font-weight: 800;
+  }
 
   #landing-chrome {
     padding: 14px 20px 0;
@@ -3011,7 +3041,12 @@ html[data-theme="night"] #rules .atlas-modal-close:active {
     text-overflow: ellipsis;
   }
 }
+@media (max-width: 380px) {
+  #playing-chrome .brand { font-size: 15px; letter-spacing: -1.1px; }
+}
 @media (max-width: 520px) {
+  /* A round label is present on the game board; prioritise header controls. */
+  #playing-chrome #fw-header-round { display: none; }
   #playing-chrome .brand {
     font-size: clamp(16px, 4.7vw, 19px);
     letter-spacing: -0.9px;

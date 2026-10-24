@@ -75,19 +75,19 @@
       --cyan-dim: #f0fafc;
       --cyan-rgb: 0, 144, 184;
 
-      --lie: #c0392b;
-      --lie-bg: #fdf2f1;
-      --lie-border: rgba(192, 57, 43, 0.25);
-      --lie-rgb: 192, 57, 43;
+      --lie: #ad4839;
+      --lie-bg: #fbeee9;
+      --lie-border: rgba(173, 72, 57, 0.29);
+      --lie-rgb: 173, 72, 57;
 
-      --truth: #1a7a4a;
-      --truth-bg: #f0faf4;
-      --truth-border: rgba(26, 122, 74, 0.25);
-      --truth-rgb: 26, 122, 74;
+      --truth: #216f57;
+      --truth-bg: #ebf5ef;
+      --truth-border: rgba(33, 111, 87, 0.28);
+      --truth-rgb: 33, 111, 87;
 
-      --wildcard: #6d28d9;
-      --wildcard-bg: #f5f0ff;
-      --wildcard-border: rgba(109, 40, 217, 0.25);
+      --wildcard: #7151a1;
+      --wildcard-bg: #f2edfa;
+      --wildcard-border: rgba(113, 81, 161, 0.3);
 
       --arcade: #e8562a;
 
@@ -114,10 +114,10 @@
       --bg-subtle: #1a2436;
       --bg-deep: #0d1520;
 
-      --ink: #d8e8f8;
-      --ink-mid: #8aa0b8;
-      --ink-quiet: #5a7090;
-      --ink-faint: #2a3a4e;
+      --ink: #e2eef7;
+      --ink-mid: #bbcedd;
+      --ink-quiet: #9bb4c9;
+      --ink-faint: #8aa5ba;
 
       --border: rgba(255, 255, 255, 0.08);
       --border-mid: rgba(255, 255, 255, 0.14);
@@ -128,19 +128,19 @@
       --cyan-dim: rgba(0, 200, 240, 0.07);
       --cyan-rgb: 0, 200, 240;
 
-      --lie: #f06060;
-      --lie-bg: rgba(240, 96, 96, 0.1);
-      --lie-border: rgba(240, 96, 96, 0.28);
-      --lie-rgb: 240, 96, 96;
+      --lie: #f49b85;
+      --lie-bg: rgba(221, 110, 86, 0.12);
+      --lie-border: rgba(244, 155, 133, 0.37);
+      --lie-rgb: 244, 155, 133;
 
-      --truth: #48c87a;
-      --truth-bg: rgba(72, 200, 122, 0.08);
-      --truth-border: rgba(72, 200, 122, 0.25);
-      --truth-rgb: 72, 200, 122;
+      --truth: #78d2b2;
+      --truth-bg: rgba(78, 181, 143, 0.12);
+      --truth-border: rgba(120, 210, 178, 0.36);
+      --truth-rgb: 120, 210, 178;
 
-      --wildcard: #a78bfa;
-      --wildcard-bg: rgba(167, 139, 250, 0.1);
-      --wildcard-border: rgba(167, 139, 250, 0.28);
+      --wildcard: #c2a1f5;
+      --wildcard-bg: rgba(158, 112, 219, 0.14);
+      --wildcard-border: rgba(194, 161, 245, 0.34);
 
       --arcade: #f07348;
 
@@ -211,7 +211,9 @@
 
     body {
       min-height: 100svh;
-      overflow-x: hidden;
+      /* clip hides lateral spill without creating a scroll container.
+         overflow-x:hidden was defeating the sticky game header/strip. */
+      overflow-x: clip;
       background: var(--bg);
       color: var(--ink);
       font-family: var(--font-body);
@@ -588,18 +590,58 @@
      ============================================================ */
 
     #game {
+      position: relative;
+      isolation: isolate;
       display: none;
       min-height: 100svh;
       flex-direction: column;
-      background: var(--bg);
+      background: #edf1f3;
     }
 
-    #game.visible {
-      display: flex;
-    }
+    #game.visible { display: flex; }
 
-    html[data-theme="night"] #game {
-      background: #060b11;
+    /* The opening's surreal fact collage returns as atmospheric scenery.
+       It never sits above the case or intercepts controls. */
+    #game::before,
+    #game::after {
+      content: "";
+      position: fixed;
+      inset: 56px 0 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+    #game::before {
+      background: url("truth-trap-cover.png") center center / cover no-repeat;
+      opacity: 0.62;
+      filter: saturate(0.88) contrast(0.95);
+    }
+    #game::after {
+      background:
+        radial-gradient(ellipse 55% 90% at 50% 39%,
+          rgba(239, 243, 246, 0.92) 0%,
+          rgba(239, 243, 246, 0.81) 49%,
+          rgba(239, 243, 246, 0.3) 100%),
+        linear-gradient(0deg, rgba(239, 243, 246, 0.46), transparent 55%);
+    }
+    html[data-theme="night"] #game { background: #060b11; }
+    html[data-theme="night"] #game::before {
+      opacity: 0.42;
+      filter: saturate(0.86) brightness(0.68);
+    }
+    html[data-theme="night"] #game::after {
+      background:
+        radial-gradient(ellipse 59% 88% at 50% 39%,
+          rgba(6, 11, 17, 0.93) 0%,
+          rgba(6, 11, 17, 0.8) 50%,
+          rgba(6, 11, 17, 0.36) 100%),
+        linear-gradient(0deg, rgba(6, 11, 17, 0.52), transparent 60%);
+    }
+    @media (max-width: 900px) {
+      .game-main::before { display: none; }
+      #game::before { opacity: 0.35; }
+      #game::after { background: rgba(239, 243, 246, 0.68); }
+      html[data-theme="night"] #game::before { opacity: 0.26; }
+      html[data-theme="night"] #game::after { background: rgba(6, 11, 17, 0.71); }
     }
 
     /* ============================================================
@@ -631,6 +673,7 @@
     .header-right {
       display: flex;
       flex: 1;
+      min-width: 0;
       align-items: center;
     }
 
@@ -644,6 +687,7 @@
 
     .header-right {
       justify-content: flex-end;
+      gap: 0.8rem;
     }
 
     .header-title {
@@ -699,12 +743,37 @@
      ============================================================ */
 
     .game-main {
+      position: relative;
+      z-index: 1;
       display: flex;
       flex: 1;
       flex-direction: column;
       align-items: center;
-      gap: 1rem;
-      padding: 1.5rem 1.25rem 2.5rem;
+      gap: 1.35rem;
+      padding: clamp(2.5rem, 5.5svh, 4rem) 1.25rem 2.5rem;
+    }
+
+    /* An illuminated patch of the cover slowly explores the surrounding
+       collage. The opaque cards remain above it; it never handles input. */
+    .game-main::before {
+      content: "";
+      position: fixed;
+      inset: 56px 0 0;
+      z-index: -1;
+      pointer-events: none;
+      background: url("truth-trap-cover.png") center / cover no-repeat;
+      opacity: 0.52;
+      -webkit-mask-image: radial-gradient(circle, #000 18%, transparent 57%);
+      mask-image: radial-gradient(circle, #000 18%, transparent 57%);
+      -webkit-mask-size: 70vmax 70vmax;
+      mask-size: 70vmax 70vmax;
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
+      animation: spotlight-weave 28s ease-in-out infinite;
+    }
+    html[data-theme="night"] .game-main::before {
+      opacity: 0.40;
+      filter: saturate(1.15) brightness(0.88);
     }
 
     .game-inner {
@@ -722,10 +791,13 @@
     .case-card {
       position: relative;
       overflow: hidden;
-      border: 1px solid rgba(var(--cyan-rgb), 0.16);
-      border-radius: var(--r-lg);
-      background: rgba(255, 255, 255, 0.88);
-      box-shadow: var(--shadow-md);
+      border: 1px solid rgba(var(--cyan-rgb), 0.32);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.97);
+      box-shadow:
+        0 0 0 5px rgba(255, 255, 255, 0.31),
+        0 20px 54px rgba(17, 32, 48, 0.18),
+        0 2px 8px rgba(17, 32, 48, 0.08);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
       animation:
@@ -736,11 +808,12 @@
     }
 
     html[data-theme="night"] .case-card {
-      border-color: rgba(var(--cyan-rgb), 0.22);
-      background: rgba(19, 28, 40, 0.88);
+      border-color: rgba(var(--cyan-rgb), 0.37);
+      background: rgba(16, 26, 39, 0.96);
       box-shadow:
-        var(--shadow-lg),
-        0 0 40px rgba(var(--cyan-rgb), 0.05);
+        0 0 0 5px rgba(8, 15, 24, 0.44),
+        0 22px 60px rgba(0, 0, 0, 0.48),
+        0 0 36px rgba(var(--cyan-rgb), 0.09);
     }
 
     .case-card::before {
@@ -781,24 +854,30 @@
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      padding: 1rem 1.25rem;
-      border-bottom: 1px solid var(--border);
-      background:
-        linear-gradient(90deg,
-          rgba(var(--cyan-rgb), 0.1),
-          rgba(var(--cyan-rgb), 0.02));
+      padding: 1.08rem 1.3rem;
+      border-bottom: 1px solid rgba(var(--cyan-rgb), 0.2);
+      background: linear-gradient(110deg,
+        rgba(var(--cyan-rgb), 0.16) 0%,
+        rgba(255, 226, 184, 0.22) 69%,
+        rgba(var(--cyan-rgb), 0.07) 100%);
     }
-
     html[data-theme="night"] .case-header {
-      background: var(--bg-deep);
+      background: linear-gradient(110deg,
+        rgba(var(--cyan-rgb), 0.17),
+        rgba(103, 62, 101, 0.16) 74%,
+        rgba(var(--cyan-rgb), 0.08));
     }
 
     .case-number {
       flex-shrink: 0;
+      padding: 0.34rem 0.66rem;
+      border: 1px solid rgba(var(--cyan-rgb), 0.25);
+      border-radius: 100px;
+      background: rgba(var(--cyan-rgb), 0.08);
       color: var(--cyan);
       font-size: 0.66rem;
-      font-weight: 700;
-      letter-spacing: 0.16em;
+      font-weight: 800;
+      letter-spacing: 0.13em;
       text-transform: uppercase;
     }
 
@@ -854,8 +933,8 @@
     .statements {
       display: flex;
       flex-direction: column;
-      gap: 0.65rem;
-      padding: 1rem 1.1rem;
+      gap: 0.9rem;
+      padding: 1.25rem 1.2rem 1.35rem;
     }
 
     .stmt {
@@ -873,38 +952,57 @@
       background: var(--bg-subtle);
     }
 
+    .stmt.is-hoverable { cursor: pointer; }
     .stmt.is-hoverable:hover {
-      border-color: rgba(var(--cyan-rgb), 0.4);
-      box-shadow: 0 0 0 3px rgba(var(--cyan-rgb), 0.06);
-      cursor: pointer;
+      border-color: rgba(var(--cyan-rgb), 0.55);
+      box-shadow: 0 0 0 3px rgba(var(--cyan-rgb), 0.09);
+    }
+    .stmt.is-hoverable:focus-visible {
+      outline: 3px solid var(--cyan);
+      outline-offset: 3px;
     }
 
     .stmt.is-selected {
       border-color: var(--cyan);
       background: var(--cyan-dim);
-      box-shadow: 0 0 0 3px rgba(var(--cyan-rgb), 0.08);
+      box-shadow:
+        inset 4px 0 0 var(--cyan),
+        0 0 0 3px rgba(var(--cyan-rgb), 0.12),
+        0 6px 16px rgba(var(--cyan-rgb), 0.08);
     }
 
+    /* Evidence lands in three clearly differentiated verdict states. */
     .stmt.is-lie {
       border-color: var(--lie);
       background: var(--lie-bg);
+      box-shadow: inset 4px 0 0 var(--lie), 0 3px 12px rgba(var(--lie-rgb), 0.09);
     }
-
     .stmt.is-truth {
       border-color: var(--truth);
       background: var(--truth-bg);
+      box-shadow: inset 4px 0 0 var(--truth), 0 3px 12px rgba(var(--truth-rgb), 0.07);
     }
-
     .stmt.is-wildcard {
       border-color: var(--wildcard);
       background: var(--wildcard-bg);
+      box-shadow: inset 4px 0 0 var(--wildcard);
+    }
+    .stmt.is-revealing {
+      animation: truth-trap-verdict-in 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .stmt.is-revealing:nth-child(2) { animation-delay: 75ms; }
+    .stmt.is-revealing:nth-child(3) { animation-delay: 150ms; }
+    @keyframes truth-trap-verdict-in {
+      from { opacity: 0.68; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .stmt-inner {
       display: flex;
-      align-items: flex-start;
-      gap: 0.85rem;
-      padding: 0.9rem 1rem;
+      align-items: center;
+      min-height: clamp(86px, 10.5svh, 102px);
+      gap: 1rem;
+      padding: 1.1rem 1.15rem;
     }
 
     .stmt-label {
@@ -1093,51 +1191,6 @@
       text-transform: uppercase;
     }
 
-    .choose-btns {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 0.6rem;
-    }
-
-    .btn-choose {
-      min-height: 44px;
-      max-width: 160px;
-      flex: 1;
-      padding: 0.72rem 1rem;
-      border: 1.5px solid var(--border-mid);
-      border-radius: var(--r-md);
-      background: var(--bg-raised);
-      color: var(--ink-mid);
-      font-family: var(--font-body);
-      font-size: 0.84rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition:
-        background-color var(--t),
-        border-color var(--t),
-        color var(--t);
-    }
-
-    html[data-theme="night"] .btn-choose {
-      background: var(--bg-subtle);
-    }
-
-    .btn-choose:hover {
-      border-color: var(--cyan);
-      background: var(--cyan-dim);
-      color: var(--cyan);
-    }
-
-    .btn-choose:focus-visible {
-      outline: 2px solid var(--cyan);
-      outline-offset: 2px;
-    }
-
-    /* ============================================================
-     SELECTED STATE
-     ============================================================ */
-
     .selected-row {
       display: flex;
       flex-wrap: wrap;
@@ -1156,29 +1209,10 @@
       color: var(--cyan);
     }
 
-    .btn-change,
     .btn-reveal {
       min-height: 38px;
       font-family: var(--font-body);
       cursor: pointer;
-    }
-
-    .btn-change {
-      padding: 0.58rem 1rem;
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
-      background: transparent;
-      color: var(--ink-quiet);
-      font-size: 0.78rem;
-      font-weight: 500;
-      transition:
-        border-color var(--t),
-        color var(--t);
-    }
-
-    .btn-change:hover {
-      border-color: var(--border-mid);
-      color: var(--ink);
     }
 
     .btn-reveal {
@@ -1211,33 +1245,41 @@
      REVEALED STATE
      ============================================================ */
 
-    .reveal-summary {
+    /* A verdict is information, not an action: no pill or button-shaped box. */
+    .verdict-row {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
       margin-bottom: 0.85rem;
-      padding: 0.65rem 1rem;
-      border: 1px solid;
-      border-radius: var(--r-sm);
-      font-size: 0.82rem;
-      font-weight: 500;
-      line-height: 1.5;
+      padding: 0.35rem 0 0.7rem;
+      border-bottom: 1px solid var(--tt-card-edge);
     }
-
-    .summary-correct {
-      border-color: var(--truth-border);
-      background: var(--truth-bg);
-      color: var(--truth);
+    .reveal-summary {
+      display: flex;
+      flex: 1;
+      min-width: 0;
+      align-items: baseline;
+      gap: 0.85rem;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: none;
+      font-size: 0.87rem;
+      font-weight: 650;
+      line-height: 1.55;
     }
-
-    .summary-wrong {
-      border-color: var(--lie-border);
-      background: var(--lie-bg);
-      color: var(--lie);
+    .reveal-summary::before {
+      content: "VERDICT";
+      flex: 0 0 auto;
+      color: var(--ink-quiet);
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
     }
-
-    .summary-wildcard {
-      border-color: var(--wildcard-border);
-      background: var(--wildcard-bg);
-      color: var(--wildcard);
-    }
+    .summary-correct { color: var(--truth); }
+    .summary-wrong { color: var(--lie); }
+    .summary-wildcard { color: var(--wildcard); }
 
     .reveal-actions {
       display: flex;
@@ -1286,6 +1328,33 @@
     .btn-copy-recap:hover {
       border-color: var(--border-mid);
       color: var(--ink);
+    }
+    /* Export is a contextual utility, not a third gameplay action. */
+    .btn-copy-recap.verdict-copy {
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      min-height: 36px;
+      padding: 0.38rem 0.48rem;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      box-shadow: none;
+      color: var(--ink-mid);
+      font-size: 0.73rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .verdict-copy svg { flex: 0 0 auto; }
+    .btn-copy-recap.verdict-copy:hover {
+      background: var(--tt-accent-glass);
+      color: var(--cyan);
+    }
+    .btn-copy-recap.verdict-copy:focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: 2px;
     }
 
     .btn-mark-solved {
@@ -1401,20 +1470,18 @@
       width: 100%;
       flex-direction: column;
       overflow: hidden;
-      border: 1px solid rgba(15, 25, 35, 0.12);
+      border: 1px solid rgba(var(--cyan-rgb), 0.17);
       border-radius: var(--r-lg);
-      background: rgba(255, 255, 255, 0.88);
-      box-shadow: var(--shadow-sm);
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 8px 26px rgba(17, 32, 48, 0.12);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
     }
 
     html[data-theme="night"] .control-panel {
-      border-color: rgba(var(--cyan-rgb), 0.22);
-      background: rgba(19, 28, 40, 0.88);
-      box-shadow:
-        var(--shadow-lg),
-        0 0 40px rgba(var(--cyan-rgb), 0.05);
+      border-color: rgba(var(--cyan-rgb), 0.28);
+      background: rgba(16, 26, 39, 0.95);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
     }
 
     .nav-bar {
@@ -1838,8 +1905,6 @@
     html.theme-changing .btn-evidence,
     html.theme-changing .evidence-panel,
     html.theme-changing .action-area,
-    html.theme-changing .btn-choose,
-    html.theme-changing .btn-change,
     html.theme-changing .btn-reveal,
     html.theme-changing .reveal-summary,
     html.theme-changing .btn-discussion,
@@ -2002,10 +2067,282 @@
     }
 
     /* ============================================================
+     INVESTIGATION SURFACE — calibrated for both appearance modes.
+     One visual language: warm science-gallery materials in daylight,
+     deep petrol observation surfaces at night. Interaction states and
+     colour meaning stay unchanged.
+     ============================================================ */
+    :root {
+      --tt-panel-edge: #c5d4cf;
+      --tt-panel-glow: rgba(245, 236, 215, 0.74);
+      --tt-panel-bg: linear-gradient(158deg, #fffdf8 0%, #fbfaf5 36%, #f6faf9 100%);
+      --tt-card-bg: linear-gradient(155deg, #fffefc, #f8faf8);
+      --tt-card-colour: #fafcf9;
+      --tt-card-edge: #d6dbd6;
+      --tt-card-shadow: rgba(32, 58, 54, 0.08);
+      --tt-evidence-bg: #f4f7f3;
+      --tt-accent-glass: #e8f5f4;
+      --tt-accent-edge: #a1c9c6;
+      --tt-nav-bg: linear-gradient(130deg, rgba(255, 253, 247, .98), rgba(234, 245, 242, .97));
+    }
+    html[data-theme="night"] {
+      --tt-panel-edge: #426776;
+      --tt-panel-glow: rgba(57, 153, 171, 0.10);
+      --tt-panel-bg: linear-gradient(154deg, #142a37 0%, #101f2b 50%, #141d30 100%);
+      --tt-card-bg: linear-gradient(125deg, #182c38, #172530);
+      --tt-card-colour: #172832;
+      --tt-card-edge: #37515c;
+      --tt-card-shadow: rgba(0, 0, 0, 0.29);
+      --tt-evidence-bg: #12212b;
+      --tt-accent-glass: #193a45;
+      --tt-accent-edge: #3c8793;
+      --tt-nav-bg: linear-gradient(130deg, rgba(17, 36, 47, .98), rgba(21, 29, 46, .97));
+    }
+
+    .case-card {
+      border-color: var(--tt-panel-edge);
+      background: var(--tt-panel-bg);
+      box-shadow:
+        0 0 0 5px var(--tt-panel-glow),
+        0 3px 0 rgba(38, 80, 76, 0.10),
+        0 26px 65px rgba(35, 60, 55, 0.23),
+        inset 0 1px 0 rgba(255,255,255,.85);
+    }
+    html[data-theme="night"] .case-card {
+      border-color: var(--tt-panel-edge);
+      background: var(--tt-panel-bg);
+      box-shadow:
+        0 0 0 5px var(--tt-panel-glow),
+        0 25px 65px rgba(0,0,0,.55),
+        0 0 35px rgba(27,160,180,.10),
+        inset 0 1px 0 rgba(184,239,236,.12);
+    }
+    .case-header {
+      padding: 1.24rem 1.4rem;
+      border-bottom-color: rgba(var(--cyan-rgb),.20);
+      background: linear-gradient(108deg,
+        rgba(113, 181, 177, .18),
+        rgba(255, 221, 175, .25) 65%,
+        rgba(174, 216, 216, .11));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.62);
+    }
+    html[data-theme="night"] .case-header {
+      background: linear-gradient(109deg,
+        rgba(32, 153, 170, .22),
+        rgba(75, 75, 108, .27) 70%,
+        rgba(118, 81, 69, .13));
+      box-shadow: inset 0 1px 0 rgba(216,249,246,.06);
+    }
+    .case-number {
+      border-color: var(--tt-accent-edge);
+      background: var(--tt-accent-glass);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.48);
+    }
+    html[data-theme="night"] .case-number { box-shadow: inset 0 1px 0 rgba(205,248,249,.06); }
+    .case-title { font-size: 1rem; font-weight: 750; letter-spacing: -.01em; }
+    .case-instruction {
+      background: rgba(231, 241, 236, .35);
+      border-bottom-color: rgba(83, 132, 127, .16);
+      color: var(--ink-mid);
+      letter-spacing: .105em;
+    }
+    html[data-theme="night"] .case-instruction { background: rgba(9, 19, 28, .26); }
+
+    .stmt {
+      border-color: var(--tt-card-edge);
+      background: var(--tt-card-bg);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.85), 0 3px 9px var(--tt-card-shadow);
+      transition: transform var(--t), border-color var(--t), box-shadow var(--t), background-color var(--t);
+    }
+    html[data-theme="night"] .stmt {
+      border-color: var(--tt-card-edge);
+      background: var(--tt-card-bg);
+      box-shadow: inset 0 1px 0 rgba(208,247,246,.05), 0 5px 14px var(--tt-card-shadow);
+    }
+    .stmt.is-hoverable:hover {
+      transform: translateY(-2px);
+      border-color: var(--tt-accent-edge);
+      box-shadow: 0 0 0 2px rgba(var(--cyan-rgb),.13), 0 10px 20px var(--tt-card-shadow);
+    }
+    .stmt.is-selected,
+    html[data-theme="night"] .stmt.is-selected {
+      border-color: var(--cyan);
+      background: linear-gradient(116deg, var(--cyan-dim), var(--tt-card-colour));
+      box-shadow: inset 4px 0 0 var(--cyan), 0 0 0 3px rgba(var(--cyan-rgb),.15), 0 8px 20px var(--tt-card-shadow);
+    }
+    .stmt.is-lie,
+    html[data-theme="night"] .stmt.is-lie {
+      border-color: var(--lie-border);
+      background: linear-gradient(110deg, var(--lie-bg), var(--tt-card-colour));
+      box-shadow: inset 5px 0 0 var(--lie), 0 5px 17px var(--tt-card-shadow);
+    }
+    .stmt.is-truth,
+    html[data-theme="night"] .stmt.is-truth {
+      border-color: var(--truth-border);
+      background: linear-gradient(110deg, var(--truth-bg), var(--tt-card-colour));
+      box-shadow: inset 5px 0 0 var(--truth), 0 5px 17px var(--tt-card-shadow);
+    }
+    .stmt.is-wildcard,
+    html[data-theme="night"] .stmt.is-wildcard {
+      border-color: var(--wildcard-border);
+      background: linear-gradient(110deg, var(--wildcard-bg), var(--tt-card-colour));
+      box-shadow: inset 5px 0 0 var(--wildcard), 0 5px 17px var(--tt-card-shadow);
+    }
+    .stmt-label {
+      width: 33px;
+      height: 33px;
+      border-radius: 9px;
+      background: var(--tt-accent-glass);
+      color: var(--ink-mid);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.55);
+    }
+    html[data-theme="night"] .stmt-label {
+      background: #223b49;
+      color: #d3e7ed;
+      box-shadow: inset 0 1px 0 rgba(203,248,246,.08);
+    }
+    .stmt.is-selected .stmt-label { background: #087f99; color: white; }
+    .stmt.is-lie .stmt-label { background: #a74336; color: white; }
+    .stmt.is-truth .stmt-label { background: #226f58; color: white; }
+    .stmt.is-wildcard .stmt-label { background: #7350a3; color: white; }
+    .stmt-text { font-weight: 500; letter-spacing: -.007em; }
+
+    .verdict-pill {
+      padding: .25rem .7rem;
+      font-weight: 800;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.22);
+    }
+    .player-pick-label { color: var(--ink-quiet); font-weight: 700; }
+    .btn-evidence {
+      position: relative;
+      min-height: 34px;
+      padding: .38rem .85rem .38rem 1.9rem;
+      border-color: var(--tt-accent-edge);
+      border-radius: 10px;
+      background: var(--tt-accent-glass);
+      color: var(--cyan);
+      font-size: .68rem;
+      font-weight: 800;
+      letter-spacing: .07em;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.48);
+    }
+    .btn-evidence::before {
+      content: "";
+      position: absolute;
+      top: 50%; left: .7rem;
+      width: 9px; height: 9px;
+      border: 1.7px solid currentColor;
+      border-radius: 50%;
+      transform: translateY(-63%);
+    }
+    .btn-evidence::after {
+      content: "";
+      position: absolute;
+      top: calc(50% + 3px); left: calc(.7rem + 8px);
+      width: 5px; height: 1.7px;
+      border-radius: 1px;
+      background: currentColor;
+      transform: rotate(48deg);
+      transform-origin: left center;
+    }
+    .btn-evidence:hover, .btn-evidence.open {
+      background: var(--cyan-pale);
+      border-color: var(--cyan);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.24), 0 3px 12px rgba(var(--cyan-rgb),.14);
+    }
+    .evidence-panel, html[data-theme="night"] .evidence-panel {
+      background: var(--tt-evidence-bg);
+    }
+    .evidence-panel.open {
+      border-top-color: var(--tt-card-edge);
+      max-height: 420px; /* permits multi-line evidence and text zoom */
+    }
+    .action-area { border-top-color: var(--tt-card-edge); background: rgba(240, 246, 241, .29); }
+    html[data-theme="night"] .action-area { background: rgba(9, 18, 27, .25); }
+    .btn-reveal {
+      border-radius: 10px;
+      background: linear-gradient(180deg, #087a95, #075d73);
+      box-shadow: 0 5px 13px rgba(0, 95, 116, .23), inset 0 1px 0 rgba(255,255,255,.2);
+    }
+    .btn-reveal:hover { background: linear-gradient(180deg, #087f99, #086b82); }
+    .btn-discussion, .btn-mark-solved, .btn-copy-recap { border-radius: 9px; }
+    .btn-discussion { background: var(--tt-accent-glass); border-color: var(--tt-accent-edge); }
+
+    .control-panel {
+      border-color: var(--tt-panel-edge);
+      background: var(--tt-nav-bg);
+      box-shadow: 0 9px 29px rgba(35, 60, 55, .15), inset 0 1px 0 rgba(255,255,255,.75);
+    }
+    html[data-theme="night"] .control-panel {
+      border-color: var(--tt-panel-edge);
+      background: var(--tt-nav-bg);
+      box-shadow: 0 12px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(183,246,240,.09);
+    }
+    /* Night UI: readable secondary information must never resemble a
+       disabled control. Disabled navigation retains its explicit dimming. */
+    html[data-theme="night"] .header-position {
+      color: #c4d7e6;
+      font-weight: 700;
+    }
+    html[data-theme="night"] .reveal-summary::before {
+      color: #aac5d5;
+    }
+    html[data-theme="night"] .btn-copy-recap.verdict-copy {
+      color: #c7dce9;
+    }
+    html[data-theme="night"] .btn-copy-recap.verdict-copy:hover {
+      color: #f0faff;
+      background: rgba(var(--cyan-rgb), .13);
+    }
+    html[data-theme="night"] .btn-nav:not(:disabled) {
+      color: #d6e6f1;
+    }
+    html[data-theme="night"] .btn-random {
+      color: #c3d7e4;
+    }
+    html[data-theme="night"] .btn-reset-game {
+      color: #adc4d4;
+      border-color: rgba(var(--cyan-rgb), .27);
+      background: rgba(17, 34, 44, .77);
+    }
+    html[data-theme="night"] .tt-toast {
+      border-color: #537988;
+      background: #1b3542;
+      color: #e8f4fa;
+      font-weight: 650;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, .48);
+    }
+    .btn-nav, .btn-random {
+      border-color: var(--tt-accent-edge);
+      background: var(--tt-card-bg);
+      border-radius: 9px;
+    }
+    html[data-theme="night"] .btn-nav,
+    html[data-theme="night"] .btn-random { background: var(--tt-card-bg); border-color: var(--tt-accent-edge); }
+    html[data-theme="night"] .dot.is-solved {
+      border-color: var(--truth);
+      background: var(--truth);
+      box-shadow: 0 0 0 2px rgba(var(--truth-rgb),.2);
+    }
+    @media (max-width: 600px) {
+      .case-header { padding: 1rem; }
+      .case-title { font-size: .89rem; }
+      .stmt-label { width: 30px; height: 30px; }
+      .btn-evidence { margin-left: 0; }
+    }
+
+    /* ============================================================
      RESPONSIVE
      ============================================================ */
 
+    @media (max-width: 380px) {
+      .header-position { display: none; }
+    }
+
     @media (max-width: 600px) {
+      #game::before { opacity: 0.2; }
+      html[data-theme="night"] #game::before { opacity: 0.15; }
+      .case-card { box-shadow: 0 5px 20px rgba(17, 32, 48, 0.13); }
       .game-header {
         gap: 0.5rem;
         padding: 0 0.85rem;
@@ -2014,18 +2351,32 @@
       .header-title {
         font-size: 0.9rem;
       }
+      .header-right { gap: 0.5rem; }
+      /* Keep the complete case label accessible while shortening its
+         visual presentation beside the mobile appearance control. */
+      .header-position { font-size: 0; }
+      .header-position::after {
+        content: attr(data-short);
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
 
       .game-main {
-        padding: 1rem 0.85rem 2rem;
+        padding: 1.15rem 0.85rem 2rem;
       }
 
       .statements {
-        padding: 0.75rem;
+        gap: 0.7rem;
+        padding: 0.8rem;
+      }
+      .stmt-inner {
+        min-height: 76px;
+        gap: 0.75rem;
+        padding: 0.85rem 0.9rem;
       }
 
-      .btn-choose {
-        max-width: 100%;
-      }
+
 
       .btn-reveal {
         width: 100%;
@@ -2034,6 +2385,9 @@
       .reveal-actions {
         flex-direction: column;
       }
+      .verdict-row { align-items: flex-start; flex-wrap: wrap; gap: 0.45rem; }
+      .verdict-row .reveal-summary { flex-basis: 100%; }
+      .verdict-row .verdict-copy { margin-left: auto; }
 
       .btn-discussion,
       .btn-mark-solved {
@@ -2051,6 +2405,7 @@
      ============================================================ */
 
     @media (prefers-reduced-motion: reduce) {
+      .game-main::before { animation: none; opacity: 0.28; }
 
       *,
       *::before,
@@ -2104,17 +2459,18 @@
 
   <!-- ============================================================ GAME SCREEN -->
   <div id="game" role="main">
-    <header class="game-header">
+    <header class="game-header arcade-game-chrome-centered-title">
       <div class="header-left">
         <div id="arcade-game-return-root"></div>
-        <span class="header-title">Truth<span> Trap</span></span>
       </div>
 
       <div class="header-center">
-        <span class="header-position" id="hdr-position" aria-live="polite">Case 1 of 20</span>
+        <span class="header-title">Truth<span> Trap</span></span>
       </div>
 
-      <div class="header-right" id="arcade-game-actions-root"></div>
+      <div class="header-right" id="arcade-game-actions-root">
+        <span class="header-position" id="hdr-position" aria-live="polite" data-short="1 / 20">Case 1 of 20</span>
+      </div>
     </header>
 
     <!-- Progress strip -->
@@ -2544,18 +2900,13 @@
        ================================================================ */
     function selectAnswer(letter) {
       ensureCaseEntry(ST.currentIndex);
-      if (ST.cases[String(ST.currentIndex)].revealed) return;
+      if (ST.cases[String(ST.currentIndex)].revealed || !['A', 'B', 'C'].includes(letter)) return;
+      if (ST.cases[String(ST.currentIndex)].playerAnswer === letter) return;
       ST.cases[String(ST.currentIndex)].playerAnswer = letter;
       saveState();
       renderCaseCard();
-    }
-
-    function changeAnswer() {
-      ensureCaseEntry(ST.currentIndex);
-      if (ST.cases[String(ST.currentIndex)].revealed) return;
-      ST.cases[String(ST.currentIndex)].playerAnswer = null;
-      saveState();
-      renderCaseCard();
+      // Re-render replaces the cards; restore focus to the current choice.
+      document.querySelector('.stmt[data-answer="' + letter + '"]')?.focus({ preventScroll: true });
     }
 
     function revealTrap() {
@@ -2702,7 +3053,10 @@
     function updateHeader() {
       const pos = 'Case ' + (ST.currentIndex + 1) + ' of ' + TOTAL_CASES;
       const hdrPos = document.getElementById('hdr-position');
-      if (hdrPos) hdrPos.textContent = pos;
+      if (hdrPos) {
+        hdrPos.textContent = pos;
+        hdrPos.dataset.short = (ST.currentIndex + 1) + ' / ' + TOTAL_CASES;
+      }
 
       const btnPrev = document.getElementById('btn-prev');
       const btnNext = document.getElementById('btn-next');
@@ -2763,7 +3117,7 @@
 
       // Instruction
       if (state === 'idle') {
-        html += '<div class="case-instruction">Study the statements and identify the lie</div>';
+        html += '<div class="case-instruction">Select the statement you think is the lie</div>';
       }
 
       // Statements
@@ -2775,11 +3129,11 @@
         let playerPickHtml = '';
         let actionHtml = '';
 
-        if (state === 'idle') {
+        if (state === 'idle' || state === 'selected') {
           cls += ' is-hoverable';
-        } else if (state === 'selected') {
           if (cs.playerAnswer === L) cls += ' is-selected';
         } else if (state === 'revealed' || state === 'solved') {
+          if (state === 'revealed') cls += ' is-revealing';
           if (c.wildcard) {
             cls += ' is-wildcard';
             verdictHtml = '<span class="verdict-pill verdict-wildcard">True</span>';
@@ -2796,11 +3150,12 @@
           actionHtml = '<button class="btn-evidence" id="ev-btn-' + L + '" onclick="toggleEvidence(\'' + L + '\')" aria-expanded="false">Show evidence</button>';
         }
 
-        const clickHandler = (state === 'idle')
-          ? 'onclick="selectAnswer(\'' + L + '\')" role="button" tabindex="0" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();selectAnswer(\'' + L + '\')}"'
+        const selectable = state === 'idle' || state === 'selected';
+        const clickHandler = selectable
+          ? 'data-answer="' + L + '" onclick="selectAnswer(\'' + L + '\')" role="button" tabindex="0" aria-pressed="' + (cs.playerAnswer === L) + '" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();selectAnswer(\'' + L + '\')}"'
           : '';
 
-        html += '<div class="' + cls + '" ' + clickHandler + ' aria-label="Statement ' + L + '">';
+        html += '<div class="' + cls + '" ' + clickHandler + ' aria-label="Statement ' + L + ': ' + escHtml(stmt.text) + '">';
         html += '<div class="stmt-inner">';
         html += '<div class="stmt-label" aria-hidden="true">' + L + '</div>';
         html += '<div class="stmt-body">';
@@ -2823,19 +3178,15 @@
       });
       html += '</div>'; // .statements
 
-      // Action area
-      html += '<div class="action-area">';
-      if (state === 'idle') {
-        html += '<div class="choose-prompt">Which statement is the lie?</div>';
-        html += '<div class="choose-btns">';
-        html += '<button class="btn-choose" onclick="selectAnswer(\'A\')">Statement A</button>';
-        html += '<button class="btn-choose" onclick="selectAnswer(\'B\')">Statement B</button>';
-        html += '<button class="btn-choose" onclick="selectAnswer(\'C\')">Statement C</button>';
-        html += '</div>';
-      } else if (state === 'selected') {
+      // Statements are the selection controls; reveal remains a deliberate confirmation.
+      const copyCaseNotesButton = '<button class="btn-copy-recap verdict-copy" type="button" onclick="copyRecap()" title="Copy all case statements, evidence and discussion">' +
+        '<svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true">' +
+        '<rect x="6" y="5" width="10" height="12" rx="2"/><path d="M13 5V4a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h1"/></svg>' +
+        'Copy case notes</button>';
+      if (state !== 'idle') html += '<div class="action-area">';
+      if (state === 'selected') {
         html += '<div class="selected-row">';
-        html += '<div class="selected-label">Statement <strong>' + cs.playerAnswer + '</strong> is the lie</div>';
-        html += '<button class="btn-change" onclick="changeAnswer()">Change</button>';
+        html += '<div class="selected-label">Statement <strong>' + cs.playerAnswer + '</strong> selected · Select another card to change your mind</div>';
         html += '<button class="btn-reveal" onclick="revealTrap()">Reveal the trap</button>';
         html += '</div>';
       } else if (state === 'revealed') {
@@ -2850,14 +3201,13 @@
           summaryClass = 'reveal-summary summary-wrong';
           summaryText = 'Statement ' + c.lie + ' was the lie. You picked Statement ' + cs.playerAnswer + '.';
         }
-        html += '<div class="' + summaryClass + '">' + summaryText + '</div>';
+        html += '<div class="verdict-row"><div class="' + summaryClass + '">' + summaryText + '</div>' + copyCaseNotesButton + '</div>';
         html += '<div class="reveal-actions">';
         html += '<button class="btn-discussion" onclick="toggleDiscussion()">Follow-up question</button>';
         html += '<button class="btn-mark-solved" onclick="markSolved()">' +
           'Mark Solved & Continue' +
           '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2.5 8h11M9.5 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
           '</button>';
-        html += '<button class="btn-copy-recap" onclick="copyRecap()">Copy case notes</button>';
         html += '</div>';
         html += '<div class="discussion-panel" id="disc-panel">';
         html += '<div class="discussion-label">Discussion</div>';
@@ -2875,19 +3225,18 @@
           summaryClass = 'reveal-summary summary-wrong';
           summaryText = 'Statement ' + c.lie + ' was the lie — you picked Statement ' + cs.playerAnswer + '.';
         }
-        html += '<div class="' + summaryClass + '" style="margin-bottom:0.85rem">' + summaryText + '</div>';
+        html += '<div class="verdict-row"><div class="' + summaryClass + '">' + summaryText + '</div>' + copyCaseNotesButton + '</div>';
         html += '<div class="solved-row">';
         html += '<span class="solved-label">Case solved</span>';
         html += '<button class="btn-reopen" onclick="reopenCase()">Reopen</button>';
         html += '<button class="btn-discussion" style="flex:none;padding:0.55rem 0.9rem" onclick="toggleDiscussion()">Discussion</button>';
-        html += '<button class="btn-copy-recap" onclick="copyRecap()">Copy case notes</button>';
         html += '</div>';
         html += '<div class="discussion-panel" id="disc-panel">';
         html += '<div class="discussion-label">Discussion</div>';
         html += '<p class="discussion-text">' + escHtml(c.discussion) + '</p>';
         html += '</div>';
       }
-      html += '</div>'; // .action-area
+      if (state !== 'idle') html += '</div>'; // .action-area
 
       const card = document.getElementById('case-card');
       if (!card) return;
@@ -2972,6 +3321,7 @@
           root: '.game-header',
           returnRoot: '#arcade-game-return-root',
           actionsRoot: '#arcade-game-actions-root',
+          appearance: true,
           onBeforeReturn: saveState
         });
       }

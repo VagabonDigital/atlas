@@ -11,8 +11,10 @@ const LOCAL =
   document.querySelector('meta[name="fw-local-verification"]')?.content ===
   "true";
 const REGISTRY_ID = "arcade:forbidden-words";
-// Opt-in per newly created room. Existing HTTP rooms never change transports.
-const LIVE_PREVIEW = params.get("fw-live") === "1";
+// Live WebSockets are the default only for newly created production rooms.
+// ?fw-live=0 is an emergency opt-out for a NEW game; remembered rooms retain
+// their original transport so reconnecting never switches game authority.
+const LIVE_NEW_ROOMS = !LOCAL && params.get("fw-live") !== "0";
 const liveRoomKey = (roomId) => `fw:transport:${roomId}`;
 const THEME_TRANSITION_MS = 280;
 const uuid = () => crypto.randomUUID();
@@ -54,6 +56,7 @@ let credential,
   busy = false,
   pending = null;
 let lastKey = "",
+  lastContinuityKey = "",
   lastNonce,
   lastPhase,
   lastFeedback,
@@ -239,9 +242,14 @@ function syncAtlasContinuity(s) {
     const finished = s.phase === "finished";
     const round = Math.max(1, Number(s.round) || 1);
     const launchUrl = new URL("./index.html", location.href).href;
+    // Live state is pushed frequently (including presence transitions).
+    // Atlas progress only changes when its learner/room, round or status does.
+    const status = finished ? "complete" : started ? "in-progress" : "available";
+    const continuityKey = JSON.stringify([gameLearnerId, session, status, round]);
+    if (continuityKey === lastContinuityKey) return;
     window.AtlasBridge.upsertSessionState(gameLearnerId, REGISTRY_ID, {
       world: "arcade",
-      status: finished ? "complete" : started ? "in-progress" : "available",
+      status,
       launchUrl,
       currentLabel: started ? `Round ${round}` : null,
       progress: started
@@ -257,6 +265,7 @@ function syncAtlasContinuity(s) {
         launchUrl,
       });
     }
+    lastContinuityKey = continuityKey;
   } catch {
     /* Continuity must never interrupt live play. */
   }
@@ -269,7 +278,7 @@ function ensurePlayingChrome() {
     actionsRoot: "#arcade-game-actions-root",
     session: false,
     search: false,
-    appearance: false,
+    appearance: true,
     mobileMenu: true,
   });
   setupTutorMobileUtilities();
@@ -461,14 +470,28 @@ function updateTutorHeader(s) {
   const utilitiesRoot = document.querySelector("#fw-header-utilities");
   const pauseRoot = document.querySelector("#fw-header-pause");
   if (brandRoot) brandRoot.innerHTML = brand;
-  if (roundRoot) roundRoot.textContent = `ROUND ${s.round || 1}`;
+  if (roundRoot) {
+    roundRoot.textContent = `ROUND ${s.round || 1}`;
+    roundRoot.dataset.round = String(s.round || 1);
+  }
   if (utilitiesRoot && utilitiesRoot.innerHTML !== headerUtilities()) {
     const focusedAction = utilitiesRoot.contains(document.activeElement)
       ? document.activeElement.dataset.action : null;
     utilitiesRoot.innerHTML = headerUtilities();
     if (focusedAction) utilitiesRoot.querySelector(`[data-action="${focusedAction}"]`)?.focus({ preventScroll: true });
   }
-  if (pauseRoot) pauseRoot.innerHTML = headerPause(s);
+  // Heartbeats/state pushes must not replace the focused Pause/Resume DOM.
+  if (pauseRoot) {
+    const nextAction = ["active", "countdown"].includes(s.phase)
+      ? (s.paused ? "resume" : "pause")
+      : null;
+    const currentAction = pauseRoot.querySelector("[data-action]")?.dataset.action || null;
+    if (currentAction !== nextAction) {
+      const focused = pauseRoot.contains(document.activeElement);
+      pauseRoot.innerHTML = headerPause(s);
+      if (focused) pauseRoot.querySelector("button")?.focus({ preventScroll: true });
+    }
+  }
 }
 function replacementReady() {
   return !!replacementInvite && replacementInvite === state?.invite;
@@ -479,14 +502,20 @@ function invitationLink() {
   const copyLabel = fresh ? "Copy new link" : "Copy link";
   return `<div class="link-row invite-link-row"><span class="invite-link-label" aria-hidden="true">↗ &nbsp; ${label}</span><input id="invite-link" class="invite-link-input" aria-label="${label}" aria-hidden="true" tabindex="-1" readonly value="${escape(joinUrl())}">${button("copy", copyLabel, "primary")}</div>${fresh ? '<p class="replacement-note" role="status">Previous invitation disabled. Share this new link to reconnect.</p>' : ""}`;
 }
+// Advanced recovery stays available even when the learner's seat is marked
+// present (for instance, when switching devices). Keep the game action first.
+function connectionOptions(s) {
+  const present = !!s.connected.learner;
+  return `<details class="pause-invitation connection-options" data-learner-present="${present}" ${!present || replacementReady() ? "open" : ""}><summary>Connection options</summary><div class="pause-invitation-content">${invitationLink()}${button("replace-learner", "Reset invitation", "text-button pause-replace-link")}</div></details>`;
+}
 function landing(s) {
   const joined = s?.connected.learner;
   app.innerHTML = `<section class="landing"><div class="landing-identity">${brand}<p class="premise">Describe the word. <br>Lose the obvious language.</p><div class="hero-deck">${deck}<span class="spark one">✦</span><span class="spark two">✧</span></div><p class="caption">Two voices. One clock. Find another way.</p></div>
-    <div class="invitation panel"><p class="eyebrow">${learner ? "YOU’RE IN" : "BETTER TOGETHER"}</p><h1>${learner ? "Your partner goes first." : "Invite your learner"}</h1>
-    <p>${learner ? "Listen to the clues and guess aloud." : "Send a private game invitation to your learner."}</p>
-    ${!learner && s ? invitationLink() : ""}
+    <div class="invitation panel"><p class="eyebrow">${learner ? "YOU’RE IN" : "BETTER TOGETHER"}</p><h1>${learner ? "Your partner goes first." : joined ? "Ready to play?" : "Invite your learner"}</h1>
+    <p>${learner ? "Listen to the clues and guess aloud." : joined ? "Both of you are connected." : "Send a private game invitation to your learner."}</p>
+    ${!learner && s && !joined ? invitationLink() : ""}
     <div class="connection"><span class="connection-dot ${joined ? "online" : ""}"></span><div><strong>${learner ? "Connected to the game" : joined ? "Your learner is here" : s ? "Waiting for your learner…" : "Ready for a live lesson?"}</strong><p>${learner ? "Your tutor will start the round." : joined ? "You can start the first round." : s ? "They’ll appear here when connected." : "Sign in to create your private game."}</p></div></div>
-    ${learner ? "" : !s ? button("sign-in", "Sign in to host", "primary start-button") : joined ? button("start", "▶ Start Round", "primary start-button") : ""}
+    ${learner ? "" : !s ? button("sign-in", "Sign in to host", "primary start-button") : joined ? button("start", "▶ Start Round", "primary start-button") + connectionOptions(s) : ""}
     ${learner
       ? `<div class="entry-footer learner-entry-footer">
           ${button("rules", "How to play", "entry-footer-action")}
@@ -495,7 +524,7 @@ function landing(s) {
           <div class="entry-footer-actions">
             ${button("rules", "How to play", "entry-footer-action")}
             ${s ? '<span class="entry-footer-separator" aria-hidden="true">·</span>' : ""}
-            ${s ? button("replace-learner", "Reset invitation", "entry-footer-action entry-footer-maintenance") + '<span class="entry-footer-separator" aria-hidden="true">·</span>' + button("finish", "Cancel game", "entry-footer-action end-game-action") : ""}
+            ${s && !joined ? button("replace-learner", "Reset invitation", "entry-footer-action entry-footer-maintenance") + '<span class="entry-footer-separator" aria-hidden="true">·</span>' : ""}${s ? button("finish", "Cancel game", "entry-footer-action end-game-action") : ""}
           </div>
         </div>`}
     </div></section>`;
@@ -550,7 +579,7 @@ function board(s) {
       ${describer ? `<div class="resolutions">${button("correct", "Correct", "correct")}${button("skip", "Skip", "skip")}${button("oops", "I said one!", "oops")}</div>` : '<div class="guesser-note"><span>◌</span><div><strong>GUESSER</strong><p>Listen. Ask questions. <br>Follow the clues.</p></div></div>'}
     </aside></section><div class="feedback" aria-live="polite">${feedbackText(s)}</div>
     ${s.phase === "countdown" ? '<div class="countdown-overlay"><div><p class="eyebrow">GET READY</p><strong id="countdown-number">3</strong><p>Your card. Your voice. Go.</p></div></div>' : ""}
-    ${s.paused ? `<div class="pause-overlay"><div class="panel"><p class="eyebrow">TAKE YOUR TIME</p><h2>${pauseTitle}</h2><p>${pauseDescription}</p>${!learner ? `<div class="pause-actions">${button("resume", "▶ Resume turn", "primary", !s.connected.tutor || !s.connected.learner)}${button("finish", "End game", "secondary end-game-button")}</div><details class="pause-invitation" ${replacementReady() ? "open" : ""}><summary>Invitation &amp; reconnect</summary><div class="pause-invitation-content">${invitationLink()}${button("replace-learner", "Reset invitation", "text-button pause-replace-link")}</div></details>` : "<p>Your tutor will resume the game.</p>"}</div></div>` : ""}`;
+    ${s.paused ? `<div class="pause-overlay"><div class="panel"><p class="eyebrow">TAKE YOUR TIME</p><h2>${pauseTitle}</h2><p>${pauseDescription}</p>${!learner ? `<div class="pause-actions">${button("resume", "▶ Resume turn", "primary", !s.connected.tutor || !s.connected.learner)}${button("finish", "End game", "secondary end-game-button")}</div>${connectionOptions(s)}` : "<p>Your tutor will resume the game.</p>"}</div></div>` : ""}`;
 }
 function feedbackText(s) {
   return !s.feedback
@@ -574,7 +603,7 @@ function between(s) {
     ${s.finalCard && !finished ? `<div class="final-card"><span>At the horn</span><strong>${escape(s.finalCard.target)}</strong>${s.finalCard.credited ? "<small>✓ Credited</small>" : s.canCredit ? button("late-correct", "They said it before the horn · +1", "text-button") : ""}</div>` : ""}
     ${switching ? `<p class="switch-copy">${ready ? "Waiting for your partner to get ready." : "Take a breath. Both of you tap ready to begin."}</p><div class="switch-actions">${button("ready", ready ? "✓ Ready" : "I’m ready", "primary", ready)}${!learner ? button("finish", "End game", "secondary end-game-button") : ""}</div>` : finished ? (!learner ? button("new-session", "Start a new game", "primary") : "") : `<div class="result-actions">${!learner ? button("replay", "▶ Play Another Round", "primary", !s.connected.learner) + button("finish", "End game", "secondary end-game-button") : "<p>Your partner can start another round or finish.</p>"}</div>`}
     ${!switching && s.review.length ? `<details class="review"><summary>Talk through ${s.review.length} unresolved ${s.review.length === 1 ? "card" : "cards"} <span>Optional</span></summary><div>${s.review.map((c) => `<article><strong>${escape(c.target)}</strong><small>${c.result === "oops" ? "Oops" : c.result === "skip" ? "Skipped" : "At the horn"}</small><p>${c.forbidden.map(escape).join(" · ")}</p></article>`).join("")}</div></details>` : ""}
-    ${!learner && switching ? `<div class="switch-maintenance">${button("replace-learner", "Reset invitation", "text-button small")}${!s.connected.learner || replacementReady() ? invitationLink() : ""}</div>` : ""}</div></section>`;
+    ${!learner && !finished ? `<div class="switch-maintenance">${connectionOptions(s)}</div>` : ""}</div></section>`;
 }
 function render() {
   const s = state;
@@ -586,7 +615,9 @@ function render() {
   }
   const focused = document.activeElement?.dataset?.action;
   const reviewOpen = document.querySelector(".review")?.open;
-  const pauseInviteOpen = document.querySelector(".pause-invitation")?.open;
+  const previousConnectionOptions = document.querySelector(".connection-options");
+  const optionsWereOpen = previousConnectionOptions?.open;
+  const previousLearnerPresence = previousConnectionOptions?.dataset.learnerPresent;
   if (
     lastNonce &&
     s.card?.nonce &&
@@ -615,8 +646,12 @@ function render() {
       : between(s);
   if (reviewOpen && document.querySelector(".review"))
     document.querySelector(".review").open = true;
-  if (pauseInviteOpen && document.querySelector(".pause-invitation"))
-    document.querySelector(".pause-invitation").open = true;
+  const currentConnectionOptions = document.querySelector(".connection-options");
+  // Preserve the tutor's disclosure preference across state pushes, but
+  // automatically expand on disconnect and collapse on reconnection.
+  if (currentConnectionOptions && previousConnectionOptions &&
+      currentConnectionOptions.dataset.learnerPresent === previousLearnerPresence)
+    currentConnectionOptions.open = optionsWereOpen;
   if (focused)
     document
       .querySelector(`[data-action="${focused}"]`)
@@ -747,6 +782,7 @@ function tick() {
   }
   if (
     Date.now() - lastSync > (liveMode ? 12000 : 4000) &&
+    (!liveMode || !liveClient?.connected) &&
     ["active", "countdown"].includes(state.phase)
   ) {
     failed = true;
@@ -843,7 +879,7 @@ async function act(action) {
     );
   if (action === "new-session") {
     if (learner || !owner || !gameLearnerId) return;
-    const nextLive = liveMode || LIVE_PREVIEW;
+    const nextLive = LIVE_NEW_ROOMS;
     roomEpoch++;
     stopLive();
     replacementInvite = null;
@@ -926,15 +962,20 @@ function schedulePoll() {
   pollTimer = setTimeout(poll, state?.phase === "finished" ? 3000 : retryDelay);
 }
 function showEntryError(error) {
-  // A claimed invitation cannot open another learner seat in a new browser.
-  // Keep that restriction, but explain the recovery path without server jargon.
-  const claimedInvitation =
-    learner &&
-    error.status === 403 &&
-    error.message === "This learner seat is already in use. Ask your tutor for a replacement link.";
-  const message = claimedInvitation
-    ? "This invitation has already been used. If you can't get back into the game, ask your tutor for a new link."
-    : error.message;
+  // A claimed, replaced or expired learner seat cannot be repaired by
+  // resubmitting the same invitation. HTTP and WebSocket servers use different
+  // wording, so rely on the status instead of matching an exact sentence.
+  const unavailableSeat = learner && (error.status === 403 || error.status === 410);
+  const claimedSeat =
+    learner && error.status === 403 &&
+    /learner seat is already in use/i.test(error.message || "");
+  const message = claimedSeat
+    ? "Ask your tutor to send you a new link."
+    : learner && error.status === 410
+      ? "This game has expired. Ask your tutor to start a new game and share a new invitation."
+      : unavailableSeat
+        ? "This invitation can no longer be used. Ask your tutor to reset the invitation and send a new link."
+        : error.message;
   state = null;
   lastKey = "";
   lastNonce = null;
@@ -943,7 +984,7 @@ function showEntryError(error) {
   clearTimeout(pollTimer);
   stopLive();
   document.documentElement.style.setProperty("--heat", "0");
-  app.innerHTML = `<section class="entry-error panel">${brand}<h1>Let’s get you connected.</h1><p>${escape(message)}</p>${claimedInvitation ? "" : button("retry", "Try again", "primary")}${!learner && owner ? button("new-session", "Create a fresh game", "text-button") : ""}</section>`;
+  app.innerHTML = `<section class="entry-error panel">${brand}<h1>${claimedSeat ? "This invitation is already in use." : "Let’s get you connected."}</h1><p>${escape(message)}</p>${unavailableSeat ? "" : button("retry", "Try again", "primary")}${!learner && owner ? button("new-session", "Create a fresh game", "text-button") : ""}</section>`;
   notify("");
 }
 async function poll() {
@@ -1018,6 +1059,13 @@ async function startLiveRoom(epoch) {
       if (epoch !== roomEpoch || selectedSession !== session) return;
       lastSync = Date.now();
       if (typeof serverNow === "number") offset = serverNow - Date.now();
+      // A healthy reply must clear a stale warning after a background tab
+      // wakes up; otherwise controls can remain disabled indefinitely.
+      if (failed && liveClient?.connected) {
+        failed = false;
+        notify("");
+        if (state) updateControls();
+      }
     },
     onStatus: connected => {
       if (epoch !== roomEpoch || selectedSession !== session) return;
@@ -1148,6 +1196,14 @@ document.addEventListener("keydown", (event) => {
     event.preventDefault();
     act(action);
   }
+});
+// Chrome can park a page with active WebSockets in the back-forward cache.
+// Stop the old socket on pagehide; reconnect to the SAME room on restore.
+window.addEventListener("pagehide", () => {
+  if (liveMode) liveClient?.suspend();
+});
+window.addEventListener("pageshow", (event) => {
+  if (liveMode && event.persisted) liveClient?.resume();
 });
 window.addEventListener("online", () => {
   if (liveMode) liveClient?.connect();

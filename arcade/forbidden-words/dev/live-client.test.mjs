@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import vm from "node:vm";
 import { ForbiddenWordsLiveClient } from "../live-client.mjs";
 
 const session = "00000000-0000-4000-8000-000000000123";
@@ -111,14 +112,139 @@ try {
   assert.deepEqual(errors, []);
   assert.ok(received.length >= 3);
 
-  // The old polling path and WebSocket path remain independently gated.
+  // Browser back/forward cache: park the socket, do not open duplicates while
+  // frozen, and reconnect to the SAME room when pageshow restores the page.
+  const beforePark = sockets.at(-1);
+  client.suspend();
+  assert.equal(client.connected, false);
+  assert.equal(beforePark.readyState, 3);
+  const parkedCount = sockets.length;
+  client.connect();
+  await new Promise(resolve => setTimeout(resolve, 5));
+  assert.equal(sockets.length, parkedCount, "A parked page must not connect");
+  client.resume();
+  await wait(() => client.connected && sockets.length === parkedCount + 1);
+  assert.equal(sockets.at(-1).url.search, "?session=" + session);
+  assert.equal(client.connected, true);
+  client.resume();
+  client.connect();
+  await new Promise(resolve => setTimeout(resolve, 5));
+  assert.equal(sockets.length, parkedCount + 1, "Restoration must open only one socket");
+
+  // A suspended page can have an unfinished ticket fetch. Any old response
+  // must be ignored even if it arrives after the newer connection is ready.
+  const outstanding = [];
+  const backgroundClient = new ForbiddenWordsLiveClient({
+    api, session, actor: "tutor",
+    getTicketPayload: async () => ({ atlasSessionId: "atlas-student" }),
+    getAuthorization: async () => "test-user-token",
+    fetchImpl: () => new Promise(resolve => outstanding.push(resolve)),
+    WebSocketImpl: FakeWebSocket,
+    onState: () => {},
+    onStatus: () => {},
+    onFatal: error => { throw error; },
+  });
+  try {
+    backgroundClient.connect();
+    await wait(() => outstanding.length === 1);
+    backgroundClient.suspend();
+    backgroundClient.resume();
+    await wait(() => outstanding.length === 2);
+    const beforeTicket = sockets.length;
+    const ticketResponse = () => new Response(JSON.stringify({
+      ok: true, ticket: "b".repeat(64),
+    }), { status: 200, headers: { "Content-Type": "application/json" } });
+    outstanding[0](ticketResponse());
+    await new Promise(resolve => setTimeout(resolve, 5));
+    assert.equal(sockets.length, beforeTicket, "Old ticket must never create a socket");
+    outstanding[1](ticketResponse());
+    await wait(() => backgroundClient.connected);
+    assert.equal(sockets.length, beforeTicket + 1);
+  } finally {
+    backgroundClient.close();
+  }
+
+  // New production rooms default to live, explicit emergency opt-out stays
+  // HTTP, and local/offline test rooms never require the Cloudflare gateway.
+  // Evaluate the ACTUAL expression from app.mjs, not a duplicate policy.
   const app = fs.readFileSync(new URL("../app.mjs", import.meta.url), "utf8");
+  const defaultExpr = app.match(/^const LIVE_NEW_ROOMS = ([^;]+);$/m)?.[1];
+  assert.ok(defaultExpr, "Missing transport default policy");
+  const defaultMode = (search, local = false) => vm.runInNewContext(
+    `(() => {
+      const LOCAL = ${JSON.stringify(local)};
+      const params = new URLSearchParams(${JSON.stringify(search)});
+      return ${defaultExpr};
+    })()`, { URLSearchParams },
+  );
+  assert.equal(defaultMode(""), true, "Regular production URL creates live rooms");
+  assert.equal(defaultMode("?fw-live=1"), true, "Existing live preview URL still works");
+  assert.equal(defaultMode("?fw-live=0"), false, "Emergency opt-out creates HTTP rooms");
+  assert.equal(defaultMode("", true), false, "Local verification stays on HTTP");
+  assert.match(app, /const nextLive = LIVE_NEW_ROOMS;/);
+  assert.match(app, /liveMode = !!session && storage\.get\(liveRoomKey\(session\)\) === "live";/);
+  // Both legacy and live room IDs preserve their original transport on reload.
   assert.match(app, /if \(!session \|\| liveMode\) return;/);
   assert.match(app, /if \(liveMode\) url\.searchParams\.set\("live", "1"\)/);
   assert.match(app, /storage\.get\(liveRoomKey\(session\)\) === "live"/);
   assert.match(app, /if \(liveMode\) await startLiveRoom\(bootEpoch\)/);
   assert.match(app, /if \(liveMode\) storage\.set\(liveRoomKey\(session\), "live"\)/);
-  console.log("Forbidden Words browser transport: gated sessions, private ticket protocol, push, acknowledgements, retry with same ID and legacy isolation passed.");
+  const lifecycleSource = app.slice(
+    app.indexOf('window.addEventListener("pagehide"'),
+    app.indexOf('window.addEventListener("online"'),
+  );
+  assert.ok(lifecycleSource.includes('window.addEventListener("pageshow"'));
+  const lifecycleCallbacks = {};
+  let parked = 0, restored = 0;
+  vm.runInNewContext(lifecycleSource, {
+    liveMode: true,
+    liveClient: { suspend: () => parked++, resume: () => restored++ },
+    window: { addEventListener: (type, callback) => {
+      lifecycleCallbacks[type] = callback;
+    } },
+  });
+  lifecycleCallbacks.pagehide();
+  lifecycleCallbacks.pageshow({ persisted: false });
+  lifecycleCallbacks.pageshow({ persisted: true });
+  assert.equal(parked, 1);
+  assert.equal(restored, 1, "Only BFCache page restoration reopens the socket");
+
+  console.log("Forbidden Words browser transport: live session recovery, BFCache lifecycle, acknowledgements and legacy isolation passed.");
 } finally {
   client.close();
 }
+
+// Reproduce Chrome's native fetch receiver constraint on a fresh live room.
+// The default fetch implementation must call globalThis.fetch as a method of
+// globalThis, not with the live-client object as its receiver.
+const savedGlobalFetch = globalThis.fetch;
+let nativeCalls = 0;
+try {
+  globalThis.fetch = function(url, init) {
+    assert.equal(this, globalThis, "Native Window.fetch must keep its Window receiver");
+    assert.ok(url.endsWith("/live/create"));
+    const input = JSON.parse(init.body);
+    assert.equal(input.session, session);
+    assert.equal(input.atlasSessionId, "atlas-student");
+    nativeCalls++;
+    return Promise.resolve(new Response(JSON.stringify({ ok: true, created: true }), {
+      status: 200, headers: { "Content-Type": "application/json" },
+    }));
+  };
+  const freshRoom = new ForbiddenWordsLiveClient({
+    api, session, actor: "tutor",
+    getTicketPayload: async () => ({ atlasSessionId: "atlas-student" }),
+    getAuthorization: async () => "test-user-token",
+    WebSocketImpl: FakeWebSocket,
+  });
+  try {
+    const result = await freshRoom.initialize({ atlasSessionId: "atlas-student" });
+    assert.equal(result.created, true);
+    assert.equal(nativeCalls, 1);
+  } finally {
+    freshRoom.close();
+  }
+} finally {
+  globalThis.fetch = savedGlobalFetch;
+}
+console.log("Forbidden Words browser native fetch receiver: fresh room creation passed.");

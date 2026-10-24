@@ -489,6 +489,7 @@
     .header-right {
       display: flex;
       flex: 1;
+      min-width: 0;
       align-items: center;
     }
 
@@ -502,6 +503,7 @@
 
     .header-right {
       justify-content: flex-end;
+      gap: 12px;
     }
 
     .hdr-logo {
@@ -1368,6 +1370,7 @@
         gap: 8px;
         padding: 0 12px;
       }
+      .header-right { gap: 7px; }
 
       .hdr-logo {
         font-size: 0.9rem;
@@ -1435,6 +1438,17 @@
       #scenario-dots {
         justify-content: flex-start;
       }
+    }
+
+    @media (max-width: 380px) {
+      #progress-label { display: none; }
+    }
+
+    @media (max-width: 520px) {
+      /* Compact counters keep the centred title away from the mobile menu. */
+      #progress-label { font-size: 10px; letter-spacing: .02em; }
+      .progress-word, .progress-join { display: none; }
+      #hdr-current::after { content: " / "; white-space: pre; }
     }
 
     @media (max-width: 480px) {
@@ -1529,20 +1543,20 @@
      GAME SCREEN
      ============================================================ -->
   <div id="game">
-    <header id="hdr">
+    <header id="hdr" class="arcade-game-chrome-centered-title">
       <div class="header-left">
         <div id="arcade-game-return-root"></div>
-
-        <div class="hdr-logo">Tomorrow <span>Got Weird</span></div>
       </div>
 
       <div class="header-center">
-        <div id="progress-label" aria-live="polite">
-          Scenario <span id="hdr-current">1</span> of <span id="hdr-total">25</span>
-        </div>
+        <div class="hdr-logo">Tomorrow <span>Got Weird</span></div>
       </div>
 
-      <div class="header-right" id="arcade-game-actions-root"></div>
+      <div class="header-right" id="arcade-game-actions-root">
+        <div id="progress-label" aria-live="polite">
+          <span class="progress-word">Scenario </span><span id="hdr-current">1</span><span class="progress-join"> of </span><span id="hdr-total">25</span>
+        </div>
+      </div>
     </header>
 
     <main id="main">
@@ -2578,6 +2592,7 @@
           root: '#hdr',
           returnRoot: '#arcade-game-return-root',
           actionsRoot: '#arcade-game-actions-root',
+          appearance: true,
           onBeforeReturn: saveState
         });
       }

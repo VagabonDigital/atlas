@@ -409,8 +409,136 @@ const fs = require("node:fs");
   assert.ok(inviteHarness.makeInvite().includes("Private game link"));
   assert.ok(!inviteHarness.makeInvite().includes("Previous invitation disabled"));
 
-  // The learner sees an actionable message for a claimed invitation, not a
-  // retry button that cannot reclaim a seat from a different browser.
+  // Recovery must be accessible from a collapsed disclosure even when a
+  // learner's original seat is online (e.g. device switch). Missing learners
+  // should expand recovery automatically without displacing primary actions.
+  const recoveryContext = {
+    invitationLink: () => "PRIVATE-LINK-MARKER",
+    replacementReady: () => false,
+    button: (action, label) => `BUTTON:${action}:${label}`,
+  };
+  const recoverySnippet = client.slice(
+    client.indexOf("function connectionOptions(s)"),
+    client.indexOf("function landing(s)"),
+  );
+  vm.runInNewContext(recoverySnippet + ";this.makeConnectionOptions = connectionOptions;", recoveryContext);
+  const liveRecovery = recoveryContext.makeConnectionOptions({ connected: { learner: true } });
+  assert.match(liveRecovery, /<details[^>]*data-learner-present="true"[^>]*>/);
+  assert.ok(!/<details[^>]*\bopen\b/.test(liveRecovery));
+  assert.ok(liveRecovery.includes("<summary>Connection options</summary>"));
+  assert.ok(liveRecovery.includes("Reset invitation"));
+  assert.ok(liveRecovery.includes("PRIVATE-LINK-MARKER"));
+  const missingRecovery = recoveryContext.makeConnectionOptions({ connected: { learner: false } });
+  assert.match(missingRecovery, /<details[^>]*data-learner-present="false"[^>]*\bopen\b/);
+  assert.ok(missingRecovery.includes("Reset invitation"));
+  const phaseRender = (start, end, name) => {
+    const app = { innerHTML: "" };
+    const context = {
+      learner: false, app, brand: "Forbidden Words", deck: "DECK",
+      escape: x => String(x), lastNonce: null,
+      button: (action, label) => `BUTTON:${action}:${label}`,
+      invitationLink: () => "PRIVATE-LINK-MARKER",
+      connectionOptions: recoveryContext.makeConnectionOptions,
+      replacementReady: () => false,
+      learnerHeader: () => "", pile: () => "", cardFace: () => "",
+      feedbackText: () => "",
+    };
+    const snippet = client.slice(client.indexOf(start), client.indexOf(end));
+    assert.ok(snippet.startsWith(start), "Could not locate " + name);
+    vm.runInNewContext(snippet + ";this.display = " + name + ";", context);
+    return { display: context.display, app };
+  };
+  const waitingView = phaseRender("function landing(s)", "function joinUrl()", "landing");
+  const waiting = { connected: { tutor: true, learner: false }, invite: "token" };
+  waitingView.display(waiting);
+  assert.ok(waitingView.app.innerHTML.includes("Invite your learner"));
+  assert.ok(waitingView.app.innerHTML.includes("PRIVATE-LINK-MARKER"));
+  assert.ok(waitingView.app.innerHTML.includes("Reset invitation"));
+  waitingView.display({ ...waiting, connected: { tutor: true, learner: true } });
+  assert.ok(waitingView.app.innerHTML.includes("Ready to play?"));
+  assert.ok(waitingView.app.innerHTML.includes("Start Round"));
+  assert.ok(waitingView.app.innerHTML.includes("Cancel game"));
+  assert.ok(waitingView.app.innerHTML.includes("Connection options"));
+  assert.ok(waitingView.app.innerHTML.includes("PRIVATE-LINK-MARKER"));
+  assert.ok(waitingView.app.innerHTML.includes("Reset invitation"));
+  assert.match(waitingView.app.innerHTML, /<details[^>]*data-learner-present="true"[^>]*>/);
+
+  const pausedState = {
+    phase: "active", paused: { reason: "connection", remaining: 60000 },
+    connected: { tutor: true, learner: true },
+    role: "Describer", card: { nonce: "card" },
+    score: 1, remaining: 130, played: 1, turn: 1, round: 1,
+  };
+  const renderPaused = s => {
+    // board(s) returns markup rather than writing into the app root.
+    const local = {
+      learner: false, deck: "DECK", lastNonce: null,
+      button: (action, label) => `BUTTON:${action}:${label}`,
+      invitationLink: () => "PRIVATE-LINK-MARKER",
+      connectionOptions: recoveryContext.makeConnectionOptions,
+      replacementReady: () => false, learnerHeader: () => "",
+      pile: () => "", cardFace: () => "", feedbackText: () => "",
+    };
+    const snippet = client.slice(client.indexOf("function board(s)"), client.indexOf("function feedbackText(s)"));
+    vm.runInNewContext(snippet + ";this.boardView = board;", local);
+    return local.boardView(s);
+  };
+  const resumed = renderPaused(pausedState);
+  assert.ok(resumed.includes("Resume turn"));
+  assert.ok(resumed.includes("End game"));
+  assert.ok(resumed.includes("Connection options"));
+  assert.ok(resumed.includes("PRIVATE-LINK-MARKER"));
+  assert.ok(resumed.includes("Reset invitation"));
+  assert.match(resumed, /<details[^>]*data-learner-present="true"[^>]*>/);
+  const missing = renderPaused({ ...pausedState, connected: { tutor: true, learner: false } });
+  assert.ok(missing.includes("Partner disconnected."));
+  assert.ok(missing.includes("Connection options"));
+  assert.match(missing, /<details[^>]*data-learner-present="false"[^>]*\bopen\b/);
+  assert.ok(missing.includes("PRIVATE-LINK-MARKER"));
+  assert.ok(missing.includes("Reset invitation"));
+
+  const betweenContext = {
+    learner: false, deck: "DECK", learnerHeader: () => "",
+    button: (action, label) => `BUTTON:${action}:${label}`,
+    invitationLink: () => "PRIVATE-LINK-MARKER",
+    connectionOptions: recoveryContext.makeConnectionOptions,
+    escape: x => String(x),
+  };
+  const betweenSnippet = client.slice(
+    client.indexOf("function between(s)"),
+    client.indexOf("function render()"),
+  );
+  vm.runInNewContext(betweenSnippet + ";this.betweenView = between;", betweenContext);
+  const swapState = {
+    phase: "switch", role: "Guesser", actor: "tutor", ready: [],
+    score: 2, best: null, finalCard: null, review: [],
+    connected: { tutor: true, learner: true },
+  };
+  const normalSwap = betweenContext.betweenView(swapState);
+  assert.ok(normalSwap.includes("I’m ready"));
+  assert.ok(normalSwap.includes("Connection options"));
+  assert.ok(normalSwap.includes("PRIVATE-LINK-MARKER"));
+  assert.ok(normalSwap.includes("Reset invitation"));
+  assert.match(normalSwap, /<details[^>]*data-learner-present="true"[^>]*>/);
+  const recoverySwap = betweenContext.betweenView({
+    ...swapState, connected: { tutor: true, learner: false },
+  });
+  assert.ok(recoverySwap.includes("PRIVATE-LINK-MARKER"));
+  assert.ok(recoverySwap.includes("Reset invitation"));
+  assert.match(recoverySwap, /<details[^>]*data-learner-present="false"[^>]*\bopen\b/);
+  assert.ok(!betweenContext.betweenView({
+    ...swapState, phase: "finished",
+  }).includes("Connection options"));
+  assert.ok(betweenContext.betweenView({
+    ...swapState, phase: "results",
+  }).includes("Connection options"));
+  // Connection changes collapse/expand the options, but normal state pushes
+  // preserve the tutor's open/closed choice.
+  assert.ok(client.includes("previousLearnerPresence"));
+  assert.ok(client.includes("currentConnectionOptions.dataset.learnerPresent === previousLearnerPresence"));
+
+  // The learner sees actionable recovery for both the old HTTP and new
+  // live-room errors, never an endless retry for a claimed/replaced seat.
   const entrySnippet = client.slice(
     client.indexOf("function showEntryError(error)"),
     client.indexOf("async function poll()"),
@@ -425,12 +553,27 @@ const fs = require("node:fs");
     clearTimeout: () => {}, notify: () => {}, stopLive: () => {},
   };
   vm.runInNewContext(entrySnippet + ";this.displayEntryError = showEntryError;", entryHarness);
-  entryHarness.displayEntryError({
-    status: 403,
-    message: "This learner seat is already in use. Ask your tutor for a replacement link.",
-  });
-  assert.ok(entryHarness.app.innerHTML.includes("This invitation has already been used."));
-  assert.ok(entryHarness.app.innerHTML.includes("ask your tutor for a new link."));
+  for (const claimedSeatMessage of [
+    "This learner seat is already in use. Ask your tutor for a replacement link.",
+    "This learner seat is already in use.",
+  ]) {
+    entryHarness.displayEntryError({ status: 403, message: claimedSeatMessage });
+    assert.ok(entryHarness.app.innerHTML.includes("<h1>This invitation is already in use.</h1>"));
+    assert.ok(entryHarness.app.innerHTML.includes("<p>Ask your tutor to send you a new link.</p>"));
+    assert.ok(!entryHarness.app.innerHTML.includes("Reopen the original learner window"));
+    assert.ok(!entryHarness.app.innerHTML.includes("Try again"));
+  }
+  for (const invalidInviteMessage of [
+    "This invitation is no longer available.",
+    "This learner seat has been replaced.",
+    "This invite is no longer available. Ask your tutor for a new link.",
+  ]) {
+    entryHarness.displayEntryError({ status: 403, message: invalidInviteMessage });
+    assert.ok(entryHarness.app.innerHTML.includes("reset the invitation"));
+    assert.ok(!entryHarness.app.innerHTML.includes("Try again"));
+  }
+  entryHarness.displayEntryError({ status: 410, message: "This game has expired." });
+  assert.ok(entryHarness.app.innerHTML.includes("start a new game"));
   assert.ok(!entryHarness.app.innerHTML.includes("Try again"));
   entryHarness.displayEntryError({ status: 503, message: "Connection failed." });
   assert.ok(entryHarness.app.innerHTML.includes("Connection failed."));
@@ -438,6 +581,76 @@ const fs = require("node:fs");
   assert.ok(client.includes('finished ? "That’s a wrap!"'));
   assert.ok(!client.includes("Your lesson call stays open."));
   assert.ok(!client.includes("Take those new ways of saying things with you."));
+
+  // Repeated pushed state must not rebuild the header's Pause/Resume
+  // button; replacing it made the control flash and lose focus mid-play.
+  const headerSnippet = client.slice(
+    client.indexOf("function updateTutorHeader(s)"),
+    client.indexOf("function replacementReady()"),
+  );
+  let pauseRenders = 0;
+  const pauseRoot = {
+    node: null,
+    querySelector: () => pauseRoot.node,
+    contains: () => false,
+    set innerHTML(value) {
+      pauseRenders++;
+      this.node = value ? {
+        dataset: { action: value.includes('data-action="resume"') ? "resume" : "pause" },
+      } : null;
+    },
+  };
+  const headerHarness = {
+    learner: false, brand: "", ensurePlayingChrome: () => {},
+    headerPause: s => '<button data-action="' + (s.paused ? "resume" : "pause") + '"></button>',
+    headerUtilities: () => "",
+    document: {
+      activeElement: null,
+      querySelector: selector => selector === "#fw-header-pause" ? pauseRoot : null,
+    },
+  };
+  vm.runInNewContext(headerSnippet + ";this.updateHeader = updateTutorHeader;", headerHarness);
+  const activeState = { phase: "active", round: 1, paused: null };
+  headerHarness.updateHeader(activeState);
+  headerHarness.updateHeader({ ...activeState });
+  assert.equal(pauseRenders, 1, "Pushed state cannot flash the Pause button");
+  headerHarness.updateHeader({ ...activeState, paused: { reason: "connection" } });
+  assert.equal(pauseRenders, 2, "A real pause must switch to Resume");
+  headerHarness.updateHeader({ ...activeState, paused: { reason: "connection" } });
+  assert.equal(pauseRenders, 2, "Repeated connection state cannot flash Resume");
+
+  // A four-second heartbeat/state push is not new tutor progress. Only
+  // room/round/status changes should write to Atlas cloud continuity.
+  const continuitySnippet = client.slice(
+    client.indexOf("function syncAtlasContinuity(s)"),
+    client.indexOf("function ensurePlayingChrome()"),
+  );
+  const continuityWrites = [];
+  const continuityHarness = {
+    learner: false, LOCAL: false, gameLearnerId: "lesson-1",
+    session: "room-1", lastContinuityKey: "",
+    REGISTRY_ID: "arcade:forbidden-words", URL,
+    location: { href: "https://atlasfortutors.com/arcade/forbidden-words/" },
+    window: { AtlasBridge: {
+      readActiveSession: () => ({ id: "lesson-1" }),
+      upsertSessionState: (...args) => continuityWrites.push(args),
+      touchRecentActivity: () => {},
+    } },
+  };
+  vm.runInNewContext(continuitySnippet + ";this.sync = syncAtlasContinuity;", continuityHarness);
+  continuityHarness.sync({ phase: "waiting", round: 0 });
+  continuityHarness.sync({ phase: "waiting", round: 0 });
+  continuityHarness.sync({ phase: "active", round: 1 });
+  continuityHarness.sync({ phase: "active", round: 1 });
+  continuityHarness.sync({ phase: "results", round: 1 });
+  continuityHarness.sync({ phase: "finished", round: 1 });
+  assert.equal(continuityWrites.length, 3,
+    "Repeated live state updates should not flood Supabase continuity saves");
+
+  // Visible background-tab wakeups rely on socket liveness rather than the
+  // frozen JavaScript timer's stale timestamp.
+  assert.match(client, /\(!liveMode \|\| !liveClient\?\.connected\)/);
+  assert.match(client, /if \(failed && liveClient\?\.connected\)/);
 
   const setupTutorBlock = client.slice(
     client.indexOf("async function setupTutor()"),
@@ -493,8 +706,8 @@ const fs = require("node:fs");
   assert.ok(client.includes('dialog.querySelector("#end-game-title").textContent = waiting ? "Cancel this game?"'));
   assert.ok(tutorPage.includes('id="end-game-eyebrow"'));
   assert.ok(client.includes('button("finish", "End game", "secondary end-game-button")'));
-  assert.ok(client.includes('<details class="pause-invitation"'));
-  assert.ok(client.includes("Invitation &amp; reconnect"));
+  assert.ok(client.includes('<details class="pause-invitation connection-options"'));
+  assert.ok(client.includes("<summary>Connection options</summary>"));
   assert.ok(client.includes('button("replace-learner", "Reset invitation"'));
   assert.ok(client.includes("replacementInvite = state?.invite || null"));
   assert.ok(tutorPage.includes("Reset invitation?"));
