@@ -185,10 +185,15 @@ It owns provider credentials, authenticated Atlas account verification, AI abuse
 **Backend deployment configuration:** `wrangler.atlas-ai.jsonc` describes the
 existing `atlas-ai` Worker and its `shared/worker.js` source. It retains the
 production compatibility date (`2026-08-07`), existing `ATLAS_FEEDBACK`
-KV namespace, and `workers.dev` endpoint. `keep_vars: true` preserves
-dashboard-managed plaintext variables; encrypted secrets stay in Cloudflare.
-Never commit secrets or copy them into the Wrangler configuration. The
-configuration is excluded from public site assets via `.assetsignore`.
+KV namespace, and `workers.dev` endpoint. Six non-secret production
+variables (allowed origins, AI model, live-game switch, Paddle environment,
+and Supabase URL) are declared in this configuration so Wrangler and Cloudflare
+agree on their values. Update these in GitHub when production configuration
+changes; do not introduce dashboard-only drift. `keep_vars: true` remains
+enabled to retain other dashboard-managed plaintext variables; encrypted secrets
+stay in Cloudflare. Never commit API keys, passwords, tokens, or other secrets
+to the Wrangler configuration. The configuration is excluded from public site
+assets via `.assetsignore`.
 
 The first Wrangler deployment of `atlas-ai` on **23 October 2026** created the
 SQLite-backed `ForbiddenWordsLiveRoom` Durable Object and bound it as
@@ -221,7 +226,10 @@ commands only for an intentional **backend** update:
    ```
 
    This checks that the generated backend is current and previews the Worker
-   bundle/bindings **without deploying anything**.
+   bundle/bindings **without deploying anything**. A dry run does not check
+   production configuration drift; compare the six declared `vars` against
+   Cloudflare before the next intentional deploy. Stop if Wrangler unexpectedly
+   warns that remote production settings will be overridden.
 3. If the preview is correct **and the backend update is approved**, run:
 
    ```powershell
@@ -235,9 +243,10 @@ commands only for an intentional **backend** update:
 4. Confirm the terminal reports `Deployed atlas-ai`. Open
    [the Worker health check](https://atlas-ai.savvy989.workers.dev/health);
    it should return `"ok":true`. Then smoke-test relevant Atlas features.
-   For the Forbidden Words live-room rollout, verify the switch remains off
-   until controlled testing is arranged. A green health endpoint alone does
-   **not** validate AI, account, billing or live WebSocket behaviour.
+   For the Forbidden Words live-room rollout, verify the configured switch
+   matches the intended rollout status (currently `true` for controlled testing).
+   A green health endpoint alone does **not** validate AI, account, billing
+   or live WebSocket behaviour.
 
 The shortcuts live in the existing root `package.json`:
 `ai:dry-run` and `ai:deploy`. On macOS/Linux, use `npm run` instead of

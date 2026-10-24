@@ -5,6 +5,14 @@
   "compatibility_date": "2026-08-07",
   "workers_dev": true,
   "keep_vars": true,
+  "vars": {
+    "ALLOWED_DEV_ORIGIN": "http://127.0.0.1:5500",
+    "ALLOWED_ORIGIN": "https://atlasfortutors.com",
+    "ATLAS_AI_MODEL": "gpt-5.6-luna",
+    "ATLAS_FORBIDDEN_WORDS_LIVE_ENABLED": "true",
+    "ATLAS_PADDLE_ENVIRONMENT": "live",
+    "ATLAS_SUPABASE_URL": "https://jnhjfpagectprceswvqn.supabase.co"
+  },
   "kv_namespaces": [
     {
       "binding": "ATLAS_FEEDBACK",
