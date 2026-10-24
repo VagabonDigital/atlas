@@ -193,9 +193,11 @@ function render({flash=-1,scores=state?.scores,active=state?.active}={}){
   document.documentElement.style.setProperty('--active',active===1?'#9990ed':'#ff902e');
   $('#heading').innerHTML=!entrance?`<span class="round-kicker">${state.phase==='final'?'MATCH COMPLETE':`ROUND ${state.round+1} OF 3`}</span><h1>${state.phase==='final'?'You met the crowd.':esc(state.boards[state.round].question)}</h1>`:'<h1>FAMILY<br>FEUD</h1><p>You know your answer.<br>Do you know everyone else’s?</p>';
   const activeBoard=entrance?null:state?.boards[state.round];
-  $('#provenance').textContent=activeBoard?.kind==='season26'
-    ? 'SEASON 26 · ARCHIVED SURVEY RESULTS'
-    : activeBoard ? 'ILLUSTRATIVE BOARD · NOT SURVEY DATA' : 'SEASON 26 · SURVEY GAME';
+  $('#provenance').textContent=activeBoard?.kind==='season25'
+    ? 'SEASON 25 · ARCHIVED SURVEY RESULTS'
+    : activeBoard?.kind==='season26'
+      ? 'SEASON 26 · ARCHIVED SURVEY RESULTS'
+      : activeBoard ? 'ILLUSTRATIVE BOARD · NOT SURVEY DATA' : 'FAMILY FEUD · SURVEY GAME';
   renderBoard(flash);renderPlayers(scores,active);renderDock(active);$('#feedback').textContent=message;
 }
 function focusAnswer(){if(!coverOpen&&!busy&&state?.phase==='playing')$('#answer')?.focus({preventScroll:true});}
