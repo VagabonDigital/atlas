@@ -39,7 +39,7 @@ playable library only after screening a question for plausible successful guesse
 verifying its source numbers and writing and testing its answer codebook.
 This is an editorial selection judgement, not a measured learner success rate.
 
-## Season 25 source archive and Batch 21
+## Season 25 source archive and Batches 21–22
 
 The separate research file `dev/season25-six-answer-raw.json` contains
 **162 original six-answer Season 25 records** from
@@ -67,6 +67,16 @@ automatically playable just because they are in either JSON archive.
 This season-specific file lives with Family Feud rather than a shared game
 system: it owns a distinct, durable season's authored surveys without
 moving or rewriting the existing 100 Season 26 boards in `content.mjs`.
+**Batch 22** adds five more approved surveys in the same Season 25 content owner:
+vampires moving in next door (#172), pictures of your dog (#205),
+Bob's pretend fire-truck pickup (#224), fictional characters turning green
+(#256), and a surprise $10,000 Christmas bonus (#273). Each retains
+the exact original question and six original ranked answers and points,
+with board-specific natural-language recognition boundaries. The approval
+gate explicitly includes those IDs; the other source-archive entries
+remain research-only. No new game modes, visible QA categories or
+cross-game infrastructure were added.
+
 The original 40 held Season 26 boards remain held.
 
 The seven former **illustrative development boards** remain under
@@ -84,7 +94,7 @@ have separate outcomes; errors preserve the exact entry and turn for retry.
 Add new natural paraphrases on the basis of manual playtesting.
 
 Replay prefers unseen approved boards and clearly discloses reuse when the
-65-board playable pool is exhausted.
+70-board playable pool is exhausted.
 ## Verification
 
 ```sh
@@ -144,7 +154,7 @@ The famous-captains board passes despite two regional references. Cinderella
 stays held because an underwear answer ranks second. The complete review
 is recorded by source ID in `editorial.mjs`.
 
-After Batch 21, **65** sourced boards are approved and playable, while the
+After Batch 22, **70** sourced boards are approved and playable, while the
 original **40 held** Season 26 surveys remain unavailable in new matches.
 
 All 100 Season 26 surveys remain unchanged. The review is provisional editorial
