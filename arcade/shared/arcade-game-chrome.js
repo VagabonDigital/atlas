@@ -293,7 +293,7 @@
     }
   }
 
-  function toggleAppearance(root) {
+  function toggleAppearance(root, settings = {}) {
     const Bridge = getBridge();
 
     if (!Bridge) {
@@ -307,7 +307,15 @@
       updateAppearanceDisplay(root);
     };
 
+    // A sticky mobile game header can blink out when the browser captures
+    // the entire scrolled viewport for a View Transition. Games can opt out
+    // on narrow screens while retaining the normal theme colour transitions.
+    const skipMobileSnapshot =
+      settings.mobileAppearanceTransition === false &&
+      window.matchMedia?.('(max-width: 820px)').matches;
+
     if (
+      !skipMobileSnapshot &&
       typeof document.startViewTransition === 'function' &&
       !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
     ) {
@@ -909,7 +917,7 @@
 
     appearanceButtons.forEach(function (appearanceButton) {
       appearanceButton.addEventListener('click', function () {
-        toggleAppearance(root);
+        toggleAppearance(root, settings);
         updateGameAppearanceDisplay(root);
         closeGameMenu(root);
       });
