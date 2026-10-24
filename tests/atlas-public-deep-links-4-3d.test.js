@@ -366,12 +366,13 @@ function testAnonymousBaselineAndScopedSharing() {
 
     assert.deepEqual(
         Array.from(fullSubjects),
-        [
-            'business-meetings-clear-updates',
-            'octopuses-change-colour',
-            'odyssey-worth-the-hype',
-            'words-that-stick'
-        ]
+        runtime.window.CompassCatalogData
+            .getCompassSubjects()
+            .filter(subject =>
+                subject.status === 'available'
+            )
+            .map(subject => subject.id)
+            .sort()
     );
 
     const fullGames =
@@ -391,7 +392,9 @@ function testAnonymousBaselineAndScopedSharing() {
         [
             'arcade:family-feud',
             'arcade:millionaire',
-            'arcade:truth-trap'
+            'arcade:tomorrow-got-weird',
+            'arcade:truth-trap',
+            'arcade:would-you-rather'
         ]
     );
 

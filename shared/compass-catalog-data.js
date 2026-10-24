@@ -44,13 +44,6 @@
         'octopuses-change-colour'
     ];
 
-    const COMPASS_PUBLIC_FULL_SUBJECT_IDS = new Set([
-        'odyssey-worth-the-hype',
-        'octopuses-change-colour',
-        'business-meetings-clear-updates',
-        'words-that-stick'
-    ]);
-
     const COMPASS_SUBJECT_SHARE_GRANTS = Object.freeze({
         'game-theory': 's1_f2N7qK4mV9xR',
         'stories-screen': 's1_w8J3pT6cL2zQ',
@@ -1449,11 +1442,7 @@
             order: subject.order,
             durationLabel: subject.durationLabel || '45–60 min',
             status: available ? 'available' : 'soon',
-            publicAccess:
-                available &&
-                COMPASS_PUBLIC_FULL_SUBJECT_IDS.has(subject.id)
-                    ? 'full'
-                    : 'preview',
+            publicAccess: available ? 'full' : 'preview',
             launchUrl: available ? `compass/${subject.id}/index.html` : '',
             artId: subject.artId || '',
             coverImage: subject.coverImage || '',

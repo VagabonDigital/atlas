@@ -53,20 +53,15 @@ const publicFullIds = built
     .map(subject => subject.id)
     .sort();
 
-assert.deepEqual(
-    publicFullIds,
-    [
-        'business-meetings-clear-updates',
-        'octopuses-change-colour',
-        'odyssey-worth-the-hype',
-        'words-that-stick'
-    ],
-    'anonymous Compass must expose exactly the four agreed full subjects'
+assert.ok(
+    built.length >= 14,
+    'the completed Atlas Originals catalogue remains available'
 );
 
-assert.ok(
-    built.length > publicFullIds.length,
-    'the built catalogue must still contain preview-only subjects'
+assert.deepEqual(
+    publicFullIds,
+    built.map(subject => subject.id).sort(),
+    'all completed Atlas Originals are fully public'
 );
 
 for (const subject of built) {
@@ -89,14 +84,14 @@ assert.equal(
         .getCompassSubjectPublicAccess(
             'game-theory'
         ),
-    'preview'
+    'full'
 );
 assert.equal(
     window.CompassCatalogData
         .getCompassSubjectPublicAccess(
             'compass:game-theory'
         ),
-    'preview'
+    'full'
 );
 assert.equal(
     window.CompassCatalogData
@@ -338,5 +333,5 @@ assert.match(
 );
 
 console.log(
-    'Stage 3.2 anonymous Compass contract passed: real catalogue, four full subjects, preview routing, live anonymous suggestion exploration, clear ready-to-build state, protected creation boundary with automatic post-auth resume, and Search visibility.'
+    'Anonymous Compass contract passed: all completed Originals are public, unbuilt entries remain previews, creation remains account-gated with preserved intent, and Search reflects catalogue access.'
 );

@@ -84,7 +84,7 @@ function makeRuntime(
   };
 }
 
-// Normal anonymous catalog access stays exactly as configured.
+// Public access is open for completed resources; scoped share links remain backward-compatible.
 {
   const runtime = makeRuntime();
 
@@ -99,12 +99,11 @@ function makeRuntime(
 
   assert.deepStrictEqual(
     Array.from(fullSubjects),
-    [
-      'business-meetings-clear-updates',
-      'octopuses-change-colour',
-      'odyssey-worth-the-hype',
-      'words-that-stick'
-    ]
+    runtime.window.CompassCatalogData
+      .getCompassSubjects()
+      .filter(subject => subject.status === 'available')
+      .map(subject => subject.id)
+      .sort()
   );
 
   const fullGames =
@@ -120,7 +119,9 @@ function makeRuntime(
     [
       'arcade:family-feud',
       'arcade:millionaire',
-      'arcade:truth-trap'
+      'arcade:tomorrow-got-weird',
+      'arcade:truth-trap',
+      'arcade:would-you-rather'
     ]
   );
 }
@@ -293,5 +294,5 @@ assert.doesNotMatch(
 );
 
 console.log(
-  'Batch 4.3 shared-resource contract passed: direct share grants unlock only the promised subject/game, normal anonymous catalog access remains unchanged, and ownership/auth boundaries stay intact.'
+  'Resource sharing contract passed: legacy scoped links still resolve, public catalogue access is open, and account-owned authoring boundaries remain intact.'
 );

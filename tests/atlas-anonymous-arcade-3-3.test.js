@@ -88,13 +88,13 @@ assert.deepEqual(
         'arcade:millionaire': 'full',
         'arcade:forbidden-words': 'preview',
         'arcade:tomorrow-got-weird':
-            'preview',
+            'full',
         'arcade:truth-trap':
             'full',
         'arcade:would-you-rather':
-            'preview'
+            'full'
     },
-    'Family Feud, Millionaire and Truth Trap are fully public; the other current Arcade games remain preview access'
+    'All five single-screen games are public; Forbidden Words retains registered hosting'
 );
 
 assert.equal(
@@ -126,7 +126,7 @@ assert.equal(
         .getArcadeGamePublicAccess(
             'arcade:tomorrow-got-weird'
         ),
-    'preview'
+    'full'
 );
 
 assert.equal(
@@ -134,7 +134,7 @@ assert.equal(
         .getArcadeGamePublicAccess(
             'arcade:would-you-rather'
         ),
-    'preview'
+    'full'
 );
 
 assert.match(
@@ -266,5 +266,5 @@ assert.match(
 );
 
 console.log(
-    'Stage 3.3 anonymous Arcade contract passed: the six-game catalogue is visible, Family Feud, Millionaire and Truth Trap are fully public, preview games expose their real intros, gameplay gates at Start, post-auth return unlocks the cover without auto-starting, and Search exposes preview context.'
+    'Arcade public-access contract passed: five games are publicly playable, Forbidden Words hosting remains gated, and the shared access and return infrastructure remains available.'
 );
