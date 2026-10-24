@@ -332,6 +332,28 @@ function runPlacementProof() {
         /@media \(max-width: 720px\)[\s\S]*?data-account-state="account"[\s\S]*?atlas-inside-account-explore[\s\S]*?display: inline-flex/,
         'Authenticated Enter Atlas must remain visible on mobile public surfaces.'
     );
+    const mobileChromeCss = chromeCss
+        .split('@media (max-width: 720px) {')[1]
+        ?.split('@media (max-width: 420px) {')[0] || '';
+    const mobileExploreRule = mobileChromeCss
+        .match(/\.atlas-inside-account-explore\s*\{([^}]+)\}/)?.[1] || '';
+
+    assert.match(
+        mobileExploreRule,
+        /display: inline-flex;[\s\S]*?background: var\(--accent/,
+        'Anonymous visitors must have a persistent primary Explore Atlas action on mobile.'
+    );
+    assert.match(
+        mobileChromeCss,
+        /\.atlas-inside-account-entry \.atlas-inside-account-create,[\s\S]*?data-atlas-account-hint="anonymous"[\s\S]*?display: none;/,
+        'Mobile should reclaim header space from the separate Create account action.'
+    );
+    assert.match(
+        gate,
+        /data-account-mode="create"/,
+        'The mobile Sign in dialog must continue to offer free account creation.'
+    );
+
     assert.match(
         inside,
         /atlas-inside-account-enter-label">Enter Atlas<\/span>/,

@@ -227,7 +227,17 @@ html[data-atlas-account-hint="account"]
 
 @media (max-width: 720px) {
     .atlas-inside-account-explore {
-        display: none;
+        display: inline-flex;
+        border-color: var(--accent, #4d7184);
+        background: var(--accent, #4d7184);
+        color: var(--surface-panel, #fffdf9);
+    }
+
+    .atlas-inside-account-explore:hover,
+    .atlas-inside-account-explore:focus-visible {
+        border-color: var(--accent, #4d7184);
+        background: var(--accent, #4d7184);
+        color: var(--surface-panel, #fffdf9);
     }
 
     .atlas-inside-account-entry[data-account-state="account"]
@@ -236,6 +246,13 @@ html[data-atlas-account-hint="account"]
     .atlas-inside-account-entry[data-account-state="pending"]
     .atlas-inside-account-explore {
         display: inline-flex;
+    }
+
+    .atlas-inside-account-entry .atlas-inside-account-create,
+    html[data-atlas-account-hint="anonymous"]
+    .atlas-inside-account-entry[data-account-state="pending"]
+    .atlas-inside-account-create {
+        display: none;
     }
 
     .atlas-inside-account-entry {
