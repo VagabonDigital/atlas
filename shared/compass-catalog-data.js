@@ -1294,7 +1294,7 @@
         },
         {
             id: 'the-zombie-ant-fungus',
-            coverImage: "https://b2408965.assetcdn.net/2.0/2408965/wp-content/uploads/ZombieAntFungus_Photo-from-AndreasKay.jpeg?lossy=2&strip=1&webp=1&size=971x0",
+            coverImage: "https://gencomugen.com/wp-content/uploads/Resim1-9.jpg",
             title: 'The Zombie Ant Fungus',
             navTitle: 'Zombie Ant Fungus',
             categoryId: 'society-the-world',

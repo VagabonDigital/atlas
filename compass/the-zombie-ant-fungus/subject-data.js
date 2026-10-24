@@ -3,7 +3,7 @@
   Editorial migration from Atlas Backup v3, 24 October 2026.
   Private owner, learner, continuity and account data excluded.
   Subject-specific review: science, conversation quality and optional paths.
-  Cover: founder-selected externally hosted image — https://b2408965.assetcdn.net/2.0/2408965/wp-content/uploads/ZombieAntFungus_Photo-from-AndreasKay.jpeg?lossy=2&strip=1&webp=1&size=971x0
+  Cover: founder-selected externally hosted image — https://gencomugen.com/wp-content/uploads/Resim1-9.jpg
 */
 
 const MODULE = {
@@ -13,7 +13,7 @@ const MODULE = {
     "title": "The Zombie Ant Fungus",
     "titleHtml": "The Zombie Ant Fungus",
     "navTitle": "Zombie Ant Fungus",
-    "bgImage": "https://b2408965.assetcdn.net/2.0/2408965/wp-content/uploads/ZombieAntFungus_Photo-from-AndreasKay.jpeg?lossy=2&strip=1&webp=1&size=971x0"
+    "bgImage": "https://gencomugen.com/wp-content/uploads/Resim1-9.jpg"
 };
 
 const subjectCopy = {
