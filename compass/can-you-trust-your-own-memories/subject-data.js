@@ -362,7 +362,7 @@ const clCards = [
             "Should eyewitness evidence be treated differently from physical evidence such as DNA or video?",
             "Would writing down your memory immediately after an event make it more accurate, or could it create a false sense of certainty?"
         ],
-        "mainQuestion": "If you witnessed an important event, what would make you trust—or question—your own memory?"
+        "mainQuestion": "Should a confident eyewitness account ever be enough to convict someone? What other evidence or safeguards would you insist on?"
     },
     {
         "id": "cultural-lens-card-4e11d87d-e152-485d-a412-d4d1fcff3b66",
@@ -383,7 +383,7 @@ const clCards = [
             "Why might people add realistic details to a memory when they are unsure about what really happened?",
             "What could families, teachers, or researchers do to avoid accidentally influencing someone’s memories?"
         ],
-        "mainQuestion": "If someone remembers an event clearly but other evidence suggests it never happened, how much should we trust their memory?"
+        "mainQuestion": "If a relative told you a vivid childhood story about yourself that you could not remember, what would make you accept it or question it?"
     },
     {
         "id": "cultural-lens-card-5600a381-99c1-4654-934c-fb03cf70725d",
@@ -425,7 +425,7 @@ const clCards = [
             "Have you ever disagreed with someone about what happened, while both of you felt completely certain?",
             "What kinds of evidence can help separate a confident memory from an accurate one?"
         ],
-        "mainQuestion": "When people remember the same event differently, how should we decide whether one version is more reliable than the others?"
+        "mainQuestion": "Two witnesses tell different stories: one saw the event from the street, the other from a window. How could you separate differences in perspective from mistakes or deliberate deception?"
     },
     {
         "id": "cultural-lens-card-c44aad5b-cd26-427a-8941-8d15f0e23ef1",
