@@ -74,7 +74,7 @@ test('first twenty sourced batches preserve one hundred original Season 26 six-a
   }
 });
 
-test('Season 25 research source remains complete and Batches 21–27 retain original six answers',()=>{
+test('Season 25 research source remains complete and Batches 21–28 retain original six answers',()=>{
   assert.equal(source25.length,162);
   assert.deepEqual(source25.map(x=>x.id),Array.from({length:162},(_,i)=>i+162));
   assert.ok(source25.every(x=>typeof x.question==='string'&&x.question.length>12&&x.answers?.length===6));
@@ -82,7 +82,7 @@ test('Season 25 research source remains complete and Batches 21–27 retain orig
   const totalMismatches=source25.filter(x=>x.answers.reduce((sum,a)=>sum+a.points,0)!==x.total_points).map(x=>x.id);
   assert.deepEqual(totalMismatches,[306]);
   assert.equal(source25.find(x=>x.id===306).total_points,70);
-  const screened=[183,187,188,252,282,172,205,224,256,273,189,225,247,291,313,176,193,212,229,262,198,228,243,261,316,220,231,266,290,296,195,269,301,314,323];
+  const screened=[183,187,188,252,282,172,205,224,256,273,189,225,247,291,313,176,193,212,229,262,198,228,243,261,316,220,231,266,290,296,195,269,301,314,323,171,251,277,286,288];
   assert.deepEqual(season25Boards.map(b=>b.sourceSurveyId),screened);
   for(const b of season25Boards){
     const original=source25.find(x=>x.id===b.sourceSurveyId);
@@ -205,11 +205,29 @@ test('the retired finger prompt stays in research only, not the playable pool',(
   assert.ok(playableBoards.some(b=>b.sourceSurveyId===269));
 });
 
+test('Batch 28: the last five sourced boards recognise thirty natural guesses',()=>{
+  const examples=[
+    [171,['a funeral','church service','kids birthday party','alcoholics anonymous meeting','baby shower','school graduation']],
+    [251,['food crumbs','a wallet','beard comb','marijuana','bird nest','house keys']],
+    [277,['the ex arrives','bad weather','drunk guests','runaway bride','misbehaving children','a secret affair']],
+    [286,['pitbull terrier','alsatian','bulldog','chihuahua','doberman pinscher','rottie']],
+    [288,['restaurant','mosque','shopping mall','public toilet','classroom','local library']],
+  ];
+  for(const [id,phrases] of examples){
+    const b=season25Boards.find(board=>board.sourceSurveyId===id);
+    assert.ok(b,'Missing Batch 28 survey '+id);
+    for(const [i,phrase] of phrases.entries())
+      assert.deepEqual(resolveAnswer(b,phrase),{kind:'match',index:i},id+' '+phrase);
+  }
+  assert.equal(playableBoards.length,100);
+  assert.equal(new Set(playableBoards.map(b=>b.id)).size,100);
+});
+
 test('default pool includes only explicitly approved classroom-ready boards',()=>{
   const approved=new Set(editorialReview.approvedSourceIds);
   const held=new Set(Object.keys(editorialReview.heldReasons).map(Number));
   assert.equal(boards.length,100);
-  assert.equal(approved.size,95);
+  assert.equal(approved.size,100);
   assert.equal(held.size,40);
   assert.equal(new Set([...approved,...held]).size,boards.length+season25Boards.length);
   for(const b of [...boards,...season25Boards]){

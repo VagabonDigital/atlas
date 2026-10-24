@@ -39,7 +39,7 @@ playable library only after screening a question for plausible successful guesse
 verifying its source numbers and writing and testing its answer codebook.
 This is an editorial selection judgement, not a measured learner success rate.
 
-## Season 25 source archive and Batches 21–27
+## Season 25 source archive and Batches 21–28
 
 The separate research file `dev/season25-six-answer-raw.json` contains
 **162 original six-answer Season 25 records** from
@@ -125,6 +125,19 @@ unchanged; each answer has its own authored aliases and exclusions.
 The superseded Season 25 research ID #297 remains only in the development
 archive and is neither approved nor included in the deployed board code.
 
+**Batch 28** completes the 100-board target with five additional original
+Season 25 six-answer surveys: inappropriate occasions for champagne (#171),
+unexpected objects in a huge beard (#251), wedding disruptions (#277),
+dog breeds that match a grumpy husband's bark (#286), and public places
+inappropriate for popping pimples (#288). The classroom-default screen
+considered each complete question and all six labels; the limited alcohol,
+cannabis and body-humour references are proportional, non-instructional,
+and do not require personal disclosure. All original question wording,
+rankings and point values remain untouched. Thirty newly authored answer
+concepts include recognition aliases, explicit meaning boundaries,
+and exclusions. This milestone is approval and automatic-test completion,
+not evidence of a tutor/learner playtest.
+
 The original 40 held Season 26 boards remain held.
 
 The seven former **illustrative development boards** remain under
@@ -142,7 +155,7 @@ have separate outcomes; errors preserve the exact entry and turn for retry.
 Add new natural paraphrases on the basis of manual playtesting.
 
 Replay prefers unseen approved boards and clearly discloses reuse when the
-95-board playable pool is exhausted.
+100-board playable pool is exhausted.
 ## Verification
 
 ```sh
@@ -202,7 +215,7 @@ The famous-captains board passes despite two regional references. Cinderella
 stays held because an underwear answer ranks second. The complete review
 is recorded by source ID in `editorial.mjs`.
 
-After Batch 27, **95** sourced boards are approved and playable, while the
+After Batch 28, **100** sourced boards are approved and playable, while the
 original **40 held** Season 26 surveys remain unavailable in new matches.
 
 All 100 Season 26 surveys remain unchanged. The review is provisional editorial
