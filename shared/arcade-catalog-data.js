@@ -264,6 +264,7 @@
             unitLabel: 'Cards',
             total: 141,
             artId: 'forbidden',
+            coverImage: '/assets/hub/forbidden-words.webp',
             accent: '#0762de',
             order: 4,
             launchUrl: './forbidden-words/index.html'
