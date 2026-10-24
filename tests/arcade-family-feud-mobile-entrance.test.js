@@ -84,6 +84,23 @@ test('player panels form a paired row directly below the cabinet', () => {
     assert.match(html, /id="player-1" class="contestant player-b"/);
 });
 
+test('phone cover keeps the Family Feud logo subordinate to the cabinet', () => {
+    const logoRule = mobileRules.match(
+        /\.stage\.entrance \.question h1 \{([^}]+)\}/
+    )?.[1];
+    assert.ok(logoRule, 'entrance logo should have a phone-specific rule');
+    assert.match(
+        logoRule,
+        /font-size:\s*clamp\(33px, 9\.8vw, 45px\);/,
+        'phone logo should be around 12% smaller than the original cover'
+    );
+    assert.match(
+        html,
+        /@media \(min-width: 900px\)[\s\S]*?\.entrance \.question h1 \{[^}]*font-size: clamp\(42px, 7\.2dvh, 84px\);/,
+        'desktop entrance typography must remain unchanged'
+    );
+});
+
 test('gameplay remains governed by separate non-entrance selectors', () => {
     assert.match(html, /\.stage:not\(\.entrance\) \.machine \{/);
     assert.match(html, /\.stage:not\(\.entrance\) \.console \{/);
