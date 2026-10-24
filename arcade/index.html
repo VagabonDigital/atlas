@@ -1715,6 +1715,47 @@
         Object.keys(GAME_COVERS).indexOf(b.registryId)
     );
 
+    // Experimental Arcade entry: discoverable by URL, not access-protected.
+    // Opt in once per signed-in account/browser at /arcade/?tgw-proto=enable.
+    // The public catalogue and its six existing games are unchanged.
+    const TGW_PROTO_GAME = Object.freeze({
+      registryId: 'arcade:tomorrow-got-weird-proto',
+      publicAccess: 'full',
+      title: 'Tomorrow Got Weird — PROTO',
+      premise: 'Step into strange future scenarios and decide what you would do next.',
+      unitLabel: 'Scenarios',
+      total: 25,
+      artId: 'tomorrow-proto',
+      coverImage: '../assets/hub/tomorrow-got-weird.webp',
+      accent: '#7c3aed',
+      order: 999,
+      launchUrl: './tomorrow-got-weird-proto/index.html'
+    });
+    const TGW_PROTO_OWNER_KEY = 'atlas::arcade::tgwProtoAccount:v1';
+
+    function isTgwProtoEnabled() {
+      const userId = getStoredPresentationUserId();
+      if (!userId) return false;
+
+      try {
+        const query = new URLSearchParams(window.location.search);
+        if (query.get('tgw-proto') === 'enable') {
+          localStorage.setItem(TGW_PROTO_OWNER_KEY, userId);
+          query.delete('tgw-proto');
+          const remaining = query.toString();
+          history.replaceState(null, '', window.location.pathname +
+            (remaining ? '?' + remaining : '') + window.location.hash);
+        }
+        return localStorage.getItem(TGW_PROTO_OWNER_KEY) === userId;
+      } catch { return false; }
+    }
+
+    function getVisibleArcadeGames() {
+      return isTgwProtoEnabled()
+        ? [...GAME_CATALOGUE, TGW_PROTO_GAME]
+        : GAME_CATALOGUE;
+    }
+
     /* ================================================================
        SAFE BRIDGE READS
        ================================================================ */
@@ -2134,7 +2175,7 @@
       renderDrawerHubNav();
 
       const gameCardsMarkup =
-        GAME_CATALOGUE
+        getVisibleArcadeGames()
           .map(game =>
             renderGameCard(
               game,
