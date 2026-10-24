@@ -28,6 +28,9 @@
     ];
 
     const COMPASS_PILOT_ORDER = [
+        'forests-that-glow-at-night',
+        'why-certain-songs-give-us-chills',
+        'the-zombie-ant-fungus',
         'can-you-trust-your-own-memories',
         'odyssey-worth-the-hype',
         'game-theory',
@@ -1268,6 +1271,36 @@
             categoryId: 'society-the-world',
             order: 90,
             hook: 'Talk about what makes somewhere home — neighbourhoods, roots and restlessness, the place you’d never leave and the one you’d never return to.'
+        },
+        {
+            id: 'forests-that-glow-at-night',
+            coverImage: "https://images.unsplash.com/photo-1782811469054-cb9aae85a119?auto=format&fit=crop&w=1600&q=85",
+            title: 'The Forests That Glow at Night',
+            navTitle: 'Glowing Forests',
+            categoryId: 'society-the-world',
+            order: 110,
+            available: true,
+            hook: 'What makes fallen wood glow in the dark? Explore the secret chemistry, fragile ecosystems and mysteries of bioluminescent fungi.'
+        },
+        {
+            id: 'why-certain-songs-give-us-chills',
+            coverImage: "https://images.unsplash.com/photo-1778778985021-b5d69ac092ca?auto=format&fit=crop&w=1600&q=85",
+            title: 'Why Certain Songs Give Us Chills',
+            navTitle: 'Songs That Give Us Chills',
+            categoryId: 'culture-life',
+            order: 75,
+            available: true,
+            hook: 'Why can a voice, a musical surprise or a shared chorus send shivers down your spine? Explore the science, memories and culture of music that moves us.'
+        },
+        {
+            id: 'the-zombie-ant-fungus',
+            coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Paraponera_clavata_with_Cordyceps_fungus_%281%29.jpg/1280px-Paraponera_clavata_with_Cordyceps_fungus_%281%29.jpg",
+            title: 'The Zombie Ant Fungus',
+            navTitle: 'Zombie Ant Fungus',
+            categoryId: 'society-the-world',
+            order: 115,
+            available: true,
+            hook: 'A fungus can redirect an ant\'s behaviour before killing it. Explore parasite strategies, surprising science and the boundary between influence and control.'
         },
         {
             id: 'octopuses-change-colour',
