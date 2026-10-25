@@ -61,7 +61,10 @@ function persistRun() {
 
 function syncNewRunControl() {
   const button = $('#new-run');
-  if (button) button.hidden = isInspection || !game || game.state?.phase === 'summary';
+  // An unfinished run is resumable from the cover, but restart belongs only
+  // to active gameplay. Never show New Run beside cover controls.
+  if (button) button.hidden = isInspection || !game || $('#show').dataset.screen !== 'game'
+    || game.state?.phase === 'summary';
 }
 
 function modal(title, content, kind = '') {

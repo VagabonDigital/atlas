@@ -161,11 +161,16 @@ dialog::-webkit-scrollbar-thumb:hover{
   right:2.3%;
   bottom:2.2%;
   width:auto;
-  display:block;
+  display:flex;
+  align-items:center;
+  gap:8px;
 }
 .show[data-screen="game"] .show-footer #sound,
 .show[data-screen="entrance"] .show-footer #sound{
+  width:94px;
   min-width:94px;
+  max-width:94px;
+  flex:0 0 94px;
   margin:0;
 }
 
@@ -702,14 +707,19 @@ dialog::-webkit-scrollbar-thumb:hover{
   }
 }
 
-/* Preserve the bottom utility row while sharing readable control metrics. */
-#sound, .show[data-screen="game"] .show-footer #sound {
-  min-height: 38px;
-  font: 500 .78rem/1 var(--game-chrome-font);
-  letter-spacing: normal;
-  color: #edf3fa;
-  background: #021024e6;
+/* Sound has one contract on the cover and game board—not two sets of
+   cascading fonts, widths and colours. Keep the summary fallback separate. */
+#sound,
+.show[data-screen="game"] .show-footer #sound,
+.show[data-screen="entrance"] .show-footer #sound{
+  min-height:38px;
+  font:500 .78rem/1 var(--game-chrome-font);
+  letter-spacing:normal;
+  color:#edf3fa;
+  background:#021024e6;
 }
-@media (max-width: 820px) {
-  #sound, .show[data-screen="game"] .show-footer #sound { min-height: 44px; }
+@media (max-width:820px){
+  #sound,
+  .show[data-screen="game"] .show-footer #sound,
+  .show[data-screen="entrance"] .show-footer #sound{min-height:44px}
 }
