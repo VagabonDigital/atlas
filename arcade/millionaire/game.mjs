@@ -177,11 +177,13 @@ export class Millionaire {
     this.emit('advice', { pick, confidence });
     return true;
   }
-  replace(reason, note = '') {
+  replace(reason = 'question-issue', note = '') {
     const s = this.state;
     if (!s || !this.available(s.rung, true).length) return false;
     const after = resolved(s.phase);
-    if (after ? reason !== 'factual-error' : !['recognition', 'wording', 'factual-concern'].includes(reason)) return false;
+    // The UI records a neutral fairness replacement, not an invented reason.
+    // Keep previously used reason codes valid for historical/test compatibility.
+    if (after ? reason !== 'factual-error' : !['question-issue', 'recognition', 'wording', 'factual-concern'].includes(reason)) return false;
     // Once walking away is confirmed the banked outcome cannot be undone.
     if (s.outcome === 'walked away' || ['hypothetical', 'walk-confirm', 'adviser'].includes(s.phase)) return false;
     if (after && !note.trim()) return false;

@@ -235,19 +235,10 @@ function noReplacement() {
 }
 
 function questionCare() {
-  // Visible choices on every viewport: fewer clicks and no native dropdown.
-  const reasons = `<fieldset class="care-reasons">
-      <legend>Why replace it?</legend>
-      <label class="care-reason-option"><span>We've seen this question before</span><input type="radio" name="care-reason-option" value="recognition" checked></label>
-      <label class="care-reason-option"><span>The wording is unclear</span><input type="radio" name="care-reason-option" value="wording"></label>
-      <label class="care-reason-option"><span>The question or answers seem wrong</span><input type="radio" name="care-reason-option" value="factual-concern"></label>
-    </fieldset>`;
-  modal('Something wrong with this question?', `<p>Replace it with another question without losing your place or using a lifeline.</p>
-    ${reasons}
+  modal('Something wrong with this question?', `<p>If a question has been seen before or cannot be played fairly, replace it without losing your place or using a lifeline.</p>
     <button id="replace-question" class="primary">Replace Question</button>`, 'care-modal');
   $('#replace-question').onclick = () => {
-    const reason = document.querySelector('input[name="care-reason-option"]:checked')?.value;
-    const ok = game.replace(reason);
+    const ok = game.replace();
     closeModal();
     if (ok) { runEngaged = true; playSound('next'); render(); } else noReplacement();
   };

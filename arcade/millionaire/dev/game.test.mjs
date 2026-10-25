@@ -48,6 +48,8 @@ test('factual void restores pre-question funds and lifelines, including after su
   assert.equal(g.state.secured,8000); assert.equal(g.state.earned,64000); assert.equal(g.state.lifelines.narrow,false); assert.notEqual(g.state.question.id,before);
   g.select((g.state.question.answer+1)%4); g.lock(); g.reveal(); g.summary(); assert.ok(g.replace('factual-error','Source correction')); assert.equal(g.state.phase,'question');
   assert.ok(g.replace('recognition')); assert.equal(g.state.lifelines.new,false); assert.ok(events.some(e=>e.type==='recognition')); assert.ok(events.some(e=>e.type==='void-after-reveal'));
+  assert.ok(g.replace()); assert.equal(g.state.lifelines.new,false);
+  assert.ok(events.some(e=>e.type==='void-before-reveal' && e.reason==='question-issue'));
 });
 test('fresh replay and exhaustion preserve content integrity', () => {
   const g=create(); reach(g,10); correct(g); g.summary(); const seen=[...g.sessionSeen];
