@@ -213,6 +213,21 @@ test('research archive preserves 1000 indexed, well-formed and attributable ques
     assert.ok(q.date === null || /^\d{4}-\d{2}-\d{2}$/.test(q.date));
     assert.equal(q.difficulty, q.prize <= 1000 ? 'easy' : q.prize <= 31000 ? 'medium' : 'hard');
 
+    if (q.reviewed_at) {
+      assert.equal(q.reviewed_at.length, 10);
+      assert.ok(['approved', 'repaired_and_approved', 'rejected'].includes(q.review_status));
+      assert.ok(Array.isArray(q.review_sources) && q.review_sources.length > 0);
+      assert.ok(q.review_sources.every(s => s.title && s.url.startsWith('https://')));
+      if (q.review_status === 'rejected') {
+        assert.equal(q.atlas_rung, null);
+        assert.ok(q.review_notes);
+      } else {
+        assert.ok(Number.isInteger(q.atlas_rung) && q.atlas_rung >= 1 && q.atlas_rung <= 10);
+        assert.ok(q.review_explanation);
+        if (q.review_status === 'repaired_and_approved') assert.ok(q.original_question && q.original_question !== q.question);
+      }
+    }
+
     const canonical = q.question.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
     assert.ok(!normalizedQuestions.has(canonical), `Duplicate question ${q.index}`);
     normalizedQuestions.add(canonical);
