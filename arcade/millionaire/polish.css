@@ -440,15 +440,27 @@ dialog::-webkit-scrollbar-thumb:hover{
     justify-content:center !important;
   }
 
+  /* The two mobile counters are one HUD row: identical top edge,
+     typography, height and blue outline. Gold remains the prize accent. */
+  .show[data-screen="game"] .question-number,
+  .show[data-screen="game"] .guarantee{
+    display:flex;
+    align-items:center;
+    height:34px;
+    border:1px solid var(--blue);
+    border-radius:10px;
+    background:rgba(2,13,32,.94);
+    font:400 14px/1 var(--font);
+  }
   .show[data-screen="game"] .question-number{
     top:15%;
     left:12px;
-    padding:6px 10px;
-    font-size:14px;
+    gap:3px;
+    padding:0 10px;
   }
 
   .show[data-screen="game"] .stakes{
-    top:14.5%;
+    top:15%;
     right:12px;
     width:42%;
   }
@@ -456,12 +468,9 @@ dialog::-webkit-scrollbar-thumb:hover{
     display:none;
   }
   .show[data-screen="game"] .guarantee{
+    justify-content:space-between;
     margin:0;
-    padding:7px 9px;
-    border:1px solid rgba(155,190,204,.46);
-    border-radius:8px;
-    background:rgba(2,8,17,.88);
-    font-size:12px;
+    padding:0 10px;
   }
   .show[data-screen="game"] .walk-slot{
     min-height:0;
