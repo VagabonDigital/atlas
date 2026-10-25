@@ -187,6 +187,16 @@
         color:#e0ecfa;
         box-shadow:none;
       }
+      /* A fairness utility, not a routine toggle: preserve breathing room
+         around the label while giving it a shorter, quieter visual footprint. */
+      .show[data-screen="game"] .question-tools{
+        height:38px;
+        min-height:38px;
+        padding:6px 18px;
+        border-color:rgba(125,165,202,.28);
+        background:rgba(2,16,36,.66);
+        color:#b7c9dc;
+      }
       /* Same fixed width on the cover and the board, for Sound on/off.
          The 94px minimum was previously applied only during gameplay. */
       .show[data-screen="game"] .show-footer #sound,
