@@ -993,6 +993,21 @@
       background: var(--wildcard-bg);
       box-shadow: inset 4px 0 0 var(--wildcard);
     }
+    /* Retain the answer's truth/lie colour; mark the player's selection separately. */
+    .stmt.is-player-pick { position: relative; }
+    .stmt.is-player-pick::after {
+      content: '';
+      position: absolute;
+      top: 9px;
+      right: 9px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 0 3px rgba(var(--cyan-rgb), .18);
+      pointer-events: none;
+    }
+
     .stmt.is-revealing {
       animation: truth-trap-verdict-in 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
     }
@@ -3183,6 +3198,7 @@
           if (cs.playerAnswer === L) cls += ' is-selected';
         } else if (state === 'revealed' || state === 'solved') {
           if (state === 'revealed') cls += ' is-revealing';
+          if (cs.playerAnswer === L) cls += ' is-player-pick';
           if (c.wildcard) {
             cls += ' is-wildcard';
             verdictHtml = '<span class="verdict-pill verdict-wildcard">True</span>';
