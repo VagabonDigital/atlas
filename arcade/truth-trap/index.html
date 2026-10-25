@@ -637,11 +637,17 @@
         linear-gradient(0deg, rgba(6, 11, 17, 0.52), transparent 60%);
     }
     @media (max-width: 900px) {
-      .game-main::before { display: none; }
-      #game::before { opacity: 0.35; }
-      #game::after { background: rgba(239, 243, 246, 0.68); }
-      html[data-theme="night"] #game::before { opacity: 0.26; }
-      html[data-theme="night"] #game::after { background: rgba(6, 11, 17, 0.71); }
+      /* Keep the moving reveal on touch screens, behind opaque case cards. */
+      .game-main::before {
+        opacity: 0.6;
+        -webkit-mask-size: 90vmax 90vmax;
+        mask-size: 90vmax 90vmax;
+      }
+      #game::before { opacity: 0.52; }
+      #game::after { background: rgba(239, 243, 246, 0.42); }
+      html[data-theme="night"] .game-main::before { opacity: 0.55; }
+      html[data-theme="night"] #game::before { opacity: 0.4; }
+      html[data-theme="night"] #game::after { background: rgba(6, 11, 17, 0.48); }
     }
 
     /* ============================================================
@@ -2340,8 +2346,8 @@
     }
 
     @media (max-width: 600px) {
-      #game::before { opacity: 0.2; }
-      html[data-theme="night"] #game::before { opacity: 0.15; }
+      #game::before { opacity: 0.48; }
+      html[data-theme="night"] #game::before { opacity: 0.38; }
       .case-card { box-shadow: 0 5px 20px rgba(17, 32, 48, 0.13); }
       .game-header {
         gap: 0.5rem;
