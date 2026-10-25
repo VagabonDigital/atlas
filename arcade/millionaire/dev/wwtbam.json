@@ -99,7 +99,16 @@
     "correct_answer": "the sun",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 1,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "nei.nih.gov",
+        "url": "https://www.nei.nih.gov/research-and-training/research-news/how-watch-eclipse-safely"
+      }
+    ],
+    "review_explanation": "Looking directly at the Sun can permanently damage the retina."
   },
   {
     "index": 6,
@@ -388,7 +397,16 @@
     "correct_answer": "heart",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 1,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "my.clevelandclinic.org",
+        "url": "https://my.clevelandclinic.org/health/body/21887-muscle"
+      }
+    ],
+    "review_explanation": "Cardiac muscle occurs in the heart."
   },
   {
     "index": 23,
@@ -439,7 +457,16 @@
     "correct_answer": "Lake Superior",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 2,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "pubs.usgs.gov",
+        "url": "https://pubs.usgs.gov/circ/2007/1311/"
+      }
+    ],
+    "review_explanation": "Superior contains more water than the other Great Lakes combined."
   },
   {
     "index": 26,
@@ -507,7 +534,16 @@
     "correct_answer": "orange",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 1,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "health.clevelandclinic.org",
+        "url": "https://health.clevelandclinic.org/carotenemia"
+      }
+    ],
+    "review_explanation": "Excess beta-carotene can produce orange or yellow skin."
   },
   {
     "index": 30,
@@ -694,7 +730,16 @@
     "correct_answer": "February 29th",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 2,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "dictionary.cambridge.org",
+        "url": "https://dictionary.cambridge.org/dictionary/english/leapling"
+      }
+    ],
+    "review_explanation": "A leapling was born on 29 February."
   },
   {
     "index": 41,
@@ -2598,7 +2643,16 @@
     "correct_answer": "queens",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 2,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "old.fide.com",
+        "url": "https://old.fide.com/fide/handbook.html?id=208&view=article"
+      }
+    ],
+    "review_explanation": "There are two queens and four each of the other listed chess pieces at the start."
   },
   {
     "index": 153,
@@ -2717,7 +2771,16 @@
     "correct_answer": "Bed Bath & Beyond",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 3,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "dictionary.cambridge.org",
+        "url": "https://dictionary.cambridge.org/dictionary/english/alliteration"
+      }
+    ],
+    "review_explanation": "Bed Bath & Beyond repeats its initial consonant sound."
   },
   {
     "index": 160,
@@ -2792,7 +2855,7 @@
     "previous_index": 91,
     "date": "2021-01-03",
     "prize": 1000,
-    "question": "Thanks to its extra adhesive footpads, which of these animals can walk up a wall and across a ceiling?",
+    "question": "Which of these animals can use specialised adhesive toe pads to climb walls and ceilings?",
     "answers": [
       "antelope",
       "penguin",
@@ -2802,7 +2865,17 @@
     "correct_answer": "gecko",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "original_question": "Thanks to its extra adhesive footpads, which of these animals can walk up a wall and across a ceiling?",
+    "atlas_rung": 3,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "pmc.ncbi.nlm.nih.gov",
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7566132/"
+      }
+    ],
+    "review_explanation": "Geckos use specialised adhesive toe pads to climb vertical and inverted surfaces."
   },
   {
     "index": 165,
@@ -2972,7 +3045,16 @@
     "correct_answer": "Jenga",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 3,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "museumofplay.org",
+        "url": "https://www.museumofplay.org/blog/block-by-block-leslie-scotts-jenga-game-or-in-swahili-zuia-kwa-kuzuia-mchezo-wa-jenga-wa-leslie-scott/"
+      }
+    ],
+    "review_explanation": "Leslie Scott developed Jenga from her family's wooden-block game in Ghana."
   },
   {
     "index": 175,
@@ -9143,7 +9225,16 @@
     "correct_answer": "ad hominem",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 4,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "iep.utm.edu",
+        "url": "https://iep.utm.edu/fallacy/"
+      }
+    ],
+    "review_explanation": "An ad hominem argument targets the person rather than the reasoning."
   },
   {
     "index": 538,
@@ -9201,7 +9292,7 @@
     "previous_index": 193,
     "date": "2019-04-19",
     "prize": 4000,
-    "question": "If today is Sábado and your Spanish-speaking friend says \"Hasta mañana!,\" what day should you expect to see them next?",
+    "question": "If today is sábado and your Spanish-speaking friend says “¡Hasta mañana!”, which day will you see them next?",
     "answers": [
       "Lunes",
       "Martes",
@@ -9211,7 +9302,17 @@
     "correct_answer": "Domingo",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "original_question": "If today is Sábado and your Spanish-speaking friend says \"Hasta mañana!,\" what day should you expect to see them next?",
+    "atlas_rung": 4,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "dictionary.cambridge.org",
+        "url": "https://dictionary.cambridge.org/es/diccionario/spanish-english/manana"
+      }
+    ],
+    "review_explanation": "After sábado, the day after 'hasta mañana' is domingo."
   },
   {
     "index": 542,
@@ -9303,7 +9404,7 @@
     "previous_index": 240,
     "date": "2019-02-15",
     "prize": 4000,
-    "question": "The city of Vladivostock is the last stop on which famous rail line?",
+    "question": "The city of Vladivostok is the eastern terminus of which famous railway?",
     "answers": [
       "The Trans-Siberian Railroad",
       "The Darjeeling Limited",
@@ -9313,7 +9414,17 @@
     "correct_answer": "The Trans-Siberian Railroad",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "original_question": "The city of Vladivostock is the last stop on which famous rail line?",
+    "atlas_rung": 4,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "loc.gov",
+        "url": "https://www.loc.gov/collections/meeting-of-frontiers/articles-and-essays/development/trans-siberian-railroad/"
+      }
+    ],
+    "review_explanation": "Vladivostok is the eastern terminus of the Trans-Siberian railway."
   },
   {
     "index": 548,
@@ -10918,7 +11029,7 @@
     "previous_index": 194,
     "date": "2019-04-19",
     "prize": 8000,
-    "question": "A person who suffers from misophonia would find which of these annoying habits especially annoying?",
+    "question": "Which of these everyday experiences is a common sound trigger for someone with misophonia?",
     "answers": [
       "nose-picking",
       "chronic tardiness",
@@ -10928,7 +11039,17 @@
     "correct_answer": "chewing food loudly",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "original_question": "A person who suffers from misophonia would find which of these annoying habits especially annoying?",
+    "atlas_rung": 5,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "psychiatry.org",
+        "url": "https://www.psychiatry.org/News-room/APA-Blogs/Misophonia-When-Certain-Sounds-Trigger-Emotional-D"
+      }
+    ],
+    "review_explanation": "Loud chewing can be a misophonia trigger."
   },
   {
     "index": 643,
@@ -11047,7 +11168,16 @@
     "correct_answer": "Kendall Jenner",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "who2.com",
+        "url": "https://www.who2.com/look-at-these-big-big-birthdays-of-2019/"
+      }
+    ],
+    "review_notes": "Rejected: date-relative 2019 key is not unique today; not worth turning into an obsolete birthday puzzle."
   },
   {
     "index": 650,
@@ -11302,7 +11432,16 @@
     "correct_answer": "kimchi",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 5,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "korea.net",
+        "url": "https://www.korea.net/Events/Overseas/view?articleId=13082"
+      }
+    ],
+    "review_explanation": "Baechu is cabbage kimchi and kkakdugi is a diced-radish form of kimchi."
   },
   {
     "index": 665,
@@ -12329,7 +12468,7 @@
     "previous_index": 81,
     "date": "2021-01-13",
     "prize": 16000,
-    "question": "What country sends Canada thousands of tulip bulbs every year as a thank you gift for protecting its royal family during World War II?",
+    "question": "After World War II, which country began gifting tulip bulbs to Canada in thanks for sheltering its royal family and helping liberate the country?",
     "answers": [
       "Austria",
       "Denmark",
@@ -12339,7 +12478,17 @@
     "correct_answer": "The Netherlands",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "original_question": "What country sends Canada thousands of tulip bulbs every year as a thank you gift for protecting its royal family during World War II?",
+    "atlas_rung": 6,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "canada.ca",
+        "url": "https://www.canada.ca/en/canadian-heritage/services/art-monuments/temporary-exhibits/tulips-capital.html"
+      }
+    ],
+    "review_explanation": "The Netherlands gives tulips to Canada in gratitude for wartime refuge and liberation."
   },
   {
     "index": 726,
@@ -12798,7 +12947,16 @@
     "correct_answer": "Sahara Desert",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 6,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "science.nasa.gov",
+        "url": "https://science.nasa.gov/science-research/earth-science/29apr_amazondust/"
+      }
+    ],
+    "review_explanation": "Saharan dust crosses the Atlantic and supplies nutrients to the Amazon."
   },
   {
     "index": 753,
@@ -15620,7 +15778,16 @@
     "correct_answer": "Tower of London",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 7,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "hrp.org.uk",
+        "url": "https://www.hrp.org.uk/tower-of-london/whats-on/the-ravens/"
+      }
+    ],
+    "review_explanation": "The Ravenmaster cares for the ravens living at the Tower of London."
   },
   {
     "index": 919,
@@ -15824,7 +15991,16 @@
     "correct_answer": "farthing",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 7,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "royalmint.com",
+        "url": "https://www.royalmint.com/shop/monarch/queen-victoria/The-Making-of-Modern-Britain-Queen-Victoria-Farthing/"
+      }
+    ],
+    "review_explanation": "A farthing is one quarter of an old penny."
   },
   {
     "index": 931,
@@ -16215,7 +16391,16 @@
     "correct_answer": "organ",
     "difficulty": "hard",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 8,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "dictionary.com",
+        "url": "https://www.dictionary.com/browse/pull-out-all-the-stops"
+      }
+    ],
+    "review_explanation": "The phrase comes from pipe-organ stops that control ranks of pipes."
   },
   {
     "index": 954,
@@ -16436,7 +16621,16 @@
     "correct_answer": "Australia",
     "difficulty": "hard",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "ga.gov.au",
+        "url": "https://www.ga.gov.au/education/natural-hazards/volcano"
+      }
+    ],
+    "review_notes": "Rejected: the original wording ignores active volcanoes in Australia's offshore territories."
   },
   {
     "index": 967,
@@ -16725,7 +16919,16 @@
     "correct_answer": "Henry IV",
     "difficulty": "hard",
     "source": "Ranker — The 25 Hardest Questions In The History Of 'Who Wants to Be a Millionaire' (user-supplied excerpt)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 9,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "folger.edu",
+        "url": "https://www.folger.edu/explore/shakespeares-works/richard-ii/read/"
+      }
+    ],
+    "review_explanation": "Henry Bolingbroke becomes Henry IV in Shakespeare's Richard II."
   },
   {
     "index": 984,
@@ -16776,7 +16979,16 @@
     "correct_answer": "Bhutan",
     "difficulty": "hard",
     "source": "Ranker — The 25 Hardest Questions In The History Of 'Who Wants to Be a Millionaire' (user-supplied excerpt)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 9,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "bhutan.travel",
+        "url": "https://bhutan.travel/faqs"
+      }
+    ],
+    "review_explanation": "Bhutan is Drukyul, the Land of the Thunder Dragon."
   },
   {
     "index": 987,
@@ -16878,7 +17090,16 @@
     "correct_answer": "Two-cent piece",
     "difficulty": "hard",
     "source": "Ranker — The 25 Hardest Questions In The History Of 'Who Wants to Be a Millionaire' (user-supplied excerpt)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 10,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "usmint.gov",
+        "url": "https://www.usmint.gov/learn/history/timeline"
+      }
+    ],
+    "review_explanation": "The U.S. two-cent coin first bore the motto in 1864."
   },
   {
     "index": 993,
@@ -16929,7 +17150,16 @@
     "correct_answer": "The Greenbrier",
     "difficulty": "hard",
     "source": "Ranker — The 25 Hardest Questions In The History Of 'Who Wants to Be a Millionaire' (user-supplied excerpt)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 10,
+    "reviewed_at": "2026-10-25",
+    "review_sources": [
+      {
+        "title": "greenbrier.com",
+        "url": "https://www.greenbrier.com/discover-more/about-us/history/"
+      }
+    ],
+    "review_explanation": "The Greenbrier sheltered a Cold War-era relocation bunker for Congress."
   },
   {
     "index": 996,
