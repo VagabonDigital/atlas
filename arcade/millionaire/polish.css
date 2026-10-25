@@ -130,10 +130,16 @@ dialog::-webkit-scrollbar-thumb:hover{
   letter-spacing:.01em;
   text-shadow:none;
 }
-/* A little space after the answers on desktop; keep tighter lesson-height
-   viewports clear of the bottom utility row and Lock Answer action. */
+/* Host's Take adds a second real row above the main action. Desktop's
+   standard 9%-high decision slot cannot fit both and shrinks the badge until
+   Lock Answer paints over it. Let only this state size to its contents. */
 @media (min-width:761px){
+  .show[data-screen="game"] .primary-slot:has(#decision-hint.host-take-summary){
+    height:auto;
+    gap:8px;
+  }
   .show[data-screen="game"] #decision-hint.host-take-summary{
+    flex-shrink:0;
     margin-top:10px;
   }
 }
