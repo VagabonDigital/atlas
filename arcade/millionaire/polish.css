@@ -724,6 +724,9 @@ dialog::-webkit-scrollbar-thumb:hover{
 
 /* Restart is an administrative confirmation: matched controls, aligned as one
    action row. Scope this to New Run so other game dialogs keep their layout. */
+@media (min-width:761px){
+  dialog.new-run-modal{max-width:520px}
+}
 dialog.new-run-modal .dialog-actions{
   display:flex;
   flex-wrap:nowrap;
