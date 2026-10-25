@@ -1605,6 +1605,11 @@
       .dots { gap:2px; }
     }
 
+    /* Case-note export remains available on desktop, not on narrow screens. */
+    @media (max-width: 600px) {
+      .btn-copy-recap.verdict-copy { display: none; }
+    }
+
     /* ============================================================
      RESET CONTROL
      ============================================================ */
@@ -3156,7 +3161,6 @@
         const stmt = c[L];
         let cls = 'stmt';
         let verdictHtml = '';
-        let playerPickHtml = '';
         let actionHtml = '';
 
         if (state === 'idle' || state === 'selected') {
@@ -3174,9 +3178,6 @@
             cls += ' is-truth';
             verdictHtml = '<span class="verdict-pill verdict-truth">True</span>';
           }
-          if (cs.playerAnswer === L) {
-            playerPickHtml = '<span class="player-pick-label">Your pick</span>';
-          }
           actionHtml = '<button class="btn-evidence" id="ev-btn-' + L + '" onclick="toggleEvidence(\'' + L + '\')" aria-expanded="false">Show evidence</button>';
         }
 
@@ -3190,9 +3191,9 @@
         html += '<div class="stmt-label" aria-hidden="true">' + L + '</div>';
         html += '<div class="stmt-body">';
         html += '<p class="stmt-text">' + escHtml(stmt.text) + '</p>';
-        if (verdictHtml || playerPickHtml || actionHtml) {
+        if (verdictHtml || actionHtml) {
           html += '<div class="stmt-footer">';
-          html += '<div style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap">' + verdictHtml + playerPickHtml + '</div>';
+          html += '<div style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap">' + verdictHtml + '</div>';
           html += actionHtml;
           html += '</div>';
         }
