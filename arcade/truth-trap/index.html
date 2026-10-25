@@ -1579,28 +1579,14 @@
      CASE DOTS
      ============================================================ */
 
-    /* Single-row, navigable twenty-case progress track. */
-    .dots { display: grid; grid-template-columns: repeat(20, minmax(0, 1fr)); gap: 4px; width: 100%; align-items: center; }
-    .dot {
-      width: 100%; min-width: 0; height: 10px; padding: 0;
-      border: 1px solid rgba(var(--cyan-rgb), .28); border-radius: 3px;
-      background: rgba(var(--cyan-rgb), .12); cursor: pointer;
-      transition: background-color var(--t), border-color var(--t), box-shadow var(--t);
-    }
-    html[data-theme="night"] .dot { background: rgba(255,255,255,.09); }
-    .dot:hover { border-color: var(--cyan); background: rgba(var(--cyan-rgb), .4); }
-    .dot.is-solved, html[data-theme="night"] .dot.is-solved { border-color: var(--truth); background: var(--truth); }
-    .dot.is-current, html[data-theme="night"] .dot.is-current {
-      border-color: var(--cyan); background: var(--cyan);
-      box-shadow: 0 0 0 2px rgba(var(--cyan-rgb), .25), 0 0 10px rgba(var(--cyan-rgb), .3);
-    }
-    .dot:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
-    .nav-bar { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: .85rem .65rem; }
-    .nav-center { grid-column: 1 / -1; grid-row: 1; width: 100%; min-width: 0; }
-    .nav-bar > .btn-nav { grid-column: 1; grid-row: 2; justify-self: start; }
-    .nav-actions { grid-column: 3; grid-row: 2; justify-self: end; }
-    @media (max-width: 600px) { .dots { gap: 3px; } }
-
+    /* Compact case navigation, preserving direct jumps. */
+    .nav-bar { display:flex; align-items:center; gap:.5rem; }
+    .nav-center { flex:1; min-width:0; }
+    .case-picker { width:100%; min-width:0; min-height:42px; padding:0 .4rem; border:1px solid var(--border); border-radius:8px; background:var(--bg-raised); color:var(--ink-mid); font:600 .8rem var(--font-body); cursor:pointer; }
+    .case-picker:focus-visible { outline:2px solid var(--cyan); outline-offset:2px; }
+    html[data-theme="night"] .case-picker { background:var(--bg-subtle); color:var(--ink); }
+    @media(max-width:600px) { .nav-bar {gap:.35rem; padding:.7rem .5rem;} .nav-bar>.btn-nav {padding:.58rem .6rem;} }
+    
     /* ============================================================
      RESET CONTROL
      ============================================================ */
@@ -2523,9 +2509,9 @@
               Prev
             </button>
 
-            <!-- Interactive twenty-case progress track -->
+            <!-- Compact case selector -->
             <div class="nav-center">
-              <div class="dots" id="dot-row" role="list" aria-label="All cases"></div>
+              <select class="case-picker" id="case-picker" aria-label="Jump to case" onchange="jumpTo(Number(this.value))"></select>
             </div>
 
             <!-- Action buttons grouped on the right -->
@@ -3101,23 +3087,18 @@
     }
 
     function updateDots() {
-      const wrap = document.getElementById('dot-row');
-      if (!wrap) return;
-      const solved = countSolved();
+      const picker = document.getElementById('case-picker');
       const label = document.getElementById('dot-label');
-      if (label) label.textContent = solved + ' of ' + TOTAL_CASES + ' solved';
-
-      wrap.innerHTML = '';
-      CASES.forEach((_, i) => {
-        const cs = ST.cases[String(i)] || {};
-        const dot = document.createElement('button');
-        dot.className = 'dot' + (cs.solved ? ' is-solved' : '') + (i === ST.currentIndex ? ' is-current' : '');
-        dot.setAttribute('role', 'listitem');
-        dot.setAttribute('aria-label', 'Case ' + (i + 1) + (cs.solved ? ' — solved' : ''));
-        dot.setAttribute('title', 'Case ' + (i + 1) + ' — ' + CASES[i].title);
-        dot.onclick = () => jumpTo(i);
-        wrap.appendChild(dot);
+      if (label) label.textContent = countSolved() + ' of ' + TOTAL_CASES + ' solved';
+      if (!picker) return;
+      picker.replaceChildren();
+      CASES.forEach((c, i) => {
+        const option = document.createElement('option');
+        option.value = String(i);
+        option.textContent = 'Case ' + String(i + 1).padStart(2, '0') + (ST.cases[String(i)]?.solved ? ' ✓' : '') + ' — ' + c.title;
+        picker.appendChild(option);
       });
+      picker.value = String(ST.currentIndex);
     }
 
     function renderCaseCard() {
