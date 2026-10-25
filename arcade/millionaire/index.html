@@ -189,6 +189,15 @@
         color:#e0ecfa;
         box-shadow:none;
       }
+      /* Same fixed width on the cover and the board, for Sound on/off.
+         The 94px minimum was previously applied only during gameplay. */
+      .show[data-screen="game"] .show-footer #sound,
+      .show[data-screen="entrance"] .show-footer #sound{
+        width:94px;
+        min-width:94px;
+        max-width:94px;
+        flex:0 0 94px;
+      }
       .show[data-screen="game"] #new-run,
       .show[data-screen="entrance"] #new-run{
         min-width:0;
