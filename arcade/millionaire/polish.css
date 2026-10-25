@@ -567,7 +567,7 @@ dialog::-webkit-scrollbar-thumb:hover{
     transform:translateX(-50%);
   }
   .show[data-screen="game"]:has(#decision-hint.host-take-summary) .walk-slot{
-    top:calc(79dvh + 26px);
+    top:calc(79dvh + 32px);
   }
   .show[data-screen="game"]:has(#walk:not([hidden]):not(:disabled)) .primary-slot .primary:not([hidden]){
     width:58%;
@@ -689,6 +689,12 @@ dialog::-webkit-scrollbar-thumb:hover{
     right:18px;
     height:10%;
     gap:4px;
+  }
+  /* Only the Host's Take decision needs more separation before Lock Answer.
+     Let the two rows keep their natural height instead of squeezing the badge. */
+  .show[data-screen="game"] .primary-slot:has(#decision-hint.host-take-summary){
+    height:auto;
+    gap:10px;
   }
   .show[data-screen="game"] .primary-slot .primary{
     min-height:48px;
