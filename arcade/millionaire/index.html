@@ -151,7 +151,26 @@
       .host-confidence button{flex:1;min-height:29px;padding:5px 4px;font-size:10px}
       .host-submit{width:100%;min-height:29px;padding:5px 8px;font-size:11px}
       .show[data-screen="game"] .show-footer{left:auto;right:12px;gap:5px}
-      .show[data-screen="game"] #new-run{min-height:30px;padding:6px 4px;font-size:10px}
+      .show[data-screen="game"] #new-run{
+        min-height:44px;
+        min-width:82px;
+        padding:8px 10px;
+        border:1px solid rgba(125,165,202,.36);
+        border-radius:10px;
+        background:rgba(2,16,36,.68);
+        color:#c7d6e7;
+        box-shadow:none;
+        font-size:12px;
+        font-weight:500;
+        letter-spacing:.025em;
+        opacity:1;
+        transition:background-color .18s,border-color .18s,color .18s;
+      }
+      .show[data-screen="game"] #new-run:hover{
+        border-color:rgba(154,190,224,.55);
+        background:rgba(9,31,58,.9);
+        color:#edf3fa;
+      }
       .show[data-screen="game"] .question-tools{left:12px;right:auto}
     }
   </style>
