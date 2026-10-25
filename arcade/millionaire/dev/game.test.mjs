@@ -193,6 +193,8 @@ test('research archive preserves 1000 indexed, well-formed and attributable ques
   const archive = JSON.parse(readFileSync(new URL('./wwtbam.json', import.meta.url), 'utf8'));
   assert.equal(archive.length, 1000);
   assert.deepEqual(archive.map(q => q.index), Array.from({ length: 1000 }, (_, i) => i));
+  assert.deepEqual(archive.map(q => q.prize), [...archive.map(q => q.prize)].sort((a, b) => a - b));
+  assert.ok(archive.slice(-8).every(q => q.prize === 1000000));
   assert.equal(new Set(archive.map(q => q.previous_index)).size, 1000);
   assert.equal(archive.filter(q => q.prize === 1000000).length, 8);
   assert.equal(archive.filter(q => q.prize === 500000).length, 9);
