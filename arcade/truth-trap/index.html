@@ -993,12 +993,6 @@
       background: var(--wildcard-bg);
       box-shadow: inset 4px 0 0 var(--wildcard);
     }
-    /* Player choice: a full-card cyan outline, separate from the truth/lie colour. */
-    .stmt.is-player-pick {
-      outline: 2px solid var(--cyan);
-      outline-offset: 2px;
-    }
-
     .stmt.is-revealing {
       animation: truth-trap-verdict-in 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
     }
@@ -3182,6 +3176,7 @@
         const stmt = c[L];
         let cls = 'stmt';
         let verdictHtml = '';
+        let playerPickHtml = '';
         let actionHtml = '';
 
         if (state === 'idle' || state === 'selected') {
@@ -3189,7 +3184,6 @@
           if (cs.playerAnswer === L) cls += ' is-selected';
         } else if (state === 'revealed' || state === 'solved') {
           if (state === 'revealed') cls += ' is-revealing';
-          if (cs.playerAnswer === L) cls += ' is-player-pick';
           if (c.wildcard) {
             cls += ' is-wildcard';
             verdictHtml = '<span class="verdict-pill verdict-wildcard">True</span>';
@@ -3199,6 +3193,9 @@
           } else {
             cls += ' is-truth';
             verdictHtml = '<span class="verdict-pill verdict-truth">True</span>';
+          }
+          if (cs.playerAnswer === L) {
+            playerPickHtml = '<span class="player-pick-label">Your pick</span>';
           }
           actionHtml = '<button class="btn-evidence" id="ev-btn-' + L + '" onclick="toggleEvidence(\'' + L + '\')" aria-expanded="false">Show evidence</button>';
         }
@@ -3213,9 +3210,9 @@
         html += '<div class="stmt-label" aria-hidden="true">' + L + '</div>';
         html += '<div class="stmt-body">';
         html += '<p class="stmt-text">' + escHtml(stmt.text) + '</p>';
-        if (verdictHtml || actionHtml) {
+        if (verdictHtml || playerPickHtml || actionHtml) {
           html += '<div class="stmt-footer">';
-          html += '<div style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap">' + verdictHtml + '</div>';
+          html += '<div style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap">' + verdictHtml + playerPickHtml + '</div>';
           html += actionHtml;
           html += '</div>';
         }
