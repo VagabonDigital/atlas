@@ -176,7 +176,8 @@ dialog::-webkit-scrollbar-thumb:hover{
   .show[data-screen="game"] .primary-slot{top:81.3%}
   .show[data-screen="game"] .lifeline-rail{top:23.5%;bottom:22.5%}
   .show[data-screen="game"] .question-tools,
-  .show[data-screen="game"] .show-footer{bottom:1.8%}
+  .show[data-screen="game"] .show-footer,
+  .show[data-screen="entrance"] .show-footer{bottom:1.8%}
 }
 
 /* Audiovisual direction: the same board progressively closes around the players
