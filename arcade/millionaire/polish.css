@@ -1,14 +1,14 @@
 /* Post-launch visual refinement. Keep this file small and limited to deliberate live-game polish. */
 
-/* Millionaire is a fixed game board, not a document. Keep the primary surface
-   inside the viewport; any exceptional overflow belongs to the surface that
-   actually needs it (dialogs, Session, etc.). */
+/* The game board remains a fixed, clipped viewport, but the document
+   keeps normal browser gestures (including Chrome's pull-to-refresh).
+   Exceptional content scrolls inside its own dialog or panel. */
 html,
 body{
   width:100%;
   height:100%;
-  overflow:hidden;
-  overscroll-behavior:none;
+  overflow-x:hidden;
+  overflow-y:auto;
 }
 .show{
   height:100dvh;
