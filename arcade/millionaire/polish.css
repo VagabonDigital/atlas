@@ -815,6 +815,7 @@ dialog.care-modal #replace-question {
 }
 @media (max-width:760px) and (orientation:portrait) {
   dialog.care-modal {
+    width:calc(100% - 56px);
     max-height:85dvh;
     padding:20px 18px;
     font-size:16px;
