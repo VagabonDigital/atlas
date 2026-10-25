@@ -365,6 +365,11 @@ dialog::-webkit-scrollbar-thumb:hover{
     font-size:10px;
     letter-spacing:.2em;
   }
+  /* The gameplay counters occupy this line on portrait phones.
+     Preserve the tagline on the entrance and wider screens. */
+  .show[data-screen="game"] .tagline{
+    display:none;
+  }
 
   .entrance{
     top:43%;
