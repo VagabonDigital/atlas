@@ -418,12 +418,14 @@ dialog::-webkit-scrollbar-thumb:hover{
     font-size:10px;
     line-height:1.1;
   }
-  .show:not([data-screen="game"]) .show-footer{
+  /* Result screen keeps its established footer; cover/game have one
+     consistent portrait footer rule in the page-level styles. */
+  .show[data-screen="summary"] .show-footer{
     left:12px;
     right:auto;
     bottom:8px;
   }
-  .show:not([data-screen="game"]) #sound{
+  .show[data-screen="summary"] #sound{
     font-size:12px;
     padding:5px 7px;
   }
@@ -572,27 +574,6 @@ dialog::-webkit-scrollbar-thumb:hover{
     min-height:14px;
     font-size:11px;
     line-height:1.1;
-  }
-
-  .show[data-screen="game"] .question-tools{
-    left:12px;
-    right:auto;
-    bottom:1.4%;
-    min-width:0;
-    min-height:30px;
-    padding:6px 9px;
-    font-size:11px;
-  }
-  .show[data-screen="game"] .show-footer{
-    left:auto;
-    right:12px;
-    bottom:1.4%;
-  }
-  .show[data-screen="game"] .show-footer #sound{
-    min-width:0;
-    min-height:30px;
-    padding:6px 9px;
-    font-size:11px;
   }
 
   .summary{
