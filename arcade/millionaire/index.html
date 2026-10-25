@@ -150,8 +150,15 @@
       .host-confidence-label{display:none}
       .host-confidence button{flex:1;min-height:29px;padding:5px 4px;font-size:10px}
       .host-submit{width:100%;min-height:29px;padding:5px 8px;font-size:11px}
-      .show[data-screen="game"] .show-footer{left:auto;right:12px;gap:5px}
-      .show[data-screen="game"] #new-run{
+      .show[data-screen="game"] .show-footer,
+      .show[data-screen="entrance"] .show-footer{
+        left:auto;
+        right:12px;
+        bottom:1.4%;
+        gap:5px;
+      }
+      .show[data-screen="game"] #new-run,
+      .show[data-screen="entrance"] #new-run{
         min-height:44px;
         min-width:82px;
         padding:8px 10px;
@@ -166,10 +173,15 @@
         opacity:1;
         transition:background-color .18s,border-color .18s,color .18s;
       }
-      .show[data-screen="game"] #new-run:hover{
+      .show[data-screen="game"] #new-run:hover,
+      .show[data-screen="entrance"] #new-run:hover{
         border-color:rgba(154,190,224,.55);
         background:rgba(9,31,58,.9);
         color:#edf3fa;
+      }
+      .show[data-screen="entrance"] #sound{
+        padding:6px 9px;
+        font-size:11px;
       }
       .show[data-screen="game"] .question-tools{left:12px;right:auto}
     }
