@@ -2092,17 +2092,17 @@
       --tt-nav-bg: linear-gradient(130deg, rgba(255, 253, 247, .98), rgba(234, 245, 242, .97));
     }
     html[data-theme="night"] {
-      --tt-panel-edge: #426776;
-      --tt-panel-glow: rgba(57, 153, 171, 0.10);
-      --tt-panel-bg: linear-gradient(154deg, #142a37 0%, #101f2b 50%, #141d30 100%);
-      --tt-card-bg: linear-gradient(125deg, #182c38, #172530);
-      --tt-card-colour: #172832;
-      --tt-card-edge: #37515c;
-      --tt-card-shadow: rgba(0, 0, 0, 0.29);
-      --tt-evidence-bg: #12212b;
-      --tt-accent-glass: #193a45;
-      --tt-accent-edge: #3c8793;
-      --tt-nav-bg: linear-gradient(130deg, rgba(17, 36, 47, .98), rgba(21, 29, 46, .97));
+      --tt-panel-edge: #416c80;
+      --tt-panel-glow: rgba(26, 191, 217, 0.12);
+      --tt-panel-bg: linear-gradient(148deg, #153342 0%, #0c202e 42%, #10172a 100%);
+      --tt-card-bg: linear-gradient(140deg, #1b3441 0%, #142633 58%, #142331 100%);
+      --tt-card-colour: #142633;
+      --tt-card-edge: #456674;
+      --tt-card-shadow: rgba(0, 0, 0, 0.37);
+      --tt-evidence-bg: #0e2632;
+      --tt-accent-glass: #174250;
+      --tt-accent-edge: #4696a7;
+      --tt-nav-bg: linear-gradient(120deg, rgba(19, 48, 61, .98), rgba(13, 29, 46, .98));
     }
 
     .case-card {
@@ -2119,9 +2119,9 @@
       background: var(--tt-panel-bg);
       box-shadow:
         0 0 0 5px var(--tt-panel-glow),
-        0 25px 65px rgba(0,0,0,.55),
-        0 0 35px rgba(27,160,180,.10),
-        inset 0 1px 0 rgba(184,239,236,.12);
+        0 28px 70px rgba(0,0,0,.62),
+        0 0 45px rgba(25,189,215,.15),
+        inset 0 1px 0 rgba(184,239,236,.17);
     }
     .case-header {
       padding: 1.24rem 1.4rem;
@@ -2133,11 +2133,11 @@
       box-shadow: inset 0 1px 0 rgba(255,255,255,.62);
     }
     html[data-theme="night"] .case-header {
-      background: linear-gradient(109deg,
-        rgba(32, 153, 170, .22),
-        rgba(75, 75, 108, .27) 70%,
-        rgba(118, 81, 69, .13));
-      box-shadow: inset 0 1px 0 rgba(216,249,246,.06);
+      background: linear-gradient(112deg,
+        rgba(18, 151, 178, .33) 0%,
+        rgba(30, 79, 107, .27) 52%,
+        rgba(78, 64, 111, .23) 100%);
+      box-shadow: inset 0 1px 0 rgba(216,249,246,.14);
     }
     .case-number {
       border-color: var(--tt-accent-edge);
@@ -2163,7 +2163,7 @@
     html[data-theme="night"] .stmt {
       border-color: var(--tt-card-edge);
       background: var(--tt-card-bg);
-      box-shadow: inset 0 1px 0 rgba(208,247,246,.05), 0 5px 14px var(--tt-card-shadow);
+      box-shadow: inset 0 1px 0 rgba(208,247,246,.12), 0 8px 20px var(--tt-card-shadow), 0 0 0 1px rgba(78, 177, 194, .07);
     }
     .stmt.is-hoverable:hover {
       transform: translateY(-2px);
@@ -2282,7 +2282,7 @@
     html[data-theme="night"] .control-panel {
       border-color: var(--tt-panel-edge);
       background: var(--tt-nav-bg);
-      box-shadow: 0 12px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(183,246,240,.09);
+      box-shadow: 0 16px 36px rgba(0,0,0,.48), 0 0 24px rgba(23, 163, 188, .08), inset 0 1px 0 rgba(183,246,240,.16);
     }
     /* Night UI: readable secondary information must never resemble a
        disabled control. Disabled navigation retains its explicit dimming. */
