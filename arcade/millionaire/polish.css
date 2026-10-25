@@ -430,9 +430,14 @@ dialog::-webkit-scrollbar-thumb:hover{
     padding:5px 7px;
   }
 
+  /* Match the cover's 16px inset, and keep the glyph centred.
+     The shared host-context rule otherwise pushes this arrow to the right. */
   #game-chrome{
-    top:8px;
-    left:8px;
+    top:16px;
+    left:16px;
+  }
+  #game-chrome .arcade-game-chrome-game-return{
+    justify-content:center !important;
   }
 
   .show[data-screen="game"] .question-number{
