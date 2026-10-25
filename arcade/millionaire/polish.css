@@ -155,9 +155,9 @@ dialog::-webkit-scrollbar-thumb:hover{
   }
 }
 
-/* Secondary utilities form one deliberate bottom-right control row. They share
-   a presentation language, but remain separate controls with clear spacing and
-   hierarchy instead of visually merging into a stack. */
+/* Footer utilities retain one visual language while splitting by purpose:
+   Question issue belongs below the lifeline rail on the left; routine Sound
+   and New Run stay together on the right. */
 .show[data-screen="game"] .question-tools,
 .show[data-screen="game"] #sound,
 .show[data-screen="entrance"] #sound{
@@ -189,8 +189,12 @@ dialog::-webkit-scrollbar-thumb:hover{
 }
 .show[data-screen="game"] .question-tools{
   min-width:136px;
-  right:calc(2.3% + 102px);
+  left:2.3%;
+  right:auto;
   bottom:2.2%;
+}
+@media (min-width:761px) and (max-width:1100px){
+  .show[data-screen="game"] .question-tools{left:1.6%}
 }
 .show[data-screen="game"] .show-footer,
 .show[data-screen="entrance"] .show-footer{
