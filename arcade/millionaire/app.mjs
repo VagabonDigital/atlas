@@ -321,13 +321,12 @@ $('#sound').onclick = () => {
   updateSoundControl();
   if (!muted) playSound('select');
 };
-$('#how-to').onclick = () => modal('Welcome to the show', `<p>One tutor is the <strong>Host</strong>. One learner is the <strong>Contestant</strong>. Share this screen; the Host operates it.</p>
-  <h3>Your climb</h3><p>Answer ten questions to reach 1,000,000. There is no timer and no real money. Say what you think, change your mind, and ask for free wording clarification.</p>
-  <ol><li>The Contestant chooses an answer. The Host selects it.</li><li>Ask “Final answer?” consistently. Click <strong>Lock Answer</strong> only after explicit commitment.</li><li>Pause for suspense, then the Host clicks <strong>Reveal Answer</strong>.</li></ol>
-  <h3>Three lifelines · once each</h3><p><strong>Narrow It Down</strong> removes two wrong answers. <strong>Host’s Take</strong> lets the Host choose directly on the board, add confidence, then return control without revealing the answer. <strong>New Question</strong> replaces the question within its difficulty band. Lifelines may be combined before lock-in.</p>
-  <h3>Know the stakes</h3><p>Clearing Question 3 guarantees <strong>8,000</strong>; clearing Question 7 guarantees <strong>125,000</strong>. A wrong answer ends the run at the last safety level, or zero.</p><p>From Question 4, <strong>Walk Away</strong> banks the previous prize before lock-in. Then say what you would have answered and reveal it for closure.</p>
-  <h3>Keep it fair</h3><p>The Host stays neutral outside Host’s Take: probe reasoning without recommending an answer, lifeline or walk-away. Both players see the correct answer only at reveal.</p><p>Before reveal, use <strong>Question issue?</strong> if you've seen the question before, its wording is unclear or something seems incorrect. Replacing it keeps your place and does not use a lifeline.</p>`);
-
+$('#how-to').onclick = () => modal('Welcome to Millionaire', `<p><strong>One Host. One Contestant. Ten questions. A shot at 1,000,000.</strong></p>
+  <h3>Who does what?</h3><p>The tutor is the <strong>Host</strong> and controls the game. The learner is the <strong>Contestant</strong> — thinking aloud, explaining their choices and making the final decisions.</p><p>There's no timer and no real money.</p>
+  <h3>How to play</h3><p>Discuss the four possible answers. The Contestant chooses one and can change their mind until it's locked.</p><p>The Host asks <strong>“Final answer?”</strong>, then clicks <strong>Lock Answer</strong> when the Contestant confirms. Pause for suspense, then <strong>Reveal Answer</strong>!</p>
+  <h3>Three lifelines</h3><ul><li><strong>Narrow It Down</strong> — removes two incorrect answers.</li><li><strong>Host’s Take</strong> — the Host offers their own answer and confidence level.</li><li><strong>New Question</strong> — swaps the question for another in the same difficulty band.</li></ul><p>Each lifeline can be used once per run, before locking an answer. You can combine them.</p>
+  <h3>The stakes</h3><p>Answer Question 10 correctly to win <strong>1,000,000</strong>!</p><p>Clearing Question 3 guarantees <strong>8,000</strong>. Clearing Question 7 guarantees <strong>125,000</strong>.</p><p>A wrong answer ends the run at your last guaranteed amount. From Question 4, you can <strong>Walk Away</strong> with the prize you've already earned.</p>
+  <h3>Keep it fair</h3><p>The Host can clarify unfamiliar wording, but shouldn't steer the Contestant towards an answer outside Host's Take.</p><p>Already seen a question, or can't play it fairly? Use <strong>Question issue?</strong> to replace it without losing progress or using a lifeline.</p>`, 'how-to-modal');
 try {
   if (!Bridge || !window.ArcadeGameChrome || !window.AtlasSessionPanel) throw new Error('Atlas shared runtime did not load.');
   // The session panel owns its own existing cloud bootstrap; no game networking.
