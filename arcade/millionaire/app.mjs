@@ -240,11 +240,11 @@ function questionCare() {
     : `<label for="care-reason">Why replace it?</label><select id="care-reason"><option value="recognition">We've seen this question before</option><option value="wording">The wording is unclear</option><option value="factual-concern">The question or answers seem wrong</option></select>`;
   modal('Something wrong with this question?', `<p>Replace it with another question without losing your place or using a lifeline.</p>
     ${reasons}
-    <label for="care-note">Optional note</label><textarea id="care-note" maxlength="1000"></textarea><p id="care-error" class="dialog-error" role="alert"></p><button id="replace-question" class="primary">Replace Question</button>`, 'care-modal');
+    <button id="replace-question" class="primary">Replace Question</button>`, 'care-modal');
   $('#replace-question').onclick = () => {
     const reason = $('#care-reason')?.value ||
       document.querySelector('input[name="care-reason-option"]:checked')?.value;
-    const ok = game.replace(reason, $('#care-note').value.trim());
+    const ok = game.replace(reason);
     closeModal();
     if (ok) { runEngaged = true; playSound('next'); render(); } else noReplacement();
   };

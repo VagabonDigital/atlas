@@ -680,10 +680,6 @@ dialog::-webkit-scrollbar-thumb:hover{
     margin:0 0 0 auto;
     accent-color:#e7bf6f;
   }
-  dialog.care-modal #care-note {
-    min-height:72px;
-    font-size:16px;
-  }
   dialog.care-modal #replace-question {
     width:100%;
     min-height:48px;
