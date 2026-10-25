@@ -49,10 +49,16 @@ dialog::-webkit-scrollbar-thumb:hover{
 .show[data-screen="game"] h1{font-size:clamp(36px,4.55vw,76px)}
 .show[data-screen="game"] .tagline{font-size:clamp(12px,1.42vw,21px)}
 
+/* Align the question counter's left edge to the lifeline column.
+   Keep its natural width so the label does not wrap on narrower desktops. */
 .show[data-screen="game"] .question-number{
   top:10.5%;
+  left:2.3%;
   padding:8px 16px;
   font-size:clamp(16px,1.55vw,24px);
+}
+@media (min-width:761px) and (max-width:1100px){
+  .show[data-screen="game"] .question-number{left:1.6%}
 }
 
 .show[data-screen="game"] .lifeline-rail{
