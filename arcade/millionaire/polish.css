@@ -722,6 +722,43 @@ dialog::-webkit-scrollbar-thumb:hover{
   }
 }
 
+/* Restart is an administrative confirmation: matched controls, aligned as one
+   action row. Scope this to New Run so other game dialogs keep their layout. */
+dialog.new-run-modal .dialog-actions{
+  display:flex;
+  flex-wrap:nowrap;
+  justify-content:flex-end;
+  align-items:center;
+  gap:12px;
+  margin-top:20px;
+}
+dialog.new-run-modal .dialog-actions > button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  height:48px;
+  min-height:48px;
+  margin:0;
+  padding:0 20px;
+  font:600 18px/1 var(--font);
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  white-space:nowrap;
+}
+@media (max-width:600px){
+  dialog.new-run-modal .dialog-actions{
+    flex-direction:column;
+    align-items:stretch;
+    gap:12px;
+    margin-top:20px;
+  }
+  dialog.new-run-modal .dialog-actions > button{
+    width:100%;
+    flex:none;
+  }
+}
+
 /* The rules guide remains scrollable on small lesson screens. */
 dialog.how-to-modal{
   overflow-y:auto;

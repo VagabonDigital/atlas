@@ -247,7 +247,7 @@ function questionCare() {
 function confirmNewRun() {
   if (isInspection || !game || !context || game.state?.phase === 'summary') return;
   const currentGame = game, sessionId = context.id;
-  modal('Start a new run?', '<p>This will abandon the current run and start again at Question 1. Current progress and lifelines will be lost.</p><p>Previous results and question history for this learner will be kept.</p><div class="dialog-actions"><button class="outline" id="cancel-new-run">Keep playing</button><button class="primary" id="confirm-new-run">Start New Run</button></div>');
+  modal('Start a new run?', '<p>This will abandon the current run and start again at Question 1. Current progress and lifelines will be lost.</p><p>Previous results and question history for this learner will be kept.</p><div class="dialog-actions"><button class="outline" id="cancel-new-run">Keep playing</button><button class="primary" id="confirm-new-run">Start New Run</button></div>', 'new-run-modal');
   $('#cancel-new-run').onclick = closeModal;
   $('#confirm-new-run').onclick = () => {
     if (game !== currentGame || context?.id !== sessionId || storage.context()?.id !== sessionId) { closeModal(); return; }
