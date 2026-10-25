@@ -651,6 +651,11 @@ dialog::-webkit-scrollbar-thumb:hover{
   }
 }
 
+/* The rules guide remains scrollable on small lesson screens. */
+dialog.how-to-modal{
+  overflow-y:auto;
+}
+
 /* Question issue is a one-action fairness dialog on every screen. */
 dialog.care-modal {
   overflow-y:auto;
