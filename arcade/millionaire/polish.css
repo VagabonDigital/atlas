@@ -517,7 +517,7 @@ dialog::-webkit-scrollbar-thumb:hover{
      The confirmation takes the otherwise free decision area below the answers. */
   .show[data-screen="game"] .walk-slot{
     position:fixed;
-    top:calc(79dvh + 20px);
+    top:calc(79dvh + 18px);
     right:18px;
     width:36%;
     min-height:0;
@@ -530,7 +530,8 @@ dialog::-webkit-scrollbar-thumb:hover{
     align-items:center;
     justify-content:center;
     gap:1px;
-    min-height:44px;
+    height:48px;
+    min-height:48px;
     padding:5px 8px;
     border-color:rgba(216,179,99,.68);
     font-size:12px;
@@ -550,7 +551,7 @@ dialog::-webkit-scrollbar-thumb:hover{
     transform:translateX(-50%);
   }
   .show[data-screen="game"]:has(#decision-hint.host-take-summary) .walk-slot{
-    top:calc(79dvh + 34px);
+    top:calc(79dvh + 26px);
   }
   .show[data-screen="game"]:has(#walk:not([hidden]):not(:disabled)) .primary-slot .primary:not([hidden]){
     width:58%;
