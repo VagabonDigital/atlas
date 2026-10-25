@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { Millionaire, PRIZES, band } from '../game.mjs';
 import { QUESTIONS } from '../questions.mjs';
 import { continuity } from '../continuity.mjs';
@@ -186,4 +187,32 @@ test('New Run clears only the active run and preserves learner and tutor history
   store.saveRun('learner-a', active, { rung: 1 });
   assert.deepEqual(store.activeRun('learner-a'), active);
   assert.deepEqual(registry.sessionStates['learner-a']['arcade:millionaire'].millionaire.results, previous.results);
+});
+
+test('research archive preserves 1000 indexed, well-formed and attributable questions', () => {
+  const archive = JSON.parse(readFileSync(new URL('./wwtbam.json', import.meta.url), 'utf8'));
+  assert.equal(archive.length, 1000);
+  assert.deepEqual(archive.map(q => q.index), Array.from({ length: 1000 }, (_, i) => i));
+  assert.equal(new Set(archive.map(q => q.previous_index)).size, 1000);
+  assert.equal(archive.filter(q => q.prize === 1000000).length, 8);
+  assert.equal(archive.filter(q => q.prize === 500000).length, 9);
+  assert.ok(archive.filter(q => q.prize >= 240000 && q.prize <= 500000).length > 8);
+
+  const normalizedQuestions = new Set();
+  for (const q of archive) {
+    assert.equal(typeof q.question, 'string');
+    assert.equal(q.question, q.question.trim());
+    assert.ok(q.question.endsWith('?') || /\\?["”']$/.test(q.question), `Question ${q.index} is unfinished`);
+    assert.equal(q.answers.length, 4, `Question ${q.index} requires four answers`);
+    assert.ok(q.answers.every(option => option && option === option.trim()));
+    assert.equal(new Set(q.answers.map(option => option.toLowerCase())).size, 4);
+    assert.ok(q.answers.includes(q.correct_answer), `Question ${q.index} has an invalid answer key`);
+    assert.ok(q.source && q.review_status, `Question ${q.index} lacks review provenance`);
+    assert.ok(q.date === null || /^\\d{4}-\\d{2}-\\d{2}$/.test(q.date));
+    assert.equal(q.difficulty, q.prize <= 1000 ? 'easy' : q.prize <= 31000 ? 'medium' : 'hard');
+
+    const canonical = q.question.toLowerCase().replace(/[^\\p{L}\\p{N}]+/gu, '');
+    assert.ok(!normalizedQuestions.has(canonical), `Duplicate question ${q.index}`);
+    normalizedQuestions.add(canonical);
+  }
 });
