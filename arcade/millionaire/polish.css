@@ -117,6 +117,19 @@ dialog::-webkit-scrollbar-thumb:hover{
   font-size:clamp(19px,1.9vw,30px);
 }
 .show[data-screen="game"] .primary-slot p{font-size:clamp(12px,.92vw,15px)}
+/* Host's Take is a persistent decision cue—not a popup below the lifeline
+   rail. The same compact badge works on desktop and portrait mobile. */
+.show[data-screen="game"] #decision-hint.host-take-summary{
+  min-height:0;
+  padding:4px 12px;
+  border:1px solid rgba(231,191,111,.7);
+  border-radius:999px;
+  background:rgba(5,23,43,.92);
+  color:#ffe6af;
+  font:600 clamp(15px,1.3vw,19px)/1.2 var(--font);
+  letter-spacing:.01em;
+  text-shadow:none;
+}
 
 /* Secondary utilities form one deliberate bottom-right control row. They share
    a presentation language, but remain separate controls with clear spacing and
@@ -530,15 +543,6 @@ dialog::-webkit-scrollbar-thumb:hover{
     border-width:1.5px;
   }
   .show[data-screen="game"] .lifeline small{display:none}
-  .show[data-screen="game"] .advice{
-    top:calc(100% + 6px);
-    left:0;
-    right:0;
-    margin-top:0;
-    padding:6px 8px;
-    font-size:12px;
-  }
-
   .show[data-screen="game"] .feedback{
     top:30%;
     left:12px;

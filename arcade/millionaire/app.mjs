@@ -177,8 +177,6 @@ function render() {
     button.title = v.lifelines[kind] ? 'Used this run' : !open ? 'Available before lock-in' : 'Use only at the Contestant’s request';
     button.setAttribute('aria-label', `${{ narrow:'Narrow It Down', host:'Host’s Take', new:'New Question' }[kind]}${v.lifelines[kind] ? ', used' : ''}`);
   });
-  $('#advice').hidden = !v.adviser || v.adviser.pick === null;
-  if (v.adviser?.pick !== null && v.adviser) $('#advice').innerHTML = `Host’s take: <strong>${letters[v.adviser.pick]}</strong><br>${escape(v.adviser.confidence)}`;
   $('#ladder').innerHTML = PRIZES.map((value, i) => {
     const safety = [2, 6].includes(i); const cleared = value <= v.earned;
     return `<li value="${i + 1}" class="${i + 1 === v.rung ? 'current ' : ''}${safety ? 'safety ' : ''}${cleared ? 'cleared' : ''}" ${i + 1 === v.rung ? 'aria-current="step"' : ''} aria-label="Question ${i + 1}: ${money(value)}${safety ? ', safety level' : ''}${cleared ? ', earned' : ''}"><span class="rung-num">${i + 1}</span><span class="amount">${money(value)}</span><span class="rung-marker" aria-hidden="true">${cleared ? '✓' : safety ? '◆' : ''}</span></li>`;
@@ -204,7 +202,14 @@ function render() {
     case 'adviser': hint = 'Host’s Take · choose your answer, then confidence.'; break;
   }
   $('#feedback').innerHTML = title ? `<strong>${escape(title)}</strong><p>${escape(text)}${reveal && v.sources?.length ? `<a href="${escape(v.sources[0].url)}" target="_blank" rel="noopener noreferrer">Source ↗</a>` : ''}</p>` : '';
+  // Keep Host's Take near the actual decision, not floating below the lifelines.
+  // The result remains visible through lock-in and yields to reveal feedback.
+  const hasHostTake = v.adviser?.pick != null && ['question', 'selected', 'locked'].includes(v.phase);
+  if (hasHostTake) {
+    hint = `Host’s take: ${letters[v.adviser.pick]} · ${v.adviser.confidence}${v.phase === 'selected' ? ' · Final answer?' : ''}`;
+  }
   $('#decision-hint').textContent = hint;
+  $('#decision-hint').classList.toggle('host-take-summary', hasHostTake);
   $('#primary').textContent = action; $('#primary').hidden = hostMode || !action;
   $('#host-advice-controls').hidden = !hostMode;
   all('[data-host-confidence]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.hostConfidence === hostDraftConfidence)));
