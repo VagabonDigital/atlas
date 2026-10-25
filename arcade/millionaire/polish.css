@@ -347,6 +347,10 @@ dialog::-webkit-scrollbar-thumb:hover{
   .show[data-screen="entrance"] .identity{
     top:max(68px, 6.5%);
   }
+  /* Give the title a little more space above the gameplay HUD only. */
+  .show[data-screen="game"] .identity{
+    top:calc(6.5% - 10px);
+  }
   .eyebrow,
   .show[data-screen="game"] .eyebrow{
     gap:8px;
