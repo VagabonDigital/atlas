@@ -233,3 +233,82 @@ test('research archive preserves 1000 indexed, well-formed and attributable ques
     normalizedQuestions.add(canonical);
   }
 });
+
+test('audited research pool converts into complete ten-rung games without changing the live bank', () => {
+  const archive = JSON.parse(readFileSync(new URL('./wwtbam.json', import.meta.url), 'utf8'));
+  const approved = archive.filter(q => ['approved', 'repaired_and_approved'].includes(q.review_status));
+
+  // Test-only adapter: no new runtime bank. Editorial topic families are still unclassified.
+  const bank = approved.map(q => ({
+    id: 'wwtbam-' + q.previous_index,
+    rung: q.atlas_rung,
+    family: 'unclassified',
+    prompt: q.question,
+    options: [...q.answers],
+    answer: q.answers.indexOf(q.correct_answer),
+    explanation: q.review_explanation,
+    difficulty: { rung: q.atlas_rung, band: band(q.atlas_rung), calibration: 'editorial' },
+    sources: q.review_sources,
+    evidence: q.review_explanation,
+    reviewedAt: q.reviewed_at,
+    review: q.review_status
+  }));
+
+  assert.ok(bank.length >= 23, 'The initial 23-question pilot must remain eligible');
+  assert.equal(bank.length, approved.length);
+  assert.equal(new Set(bank.map(q => q.id)).size, bank.length);
+  assert.ok(bank.every(q => Number.isInteger(q.rung) && q.rung >= 1 && q.rung <= 10));
+  assert.ok(bank.every(q =>
+    q.answer >= 0 && q.answer <= 3 && q.options.length === 4 &&
+    q.options[q.answer] && q.prompt && q.explanation && q.evidence &&
+    q.reviewedAt && q.sources?.length && q.difficulty.band === band(q.rung)
+  ));
+  assert.ok(archive.filter(q => q.review_status === 'rejected').every(q =>
+    !bank.some(candidate => candidate.id === 'wwtbam-' + q.previous_index)
+  ));
+
+  for (const value of [0.08, 0.37, 0.81]) {
+    const game = new Millionaire(bank, { random: () => value });
+    assert.ok(game.canStart());
+    assert.ok(game.start());
+
+    const played = new Set();
+    for (let rung = 1; rung <= 10; rung++) {
+      const question = game.state.question;
+      assert.equal(game.state.rung, rung);
+      assert.equal(question.rung, rung, 'Cross-rung fallback at round ' + rung);
+      assert.ok(!played.has(question.id), 'Repeated question ' + question.id);
+      played.add(question.id);
+
+      const hidden = game.publicView().question;
+      assert.equal(hidden.answer, undefined);
+      assert.equal(hidden.explanation, undefined);
+      assert.equal(hidden.evidence, undefined);
+      assert.equal(hidden.sources, undefined);
+
+      assert.ok(game.select(question.answer));
+      assert.ok(game.lock());
+      assert.ok(game.reveal());
+      assert.equal(game.state.earned, PRIZES[rung - 1]);
+      if (rung < 10) assert.ok(game.continue());
+    }
+    assert.equal(played.size, 10);
+    assert.equal(game.state.phase, 'win');
+    assert.equal(game.state.prize, 1000000);
+    assert.ok(game.summary());
+  }
+
+  const switched = new Millionaire(bank, { random: () => 0.37 });
+  assert.ok(switched.start());
+  const initialId = switched.state.question.id;
+  assert.ok(switched.lifeline('new'));
+  assert.notEqual(switched.state.question.id, initialId);
+
+  const resume = new Millionaire(bank, { random: () => 0.37 });
+  assert.ok(resume.restore(switched.snapshot()));
+  assert.equal(resume.state.question.id, switched.state.question.id);
+  assert.equal(resume.state.rung, switched.state.rung);
+
+  // The production bank is not overwritten by this test-only conversion.
+  assert.equal(QUESTIONS.length, 40);
+});
