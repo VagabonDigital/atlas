@@ -227,11 +227,24 @@ function noReplacement() {
 }
 
 function questionCare() {
+  // Keep desktop's existing select. On portrait phones, present the same
+  // reasons as visible radio rows so Android never opens a separate picker.
+  const mobile = window.matchMedia('(max-width:760px) and (orientation:portrait)').matches;
+  const reasons = mobile
+    ? `<fieldset class="care-reasons">
+        <legend>Reason</legend>
+        <label class="care-reason-option"><span>Recognised from prior Atlas play</span><input type="radio" name="care-reason-option" value="recognition" checked></label>
+        <label class="care-reason-option"><span>Ambiguity / wording cannot be clarified fairly</span><input type="radio" name="care-reason-option" value="wording"></label>
+        <label class="care-reason-option"><span>Factual concern</span><input type="radio" name="care-reason-option" value="factual-concern"></label>
+      </fieldset>`
+    : `<label for="care-reason">Reason</label><select id="care-reason"><option value="recognition">Recognised from prior Atlas play</option><option value="wording">Ambiguity / wording cannot be clarified fairly</option><option value="factual-concern">Factual concern</option></select>`;
   modal('Question care', `<p>Clarifying unfamiliar wording is free. Explain the wording without factual hints. Replace a recognised question or one that cannot be played fairly.</p>
-    <label for="care-reason">Reason</label><select id="care-reason"><option value="recognition">Recognised from prior Atlas play</option><option value="wording">Ambiguity / wording cannot be clarified fairly</option><option value="factual-concern">Factual concern</option></select>
-    <label for="care-note">Brief note (optional)</label><textarea id="care-note" maxlength="1000"></textarea><p id="care-error" class="dialog-error" role="alert"></p><button id="replace-question" class="primary">Replace Question</button><p class="note">A replacement stays in the same difficulty band and does not consume New Question.</p>`);
+    ${reasons}
+    <label for="care-note">Brief note (optional)</label><textarea id="care-note" maxlength="1000"></textarea><p id="care-error" class="dialog-error" role="alert"></p><button id="replace-question" class="primary">Replace Question</button><p class="note">A replacement stays in the same difficulty band and does not consume New Question.</p>`, 'care-modal');
   $('#replace-question').onclick = () => {
-    const ok = game.replace($('#care-reason').value, $('#care-note').value.trim());
+    const reason = $('#care-reason')?.value ||
+      document.querySelector('input[name="care-reason-option"]:checked')?.value;
+    const ok = game.replace(reason, $('#care-note').value.trim());
     closeModal();
     if (ok) { runEngaged = true; playSound('next'); render(); } else noReplacement();
   };
