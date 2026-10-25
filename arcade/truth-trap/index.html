@@ -994,17 +994,29 @@
       box-shadow: inset 4px 0 0 var(--wildcard);
     }
     /* Retain the answer's truth/lie colour; mark the player's selection separately. */
-    .stmt.is-player-pick { position: relative; }
-    .stmt.is-player-pick::after {
-      content: '';
+    /* The selected answer stays identifiable after the verdict colours appear. */
+    .stmt.is-player-pick .stmt-label {
+      position: relative;
+      outline: 2px solid var(--cyan);
+      outline-offset: 3px;
+    }
+    .stmt.is-player-pick .stmt-label::after {
+      content: '✓';
       position: absolute;
-      top: 9px;
-      right: 9px;
-      width: 7px;
-      height: 7px;
+      top: -10px;
+      right: -10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--bg-raised);
       border-radius: 50%;
       background: var(--cyan);
-      box-shadow: 0 0 0 3px rgba(var(--cyan-rgb), .18);
+      color: #071b26;
+      font-size: 11px;
+      font-weight: 900;
+      line-height: 1;
       pointer-events: none;
     }
 
