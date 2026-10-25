@@ -235,23 +235,18 @@ function noReplacement() {
 }
 
 function questionCare() {
-  // Keep desktop's existing select. On portrait phones, present the same
-  // reasons as visible radio rows so Android never opens a separate picker.
-  const mobile = window.matchMedia('(max-width:760px) and (orientation:portrait)').matches;
-  const reasons = mobile
-    ? `<fieldset class="care-reasons">
-        <legend>Why replace it?</legend>
-        <label class="care-reason-option"><span>We've seen this question before</span><input type="radio" name="care-reason-option" value="recognition" checked></label>
-        <label class="care-reason-option"><span>The wording is unclear</span><input type="radio" name="care-reason-option" value="wording"></label>
-        <label class="care-reason-option"><span>The question or answers seem wrong</span><input type="radio" name="care-reason-option" value="factual-concern"></label>
-      </fieldset>`
-    : `<label for="care-reason">Why replace it?</label><select id="care-reason"><option value="recognition">We've seen this question before</option><option value="wording">The wording is unclear</option><option value="factual-concern">The question or answers seem wrong</option></select>`;
+  // Visible choices on every viewport: fewer clicks and no native dropdown.
+  const reasons = `<fieldset class="care-reasons">
+      <legend>Why replace it?</legend>
+      <label class="care-reason-option"><span>We've seen this question before</span><input type="radio" name="care-reason-option" value="recognition" checked></label>
+      <label class="care-reason-option"><span>The wording is unclear</span><input type="radio" name="care-reason-option" value="wording"></label>
+      <label class="care-reason-option"><span>The question or answers seem wrong</span><input type="radio" name="care-reason-option" value="factual-concern"></label>
+    </fieldset>`;
   modal('Something wrong with this question?', `<p>Replace it with another question without losing your place or using a lifeline.</p>
     ${reasons}
     <button id="replace-question" class="primary">Replace Question</button>`, 'care-modal');
   $('#replace-question').onclick = () => {
-    const reason = $('#care-reason')?.value ||
-      document.querySelector('input[name="care-reason-option"]:checked')?.value;
+    const reason = document.querySelector('input[name="care-reason-option"]:checked')?.value;
     const ok = game.replace(reason);
     closeModal();
     if (ok) { runEngaged = true; playSound('next'); render(); } else noReplacement();
