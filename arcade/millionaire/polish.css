@@ -778,6 +778,15 @@ dialog.new-run-modal .dialog-actions > button{
   }
 }
 
+/* Keep the short restart heading on one line on portrait phones without
+   forcing overflow on narrower screens. Other dialog headings are unchanged. */
+@media (max-width:600px) and (orientation:portrait){
+  dialog.new-run-modal #dialog-title{
+    font-size:clamp(22px,6.5vw,28px);
+    line-height:1.15;
+  }
+}
+
 /* The rules guide remains scrollable on small lesson screens. */
 dialog.how-to-modal{
   overflow-y:auto;
