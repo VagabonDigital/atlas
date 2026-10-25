@@ -1605,6 +1605,21 @@
       .dots { gap:2px; }
     }
 
+    /* Restore the original circular case dots on desktop; keep mobile segments. */
+    @media (min-width: 601px) {
+      .dots { display:flex; flex-wrap:nowrap; align-items:center; justify-content:center; gap:6px; }
+      .dot {
+        flex:0 0 10px; width:10px; height:10px; border-radius:50%;
+        transition:background-color var(--t), border-color var(--t), box-shadow var(--t), transform var(--t);
+      }
+      html[data-theme="night"] .dot { border-color:rgba(var(--cyan-rgb),.24); background:rgba(255,255,255,.08); }
+      .dot:hover { border-color:rgba(var(--cyan-rgb),.6); background:rgba(var(--cyan-rgb),.35); transform:scale(1.12); }
+      .dot.is-solved { box-shadow:0 0 0 2px rgba(var(--truth-rgb),.14); }
+      .dot.is-current { box-shadow:0 0 0 3px rgba(var(--cyan-rgb),.24); }
+      html[data-theme="night"] .dot.is-solved { border-color:#48c87a; background:#48c87a; box-shadow:0 0 8px rgba(72,200,122,.6); }
+      html[data-theme="night"] .dot.is-current { border-color:#00deff; background:#00deff; box-shadow:0 0 8px rgba(0,222,255,.6); }
+    }
+
     /* Case-note export remains available on desktop, not on narrow screens. */
     @media (max-width: 600px) {
       .btn-copy-recap.verdict-copy { display: none; }
