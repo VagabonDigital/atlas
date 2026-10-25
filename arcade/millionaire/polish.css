@@ -130,6 +130,18 @@ dialog::-webkit-scrollbar-thumb:hover{
   letter-spacing:.01em;
   text-shadow:none;
 }
+/* A little space after the answers on desktop; keep tighter lesson-height
+   viewports clear of the bottom utility row and Lock Answer action. */
+@media (min-width:761px){
+  .show[data-screen="game"] #decision-hint.host-take-summary{
+    margin-top:10px;
+  }
+}
+@media (min-width:761px) and (max-height:760px){
+  .show[data-screen="game"] #decision-hint.host-take-summary{
+    margin-top:6px;
+  }
+}
 
 /* Secondary utilities form one deliberate bottom-right control row. They share
    a presentation language, but remain separate controls with clear spacing and
