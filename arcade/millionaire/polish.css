@@ -512,17 +512,81 @@ dialog::-webkit-scrollbar-thumb:hover{
     margin:0;
     padding:0 10px;
   }
+  /* Walking away is a decision, not part of the Guaranteed HUD.
+     Put its action beside Lock Answer (or centred when no answer is selected).
+     The confirmation takes the otherwise free decision area below the answers. */
   .show[data-screen="game"] .walk-slot{
+    position:fixed;
+    top:calc(79dvh + 20px);
+    right:18px;
+    width:36%;
     min-height:0;
-    margin-top:5px;
+    margin:0;
+    z-index:4;
   }
-  .show[data-screen="game"] .walk{
-    padding:6px 7px;
+  .show[data-screen="game"] .walk:not([hidden]){
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:1px;
+    min-height:44px;
+    padding:5px 8px;
+    border-color:rgba(216,179,99,.68);
     font-size:12px;
+    line-height:1.1;
   }
-  .show[data-screen="game"] .walk-confirm{
-    padding:6px;
+  .show[data-screen="game"] .walk strong{
+    display:inline;
     font-size:12px;
+    white-space:nowrap;
+  }
+  /* Don't leave an inactive walk control in the reveal/feedback area. */
+  .show[data-screen="game"] .walk:disabled{display:none}
+  .show[data-phase="question"] .walk-slot{
+    left:50%;
+    right:auto;
+    width:46%;
+    transform:translateX(-50%);
+  }
+  .show[data-screen="game"]:has(#decision-hint.host-take-summary) .walk-slot{
+    top:calc(79dvh + 34px);
+  }
+  .show[data-screen="game"]:has(#walk:not([hidden]):not(:disabled)) .primary-slot .primary:not([hidden]){
+    width:58%;
+    align-self:flex-start;
+    padding:6px 10px;
+    font-size:19px;
+  }
+  .show[data-screen="game"][data-phase="walk-confirm"] .walk-slot{
+    top:79dvh;
+    left:18px;
+    right:18px;
+    width:auto;
+    transform:none;
+  }
+  .show[data-phase="walk-confirm"] #decision-hint{visibility:hidden}
+  .show[data-screen="game"] .walk-confirm:not([hidden]){
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    align-items:center;
+    gap:6px;
+    padding:9px;
+    border-radius:10px;
+    font-size:13px;
+  }
+  .show[data-screen="game"] .walk-confirm p{
+    grid-column:1/-1;
+    margin:0;
+    font-size:14px;
+  }
+  .show[data-screen="game"] .walk-confirm #confirm-walk,
+  .show[data-screen="game"] .walk-confirm #stay{
+    min-height:38px;
+    width:100%;
+    margin:0;
+    padding:7px 6px;
+    font-size:13px;
   }
 
   .show[data-screen="game"] .lifeline-rail{
