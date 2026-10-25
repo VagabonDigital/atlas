@@ -655,6 +655,17 @@ dialog::-webkit-scrollbar-thumb:hover{
 dialog.care-modal {
   overflow-y:auto;
 }
+@media (min-width:761px) {
+  /* The old form-sized dialog is too wide for one short explanation and action. */
+  dialog.care-modal {
+    max-width:500px;
+    padding:28px;
+  }
+  dialog.care-modal h2 {
+    font-size:26px;
+    text-wrap:balance;
+  }
+}
 dialog.care-modal #replace-question {
   width:100%;
   min-height:48px;
