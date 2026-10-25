@@ -202,16 +202,16 @@ test('research archive preserves 1000 indexed, well-formed and attributable ques
   for (const q of archive) {
     assert.equal(typeof q.question, 'string');
     assert.equal(q.question, q.question.trim());
-    assert.ok(q.question.endsWith('?') || /\\?["”']$/.test(q.question), `Question ${q.index} is unfinished`);
+    assert.ok(q.question.endsWith('?') || /\?["”']$/.test(q.question), `Question ${q.index} is unfinished`);
     assert.equal(q.answers.length, 4, `Question ${q.index} requires four answers`);
     assert.ok(q.answers.every(option => option && option === option.trim()));
     assert.equal(new Set(q.answers.map(option => option.toLowerCase())).size, 4);
     assert.ok(q.answers.includes(q.correct_answer), `Question ${q.index} has an invalid answer key`);
     assert.ok(q.source && q.review_status, `Question ${q.index} lacks review provenance`);
-    assert.ok(q.date === null || /^\\d{4}-\\d{2}-\\d{2}$/.test(q.date));
+    assert.ok(q.date === null || /^\d{4}-\d{2}-\d{2}$/.test(q.date));
     assert.equal(q.difficulty, q.prize <= 1000 ? 'easy' : q.prize <= 31000 ? 'medium' : 'hard');
 
-    const canonical = q.question.toLowerCase().replace(/[^\\p{L}\\p{N}]+/gu, '');
+    const canonical = q.question.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
     assert.ok(!normalizedQuestions.has(canonical), `Duplicate question ${q.index}`);
     normalizedQuestions.add(canonical);
   }
