@@ -232,15 +232,15 @@ function questionCare() {
   const mobile = window.matchMedia('(max-width:760px) and (orientation:portrait)').matches;
   const reasons = mobile
     ? `<fieldset class="care-reasons">
-        <legend>Reason</legend>
-        <label class="care-reason-option"><span>Recognised from prior Atlas play</span><input type="radio" name="care-reason-option" value="recognition" checked></label>
-        <label class="care-reason-option"><span>Ambiguity / wording cannot be clarified fairly</span><input type="radio" name="care-reason-option" value="wording"></label>
-        <label class="care-reason-option"><span>Factual concern</span><input type="radio" name="care-reason-option" value="factual-concern"></label>
+        <legend>Why replace it?</legend>
+        <label class="care-reason-option"><span>We've seen this question before</span><input type="radio" name="care-reason-option" value="recognition" checked></label>
+        <label class="care-reason-option"><span>The wording is unclear</span><input type="radio" name="care-reason-option" value="wording"></label>
+        <label class="care-reason-option"><span>The question or answers seem wrong</span><input type="radio" name="care-reason-option" value="factual-concern"></label>
       </fieldset>`
-    : `<label for="care-reason">Reason</label><select id="care-reason"><option value="recognition">Recognised from prior Atlas play</option><option value="wording">Ambiguity / wording cannot be clarified fairly</option><option value="factual-concern">Factual concern</option></select>`;
-  modal('Question care', `<p>Clarifying unfamiliar wording is free. Explain the wording without factual hints. Replace a recognised question or one that cannot be played fairly.</p>
+    : `<label for="care-reason">Why replace it?</label><select id="care-reason"><option value="recognition">We've seen this question before</option><option value="wording">The wording is unclear</option><option value="factual-concern">The question or answers seem wrong</option></select>`;
+  modal('Something wrong with this question?', `<p>Replace it with another question without losing your place or using a lifeline.</p>
     ${reasons}
-    <label for="care-note">Brief note (optional)</label><textarea id="care-note" maxlength="1000"></textarea><p id="care-error" class="dialog-error" role="alert"></p><button id="replace-question" class="primary">Replace Question</button><p class="note">A replacement stays in the same difficulty band and does not consume New Question.</p>`, 'care-modal');
+    <label for="care-note">Optional note</label><textarea id="care-note" maxlength="1000"></textarea><p id="care-error" class="dialog-error" role="alert"></p><button id="replace-question" class="primary">Replace Question</button>`, 'care-modal');
   $('#replace-question').onclick = () => {
     const reason = $('#care-reason')?.value ||
       document.querySelector('input[name="care-reason-option"]:checked')?.value;
@@ -332,7 +332,7 @@ $('#how-to').onclick = () => modal('Welcome to the show', `<p>One tutor is the <
   <ol><li>The Contestant chooses an answer. The Host selects it.</li><li>Ask “Final answer?” consistently. Click <strong>Lock Answer</strong> only after explicit commitment.</li><li>Pause for suspense, then the Host clicks <strong>Reveal Answer</strong>.</li></ol>
   <h3>Three lifelines · once each</h3><p><strong>Narrow It Down</strong> removes two wrong answers. <strong>Host’s Take</strong> lets the Host choose directly on the board, add confidence, then return control without revealing the answer. <strong>New Question</strong> replaces the question within its difficulty band. Lifelines may be combined before lock-in.</p>
   <h3>Know the stakes</h3><p>Clearing Question 3 guarantees <strong>8,000</strong>; clearing Question 7 guarantees <strong>125,000</strong>. A wrong answer ends the run at the last safety level, or zero.</p><p>From Question 4, <strong>Walk Away</strong> banks the previous prize before lock-in. Then say what you would have answered and reveal it for closure.</p>
-  <h3>Keep it fair</h3><p>The Host stays neutral outside Host’s Take: probe reasoning without recommending an answer, lifeline or walk-away. Both players see the correct answer only at reveal.</p><p>Before reveal, use <strong>Question care</strong> for recognised questions, unclear wording or factual concerns. A replacement stays in the same difficulty band and does not consume New Question.</p>`);
+  <h3>Keep it fair</h3><p>The Host stays neutral outside Host’s Take: probe reasoning without recommending an answer, lifeline or walk-away. Both players see the correct answer only at reveal.</p><p>Before reveal, use <strong>Question issue?</strong> if you've seen the question before, its wording is unclear or something seems incorrect. Replacing it keeps your place and does not use a lifeline.</p>`);
 
 try {
   if (!Bridge || !window.ArcadeGameChrome || !window.AtlasSessionPanel) throw new Error('Atlas shared runtime did not load.');
