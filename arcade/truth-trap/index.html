@@ -1579,67 +1579,27 @@
      CASE DOTS
      ============================================================ */
 
-    .dots {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-
+    /* Single-row, navigable twenty-case progress track. */
+    .dots { display: grid; grid-template-columns: repeat(20, minmax(0, 1fr)); gap: 4px; width: 100%; align-items: center; }
     .dot {
-      width: 10px;
-      height: 10px;
-      border: 1px solid rgba(var(--cyan-rgb), 0.28);
-      border-radius: 50%;
-      background: rgba(var(--cyan-rgb), 0.1);
-      cursor: pointer;
-      transition:
-        background-color var(--t),
-        border-color var(--t),
-        box-shadow var(--t),
-        transform var(--t);
+      width: 100%; min-width: 0; height: 10px; padding: 0;
+      border: 1px solid rgba(var(--cyan-rgb), .28); border-radius: 3px;
+      background: rgba(var(--cyan-rgb), .12); cursor: pointer;
+      transition: background-color var(--t), border-color var(--t), box-shadow var(--t);
     }
-
-    html[data-theme="night"] .dot {
-      border-color: rgba(var(--cyan-rgb), 0.24);
-      background: rgba(255, 255, 255, 0.08);
+    html[data-theme="night"] .dot { background: rgba(255,255,255,.09); }
+    .dot:hover { border-color: var(--cyan); background: rgba(var(--cyan-rgb), .4); }
+    .dot.is-solved, html[data-theme="night"] .dot.is-solved { border-color: var(--truth); background: var(--truth); }
+    .dot.is-current, html[data-theme="night"] .dot.is-current {
+      border-color: var(--cyan); background: var(--cyan);
+      box-shadow: 0 0 0 2px rgba(var(--cyan-rgb), .25), 0 0 10px rgba(var(--cyan-rgb), .3);
     }
-
-    .dot:hover {
-      border-color: rgba(var(--cyan-rgb), 0.6);
-      background: rgba(var(--cyan-rgb), 0.35);
-      transform: scale(1.12);
-    }
-
-    .dot.is-solved {
-      border-color: var(--truth);
-      background: var(--truth);
-      box-shadow: 0 0 0 2px rgba(var(--truth-rgb), 0.14);
-    }
-
-    .dot.is-current {
-      border-color: var(--cyan);
-      background: var(--cyan);
-      box-shadow: 0 0 0 3px rgba(var(--cyan-rgb), 0.24);
-    }
-
-    .dot:focus-visible {
-      outline: 2px solid var(--cyan);
-      outline-offset: 3px;
-    }
-
-    html[data-theme="night"] .dot.is-solved {
-      border-color: #48c87a;
-      background: #48c87a;
-      box-shadow: 0 0 8px rgba(72, 200, 122, 0.6);
-    }
-
-    html[data-theme="night"] .dot.is-current {
-      border-color: #00deff;
-      background: #00deff;
-      box-shadow: 0 0 8px rgba(0, 222, 255, 0.6);
-    }
+    .dot:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+    .nav-bar { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: .85rem .65rem; }
+    .nav-center { grid-column: 1 / -1; grid-row: 1; width: 100%; min-width: 0; }
+    .nav-bar > .btn-nav { grid-column: 1; grid-row: 2; justify-self: start; }
+    .nav-actions { grid-column: 3; grid-row: 2; justify-self: end; }
+    @media (max-width: 600px) { .dots { gap: 3px; } }
 
     /* ============================================================
      RESET CONTROL
@@ -2391,11 +2351,6 @@
     }
     html[data-theme="night"] .btn-nav,
     html[data-theme="night"] .btn-random { background: var(--tt-card-bg); border-color: var(--tt-accent-edge); }
-    html[data-theme="night"] .dot.is-solved {
-      border-color: var(--truth);
-      background: var(--truth);
-      box-shadow: 0 0 0 2px rgba(var(--truth-rgb),.2);
-    }
     @media (max-width: 600px) {
       .case-header { padding: 1rem; }
       .case-title { font-size: .89rem; }
@@ -2568,7 +2523,7 @@
               Prev
             </button>
 
-            <!-- Dots take the center stage -->
+            <!-- Interactive twenty-case progress track -->
             <div class="nav-center">
               <div class="dots" id="dot-row" role="list" aria-label="All cases"></div>
             </div>
