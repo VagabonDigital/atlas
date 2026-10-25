@@ -122,7 +122,8 @@ dialog::-webkit-scrollbar-thumb:hover{
    a presentation language, but remain separate controls with clear spacing and
    hierarchy instead of visually merging into a stack. */
 .show[data-screen="game"] .question-tools,
-.show[data-screen="game"] #sound{
+.show[data-screen="game"] #sound,
+.show[data-screen="entrance"] #sound{
   min-height:34px;
   display:flex;
   align-items:center;
@@ -141,7 +142,8 @@ dialog::-webkit-scrollbar-thumb:hover{
   transition:background .18s,border-color .18s,color .18s,box-shadow .18s,transform .18s;
 }
 .show[data-screen="game"] .question-tools:hover,
-.show[data-screen="game"] #sound:hover{
+.show[data-screen="game"] #sound:hover,
+.show[data-screen="entrance"] #sound:hover{
   border-color:rgba(139,190,232,.40);
   background:rgba(6,22,43,.86);
   color:#fff;
@@ -153,14 +155,16 @@ dialog::-webkit-scrollbar-thumb:hover{
   right:calc(2.3% + 102px);
   bottom:2.2%;
 }
-.show[data-screen="game"] .show-footer{
+.show[data-screen="game"] .show-footer,
+.show[data-screen="entrance"] .show-footer{
   left:auto;
   right:2.3%;
   bottom:2.2%;
   width:auto;
   display:block;
 }
-.show[data-screen="game"] .show-footer #sound{
+.show[data-screen="game"] .show-footer #sound,
+.show[data-screen="entrance"] .show-footer #sound{
   min-width:94px;
   margin:0;
 }
