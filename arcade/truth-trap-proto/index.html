@@ -165,7 +165,14 @@
        Give each word its own explicit day/night colour, with TRAP accented. */
     .opening-title .opening-word {
       display: block;
-      color: #103a50;
+      color: #8fe8ff;
+    }
+    /* Preserve the original icy-blue day title; a fine dark edge keeps
+       its light lettering readable over moving pale collage detail. */
+    html:not([data-theme="night"]) .opening-title .opening-word:not(.opening-accent) {
+      -webkit-text-stroke: .45px rgba(9, 68, 91, .38);
+      text-shadow: 0 1px 1px rgba(9, 65, 84, .45),
+                   0 12px 38px rgba(255, 255, 255, .84);
     }
     .opening-title .opening-accent {
       color: #007f9e;
