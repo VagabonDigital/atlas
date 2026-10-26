@@ -11,7 +11,25 @@
 
 ---
 
-## Prototype iteration — 26 October 2026 · Imagination and persuasion first
+## Prototype iteration — 26 October 2026 · Voice-first, scene-led presentation
+
+**Code state:** isolated TGW PROTO presentation implemented and a simulated-DOM end-to-end interaction test passed. This is **not** evidence of browser deployment, real voice playback, screen-share reliability, or a two-person playtest.
+
+**Design choice:** the intelligence is an authored third presence who addresses *both* travellers. The tutor operates the shared screen but is not cast as narrator/game master. Between transmissions, humans invent, persuade, bargain and reflect.
+
+**UI change:** replace the previous large full-speech cards with the uninterrupted clinic image and compact lower-edge panels. Arrival remains nearly free of chrome; the two pitch prompts, final decision, response options, and reflection occupy only as much space as needed. The image is still a static background, not a looping video.
+
+**Transmission points and exact scripts are defined in the game-local `TRANSMISSIONS` table:** welcome, synthetic-status disclosure, acceptance, safer counteroffer, and departure. Each event has its own player-initiated transition, short visible headline, optional transcript, and distinct onward step. The clinic does not listen to or interpret speech. Only explicit choices determine which authored response follows.
+
+**Crucial asset distinction:** `VOICE_ASSETS` has **five explicit null entries**: no recordings have been uploaded or integrated. For now, a silent preview shows a compact expandable transcript and allows users to continue. Once the recordings arrive, connect verified game-local file paths; the code already handles playback on user interaction, mute, replay, transcript toggle, voice-ending progression, and playback-failure fallback. The existing `Text` toggle opens the full transcript; it is **not** synchronised word-by-word captions. Evaluate whether timed captions are worth implementing after the real audio is tested.
+
+**Production constraints:** preserve the established wormhole entrance, public original game, shared Arcade runtime, and current opt-in card. No new shared engine, backend, AI speech generation during play, AI speech interpretation, continuous narration, or ambient sound assets are introduced.
+
+**What to inspect next:** laptop and mobile legibility; whether the lower panels preserve sightlines to the core; clarity of the silent-preview fallback; real audio mix and screen sharing once voice clips arrive; whether players still feel agency with one screen operator; and whether the final response is satisfyingly connected to their chosen enhancement. Only move to another destination after this first one is actually played.
+
+---
+
+## Earlier prototype iteration — 26 October 2026 · Imagination and persuasion first
 
 **Implemented in the isolated prototype; JavaScript parsed and the complete interaction smoke-tested with a simulated DOM. Not yet manually browser-validated, deployed-confirmed or played by two people.**
 
@@ -273,7 +291,7 @@ When the prototype works, derive a coherent pattern for the remaining futures. I
 
 ## 10. Immediate next step and decision status
 
-**Next:** Inspect and playtest the revised imagination-and-persuasion episode with two actual players. Test conversational agency and pacing, then integrate the selected clinic voice recordings with captions and reliable controls. Do not add another future or a generic engine until the first episode has playable evidence.
+**Next:** Inspect the voice-first scenic interface at desktop and mobile sizes. Supply and integrate the five actual voice recordings; test audio playback, transcript fallback and screen-share hearing, then conduct a real two-person playtest. Do not add a second destination or generic engine until the first episode earns it.
 
 **Decided:**
 - Future-hopping is the experience fantasy.
