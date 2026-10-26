@@ -36,35 +36,11 @@
     })();
   </script>
   <style>
-    :root { color-scheme: dark; font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    :root { color-scheme: dark; font-family: "DM Sans", system-ui, sans-serif; }
     * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100svh; color: #ebf7ff; background:
-      radial-gradient(circle at 85% 3%, rgba(10,193,239,.18), transparent 37rem),
-      radial-gradient(circle at 8% 88%, rgba(167,74,192,.14), transparent 33rem),
-      #08131f; }
-    a { color: #9feeff; text-underline-offset: 4px; }
-    a:focus-visible { outline: 3px solid #90efff; outline-offset: 4px; }
+    body { margin: 0; min-height: 100svh; background: #071723; color: #ebf7ff; }
+    button { font: inherit; }
     [hidden] { display: none !important; }
-    .page { max-width: 1200px; margin: 0 auto; padding: clamp(20px, 4vw, 56px); }
-    .top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
-    .brand { font-size: 15px; font-weight: 750; letter-spacing: .02em; }
-    .brand span { color: #77dfff; }
-    .back { font-size: 14px; text-decoration: none; color: #c0e3ef; }
-    .back:hover { color: #fff; }
-    .content { min-height: min(73svh, 700px); display: flex; flex-direction: column; justify-content: center; padding: 52px 0; }
-    .eyebrow { margin: 0 0 16px; font-size: 11px; font-weight: 750; letter-spacing: .23em; text-transform: uppercase; color: #80d9f1; }
-    h1 { margin: 0; font-size: clamp(48px, 9vw, 104px); letter-spacing: -.07em; line-height: .99; }
-    h1 span { color: #8fe8ff; }
-    .intro { max-width: 56ch; margin: 24px 0 32px; color: #c3d3e3; line-height: 1.65; font-size: clamp(16px, 1.8vw, 19px); }
-    .panel { border: 1px solid rgba(165,225,245,.22); border-radius: 22px; padding: clamp(22px, 4vw, 36px); background: rgba(15,31,48,.78); }
-    .panel h2 { font-size: 22px; margin: 0 0 12px; }
-    .panel p { color: #c3d3e3; line-height: 1.6; margin: 0; }
-    .slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 24px; }
-    .slot { display: flex; flex-direction: column; justify-content: center; gap: 9px; min-height: 168px; border: 1px dashed rgba(145,209,236,.36); border-radius: 17px; background: rgba(5,19,35,.48); padding: 24px; }
-    .slot strong { color: #8fe8ff; font-size: 28px; }
-    .slot span { color: #b0c7d8; font-size: 14px; }
-    .fine { margin-top: 20px !important; font-size: 13px; color: #91aabf !important; }
-    @media (max-width: 660px) { .slots { grid-template-columns: 1fr; } .slot { min-height: 100px; } .content { padding: 36px 0; } }
 
     /* TRUTH TRAP 2.0 — COVER EXPERIMENT
        The original artwork and moving day/night spotlight are preserved.
@@ -355,6 +331,7 @@
 
     /* The prototyping workspace only opens after owner verification. */
   </style>
+  <link rel="stylesheet" href="./experience.css?v=20261026-1">
 </head>
 <body data-atlas-world="arcade" data-atlas-surface="content">
   <!-- Truth Trap 2.0 cover study: original day/night collage, liberated
@@ -484,6 +461,14 @@
       }
       if (Bridge && window.ArcadeGameChrome) {
         ArcadeGameChrome.mountLanding({ root: '#opening' });
+        ArcadeGameChrome.mountGame({
+          root: '#tt-game-header',
+          returnRoot: '#arcade-game-return-root',
+          actionsRoot: '#arcade-game-actions-root',
+          appearance: true,
+          session: true,
+          mobileAppearanceTransition: false
+        });
       }
 
       function denyAccess(message) {
