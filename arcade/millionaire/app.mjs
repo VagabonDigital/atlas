@@ -285,11 +285,13 @@ all('[data-answer]').forEach(button => button.onclick = () => {
 });
 all('[data-host-confidence]').forEach(button => button.onclick = () => {
   if (game?.publicView()?.phase !== 'adviser') return;
+  if (hostDraftConfidence !== button.dataset.hostConfidence) playSound('select');
   hostDraftConfidence = button.dataset.hostConfidence;
   render();
 });
 $('#host-submit').onclick = () => {
   if (game?.advise(hostDraftPick, hostDraftConfidence)) {
+    playSound('select');
     resetHostDraft();
     render();
   }
@@ -311,9 +313,9 @@ $('#primary').onclick = () => {
   } else game.summary();
   render();
 };
-$('#walk').onclick = () => { game.walk(); render(); };
-$('#confirm-walk').onclick = () => { game.walk(true); render(); };
-$('#stay').onclick = () => { game.cancelWalk(); render(); };
+$('#walk').onclick = () => { if (game.walk()) playSound('select'); render(); };
+$('#confirm-walk').onclick = () => { if (game.walk(true)) playSound('select'); render(); };
+$('#stay').onclick = () => { if (game.cancelWalk()) playSound('select'); render(); };
 $('#question-tools').onclick = questionCare;
 $('#new-run').onclick = confirmNewRun;
 $('#sound').onclick = () => {
