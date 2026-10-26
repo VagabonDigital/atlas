@@ -238,7 +238,7 @@ html:not([data-theme="night"]) .tt-game::after {
   border-radius: 22px;
   background:
     linear-gradient(155deg,rgba(249,216,150,.46) 0%,#174b64 7%,#021825 29%,#020c19 74%,rgba(2,155,189,.50));
-  transform: translate3d(10px,20px,-29px);
+  transform: translate3d(7px,14px,-21px);
   box-shadow:
     0 14px 0 -5px rgba(0,13,22,.94),
     0 27px 24px -7px rgba(0,1,10,.73),
@@ -306,8 +306,10 @@ html:not([data-theme="night"]) .tt-game::after {
   overflow: hidden;
   border-radius: 19px 19px 0 0;
   background: linear-gradient(130deg,#185976,#06233a);
-  transform: translateZ(19px);
-  border-bottom: 1px solid rgba(148,234,251,.34);
+  /* Share the same front plane with the plaque. Independent Z offsets
+     caused Chromium to project a visible split at their shared edge. */
+  transform: none;
+  border-bottom: 0;
   box-shadow: inset 0 0 21px rgba(0,217,250,.17);
 }
 .tt-art-image {
@@ -348,7 +350,8 @@ html:not([data-theme="night"]) .tt-game::after {
   background:
     linear-gradient(180deg,rgba(4,31,49,.96),rgba(2,19,34,.98));
   box-shadow: inset 0 2px 0 rgba(100,237,255,.14),inset 0 -4px 5px rgba(0,0,0,.33);
-  transform: translateZ(28px);
+  /* Image and plaque form ONE front plate; only the backing is offset. */
+  transform: none;
 }
 .tt-exhibit-letter {
   display: grid;
