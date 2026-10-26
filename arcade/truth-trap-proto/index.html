@@ -276,14 +276,75 @@
       #opening .btn-start { transition: none; }
       #opening.fade-out::after { transform: none; filter: none; }
     }
-    /* The existing prototyping workspace is for later, and is never
-       surfaced before the owner passes authentication and clicks Enter. */
+
+    /* Prototype-only landing chrome: frosted surfaces with deliberately
+       strong contrast over the busy cover in both appearance modes.
+       Do not alter the shared Arcade Chrome used by public games. */
+    #opening .arcade-game-chrome-back,
+    #opening .arcade-game-chrome-icon-btn,
+    #opening .arcade-game-chrome-session {
+      background: rgba(244, 250, 254, .82);
+      color: #12374b;
+      border: 1px solid rgba(16, 67, 89, .29);
+      box-shadow: 0 6px 22px rgba(9, 37, 54, .15),
+                  inset 0 1px 0 rgba(255, 255, 255, .92);
+      backdrop-filter: blur(18px) saturate(150%);
+      -webkit-backdrop-filter: blur(18px) saturate(150%);
+      font-weight: 650;
+    }
+    #opening .arcade-game-chrome-back:hover,
+    #opening .arcade-game-chrome-icon-btn:hover,
+    #opening .arcade-game-chrome-session:hover {
+      background: rgba(255, 255, 255, .95);
+      color: #092b3e;
+      border-color: rgba(10, 81, 107, .44);
+      box-shadow: 0 8px 26px rgba(9, 37, 54, .20),
+                  inset 0 1px 0 rgba(255,255,255,.98);
+    }
+    #opening .arcade-game-chrome-back:focus-visible,
+    #opening .arcade-game-chrome-icon-btn:focus-visible,
+    #opening .arcade-game-chrome-session:focus-visible {
+      outline: 3px solid #057b9b;
+      outline-offset: 3px;
+    }
+    html[data-theme="night"] #opening .arcade-game-chrome-back,
+    html[data-theme="night"] #opening .arcade-game-chrome-icon-btn,
+    html[data-theme="night"] #opening .arcade-game-chrome-session {
+      background: rgba(58, 92, 115, .78);
+      color: #f4fbff;
+      border-color: rgba(156, 221, 239, .49);
+      box-shadow: 0 7px 24px rgba(0,0,0,.37),
+                  inset 0 1px 0 rgba(240, 253, 255, .22);
+      text-shadow: 0 1px 2px rgba(0, 18, 33, .48);
+    }
+    html[data-theme="night"] #opening .arcade-game-chrome-back:hover,
+    html[data-theme="night"] #opening .arcade-game-chrome-icon-btn:hover,
+    html[data-theme="night"] #opening .arcade-game-chrome-session:hover {
+      background: rgba(82, 121, 143, .90);
+      color: #ffffff;
+      border-color: rgba(185, 239, 251, .75);
+      box-shadow: 0 8px 28px rgba(0,0,0,.45),
+                  inset 0 1px 0 rgba(240, 253, 255, .26);
+    }
+    html[data-theme="night"] #opening .arcade-game-chrome-back:focus-visible,
+    html[data-theme="night"] #opening .arcade-game-chrome-icon-btn:focus-visible,
+    html[data-theme="night"] #opening .arcade-game-chrome-session:focus-visible {
+      outline-color: #a4f2ff;
+    }
+    /* The button is visible from first paint, but the direct route cannot
+       enter the workspace until Supabase verifies the owner's identity. */
+    #opening #btn-start:disabled {
+      opacity: 1;
+      cursor: progress;
+    }
+
+    /* The prototyping workspace only opens after owner verification. */
   </style>
 </head>
 <body data-atlas-world="arcade" data-atlas-surface="content">
   <!-- Truth Trap 2.0 cover study: original day/night collage, liberated
        from the intro panel. Original public game remains unchanged. -->
-  <div id="opening" hidden role="main" aria-label="Truth Trap introduction">
+  <div id="opening" role="main" aria-label="Truth Trap introduction">
     <div class="opening-content">
       <p class="opening-eyebrow">ATLAS ARCADE · PROTOTYPE</p>
       <h1 class="opening-title">
@@ -291,7 +352,7 @@
         <span class="opening-word opening-accent">TRAP</span>
       </h1>
       <p class="opening-subtitle">Two truths. One brilliant lie.</p>
-      <button class="btn-start" id="btn-start" type="button">
+      <button class="btn-start" id="btn-start" type="button" disabled>
         <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <circle cx="10.8" cy="10.8" r="6.9" stroke="currentColor" stroke-width="2"/>
           <path d="m16 16 5 5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
@@ -306,9 +367,9 @@
       <a class="back" href="../">← Return to Arcade</a>
     </header>
     <main class="content">
-      <div id="access-gate" class="panel" role="status" aria-live="polite">
+      <div id="access-gate" class="panel" role="status" aria-live="polite" hidden>
         <h2>Truth Trap — PROTO</h2>
-        <p id="access-message">Verifying your Atlas account…</p>
+        <p id="access-message">You need to be signed in to the designated Atlas account to open this experiment.</p>
       </div>
       <div id="owner-workspace" hidden>
         <p class="eyebrow">Atlas Arcade · Experimental / Not released</p>
@@ -340,7 +401,8 @@
       const status = document.getElementById('access-message');
       const workspace = document.getElementById('owner-workspace');
       let sequence = 0;
-      let coverChromeMounted = false;
+      let ownerVerified = false;
+      let phase = 'cover';
       const opening = document.getElementById('opening');
       const enterButton = document.getElementById('btn-start');
       const Bridge = window.AtlasBridge;
@@ -349,26 +411,51 @@
         document.documentElement.dataset.theme =
           Bridge?.readAppearanceMode?.() || document.documentElement.dataset.theme || 'light';
       }
-      function showCover() {
+
+      // Mount ordinary Arcade controls immediately. The cover itself is
+      // already public static artwork; only entering the prototype waits
+      // for a verified Supabase owner identity.
+      applyTheme();
+      if (Bridge && window.AtlasSessionPanel) {
+        AtlasSessionPanel.mount({
+          root: '#atlas-session-panel-root',
+          initialView: 'manage'
+        });
+      }
+      if (Bridge && window.ArcadeGameChrome) {
+        ArcadeGameChrome.mountLanding({ root: '#opening' });
+      }
+
+      function denyAccess(message) {
+        ownerVerified = false;
+        enterButton.disabled = true;
+        opening.hidden = true;
         workspace.hidden = true;
+        gate.hidden = false;
+        status.textContent = message;
+      }
+
+      function grantAccess() {
+        ownerVerified = true;
         gate.hidden = true;
-        opening.hidden = false;
-        opening.classList.remove('fade-out');
-        applyTheme();
-        if (!coverChromeMounted && Bridge && window.ArcadeGameChrome) {
-          if (window.AtlasSessionPanel) {
-            AtlasSessionPanel.mount({
-              root: '#atlas-session-panel-root',
-              initialView: 'manage'
-            });
-          }
-          ArcadeGameChrome.mountLanding({ root: '#opening' });
-          coverChromeMounted = true;
+        enterButton.disabled = false;
+
+        // Revalidating on tab focus must not abandon an open investigation.
+        if (phase === 'cover') {
+          workspace.hidden = true;
+          opening.hidden = false;
+        } else {
+          workspace.hidden = false;
+          opening.hidden = true;
         }
       }
+
       function enterPrototype() {
+        if (!ownerVerified) return;
         opening.classList.add('fade-out');
         window.setTimeout(() => {
+          if (!ownerVerified) return;
+          phase = 'workspace';
           opening.hidden = true;
           opening.classList.remove('fade-out');
           workspace.hidden = false;
@@ -377,32 +464,42 @@
       enterButton.addEventListener('click', enterPrototype);
       window.addEventListener('atlas:appearance-change', applyTheme);
 
-      async function verifyOwner() {
+      async function verifyOwner({ revokeWhileChecking = false } = {}) {
         const current = ++sequence;
-        workspace.hidden = true;
-        opening.hidden = true;
-        gate.hidden = false;
-        status.textContent = 'Verifying your Atlas account…';
+
+        // Do not replace the cover with an account-check panel on entry.
+        // When the account changes, fail closed immediately.
+        if (revokeWhileChecking) {
+          ownerVerified = false;
+          enterButton.disabled = true;
+          workspace.hidden = true;
+        }
+
         try {
-          // getUser validates the auth token with Supabase rather than trusting
-          // a user/email value copied into localStorage.
+          // getUser checks with Supabase; the browser's stored email alone
+          // never grants access to the prototype interaction.
           const user = await window.AtlasCloud.getUser();
           if (current !== sequence) return;
-          if (user && String(user.email || '').toLowerCase() === OWNER_EMAIL) {
-            showCover();
+          if (user && String(user.email || '').trim().toLowerCase() === OWNER_EMAIL) {
+            grantAccess();
           } else {
-            status.textContent = 'This experiment is available only to its designated Atlas account.';
+            denyAccess('This experiment is available only to its designated Atlas account.');
           }
         } catch (error) {
           if (current !== sequence) return;
-          status.textContent = 'Account verification is unavailable. Sign in to Atlas and reload this page.';
+          denyAccess('Account verification is unavailable. Sign in to Atlas and reload this page.');
         }
       }
       document.addEventListener('visibilitychange', () => {
         if (!document.hidden) void verifyOwner();
       });
       window.addEventListener('storage', event => {
-        if (event.key === 'sb-jnhjfpagectprceswvqn-auth-token') void verifyOwner();
+        if (event.key === 'sb-jnhjfpagectprceswvqn-auth-token') {
+          void verifyOwner({ revokeWhileChecking: true });
+        }
+      });
+      window.addEventListener('atlas:account-change', () => {
+        void verifyOwner({ revokeWhileChecking: true });
       });
       void verifyOwner();
     })();
