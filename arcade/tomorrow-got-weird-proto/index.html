@@ -1,1881 +1,64 @@
 <!DOCTYPE html>
 <!--
-  ==========================================================================
-  TOMORROW GOT WEIRD v2 · Future Scenarios
-  SmartStudy™ · Arcade World
-  --------------------------------------------------------------------------
-  Imaginative conversation deck. Explore strange futures. Decide what happens next.
-  Bridge-connected. Session-aware. No gamification metrics.
-  --------------------------------------------------------------------------
-  ARCADE:TOMORROW-GOT-WEIRD-PROTO · isolated experimental registryId
-  ==========================================================================
+  Tomorrow Got Weird — PROTO
+  Isolated arrival-and-encounter experiment. The public original remains unchanged.
 -->
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tomorrow Got Weird — PROTO | Arcade by Atlas</title>
-  <meta name="description" content="Tomorrow Got Weird experimental prototype for Atlas Arcade.">
   <meta name="robots" content="noindex, nofollow">
+  <title>Tomorrow Got Weird — PROTO | Arcade by Atlas</title>
+  <meta name="description" content="Cross the portal. Arrive in New Tokyo, 2126.">
   <link rel="canonical" href="https://atlasfortutors.com/arcade/tomorrow-got-weird-proto/">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Atlas">
-  <meta property="og:title" content="Tomorrow Got Weird — PROTO | Arcade by Atlas">
-  <meta property="og:description" content="Step into strange future scenarios and decide what you would do next.">
-  <meta property="og:url" content="https://atlasfortutors.com/arcade/tomorrow-got-weird-proto/">
-  <meta property="og:image" content="https://pub-13d93423376c4822820635b75cfbea29.r2.dev/images/Atlas%20Logo.png">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Tomorrow Got Weird — PROTO | Arcade by Atlas">
-  <meta name="twitter:description" content="Step into strange future scenarios and decide what you would do next.">
-  <meta name="twitter:image" content="https://pub-13d93423376c4822820635b75cfbea29.r2.dev/images/Atlas%20Logo.png">
   <link rel="stylesheet" href="../../shared/atlas-modal-theme.css?v=20260919-tapfix1">
-  <link rel="stylesheet" href="../../shared/atlas-search.css?v=20260721-world-modals">
   <link rel="stylesheet" href="../../shared/atlas-session-panel.css?v=20260721-world-modals">
   <link rel="stylesheet" href="../shared/arcade-game-chrome.css?v=20260721">
   <link rel="icon" type="image/svg+xml"
-    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='5' y='5' width='90' height='90' rx='24' fill='%23DF572F'/%3E%3Ccircle cx='50' cy='28' r='9' fill='%23FFF1E9'/%3E%3Cpath d='M50 38V62' stroke='%23FFF1E9' stroke-width='8' stroke-linecap='round'/%3E%3Cpath d='M30 61H70L77 79H23L30 61Z' fill='%23FFF1E9'/%3E%3Ccircle cx='64' cy='69' r='4.2' fill='%23F2C6B5'/%3E%3C/svg%3E">
-  <script>
-    (function () {
-      var mode = null;
-      try { mode = localStorage.getItem('atlas::appearanceMode') } catch (e) { }
-      document.documentElement.dataset.theme = mode === 'night' ? 'night' : 'light';
-    })();
-  </script>
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='5' y='5' width='90' height='90' rx='24' fill='%237c3aed'/%3E%3Ccircle cx='50' cy='50' r='24' fill='none' stroke='%23fff' stroke-width='7'/%3E%3Ccircle cx='50' cy='50' r='11' fill='%23ff8bd5'/%3E%3C/svg%3E">
   <style>
-    /* ============================================================
-     DESIGN TOKENS
-     ============================================================ */
-
     :root {
-      --bg: #eef3f6;
-
-      --surface: #ffffff;
-      --surface-soft: rgba(255, 255, 255, 0.78);
-
-      --ink: #152235;
-      --ink-soft: #536176;
-      --ink-faint: #8490a1;
-
-      --line: rgba(21, 34, 53, 0.11);
-      --line-strong: rgba(21, 34, 53, 0.18);
-      --border-width: 1px;
-
-      --cyan: #087f98;
-      --cyan-soft: rgba(8, 127, 152, 0.1);
-
-      --magenta: #b93776;
-      --magenta-soft: rgba(185, 55, 118, 0.09);
-
-      --green: #087957;
-      --green-soft: rgba(8, 121, 87, 0.1);
-
-      --amber: #9b6900;
-
-      --shadow: 0 18px 55px rgba(21, 34, 53, 0.12);
-      --shadow-soft: 0 8px 28px rgba(21, 34, 53, 0.08);
-
-      --radius: 18px;
-
-      --font-body:
-        Inter,
-        ui-sans-serif,
-        system-ui,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
-
-      --font-meta: "Courier New", Courier, monospace;
+      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --ink: #f4f9ff;
+      --ice: #bdefff;
+      --pink: #ff8bd5;
+      --night: #071226;
+      --glass: rgba(7, 19, 46, .78);
     }
-
-    html[data-theme="night"] {
-      --bg: #030a14;
-
-      --surface: #081426;
-      --surface-soft: rgba(8, 20, 38, 0.88);
-
-      --ink: #e3effb;
-      --ink-soft: #9db0c7;
-      --ink-faint: #647990;
-
-      --line: rgba(0, 240, 255, 0.13);
-      --line-strong: rgba(0, 240, 255, 0.24);
-      --border-width: 1.5px;
-
-      --cyan: #00d8ec;
-      --cyan-soft: rgba(0, 216, 236, 0.1);
-
-      --magenta: #ff4c9e;
-      --magenta-soft: rgba(255, 76, 158, 0.1);
-
-      --green: #22d79b;
-      --green-soft: rgba(34, 215, 155, 0.1);
-
-      --amber: #ffd15c;
-
-      --shadow: 0 22px 65px rgba(0, 0, 0, 0.45);
-      --shadow-soft: 0 10px 34px rgba(0, 0, 0, 0.3);
-    }
-
-    /* ============================================================
-     RESET AND DOCUMENT
-     ============================================================ */
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html {
-      min-height: 100%;
-      overflow-y: scroll;
-      scrollbar-gutter: stable;
-      scrollbar-width: thin;
-      scrollbar-color:
-        rgba(90, 74, 110, 0.28)
-        transparent;
-    }
-
-    html::-webkit-scrollbar {
-      width: 10px;
-    }
-
-    html::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    html::-webkit-scrollbar-thumb {
-      border: 2px solid transparent;
-      border-radius: 999px;
-      background: rgba(90, 74, 110, 0.28);
-      background-clip: padding-box;
-    }
-
-    html::-webkit-scrollbar-thumb:hover {
-      background: rgba(90, 74, 110, 0.42);
-      background-clip: padding-box;
-    }
-
-    html[data-theme="night"] {
-      scrollbar-color:
-        rgba(207, 193, 209, 0.30)
-        transparent;
-    }
-
-    html[data-theme="night"]::-webkit-scrollbar-thumb {
-      background: rgba(207, 193, 209, 0.30);
-      background-clip: padding-box;
-    }
-
-    html[data-theme="night"]::-webkit-scrollbar-thumb:hover {
-      background: rgba(207, 193, 209, 0.44);
-      background-clip: padding-box;
-    }
-
-    body {
-      min-height: 100vh;
-      /* clip avoids creating a scroll container that breaks the sticky game header. */
-      overflow-x: clip;
-      background:
-        radial-gradient(circle at 14% 20%,
-          rgba(8, 127, 152, 0.09),
-          transparent 34rem),
-        radial-gradient(circle at 86% 72%,
-          rgba(185, 55, 118, 0.07),
-          transparent 34rem),
-        var(--bg);
-      color: var(--ink);
-      font-family: var(--font-body);
-    }
-
-    html[data-theme="night"] body {
-      background:
-        radial-gradient(circle at 18% 24%,
-          rgba(0, 216, 236, 0.1),
-          transparent 36rem),
-        radial-gradient(circle at 82% 72%,
-          rgba(117, 55, 220, 0.1),
-          transparent 36rem),
-        var(--bg);
-    }
-
-    button {
-      font: inherit;
-    }
-
-    button:focus-visible {
-      outline: 2px solid var(--cyan);
-      outline-offset: 3px;
-    }
-
-    /* ============================================================
-     LAUNCH SCREEN
-     ============================================================ */
-
-    #launch {
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; min-height: 100%; }
+    body { font-family: var(--font); background: var(--night); color: var(--ink); }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible { outline: 3px solid #77e7ff; outline-offset: 4px; }
+    [hidden] { display: none !important; }
+    #launch, #scene {
       position: fixed;
       inset: 0;
-      z-index: 900;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
       overflow: hidden;
-      background: var(--bg);
+      isolation: isolate;
     }
 
-    #launch::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      pointer-events: none;
-      background: rgba(4, 10, 18, 0.24);
+    /* The tunnel stays unshaded; the zoom and flash are the established experiment. */
+    #launch {
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: #061425;
     }
-
-    html[data-theme="light"] #launch::before {
-      background: rgba(238, 243, 246, 0.18);
-    }
-
-    html[data-theme="night"] #launch::before {
-      background: rgba(3, 10, 20, 0.38);
-    }
-
     .launch-video {
       position: absolute;
       inset: 0;
-      z-index: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
       pointer-events: none;
-    }
-
-    html[data-theme="light"] .launch-video {
-      filter: brightness(1.14) saturate(0.82);
-    }
-
-    html[data-theme="night"] .launch-video {
-      filter: brightness(0.78) saturate(1.14) contrast(1.08);
-    }
-
-    .launch-card {
-      position: relative;
-      z-index: 2;
-      width: min(430px, 100%);
-      padding: 36px;
-      border: 1px solid var(--line-strong);
-      border-radius: 24px;
-      background: var(--surface-soft);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-    }
-
-    .launch-kicker {
-      margin-bottom: 18px;
-      color: var(--cyan);
-      font-family: var(--font-meta);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-    }
-
-    .launch-title {
-      margin-bottom: 20px;
-      color: var(--ink);
-      font-size: clamp(42px, 7vw, 68px);
-      font-weight: 780;
-      letter-spacing: -0.055em;
-      line-height: 0.96;
-    }
-
-    .launch-title span {
-      display: block;
-      color: var(--magenta);
-    }
-
-    .launch-copy {
-      max-width: 46ch;
-      margin-bottom: 30px;
-      color: var(--ink-soft);
-      font-size: 16px;
-      line-height: 1.7;
-    }
-
-    .btn-launch {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 9px;
-      min-height: 48px;
-      padding: 0 22px;
-      border: 1px solid var(--cyan);
-      border-radius: 12px;
-      background: var(--cyan);
-      color: #ffffff;
-      font-weight: 700;
-      cursor: pointer;
-      transition:
-        transform 0.18s ease,
-        box-shadow 0.18s ease,
-        background-color 0.18s ease;
-    }
-
-    html[data-theme="night"] .btn-launch {
-      color: #001217;
-    }
-
-    .btn-launch:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 28px rgba(8, 127, 152, 0.2);
-    }
-
-    /* ============================================================
-     FINISH SCREEN
-     ============================================================ */
-
-    #finish {
-      position: fixed;
-      inset: 0;
-      z-index: 900;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      overflow: hidden;
-      background: var(--bg);
-    }
-
-    #finish.visible {
-      display: flex;
-    }
-
-    #finish::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      pointer-events: none;
-      background: rgba(4, 10, 18, 0.24);
-    }
-
-    html[data-theme="light"] #finish::before {
-      background: rgba(238, 243, 246, 0.18);
-    }
-
-    html[data-theme="night"] #finish::before {
-      background: rgba(3, 10, 20, 0.38);
-    }
-
-    .finish-card {
-      position: relative;
-      z-index: 2;
-      width: min(430px, 100%);
-      padding: 36px;
-      border: 1px solid var(--line-strong);
-      border-radius: 24px;
-      background: var(--surface-soft);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      animation: card-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-
-    .finish-kicker {
-      margin-bottom: 18px;
-      color: var(--cyan);
-      font-family: var(--font-meta);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-    }
-
-    .finish-title {
-      margin-bottom: 20px;
-      color: var(--ink);
-      font-size: clamp(40px, 7vw, 62px);
-      font-weight: 780;
-      letter-spacing: -0.055em;
-      line-height: 0.96;
-    }
-
-    .finish-title span {
-      display: block;
-      color: var(--magenta);
-    }
-
-    .finish-copy {
-      max-width: 42ch;
-      margin-bottom: 30px;
-      color: var(--ink-soft);
-      font-size: 16px;
-      line-height: 1.7;
-    }
-
-    .finish-actions {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .finish-actions .btn-launch {
-      width: 100%;
-    }
-
-    .btn-back-arcade {
-      display: inline-flex;
-      width: 100%;
-      min-height: 48px;
-      align-items: center;
-      justify-content: center;
-      padding: 0 22px;
-      border: 1px solid var(--line-strong);
-      border-radius: 12px;
-      background: var(--surface-soft);
-      color: var(--ink-soft);
-      font-weight: 700;
-      cursor: pointer;
-      transition:
-        transform 0.18s ease,
-        border-color 0.18s ease,
-        background-color 0.18s ease,
-        color 0.18s ease;
-    }
-
-    .btn-back-arcade:hover {
-      border-color: var(--magenta);
-      background: var(--magenta-soft);
-      color: var(--magenta);
-      transform: translateY(-1px);
-    }
-
-    /* ============================================================
-     GAME SHELL
-     ============================================================ */
-
-    #game {
-      display: none;
-      min-height: 100vh;
-    }
-
-    /* ============================================================
-     GAME HEADER
-     ============================================================ */
-
-    #hdr {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 56px;
-      padding: 0 20px;
-      border-bottom: 1px solid var(--line);
-      background: rgba(238, 243, 246, 0.94);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-    }
-
-    html[data-theme="night"] #hdr {
-      background: rgba(3, 10, 20, 0.94);
-    }
-
-    .header-left,
-    .header-center,
-    .header-right {
-      display: flex;
-      flex: 1;
-      min-width: 0;
-      align-items: center;
-    }
-
-    .header-left {
-      gap: 12px;
-    }
-
-    .header-center {
-      justify-content: center;
-    }
-
-    .header-right {
-      justify-content: flex-end;
-      gap: 12px;
-    }
-
-    .hdr-logo {
-      color: var(--cyan);
-      font-family: var(--font-meta);
-      font-size: 1.15rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      line-height: 1;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    .hdr-logo span {
-      color: var(--magenta);
-    }
-
-    #progress-label {
-      color: var(--ink-faint);
-      font-family: var(--font-meta);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    /* ============================================================
-     GAME CONTENT
-     ============================================================ */
-
-    #main {
-      width: min(920px, calc(100% - 32px));
-      margin: 0 auto;
-      padding: 46px 0 64px;
-    }
-
-    /* ============================================================
-     SCENARIO CARD
-     ============================================================ */
-
-    #scenario-card {
-      position: relative;
-      overflow: hidden;
-      padding: clamp(28px, 5vw, 52px);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: var(--surface);
-      box-shadow: var(--shadow);
-    }
-
-    #scenario-card::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      right: 0;
-      left: 0;
-      height: 3px;
-      background:
-        linear-gradient(90deg,
-          var(--cyan),
-          var(--magenta),
-          var(--amber),
-          var(--cyan),
-          var(--magenta));
-      background-size: 300% 100%;
-      box-shadow: 0 0 10px rgba(8, 127, 152, 0.22);
-      pointer-events: none;
-      animation: signal-flow 9s linear infinite;
-    }
-
-    #scenario-card.completed-card::before {
-      background:
-        linear-gradient(90deg,
-          var(--green),
-          var(--cyan),
-          var(--green),
-          var(--amber),
-          var(--green));
-      background-size: 300% 100%;
-    }
-
-    #scenario-card.transmitting {
-      animation: card-in 0.28s ease both;
-    }
-
-    .scenario-meta {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 30px;
-    }
-
-    .scenario-emoji {
-      display: inline-flex;
-      flex: 0 0 auto;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      line-height: 1;
-    }
-
-    .scenario-number {
-      color: var(--ink-faint);
-      font-family: var(--font-meta);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-    }
-
-    .scenario-state {
-      display: none;
-      padding: 4px 9px;
-      border: 1px solid rgba(8, 121, 87, 0.24);
-      border-radius: 999px;
-      background: var(--green-soft);
-      color: var(--green);
-      font-family: var(--font-meta);
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .completed-card .scenario-state {
-      display: inline-flex;
-    }
-
-    .scenario-question {
-      max-width: 38ch;
-      color: var(--ink);
-      font-size: clamp(24px, 3.4vw, 38px);
-      font-weight: 650;
-      letter-spacing: -0.025em;
-      line-height: 1.28;
-    }
-
-    /* ============================================================
-     SUPPORT CONTROLS
-     ============================================================ */
-
-    .support-switch {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .support-button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 42px;
-      padding: 0 16px;
-      border: 1px solid var(--line-strong);
-      border-radius: 11px;
-      background: var(--surface-soft);
-      color: var(--ink-soft);
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition:
-        border-color 0.18s ease,
-        color 0.18s ease,
-        background-color 0.18s ease;
-    }
-
-    #btn-missions:hover,
-    #btn-missions[aria-pressed="true"] {
-      border-color: var(--cyan);
-      background: var(--surface);
-      color: var(--cyan);
-      box-shadow: inset 0 0 0 1px rgba(8, 127, 152, 0.08);
-    }
-
-    #btn-survival:hover,
-    #btn-survival[aria-pressed="true"] {
-      border-color: var(--amber);
-      background: var(--surface);
-      color: var(--amber);
-      box-shadow: inset 0 0 0 1px rgba(155, 105, 0, 0.08);
-    }
-
-    #btn-weirder:hover,
-    #btn-weirder[aria-pressed="true"] {
-      border-color: var(--magenta);
-      background: var(--surface);
-      color: var(--magenta);
-      box-shadow: inset 0 0 0 1px rgba(185, 55, 118, 0.08);
-    }
-
-    html[data-theme="night"] #btn-missions:hover,
-    html[data-theme="night"] #btn-missions[aria-pressed="true"] {
-      border-color: var(--cyan);
-      background: var(--cyan-soft);
-    }
-
-    html[data-theme="night"] #btn-survival:hover,
-    html[data-theme="night"] #btn-survival[aria-pressed="true"] {
-      border-color: var(--amber);
-      background: rgba(255, 209, 92, 0.1);
-    }
-
-    html[data-theme="night"] #btn-weirder:hover,
-    html[data-theme="night"] #btn-weirder[aria-pressed="true"] {
-      border-color: var(--magenta);
-      background: var(--magenta-soft);
-    }
-
-    /* ============================================================
-     SUPPORT PANEL
-     ============================================================ */
-
-    #support-panel {
-      margin-top: 12px;
-      padding: 22px 26px;
-      border: 1px solid var(--line);
-      border-radius: 15px;
-      background: var(--surface);
-      box-shadow: var(--shadow-soft);
-    }
-
-    #support-panel[hidden] {
-      display: none;
-    }
-
-    .support-text {
-      max-width: 66ch;
-      color: var(--ink-soft);
-      font-size: 16px;
-      line-height: 1.7;
-    }
-
-    .prompt-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      list-style: none;
-    }
-
-    .prompt-list li {
-      position: relative;
-      padding-left: 22px;
-      color: var(--ink-soft);
-      font-size: 16px;
-      line-height: 1.65;
-    }
-
-    .prompt-list li::before {
-      content: "→";
-      position: absolute;
-      left: 0;
-      color: var(--cyan);
-    }
-
-    /* ============================================================
-     SCENARIO NAVIGATION
-     ============================================================ */
-
-    .scenario-rail {
-      display: flex;
-      width: 100%;
-      min-width: 0;
-      align-items: center;
-      justify-content: center;
-    }
-
-    #scenario-dots {
-      display: flex;
-      max-width: 100%;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      padding: 3px 0;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-
-    #scenario-dots::-webkit-scrollbar {
-      display: none;
-    }
-
-    .scenario-dot {
-      width: 9px;
-      height: 9px;
-      flex: 0 0 9px;
-      padding: 0;
-      border: 1px solid var(--line-strong);
-      border-radius: 50%;
-      background: transparent;
-      cursor: pointer;
-      transition:
-        transform 0.16s ease,
-        background-color 0.16s ease,
-        border-color 0.16s ease,
-        box-shadow 0.16s ease;
-    }
-
-    .scenario-dot:hover {
-      border-color: var(--cyan);
-      background: var(--cyan);
-      transform: scale(1.2);
-    }
-
-    .scenario-dot.survived {
-      border-color: var(--green);
-      background: var(--green);
-    }
-
-    .scenario-dot.survived:hover {
-      border-color: var(--green);
-      background: var(--green);
-      transform: scale(1.2);
-    }
-
-    .scenario-dot.current {
-      border-color: var(--cyan);
-      background: var(--cyan);
-      box-shadow: none;
-      transform: scale(1.25);
-    }
-
-    .scenario-dot.current.survived {
-      border: 2px solid var(--cyan);
-      background: var(--green);
-      box-shadow: none;
-      transform: scale(1.25);
-    }
-
-    /* ============================================================
-     SCENARIO FOOTER
-     ============================================================ */
-
-    .scenario-footer {
-      display: grid;
-      grid-template-columns: 150px minmax(0, 1fr) auto;
-      align-items: center;
-      gap: 18px;
-      margin-top: 18px;
-      padding: 16px 22px;
-      border: 1px solid var(--line);
-      border-radius: 15px;
-      background: var(--surface-soft);
-      box-shadow: var(--shadow-soft);
-    }
-
-    /* ============================================================
-     COMPLETION CONTROL
-     ============================================================ */
-
-    .btn-complete {
-      display: inline-flex;
-      width: 150px;
-      min-height: 44px;
-      align-items: center;
-      justify-content: center;
-      gap: 9px;
-      padding: 0 15px;
-      border: 1px solid var(--line-strong);
-      border-radius: 12px;
-      background:
-        linear-gradient(180deg,
-          rgba(255, 255, 255, 0.98),
-          rgba(247, 249, 251, 0.92));
-      color: var(--ink);
-      font-size: 14px;
-      font-weight: 750;
-      white-space: nowrap;
-      cursor: pointer;
-      box-shadow:
-        0 1px 2px rgba(21, 34, 53, 0.06),
-        0 7px 18px rgba(21, 34, 53, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.92);
-      transition:
-        transform 0.18s ease,
-        border-color 0.18s ease,
-        background-color 0.18s ease,
-        color 0.18s ease,
-        box-shadow 0.18s ease;
-    }
-
-    .complete-mark {
-      --pupil-x: 0px;
-      --pupil-y: 0px;
-
-      display: inline-flex;
-      width: 20px;
-      height: 20px;
-      flex: 0 0 20px;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      border: 1px solid rgba(8, 127, 152, 0.26);
-      border-radius: 50%;
-      background: var(--cyan-soft);
-      color: var(--cyan);
-      transition:
-        transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-        border-color 0.18s ease,
-        background-color 0.18s ease,
-        color 0.18s ease;
-    }
-
-    .complete-mark svg {
-      width: 14px;
-      height: 14px;
-      overflow: visible;
-    }
-
-    .complete-mark-pupil {
-      fill: currentColor;
-      transform:
-        translate(var(--pupil-x), var(--pupil-y));
-      transform-box: fill-box;
-      transform-origin: center;
-      transition:
-        opacity 0.16s ease,
-        transform 90ms linear;
-    }
-
-    .complete-mark-check {
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 1.8;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      opacity: 0;
-      transform: scale(0.55);
-      transform-origin: center;
-      transition:
-        opacity 0.16s ease,
-        transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .btn-complete:hover {
-      border-color: rgba(8, 127, 152, 0.42);
-      background: var(--surface);
-      box-shadow:
-        0 2px 4px rgba(21, 34, 53, 0.07),
-        0 10px 24px rgba(21, 34, 53, 0.09);
-      transform: translateY(-1px);
-    }
-
-    .btn-complete:hover .complete-mark {
-      border-color: var(--cyan);
-      transform: scale(1.05);
-    }
-
-    .btn-complete:active {
-      transform: translateY(0);
-    }
-
-    .btn-complete.done {
-      border-color: transparent;
-      background:
-        linear-gradient(135deg,
-          #152235,
-          #253652);
-      color: #ffffff;
-      box-shadow:
-        0 2px 5px rgba(21, 34, 53, 0.14),
-        0 10px 24px rgba(21, 34, 53, 0.2);
-    }
-
-    .btn-complete.done .complete-mark {
-      border-color: rgba(255, 255, 255, 0.22);
-      background: rgba(255, 255, 255, 0.1);
-      color: #70d7e5;
-    }
-
-    .btn-complete.done .complete-mark-pupil {
-      opacity: 0;
-      transform: translate(0, 0) scale(0.45);
-    }
-
-    .btn-complete.done .complete-mark-check {
-      opacity: 1;
       transform: scale(1);
-    }
-
-    .btn-complete.done:hover {
-      border-color: transparent;
-      background:
-        linear-gradient(135deg,
-          #192a42,
-          #2c4162);
-      color: #ffffff;
-      box-shadow:
-        0 3px 7px rgba(21, 34, 53, 0.18),
-        0 13px 30px rgba(21, 34, 53, 0.24);
-      transform: translateY(-1px);
-    }
-
-    html[data-theme="night"] .btn-complete {
-      background:
-        linear-gradient(180deg,
-          rgba(255, 255, 255, 0.055),
-          rgba(255, 255, 255, 0.025));
-      box-shadow:
-        0 1px 2px rgba(0, 0, 0, 0.22),
-        0 8px 20px rgba(0, 0, 0, 0.18),
-        inset 0 1px 0 rgba(255, 255, 255, 0.04);
-    }
-
-    html[data-theme="night"] .btn-complete:hover {
-      background: rgba(255, 255, 255, 0.055);
-    }
-
-    html[data-theme="night"] .btn-complete.done {
-      border-color: rgba(0, 216, 236, 0.36);
-      background:
-        linear-gradient(135deg,
-          rgba(0, 216, 236, 0.2),
-          rgba(117, 55, 220, 0.24));
-      color: var(--ink);
-      box-shadow:
-        0 10px 28px rgba(0, 0, 0, 0.32),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.035);
-    }
-
-    html[data-theme="night"] .btn-complete.done .complete-mark {
-      border-color: rgba(0, 216, 236, 0.46);
-      background: rgba(0, 216, 236, 0.12);
-      color: var(--cyan);
-    }
-
-    html[data-theme="night"] .btn-complete.done:hover {
-      background:
-        linear-gradient(135deg,
-          rgba(0, 216, 236, 0.26),
-          rgba(117, 55, 220, 0.3));
-      color: var(--ink);
-    }
-
-    /* ============================================================
-     PREVIOUS, RANDOM, AND NEXT CONTROLS
-     ============================================================ */
-
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn-nav {
-      display: inline-flex;
-      min-height: 40px;
-      align-items: center;
-      justify-content: center;
-      padding: 0 14px;
-      border: 1px solid var(--line-strong);
-      border-radius: 10px;
-      background: var(--surface);
-      color: var(--ink-soft);
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .btn-nav:hover:not(:disabled) {
-      border-color: var(--cyan);
-      color: var(--cyan);
-    }
-
-    .btn-nav:disabled {
-      opacity: 0.35;
-      cursor: not-allowed;
-    }
-
-    .btn-random {
-      border-color: rgba(185, 55, 118, 0.28);
-      color: var(--magenta);
-    }
-
-    .btn-random:hover:not(:disabled) {
-      border-color: var(--magenta);
-      background: var(--magenta-soft);
-      color: var(--magenta);
-    }
-
-    html[data-theme="night"] .btn-random {
-      border-color: rgba(255, 76, 158, 0.38);
-      background: rgba(255, 76, 158, 0.06);
-      color: var(--magenta);
-    }
-
-    html[data-theme="night"] .btn-random:hover:not(:disabled) {
-      border-color: rgba(255, 76, 158, 0.72);
-      background: rgba(255, 76, 158, 0.13);
-      color: #ff72b5;
-      box-shadow: 0 6px 18px rgba(255, 76, 158, 0.1);
-    }
-
-    /* ============================================================
-     RESET CONTROL
-     ============================================================ */
-
-    .reset-row {
-      display: flex;
-      justify-content: center;
-      margin-top: 14px;
-    }
-
-    .btn-reset {
-      display: inline-flex;
-      min-height: 36px;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      padding: 0 14px;
-      border: 1px solid rgba(185, 55, 118, 0.18);
-      border-radius: 999px;
-      background: var(--surface-soft);
-      color: var(--ink-faint);
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition:
-        border-color 0.18s ease,
-        background-color 0.18s ease,
-        color 0.18s ease,
-        box-shadow 0.18s ease;
-    }
-
-    .btn-reset:hover {
-      border-color: rgba(185, 55, 118, 0.38);
-      background: var(--magenta-soft);
-      color: var(--magenta);
-      box-shadow: var(--shadow-soft);
-    }
-
-    /* ============================================================
-     RESET MODAL
-     ============================================================ */
-
-    .tgw-modal {
-      position: fixed;
-      inset: 0;
-      z-index: 999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      background: rgba(21, 34, 53, 0.42);
-      opacity: 0;
-      pointer-events: none;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      transition: opacity 0.25s ease;
-    }
-
-    html[data-theme="night"] .tgw-modal {
-      background: rgba(3, 10, 20, 0.76);
-    }
-
-    .tgw-modal.visible {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .tgw-modal-card {
-      width: min(400px, 100%);
-      padding: 30px;
-      border: 1px solid var(--line-strong);
-      border-radius: 18px;
-      background: var(--surface);
-      box-shadow: var(--shadow);
-      text-align: center;
-      transform: translateY(18px) scale(0.96);
-      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .tgw-modal.visible .tgw-modal-card {
-      transform: translateY(0) scale(1);
-    }
-
-    html[data-theme="night"] .tgw-modal-card {
-      border-color: rgba(255, 76, 158, 0.28);
-      box-shadow:
-        0 20px 60px rgba(0, 0, 0, 0.48),
-        0 0 28px rgba(255, 76, 158, 0.08);
-    }
-
-    .tgw-modal-icon {
-      display: flex;
-      width: 48px;
-      height: 48px;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 16px;
-      border: 1px solid rgba(185, 55, 118, 0.26);
-      border-radius: 50%;
-      background: var(--magenta-soft);
-      color: var(--magenta);
-    }
-
-    .tgw-modal-title {
-      margin-bottom: 8px;
-      color: var(--ink);
-      font-size: 22px;
-      font-weight: 750;
-      letter-spacing: -0.02em;
-    }
-
-    .tgw-modal-body {
-      margin-bottom: 24px;
-      color: var(--ink-soft);
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
-    .tgw-modal-actions {
-      display: flex;
-      gap: 10px;
-    }
-
-    .btn-modal-cancel,
-    .btn-modal-confirm {
-      flex: 1;
-      min-height: 44px;
-      padding: 0 16px;
-      border-radius: 11px;
-      font-weight: 700;
-      cursor: pointer;
-      transition:
-        border-color 0.18s ease,
-        background-color 0.18s ease,
-        color 0.18s ease,
-        transform 0.18s ease,
-        box-shadow 0.18s ease;
-    }
-
-    .btn-modal-cancel {
-      border: 1px solid var(--line-strong);
-      background: transparent;
-      color: var(--ink-soft);
-    }
-
-    .btn-modal-cancel:hover {
-      border-color: var(--cyan);
-      background: var(--cyan-soft);
-      color: var(--cyan);
-    }
-
-    .btn-modal-confirm {
-      border: 1px solid var(--magenta);
-      background: var(--magenta);
-      color: #ffffff;
-    }
-
-    html[data-theme="night"] .btn-modal-confirm {
-      color: #18000c;
-    }
-
-    .btn-modal-confirm:hover {
-      box-shadow: 0 8px 22px rgba(185, 55, 118, 0.22);
-      transform: translateY(-1px);
-    }
-
-    /* ============================================================
-     TOAST
-     ============================================================ */
-
-    #toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      z-index: 999;
-      max-width: calc(100vw - 32px);
-      padding: 10px 16px;
-      border: 1px solid var(--line-strong);
-      border-radius: 999px;
-      background: var(--surface);
-      color: var(--ink-soft);
-      box-shadow: var(--shadow-soft);
-      font-size: 13px;
-      opacity: 0;
-      pointer-events: none;
-      transform: translate(-50%, 8px);
-      transition:
-        opacity 0.2s ease,
-        transform 0.2s ease;
-    }
-
-    #toast.show {
-      opacity: 1;
-      transform: translate(-50%, 0);
-    }
-
-    /* ============================================================
-     NIGHT-MODE BUTTON EDGES
-     ============================================================ */
-
-    html[data-theme="night"] button:not(.scenario-dot) {
-      border-width: 1.5px;
-    }
-
-    /* ============================================================
-     THEME TRANSITIONS
-     ============================================================ */
-
-    html.theme-changing,
-    html.theme-changing body,
-    html.theme-changing #launch,
-    html.theme-changing #launch::before,
-    html.theme-changing .launch-video,
-    html.theme-changing .launch-card,
-    html.theme-changing .launch-card *,
-    html.theme-changing #finish,
-    html.theme-changing #finish::before,
-    html.theme-changing .finish-card,
-    html.theme-changing .finish-card *,
-    html.theme-changing #game,
-    html.theme-changing #hdr,
-    html.theme-changing #scenario-card,
-    html.theme-changing #support-panel,
-    html.theme-changing .scenario-footer,
-    html.theme-changing .support-button,
-    html.theme-changing .btn-complete,
-    html.theme-changing .btn-nav,
-    html.theme-changing .btn-reset {
-      transition:
-        background-color 280ms cubic-bezier(0.4, 0, 0.2, 1),
-        color 280ms cubic-bezier(0.4, 0, 0.2, 1),
-        border-color 280ms cubic-bezier(0.4, 0, 0.2, 1),
-        box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1),
-        opacity 280ms cubic-bezier(0.4, 0, 0.2, 1),
-        filter 280ms cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* ============================================================
-     MOTION
-     ============================================================ */
-
-    @keyframes signal-flow {
-      from {
-        background-position: 0% 50%;
-      }
-
-      to {
-        background-position: 300% 50%;
-      }
-    }
-
-    @keyframes card-in {
-      from {
-        opacity: 0;
-        transform: translateY(8px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    /* ============================================================
-     RESPONSIVE
-     ============================================================ */
-
-    @media (max-width: 700px) {
-      #hdr {
-        gap: 8px;
-        padding: 0 12px;
-      }
-      .header-right { gap: 7px; }
-
-      .hdr-logo {
-        font-size: 0.9rem;
-        letter-spacing: 0.08em;
-      }
-
-      #progress-label {
-        font-size: 10px;
-        letter-spacing: 0.08em;
-      }
-
-      #main {
-        width: min(calc(100% - 20px), 920px);
-        padding: 22px 0 40px;
-      }
-
-      #scenario-card {
-        padding: 26px 22px;
-      }
-
-      .scenario-question {
-        font-size: 25px;
-      }
-
-      .support-switch {
-        grid-template-columns: 1fr;
-      }
-
-      .support-button {
-        padding: 0 10px;
-        font-size: 13px;
-      }
-
-      .scenario-footer {
-        grid-template-columns: 1fr;
-        gap: 14px;
-      }
-
-      .btn-complete {
-        width: 100%;
-      }
-
-      .nav-actions {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-      }
-
-      .btn-nav {
-        padding: 0 8px;
-      }
-
-      #launch {
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        background-position: center;
-      }
-
-      .launch-card,
-      .finish-card {
-        width: min(100%, 480px);
-        padding: 28px 24px;
-      }
-
-      #scenario-dots {
-        justify-content: flex-start;
-      }
-    }
-
-    @media (max-width: 380px) {
-      #progress-label { display: none; }
-    }
-
-    @media (max-width: 520px) {
-      /* Compact counters keep the centred title away from the mobile menu. */
-      #progress-label { font-size: 10px; letter-spacing: .02em; }
-      .progress-word, .progress-join { display: none; }
-      #hdr-current::after { content: " / "; white-space: pre; }
-    }
-
-    @media (max-width: 480px) {
-      .launch-card,
-      .finish-card {
-        padding: 32px 24px;
-      }
-
-      .hdr-logo span {
-        display: none;
-      }
-    }
-
-    /* ============================================================
-       FUTURE TRANSMISSION — GAMEPLAY IDENTITY PASS
-       This game owns these styles; the shared Arcade header and game state
-       stay unchanged. Existing portal poster is reused, not duplicated.
-       ============================================================ */
-    :root {
-      --tgw-stage: #e9eff7;
-      --tgw-glass: rgba(251, 253, 255, .94);
-      --tgw-panel: rgba(248, 250, 255, .94);
-      --tgw-panel-edge: #bfcfe1;
-      --tgw-console: linear-gradient(135deg, rgba(233, 243, 251, .98), rgba(246, 237, 249, .97));
-      --tgw-module: linear-gradient(150deg, #fff, #f6f9ff);
-      --tgw-shadow: 0 28px 70px rgba(22, 40, 78, .22), 0 3px 12px rgba(22, 40, 78, .08);
-      --tgw-hero-text: #172137;
-      --tgw-nav-text: #30435f;
-    }
-    html[data-theme="night"] {
-      --tgw-stage: #060e23;
-      --tgw-glass: rgba(12, 22, 43, .96);
-      --tgw-panel: rgba(13, 26, 47, .96);
-      --tgw-panel-edge: rgba(92, 166, 199, .40);
-      --tgw-console: linear-gradient(130deg, rgba(12, 30, 53, .98), rgba(30, 19, 49, .98));
-      --tgw-module: linear-gradient(145deg, #172e48, #18233b);
-      --tgw-shadow: 0 30px 80px rgba(0, 0, 0, .52), 0 0 35px rgba(0, 216, 236, .07);
-      --tgw-hero-text: #edf5ff;
-      --tgw-nav-text: #d1e5f4;
-    }
-    #game {
-      position: relative;
-      isolation: isolate;
-      background: var(--tgw-stage);
-    }
-    /* Same world as the opening video, without moving scenery behind text. */
-    #game::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      background:
-        radial-gradient(ellipse 67% 88% at 50% 40%,
-          rgba(239, 245, 251, .96) 0%,
-          rgba(236, 242, 251, .90) 50%,
-          rgba(229, 237, 249, .63) 100%),
-        url("../tomorrow-got-weird/portal-poster.png") center center / cover no-repeat;
-    }
-    html[data-theme="night"] #game::before {
-      background:
-        radial-gradient(ellipse 66% 88% at 50% 40%,
-          rgba(5, 13, 29, .94) 0%,
-          rgba(5, 13, 29, .84) 52%,
-          rgba(5, 13, 29, .58) 100%),
-        url("../tomorrow-got-weird/portal-poster.png") center center / cover no-repeat;
-    }
-    #game > #main { position: relative; z-index: 1; }
-    #main {
-      width: min(1040px, calc(100% - 44px));
-      padding: clamp(28px, 4.8vh, 48px) 0 60px;
-    }
-    #scenario-card {
-      isolation: isolate;
-      min-height: clamp(320px, 38vh, 420px);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: clamp(34px, 4.7vw, 64px);
-      border: 1px solid var(--tgw-panel-edge);
-      border-radius: 26px;
-      background: linear-gradient(132deg, var(--tgw-glass), var(--tgw-panel));
-      box-shadow: var(--tgw-shadow), inset 0 1px 0 rgba(255,255,255,.85);
-    }
-    html[data-theme="night"] #scenario-card {
-      box-shadow: var(--tgw-shadow), inset 0 1px 0 rgba(183, 242, 252, .12);
-    }
-    #scenario-card::before {
-      height: 5px;
-      box-shadow: 0 0 14px rgba(22, 170, 196, .29);
-    }
-    /* Quiet side-window artwork connects the scenario to the cover. */
-    #scenario-card::after {
-      content: "";
-      position: absolute;
-      z-index: -1;
-      inset: 5px 0 0 49%;
-      pointer-events: none;
-      background: url("../tomorrow-got-weird/portal-poster.png") 63% center / cover no-repeat;
-      opacity: .16;
-      -webkit-mask-image: linear-gradient(90deg, transparent, #000 77%);
-      mask-image: linear-gradient(90deg, transparent, #000 77%);
-    }
-    html[data-theme="night"] #scenario-card::after { opacity: .28; }
-    .scenario-meta {
-      position: relative;
-      z-index: 1;
-      margin-bottom: 28px;
-      gap: 16px;
-    }
-    .scenario-emoji {
-      position: relative;
-      width: 62px;
-      height: 62px;
-      border: 1px solid rgba(8, 127, 152, .28);
-      border-radius: 20px;
-      background: linear-gradient(145deg, rgba(196, 232, 244, .89), rgba(247, 216, 242, .75));
-      box-shadow: 0 9px 23px rgba(24, 75, 112, .12), inset 0 1px 0 rgba(255,255,255,.85);
-      font-size: 29px;
-      transform: rotate(-4deg);
-    }
-    html[data-theme="night"] .scenario-emoji {
-      border-color: rgba(0,216,236,.35);
-      background: linear-gradient(145deg, rgba(15, 90, 121, .75), rgba(85, 28, 107, .65));
-      box-shadow: 0 9px 22px rgba(0,0,0,.24), inset 0 1px 0 rgba(204,248,255,.13);
-    }
-    .scenario-identity { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
-    .scenario-channel {
-      color: var(--magenta);
-      font-family: var(--font-meta);
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-    }
-    .scenario-number {
-      color: var(--cyan);
-      font-size: 12px;
-      letter-spacing: .15em;
-    }
-    .scenario-state { margin-left: auto; }
-    .scenario-question {
-      position: relative;
-      z-index: 1;
-      max-width: 36ch;
-      color: var(--tgw-hero-text);
-      font-size: clamp(29px, 3vw, 43px);
-      font-weight: 760;
-      letter-spacing: -.038em;
-      line-height: 1.18;
-      text-wrap: balance;
-    }
-    .scenario-corner {
-      position: absolute;
-      right: 30px;
-      bottom: 19px;
-      color: var(--ink-faint);
-      font: 700 10px/1.3 var(--font-meta);
-      letter-spacing: .16em;
-      opacity: .7;
-    }
-
-    /* The three conversational mechanics are actual choices, not anonymous tabs. */
-    .scenario-console {
-      position: relative;
-      margin-top: 16px;
-      padding: 19px 20px 20px;
-      border: 1px solid var(--tgw-panel-edge);
-      border-radius: 22px;
-      background: var(--tgw-console);
-      box-shadow: 0 11px 30px rgba(25, 49, 88, .11);
-    }
-    html[data-theme="night"] .scenario-console {
-      box-shadow: 0 14px 34px rgba(0,0,0,.3), inset 0 1px 0 rgba(163,229,255,.07);
-    }
-    .console-heading {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 16px;
-      margin: 0 3px 12px;
-    }
-    .console-heading > span:first-child {
-      color: var(--ink);
-      font: 800 10px/1.4 var(--font-meta);
-      letter-spacing: .19em;
-      text-transform: uppercase;
-    }
-    .console-caption {
-      color: var(--ink-soft);
-      font-size: 12px;
-      line-height: 1.4;
-    }
-    .support-switch { margin-top: 0; gap: 12px; }
-    .support-button {
-      --module-color: var(--cyan);
-      position: relative;
-      justify-content: flex-start;
-      gap: 12px;
-      min-height: 80px;
-      padding: 13px 16px;
-      border: 1px solid var(--tgw-panel-edge);
-      border-radius: 15px;
-      background: var(--tgw-module);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.66), 0 3px 7px rgba(22,46,76,.05);
-      color: var(--ink);
-      text-align: left;
-      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
-    }
-    html[data-theme="night"] .support-button {
-      box-shadow: inset 0 1px 0 rgba(199,233,255,.08);
-    }
-    #btn-survival { --module-color: var(--amber); }
-    #btn-weirder { --module-color: var(--magenta); }
-    .support-button::before {
-      content: "";
-      position: absolute;
-      top: 13px;
-      bottom: 13px;
-      left: 0;
-      width: 3px;
-      border-radius: 0 5px 5px 0;
-      background: var(--module-color);
-      opacity: .78;
-    }
-    .support-glyph {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex: 0 0 37px;
-      width: 37px;
-      height: 37px;
-      border: 1px solid currentColor;
-      border-radius: 11px;
-      color: var(--module-color);
-      background: rgba(133, 172, 207, .08);
-      font-size: 21px;
-      line-height: 1;
-    }
-    .support-copy { flex: 1; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
-    .support-copy strong { color: var(--ink); font-size: 14px; font-weight: 750; line-height: 1.15; }
-    .support-copy small { color: var(--ink-soft); font-size: 11px; font-weight: 500; line-height: 1.35; }
-    .support-arrow { color: var(--module-color); font-size: 17px; opacity: .68; }
-    .scenario-console #btn-missions:is(:hover, [aria-pressed="true"]),
-    .scenario-console #btn-survival:is(:hover, [aria-pressed="true"]),
-    .scenario-console #btn-weirder:is(:hover, [aria-pressed="true"]) {
-      transform: translateY(-2px);
-      border-color: var(--module-color);
-      background: var(--tgw-module);
-      box-shadow: 0 0 0 2px color-mix(in srgb, var(--module-color) 17%, transparent), 0 10px 23px rgba(22, 46, 76, .14);
-    }
-    .support-button[aria-pressed="true"] .support-arrow {
-      transform: rotate(90deg);
-      opacity: 1;
-    }
-    html[data-theme="night"] .scenario-console #btn-missions:is(:hover, [aria-pressed="true"]),
-    html[data-theme="night"] .scenario-console #btn-survival:is(:hover, [aria-pressed="true"]),
-    html[data-theme="night"] .scenario-console #btn-weirder:is(:hover, [aria-pressed="true"]) {
-      background: var(--tgw-module);
-      box-shadow: 0 0 0 2px color-mix(in srgb, var(--module-color) 27%, transparent), 0 12px 26px rgba(0,0,0,.32);
-    }
-    #support-panel {
-      margin: 16px 0 0;
-      padding: 22px 25px;
-      border: 1px solid var(--tgw-panel-edge);
-      border-left: 4px solid var(--cyan);
-      border-radius: 14px;
-      background: var(--tgw-panel);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.15);
-      animation: tgw-support-enter 210ms ease-out both;
-    }
-    #support-panel[data-mode="survival"] { border-left-color: var(--amber); }
-    #support-panel[data-mode="weirder"] { border-left-color: var(--magenta); }
-    .support-panel-header { display: flex; flex-direction: column; gap: 5px; margin-bottom: 13px; }
-    .support-panel-header span {
-      color: var(--ink-faint);
-      font: 700 10px/1.35 var(--font-meta);
-      letter-spacing: .14em;
-      text-transform: uppercase;
-    }
-    .support-panel-header strong {
-      color: var(--ink);
-      font-size: 17px;
-      font-weight: 750;
-    }
-    #support-panel[data-mode="survival"] .support-panel-header strong { color: var(--amber); }
-    #support-panel[data-mode="weirder"] .support-panel-header strong { color: var(--magenta); }
-    .prompt-list { gap: 10px; }
-    .prompt-list li { padding-left: 20px; font-size: 15px; line-height: 1.55; }
-    .support-text { font-size: 16px; color: var(--ink); line-height: 1.65; }
-
-    /* The progression rail belongs to the same imagined console. */
-    .scenario-footer {
-      margin-top: 17px;
-      padding: 16px 20px;
-      border-color: var(--tgw-panel-edge);
-      border-radius: 20px;
-      background: var(--tgw-panel);
-      box-shadow: 0 9px 25px rgba(25, 49, 88, .10);
-    }
-    html[data-theme="night"] .scenario-footer {
-      box-shadow: 0 12px 30px rgba(0,0,0,.3);
-    }
-    #scenario-dots {
-      background: linear-gradient(90deg, var(--line-strong), var(--line-strong)) center / 100% 1px no-repeat;
-    }
-    .scenario-dot {
-      width: 11px;
-      height: 11px;
-      flex-basis: 11px;
-      border-width: 1.5px;
-      background: var(--tgw-panel);
-    }
-    .scenario-dot.current {
-      box-shadow: 0 0 0 4px var(--cyan-soft), 0 0 13px var(--cyan);
-    }
-    .scenario-dot.current.survived {
-      box-shadow: 0 0 0 4px var(--cyan-soft), 0 0 12px var(--green);
-    }
-    .btn-nav {
-      color: var(--tgw-nav-text);
-      background: var(--tgw-module);
-      border-color: var(--tgw-panel-edge);
-      border-radius: 10px;
-      min-height: 42px;
-    }
-    .btn-complete:not(.done) {
-      background: var(--tgw-module);
-      border-color: var(--tgw-panel-edge);
-      color: var(--tgw-nav-text);
-    }
-    .btn-complete.done { box-shadow: 0 7px 22px rgba(8, 121, 87, .21); }
-    .btn-reset { color: var(--ink-soft); }
-    @keyframes tgw-support-enter {
-      from { opacity: 0; transform: translateY(-5px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @media (max-width: 850px) {
-      #main { width: min(100% - 28px, 1040px); padding-top: 25px; }
-      .scenario-question { font-size: clamp(25px, 4.3vw, 36px); }
-      .support-button { gap: 9px; padding: 12px; }
-      .support-glyph { flex-basis: 32px; width: 32px; height: 32px; }
-      .support-copy small { font-size: 10px; }
-    }
-    @media (max-width: 700px) {
-      #game::before {
-        background:
-          linear-gradient(rgba(239,245,251,.90), rgba(235,242,251,.90)),
-          url("../tomorrow-got-weird/portal-poster.png") center / cover no-repeat;
-      }
-      html[data-theme="night"] #game::before {
-        background:
-          linear-gradient(rgba(5,13,29,.85), rgba(5,13,29,.91)),
-          url("../tomorrow-got-weird/portal-poster.png") center / cover no-repeat;
-      }
-      #main { width: calc(100% - 24px); padding: 18px 0 38px; }
-      #scenario-card { min-height: 285px; padding: 28px 22px 34px; border-radius: 20px; }
-      .scenario-meta { margin-bottom: 22px; gap: 12px; }
-      .scenario-emoji { width: 49px; height: 49px; font-size: 24px; border-radius: 15px; }
-      .scenario-question { font-size: clamp(24px, 5.4vw, 32px); line-height: 1.22; }
-      .scenario-corner { right: 20px; bottom: 11px; font-size: 8px; }
-      .scenario-console { padding: 15px; margin-top: 12px; }
-      .support-switch { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-      .support-button { flex-direction: column; align-items: flex-start; min-height: 103px; padding: 11px; gap: 7px; }
-      .support-copy { gap: 4px; }
-      .support-copy strong { font-size: 12px; }
-      .support-copy small { font-size: 10px; }
-      .support-arrow { display: none; }
-      .scenario-footer { gap: 13px; margin-top: 12px; }
-      .console-caption { font-size: 11px; }
-      #support-panel { padding: 18px; }
-    }
-    @media (max-width: 600px) {
-      .console-heading { display: block; }
-      .console-caption { display: block; margin-top: 5px; }
-      .support-switch { grid-template-columns: 1fr; }
-      .support-button {
-        flex-direction: row;
-        align-items: center;
-        min-height: 67px;
-        gap: 12px;
-        padding: 9px 13px;
-      }
-      .support-copy strong { font-size: 14px; }
-      .support-copy small { font-size: 11px; }
-      .support-arrow { display: block; }
-      .scenario-corner { opacity: .35; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      #support-panel { animation: none; }
-      .support-button, .scenario-dot { transition: none; }
-      .support-button:hover { transform: none; }
-    }
-
-    /* ============================================================
-     REDUCED MOTION
-     ============================================================ */
-
-    @media (prefers-reduced-motion: reduce) {
-      #scenario-card::before {
-        background-position: 50% 50%;
-        animation: none;
-      }
-    }
-    /* ============================================================
-       PROTO · PORTAL-TO-ARRIVAL EXPERIMENT
-       Only affects the isolated experimental game's entry sequence.
-       ============================================================ */
-    #launch {
-      background: #061425;
-      isolation: isolate;
-    }
-    /* No atmospheric darkening layer: evaluate the footage unshaded. */
-    #launch::before,
-    html[data-theme="light"] #launch::before,
-    html[data-theme="night"] #launch::before {
-      display: none;
-    }
-    #launch .launch-video {
-      transform: scale(1);
-      transform-origin: 50% 50%;
+      transform-origin: center;
       filter: none;
-      transition:
-        transform 1200ms cubic-bezier(.50, .02, .90, .48),
-        filter 1200ms ease-in;
+      transition: transform 1200ms cubic-bezier(.50, .02, .90, .48),
+                  filter 1200ms ease-in;
       will-change: transform;
     }
     #launch.is-crossing .launch-video {
@@ -1886,1550 +69,561 @@
       content: "";
       position: absolute;
       inset: 0;
-      z-index: 10;
+      z-index: 8;
+      background: radial-gradient(circle at center, #fff 0%, #d9f5ff 42%, #99bfff 100%);
       pointer-events: none;
       opacity: 0;
-      background: radial-gradient(circle at center, #ffffff 0%, #d9f5ff 42%, #99bfff 100%);
     }
-    #launch.is-crossing::after {
-      animation: proto-portal-flash 1200ms ease-in both;
-    }
-    #launch .launch-card.proto-launch {
-      width: min(720px, 100%);
-      padding: 36px 20px;
-      border: 0;
-      border-radius: 0;
-      background: transparent;
-      box-shadow: none;
-      backdrop-filter: none;
-      -webkit-backdrop-filter: none;
-      text-align: center;
-      text-shadow: 0 3px 32px rgba(0, 9, 30, .7);
-    }
-    #launch .proto-launch .launch-kicker {
-      margin-bottom: 20px;
-      color: #bbecff;
-      font-size: 12px;
-      letter-spacing: .24em;
-    }
-    #launch .proto-launch .launch-title {
-      margin: 0 0 16px;
-      color: #fff;
-      font-size: clamp(52px, 7.6vw, 112px);
-      line-height: .92;
-      letter-spacing: -.064em;
-      text-wrap: balance;
-    }
-    #launch .proto-launch .launch-title > span:not(.proto-wordmark) {
-      color: #ff67b5;
-    }
-    #launch .proto-launch .launch-title .proto-wordmark {
-      color: #c6eaff;
-      text-shadow: none;
-      font-size: .14em;
-      letter-spacing: .28em;
-      margin-top: 1.1em;
-    }
-    #launch .proto-launch .launch-copy {
-      max-width: none;
-      margin: 0 0 30px;
-      color: #ebf4ff;
-      font-size: clamp(15px, 1.6vw, 19px);
-      line-height: 1.5;
-    }
-    #launch .proto-launch #launch-button {
-      min-height: 56px;
-      padding: 0 30px;
-      border: 1px solid rgba(173, 244, 255, .8);
-      border-radius: 100px;
-      background: #e7faff;
-      color: #10314c;
-      font-size: 16px;
-      text-shadow: none;
-      box-shadow: 0 6px 36px rgba(22, 198, 248, .25);
-    }
-    #launch .proto-launch #launch-button:hover {
-      transform: translateY(-2px) scale(1.025);
-      box-shadow: 0 8px 46px rgba(22, 198, 248, .42);
-    }
-    #launch .proto-launch #launch-button:disabled {
-      cursor: default;
-      transform: none;
-      opacity: 1;
-    }
-    #launch.is-igniting .proto-launch,
-    #launch.is-crossing .proto-launch {
-      animation: proto-portal-copy-out 330ms ease-in both;
-      pointer-events: none;
-    }
-    @keyframes proto-portal-copy-out {
-      to { opacity: 0; transform: scale(.91); filter: blur(8px); }
-    }
-    @keyframes proto-portal-flash {
+    #launch.is-crossing::after { animation: portal-flash 1200ms ease-in both; }
+    @keyframes portal-flash {
       0%, 52% { opacity: 0; }
       78% { opacity: .18; }
       100% { opacity: 1; }
     }
-    #proto-arrival {
+    .launch-content {
+      position: relative;
+      z-index: 2;
+      width: min(760px, 100%);
+      text-align: center;
+      text-shadow: 0 4px 34px rgba(0, 7, 26, .82);
+    }
+    .launch-kicker, .eyebrow {
+      color: var(--ice);
+      font-size: 12px;
+      font-weight: 750;
+      text-transform: uppercase;
+      letter-spacing: .23em;
+    }
+    .launch-content h1 {
+      font-size: clamp(54px, 8vw, 114px);
+      line-height: .92;
+      letter-spacing: -.065em;
+      margin: 24px 0 16px;
+      text-wrap: balance;
+    }
+    .launch-content h1 span { color: #ff67b5; }
+    .proto-tag {
+      display: block;
+      margin-top: 1.3em;
+      color: var(--ice) !important;
+      font-size: .14em;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+    }
+    .launch-content > p:last-of-type {
+      color: #f1f7ff;
+      font-size: clamp(16px, 2vw, 20px);
+      line-height: 1.5;
+      margin: 0 0 30px;
+    }
+    .cta {
+      border: 1px solid rgba(196, 247, 255, .9);
+      border-radius: 100px;
+      padding: 16px 30px;
+      min-height: 54px;
+      font-size: 16px;
+      font-weight: 750;
+      color: #092b44;
+      background: #e7faff;
+      box-shadow: 0 8px 35px rgba(22, 198, 248, .22);
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+    .cta:hover { transform: translateY(-2px); box-shadow: 0 10px 45px rgba(22, 198, 248, .45); }
+    .cta:disabled { cursor: default; transform: none; opacity: .8; }
+    #launch.is-igniting .launch-content,
+    #launch.is-crossing .launch-content {
+      animation: launch-copy-out 330ms ease-in both;
+      pointer-events: none;
+    }
+    @keyframes launch-copy-out {
+      to { opacity: 0; transform: scale(.91); filter: blur(8px); }
+    }
+
+    /* Both clinic states occupy the SAME physical place. No different image cut. */
+    #scene {
+      z-index: 10;
+      background: #b5c9e6 url("./bioluminescent_ai_core_atrium.png") center center / cover no-repeat;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      animation: scene-reveal 850ms ease-out both;
+    }
+    @keyframes scene-reveal { from { opacity: 0; } to { opacity: 1; } }
+    #scene::before {
+      content: "";
       position: fixed;
       inset: 0;
-      z-index: 1100;
-      display: grid;
-      place-items: center;
-      padding: 32px;
-      text-align: center;
-      color: #fff;
-      background:
-        linear-gradient(125deg, rgba(7, 15, 47, .91), rgba(46, 18, 79, .64)),
-        url("../tomorrow-got-weird/portal-poster.png") center center / cover no-repeat;
+      z-index: 0;
       pointer-events: none;
-      animation: proto-arrival-in-out 1350ms ease both;
+      background: linear-gradient(180deg, rgba(4, 15, 37, .36), transparent 18%, transparent 42%, rgba(5, 11, 38, .18) 67%, rgba(5, 12, 36, .84) 100%);
     }
-    #proto-arrival[hidden] { display: none; }
-    .proto-arrival-content { max-width: 880px; text-shadow: 0 4px 38px rgba(0, 0, 0, .6); }
-    .proto-arrival-kicker {
-      margin: 0 0 14px;
-      font-family: var(--font-meta);
+    #hdr {
+      position: relative;
+      z-index: 8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px clamp(18px, 3vw, 48px);
+      min-height: 72px;
+    }
+    #hdr .header-left, #hdr .header-right { display: flex; align-items: center; }
+    #hdr .header-center { pointer-events: none; text-align: center; }
+    #hdr .hdr-logo {
+      font-size: clamp(13px, 1.8vw, 18px);
       font-weight: 750;
-      color: #8ce8fb;
-      letter-spacing: .23em;
-      text-transform: uppercase;
-      font-size: 12px;
+      letter-spacing: -.035em;
+      text-shadow: 0 2px 18px rgba(0, 0, 0, .65);
     }
-    #proto-arrival h2 {
-      font-family: var(--font-body);
-      font-size: clamp(44px, 8vw, 100px);
-      line-height: .97;
-      letter-spacing: -.065em;
-      margin: 0 0 18px;
+    #hdr .hdr-logo span { color: #ffd8f0; }
+    #hdr .hdr-logo small { color: var(--ice); font-size: .64em; letter-spacing: .12em; }
+    #scene-main {
+      position: relative;
+      z-index: 1;
+      width: min(1260px, 100%);
+      min-height: calc(100dvh - 72px);
+      margin: 0 auto;
+      padding: clamp(16px, 3vw, 45px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 28px;
     }
-    #proto-arrival h2 span { color: #ff86c3; }
-    #proto-arrival .proto-arrival-content > p:last-child {
-      font-size: clamp(15px, 2vw, 20px);
+    .location-meta {
+      align-self: start;
+      text-shadow: 0 2px 20px rgba(0, 6, 22, .85);
+    }
+    .location-meta .eyebrow { margin: 0 0 12px; }
+    .location-meta h2 {
       margin: 0;
-      color: #e9f5ff;
+      font-weight: 650;
+      font-size: clamp(26px, 3.4vw, 56px);
+      line-height: 1.04;
+      letter-spacing: -.045em;
+      text-wrap: balance;
     }
-    @keyframes proto-arrival-in-out {
-      0% { opacity: 0; }
-      22%, 65% { opacity: 1; }
-      100% { opacity: 0; }
+    .scene-bottom { margin-top: auto; }
+    .arrival-bottom {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 26px;
     }
-    @media (max-width: 700px) {
-      #launch .launch-card.proto-launch { padding: 24px 0; }
-      #launch .proto-launch .launch-kicker { font-size: 10px; letter-spacing: .16em; }
-      #launch .proto-launch .launch-title { font-size: clamp(45px, 11vw, 76px); }
-      #launch .proto-launch .launch-copy { margin-bottom: 24px; }
+    .arrival-message {
+      max-width: 620px;
+      padding: 20px 22px;
+      background: linear-gradient(90deg, rgba(8, 21, 52, .76), rgba(8, 21, 52, .22));
+      border-left: 2px solid #b4efff;
+      border-radius: 0 18px 18px 0;
+      backdrop-filter: blur(8px);
+    }
+    .arrival-message strong {
+      display: block;
+      font-size: clamp(22px, 2.6vw, 36px);
+      line-height: 1.16;
+      letter-spacing: -.04em;
+      margin-top: 9px;
+    }
+    .arrival-message p { margin: 10px 0 0; font-size: clamp(14px, 1.3vw, 17px); line-height: 1.5; }
+    .encounter-bottom {
+      width: 100%;
+      display: grid;
+      gap: 18px;
+      padding: 18px clamp(16px, 2.6vw, 30px) 20px;
+      background: linear-gradient(140deg, rgba(7, 15, 44, .85), rgba(20, 23, 63, .81));
+      border: 1px solid rgba(214, 243, 255, .55);
+      border-radius: 25px;
+      box-shadow: 0 20px 65px rgba(3, 7, 24, .28);
+      backdrop-filter: blur(18px);
+    }
+    .transmission-label {
+      margin: 0;
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: .20em;
+      text-transform: uppercase;
+      color: #bdefff;
+    }
+    .transmission-line {
+      margin: 0;
+      font-size: clamp(18px, 2.25vw, 28px);
+      line-height: 1.36;
+      letter-spacing: -.025em;
+      text-wrap: pretty;
+      max-width: 920px;
+    }
+    .upgrade-options {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .upgrade-option {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-start;
+      justify-content: center;
+      min-height: 90px;
+      padding: 14px 16px;
+      border: 1px solid rgba(203, 235, 255, .45);
+      border-radius: 16px;
+      text-align: left;
+      background: rgba(224, 241, 255, .09);
+      color: #f5faff;
+      font-weight: 650;
+      font-size: clamp(13px, 1.25vw, 16px);
+      transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
+    }
+    .upgrade-option .upgrade-symbol { color: #ffb9e4; font-size: 21px; }
+    .upgrade-option:hover { background: rgba(212, 239, 255, .22); transform: translateY(-2px); }
+    .upgrade-option[aria-pressed="true"] {
+      border-color: #f8c8f0;
+      background: rgba(154, 80, 201, .41);
+      box-shadow: inset 0 0 0 1px rgba(255, 217, 247, .5);
+    }
+    .encounter-instruction {
+      margin: 0;
+      color: #d5edff;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+    .feedback { color: #ffe0f5; font-weight: 650; }
+    .encounter-utilities { display: flex; justify-content: flex-end; gap: 18px; align-items: center; }
+    .quiet-action {
+      border: 0;
+      padding: 6px 4px;
+      background: transparent;
+      color: #e4f6ff;
+      font-size: 13px;
+      font-weight: 650;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+    .quiet-action:hover { color: #ffb8e5; }
+    .custom-form {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .custom-form label { font-size: 13px; }
+    .custom-form input {
+      flex: 1;
+      min-width: 165px;
+      max-width: 420px;
+      color: #0b1b32;
+      background: #f0faff;
+      padding: 10px 12px;
+      border: 1px solid #f7d7fa;
+      border-radius: 10px;
+    }
+    .custom-form button {
+      padding: 10px 15px;
+      border: 1px solid #d1f3ff;
+      background: #dffaff;
+      color: #092f4a;
+      font-size: 13px;
+      font-weight: 750;
+      border-radius: 10px;
+    }
+    #atlas-session-panel-root { position: relative; z-index: 80; }
+    @media (max-width: 760px) {
+      #scene-main { padding: 18px; min-height: calc(100dvh - 64px); gap: 20px; }
+      #hdr { min-height: 64px; padding: 10px 16px; }
+      #hdr .header-center { display: none; }
+      .arrival-bottom { flex-direction: column; align-items: stretch; gap: 14px; }
+      .arrival-bottom .cta { align-self: flex-start; }
+      .upgrade-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .encounter-bottom { gap: 12px; padding: 16px; }
+      .upgrade-option { min-height: 72px; }
+      .location-meta h2 { font-size: clamp(25px, 7vw, 35px); }
+    }
+    @media (max-width: 400px) {
+      .launch-content h1 { font-size: 48px; }
+      .upgrade-option { padding: 11px 12px; }
+      .upgrade-option .upgrade-symbol { font-size: 17px; }
     }
     @media (prefers-reduced-motion: reduce) {
-      #launch .launch-video, #launch.is-crossing .launch-video {
-        transition: none;
-        transform: none;
-        filter: none;
-      }
-      #launch.is-crossing .proto-launch, #launch.is-crossing::after, #proto-arrival {
-        animation: none;
-      }
-      #launch.is-crossing .proto-launch { opacity: 0; }
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+      .launch-video, #launch.is-crossing .launch-video { transform: none; filter: none; }
+      #launch.is-crossing::after { opacity: 0; }
     }
-    /* Prototype labels only; keep the original TGW layout and artwork. */
-    .launch-title .proto-wordmark { display: block; margin-top: .55em; color: var(--ink-soft); font-family: var(--font-meta); font-size: .24em; font-weight: 750; letter-spacing: .17em; }
-    .hdr-logo .proto-header-tag { margin-left: .55em; color: var(--magenta); font-size: .68em; letter-spacing: .06em; }
-    @media (max-width: 680px) { .hdr-logo .proto-header-tag { font-size: .57em; margin-left: .2em; } }
   </style>
 </head>
-
 <body data-atlas-world="arcade" data-atlas-surface="content">
-
-  <!-- ============================================================
-     LAUNCH SCREEN
-     ============================================================ -->
   <div id="launch">
-
-    <!-- Uses the local-only test clip when present; otherwise falls back to
-         the existing TGW portal. Never bundle the watermarked test asset. -->
     <video id="proto-portal-video" class="launch-video" autoplay muted loop playsinline preload="auto"
       poster="../tomorrow-got-weird/portal-poster.png" aria-hidden="true"></video>
-
-    <section class="launch-card proto-launch" aria-labelledby="launch-title">
-      <p class="launch-kicker">25 impossible futures · an Atlas experiment</p>
-      <h1 class="launch-title" id="launch-title">Tomorrow <span>Got Weird</span><span class="proto-wordmark">— PROTO</span></h1>
-      <p class="launch-copy">One portal. Countless ways tomorrow could go wrong.</p>
-      <button class="btn-launch" id="launch-button" type="button" onclick="startGame()">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-          <path d="M3 2l9 5-9 5V2z" fill="currentColor" />
-        </svg>
-        Enter Tomorrow
-      </button>
+    <section class="launch-content" aria-labelledby="launch-title">
+      <p class="launch-kicker">Atlas Arcade · An experiment in tomorrow</p>
+      <h1 id="launch-title">Tomorrow <span>Got Weird</span><span class="proto-tag">— PROTO</span></h1>
+      <p>One portal. No idea what's waiting on the other side.</p>
+      <button id="launch-button" class="cta" type="button">Enter Tomorrow</button>
     </section>
   </div>
 
-  <!-- Temporary destination cue for evaluating the crossing. It is not
-       the final Upgrade Clinic environment or the two-person game design. -->
-  <div id="proto-arrival" role="status" aria-live="polite" hidden>
-    <div class="proto-arrival-content">
-      <p class="proto-arrival-kicker">Future signal acquired / 08</p>
-      <h2>The Upgrade <span>Clinic</span></h2>
-      <p>You've arrived. The choices are yours.</p>
-    </div>
-  </div>
-
-  <!-- ============================================================
-     FINISH SCREEN
-     ============================================================ -->
-  <div id="finish" role="main" aria-label="Tomorrow Got Weird complete">
-
-    <video class="launch-video" autoplay muted loop playsinline preload="auto" poster="../tomorrow-got-weird/portal-poster.png"
-      aria-hidden="true">
-      <source src="../tomorrow-got-weird/portal.mp4" type="video/mp4">
-    </video>
-
-    <section class="finish-card" aria-labelledby="finish-title">
-      <p class="finish-kicker">[ Sequence complete ] · 25 futures</p>
-
-      <h1 class="finish-title" id="finish-title">
-        You Survived <span>Tomorrow</span>
-      </h1>
-
-      <p class="finish-copy">
-        All 25 futures explored. Tomorrow got weird. You made it back anyway.
-      </p>
-
-      <div class="finish-actions">
-        <button class="btn-launch" type="button" onclick="playAgain()">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-            <path d="M3 2l9 5-9 5V2z" fill="currentColor" />
-          </svg>
-          Start a new timeline
-        </button>
-
-        <button class="btn-back-arcade" type="button" onclick="goToArcade()">
-          Back to Arcade
-        </button>
-      </div>
-    </section>
-  </div>
-
-  <!-- ============================================================
-     GAME SCREEN
-     ============================================================ -->
-  <div id="game">
+  <div id="scene" hidden>
     <header id="hdr" class="arcade-game-chrome-centered-title">
-      <div class="header-left">
-        <div id="arcade-game-return-root"></div>
-      </div>
-
-      <div class="header-center">
-        <div class="hdr-logo">Tomorrow <span>Got Weird</span><small class="proto-header-tag">— PROTO</small></div>
-      </div>
-
-      <div class="header-right" id="arcade-game-actions-root">
-        <div id="progress-label" aria-live="polite">
-          <span class="progress-word">Scenario </span><span id="hdr-current">1</span><span class="progress-join"> of </span><span id="hdr-total">25</span>
-        </div>
-      </div>
+      <div class="header-left"><div id="arcade-game-return-root"></div></div>
+      <div class="header-center"><div class="hdr-logo">Tomorrow <span>Got Weird</span> <small>— PROTO</small></div></div>
+      <div class="header-right" id="arcade-game-actions-root"></div>
     </header>
+    <main id="scene-main">
+      <div class="location-meta">
+        <p class="eyebrow">New Tokyo // 2126</p>
+        <h2>Human Evolution Clinic</h2>
+      </div>
 
-    <main id="main">
-      <section id="scenario-card">
-        <div class="scenario-meta">
-          <span class="scenario-emoji" id="sc-emoji" aria-hidden="true"></span>
-          <div class="scenario-identity">
-            <span class="scenario-channel">Incoming future</span>
-            <span class="scenario-number" id="scenario-number">Scenario 1</span>
+      <section id="arrival-view" class="scene-bottom" aria-labelledby="arrival-heading">
+        <div class="arrival-bottom">
+          <div class="arrival-message">
+            <span class="eyebrow">Destination reached</span>
+            <strong id="arrival-heading">Something in the room has noticed you.</strong>
+            <p>The architecture is alive with light. There is no reception desk, and nobody waiting to greet you.</p>
           </div>
-          <span class="scenario-state">Survived</span>
+          <button id="approach-button" class="cta" type="button">Approach the intelligence →</button>
         </div>
-        <h2 class="scenario-question" id="sc-question"></h2>
-        <span class="scenario-corner" aria-hidden="true">TGW // ALT-REALITY</span>
       </section>
 
-      <section class="scenario-console" aria-label="Conversation challenges">
-        <div class="console-heading">
-          <span>Push the scenario</span>
-          <span class="console-caption">Choose a way to take the conversation further</span>
+      <section id="encounter-view" class="scene-bottom" aria-labelledby="encounter-heading" hidden>
+        <div class="encounter-bottom">
+          <p class="transmission-label" id="encounter-heading">Incoming transmission · The Clinic</p>
+          <p class="transmission-line">“Congratulations on winning your complimentary enhancement. Which of you will be receiving it?”</p>
+          <div class="upgrade-options" aria-label="Enhancements to discuss">
+            <button class="upgrade-option" type="button" data-upgrade="Perfect Memory" aria-pressed="false">
+              <span class="upgrade-symbol" aria-hidden="true">✺</span> Perfect Memory
+            </button>
+            <button class="upgrade-option" type="button" data-upgrade="Universal Fluency" aria-pressed="false">
+              <span class="upgrade-symbol" aria-hidden="true">◎</span> Universal Fluency
+            </button>
+            <button class="upgrade-option" type="button" data-upgrade="No Sleep Required" aria-pressed="false">
+              <span class="upgrade-symbol" aria-hidden="true">☾</span> No Sleep Required
+            </button>
+            <button class="upgrade-option" type="button" data-upgrade="custom" aria-pressed="false">
+              <span class="upgrade-symbol" aria-hidden="true">✧</span> Propose another enhancement
+            </button>
+          </div>
+          <form class="custom-form" id="custom-upgrade-form" hidden>
+            <label for="custom-upgrade">Your proposed enhancement</label>
+            <input id="custom-upgrade" type="text" maxlength="80" autocomplete="off" placeholder="What would you change?" required>
+            <button type="submit">Propose</button>
+          </form>
+          <p class="encounter-instruction">Discuss who should receive the upgrade and why. <span class="feedback" id="upgrade-feedback" role="status" aria-live="polite"></span></p>
+          <div class="encounter-utilities">
+            <button id="back-to-arrival" class="quiet-action" type="button">← Back to arrival</button>
+            <button id="restart-portal" class="quiet-action" type="button">Replay the portal</button>
+          </div>
         </div>
-        <div class="support-switch" aria-label="Choose a challenge">
-          <button class="support-button" id="btn-missions" type="button" aria-pressed="false"
-            aria-controls="support-panel" onclick="toggleSupport('missions')">
-            <span class="support-glyph" aria-hidden="true">✦</span>
-            <span class="support-copy"><strong>Mission prompts</strong><small>Explore the consequences</small></span>
-            <span class="support-arrow" aria-hidden="true">↗</span>
-          </button>
-          <button class="support-button" id="btn-survival" type="button" aria-pressed="false"
-            aria-controls="support-panel" onclick="toggleSupport('survival')">
-            <span class="support-glyph" aria-hidden="true">◈</span>
-            <span class="support-copy"><strong>Survival mode</strong><small>Think fast, speak first</small></span>
-            <span class="support-arrow" aria-hidden="true">↗</span>
-          </button>
-          <button class="support-button" id="btn-weirder" type="button" aria-pressed="false"
-            aria-controls="support-panel" onclick="toggleSupport('weirder')">
-            <span class="support-glyph" aria-hidden="true">↝</span>
-            <span class="support-copy"><strong>Make it weirder</strong><small>Add a new complication</small></span>
-            <span class="support-arrow" aria-hidden="true">↗</span>
-          </button>
-        </div>
-
-        <section id="support-panel" hidden aria-labelledby="support-heading" aria-live="polite">
-          <div class="support-panel-header"><span>New transmission</span><strong id="support-heading"></strong></div>
-          <div id="support-content"></div>
-        </section>
       </section>
-
-      <div class="scenario-footer">
-        <button class="btn-complete" id="btn-complete" type="button" aria-pressed="false"
-          onclick="toggleComplete()">
-          <span class="complete-mark" aria-hidden="true">
-            <svg viewBox="0 0 20 20" fill="none">
-              <circle class="complete-mark-pupil" cx="10" cy="10" r="2.35"></circle>
-              <path class="complete-mark-check" d="M6.3 10.2l2.35 2.35 5.1-5.35"></path>
-            </svg>
-          </span>
-          <span id="complete-label">Mark survived</span>
-        </button>
-
-        <nav class="scenario-rail" aria-label="Choose scenario">
-          <div id="scenario-dots"></div>
-        </nav>
-
-        <nav class="nav-actions" aria-label="Scenario navigation">
-          <button class="btn-nav" id="btn-prev" type="button" onclick="go(-1)">Previous</button>
-          <button class="btn-nav btn-random" type="button" onclick="randomScenario()">Random</button>
-          <button class="btn-nav" id="btn-next" type="button" onclick="go(1)">Next</button>
-        </nav>
-      </div>
-
-      <div class="reset-row">
-        <button class="btn-reset" type="button" onclick="confirmReset()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M3 6h18"></path>
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
-            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-          </svg>
-          Reset game
-        </button>
-      </div>
     </main>
   </div>
 
-  <!-- Custom Reset Modal -->
-  <div id="reset-modal" class="tgw-modal" role="dialog" aria-modal="true" aria-labelledby="reset-modal-title"
-    onclick="if(event.target === this) closeResetModal()">
-
-    <div class="tgw-modal-card">
-      <div class="tgw-modal-icon" aria-hidden="true">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 6h18"></path>
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
-          <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-        </svg>
-      </div>
-
-      <h2 class="tgw-modal-title" id="reset-modal-title">Reset the timeline?</h2>
-
-      <p class="tgw-modal-body">
-        This will erase every survived scenario and completely reset Tomorrow Got Weird
-        for the active session. This cannot be undone.
-      </p>
-
-      <div class="tgw-modal-actions">
-        <button class="btn-modal-cancel" type="button" onclick="closeResetModal()">
-          Cancel
-        </button>
-
-        <button class="btn-modal-confirm" type="button" onclick="executeReset()">
-          Reset sequence
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <div id="toast" role="status" aria-live="polite"></div>
   <div id="atlas-session-panel-root"></div>
-
-  <!-- ============================================================
-     JAVASCRIPT
-     ============================================================ -->
   <script src="../../shared/atlas-bridge.js?v=20260926-learnercontext1"></script>
   <script src="/shared/atlas-analytics.js?v=20260919-observability1"></script>
   <script src="../../shared/atlas-session-panel.js?v=20260926-learnercontext1"></script>
-  <script src="../../shared/compass-catalog-data.js"></script>
-  <script src="../../shared/arcade-catalog-data.js"></script>
-  <script src="../../shared/atlas-resource-share.js?v=20260918-share1"></script>
   <script src="../shared/arcade-public-access.js?v=20260918-public1"></script>
-  <script src="../../shared/atlas-content-registry.js?v=20260925-paymentcream1"></script>
-  <script src="../../shared/atlas-search.js"></script>
   <script src="../shared/arcade-game-chrome.js?v=20260721"></script>
   <script>
-    /* ============================================================
-       SCENARIO DATA
-       ============================================================ */
-    const SCENARIOS = [
-      {
-        emoji: "🚀",
-        question: "If you could time-travel 100 years into the future for just one day, what's the first thing you'd Google when you arrived?",
-        twist: "The search engine doesn't use text — it reads your mind before you finish the thought. What pops up?",
-        prompts: [
-          "What topic would terrify you most to search for — and why?",
-          "Would you search for news, science, people, or something personal?",
-          "Would knowing too much about the future ruin your life back in the present?"
-        ],
-        survival: "You can search for ONE thing but the results vanish after 30 seconds. What do you type — and why that?"
-      },
-      {
-        emoji: "🌆",
-        question: "You can live one weekend in a future city. Where do you go first?",
-        twist: "Every building in the city is a living organism — they breathe, shift, and grow a few centimetres overnight. You wake up and your hotel room has moved.",
-        prompts: [
-          "What would make a future city feel like home rather than alien?",
-          "Would you want the city to feel high-tech, natural, or something between?",
-          "What would you most want to eat, see, or experience that doesn't exist yet?"
-        ],
-        survival: "You only have one hour before you're transported back. You can't change your mind. Where do you spend it — and what do you bring home?"
-      },
-      {
-        emoji: "🧬",
-        question: "Everyone has to choose one super gene at birth. What natural ability would you boost forever?",
-        twist: "Your chosen gene also comes with an unexpected trade-off — a weakness you can't avoid. What do you lose in exchange for what you gain?",
-        prompts: [
-          "Is it more useful to boost a mental trait or a physical one?",
-          "Would you choose something practical or something surprising?",
-          "Do you think a stronger version of you would still feel like you?"
-        ],
-        survival: "The gene store is closing in 10 seconds. Say your answer — no thinking allowed. Go."
-      },
-      {
-        emoji: "🤖",
-        question: "Your robot assistant can replace one part of your daily life forever. What do you make it handle?",
-        twist: "Your robot starts completing tasks you didn't ask it to — because it knows you better than you do. It just cancelled a meeting on your behalf. Was it right?",
-        prompts: [
-          "What's one task you would NEVER delegate to a machine, no matter how advanced it became?",
-          "Would you trust a robot to make decisions for you — or just follow your instructions?",
-          "What would you do with the time and energy you get back?"
-        ],
-        survival: "The robot just asked you for a day off. What do you say — and what happens to your life while it rests?"
-      },
-      {
-        emoji: "🌅",
-        question: "You wake up in the future, and the world has become either a high-tech utopia or a high-tech dystopia. What's the first thing you see that tells you which one it is?",
-        twist: "The world is both — a gleaming utopia for some, and a completely invisible dystopia for everyone else. Which side are you on?",
-        prompts: [
-          "What single law or invention would most quickly turn a utopia into a dystopia?",
-          "Is it possible to have true safety and true freedom at the same time?",
-          "What would be the most suspicious sign that everything looks 'too perfect'?"
-        ],
-        survival: "You have 60 seconds to decide whether to stay or escape. What's your plan — and who do you take with you?"
-      },
-      {
-        emoji: "💊",
-        question: "Your future doctor offers you a pill that removes the need for sleep. Do you take it, and what do you do with the extra time?",
-        twist: "People who take the pill start dreaming while they're awake — tiny vivid hallucinations appear at random moments throughout the day. Still worth it?",
-        prompts: [
-          "Is there value in doing nothing, or is rest just wasted time?",
-          "What would you do with eight extra hours every single day?",
-          "Would society change if nobody needed sleep? Would it be better or worse?"
-        ],
-        survival: "You accidentally swallowed the pill. You'll never sleep again. What do you do with your very first extra night?"
-      },
-      {
-        emoji: "🛸",
-        question: "Aliens make first contact, but they want to speak to just one human. You're chosen. What's the first thing you tell them about Earth?",
-        twist: "The aliens communicate entirely in pure emotion — no words, no images. You have to FEEL your message rather than say it. What emotion do you lead with?",
-        prompts: [
-          "What's the one thing about humanity you'd be most embarrassed to explain?",
-          "Would you try to impress them, warn them, or simply tell the truth?",
-          "What question would you most want to ask them in return?"
-        ],
-        survival: "The aliens are losing patience. You have exactly one sentence. What do you say — right now?"
-      },
-      {
-        emoji: "🧠",
-        question: "You get one body upgrade and one brain upgrade. What are you picking?",
-        twist: "After the upgrades, you feel slightly more machine than human. People start treating you differently — they're not sure whether to trust you more or less.",
-        prompts: [
-          "At what point do enhancements stop making you more human and start making you something else?",
-          "Would you tell people about your upgrades, or keep them private?",
-          "Is an enhanced version of you still authentically you?"
-        ],
-        survival: "The upgrade procedure takes exactly 10 minutes. You're lying on the table. Name both upgrades before they put you under."
-      },
-      {
-        emoji: "🌲",
-        question: "Nature fights back: plants become sentient and start communicating. What message do you think they give us first?",
-        twist: "The oldest tree in the world has been silently watching everything for 5,000 years. What do you think it has recorded — and who does it most want to speak to?",
-        prompts: [
-          "If plants could speak, how would it change what you eat, where you live, or how you travel?",
-          "Would you feel guilty about things you'd never felt guilty about before?",
-          "What would a forest say about the city nearest to it?"
-        ],
-        survival: "A sentient plant is blocking your front door and refuses to move. You need to leave in two minutes. How do you negotiate with it?"
-      },
-      {
-        emoji: "🪐",
-        question: "You can only keep three memories before moving to Mars. Which ones survive?",
-        twist: "After arriving on Mars, you discover that memories feel different there — colours are slightly wrong, sounds are muffled. Your preserved memories start to blur at the edges.",
-        prompts: [
-          "Is a memory still real if you can't be sure it happened exactly as you remember it?",
-          "Would you choose happy memories, important lessons, or something else?",
-          "What memory would you most regret leaving behind?"
-        ],
-        survival: "You can only save ONE memory. The ship is boarding. Which one can you absolutely not leave Earth without — and why?"
-      },
-      {
-        emoji: "🎮",
-        question: "If everyone lived in a virtual world like a video game, what kind of character would you create for yourself — and what powers would you have?",
-        twist: "After five years in the virtual world, people start forgetting who they were in real life. The avatar starts feeling more real than the person who made it.",
-        prompts: [
-          "Would it be honest or dishonest to present a better version of yourself as your avatar?",
-          "What ability would your avatar have that you wish you had in real life?",
-          "Would you choose to look like yourself, or completely different?"
-        ],
-        survival: "You have 30 seconds to describe your avatar. Three things you'd keep. Three things you'd change. Go."
-      },
-      {
-        emoji: "🏠",
-        question: "Your future home is fully voice-controlled and emotionally responsive. What's the first feature you turn on?",
-        twist: "Your home starts detecting stress in your voice and quietly changes the lighting, music, and temperature without asking. One evening it locks the door and says it thinks you need to rest.",
-        prompts: [
-          "How much of your emotional state are you comfortable sharing with a machine?",
-          "Would an emotionally aware home feel supportive — or controlling?",
-          "What feature would you switch off immediately — and what would you never want to lose?"
-        ],
-        survival: "Your house just said: 'You seem angry. Should I call someone?' What do you say back?"
-      },
-      {
-        emoji: "💭",
-        question: "In the future, people can communicate through thought instead of speech. What would become easier, and what would become dangerous?",
-        twist: "You can't switch it off. Even during dreams, fragments of your thoughts are broadcast to anyone within 10 metres. What do you do differently?",
-        prompts: [
-          "Would thought-based communication make relationships stronger or more dangerous?",
-          "What thought would you most want to hide — and what would you be happy to share?",
-          "Would politicians, teachers, or doctors be trusted more or less if you could read their thoughts?"
-        ],
-        survival: "Someone is reading your thoughts right now. What's the most interesting — or most embarrassing — thing they'd find?"
-      },
-      {
-        emoji: "💾",
-        question: "You can live one full extra life in a simulation. What kind of life do you choose?",
-        twist: "Halfway through your simulated life, you start to wonder which life is actually the simulation. There's no way to check.",
-        prompts: [
-          "What would need to be true about your real life for the simulation to be a step DOWN?",
-          "Would you choose a completely different career, country, or personality?",
-          "Would you tell anyone in the simulation that it wasn't real?"
-        ],
-        survival: "You're standing at the simulation entry door. It closes in 10 seconds. Final answer: in or out — and why?"
-      },
-      {
-        emoji: "📨",
-        question: "You can open one message from yourself written 30 years in the future. What do you hope it says?",
-        twist: "The message is encrypted. You can only unlock one sentence. The rest stays hidden forever. Which part do you choose to open — the beginning, the middle, or the end?",
-        prompts: [
-          "What single piece of advice do you think your future self would most want you to hear right now?",
-          "Would you want it to be comforting, or brutally honest?",
-          "What would you most be afraid the message said?"
-        ],
-        survival: "Your future self wrote: 'Stop doing ______.' What fills that blank — be honest."
-      },
-      {
-        emoji: "🍽",
-        question: "You're eating dinner in 2050. What weird futuristic food is on your plate, and what does it taste like?",
-        twist: "Your meal is printed in 30 seconds, contains zero waste, is personalised to your exact DNA — but it arrives as a single white cube. You have no idea what's inside it.",
-        prompts: [
-          "Is there cultural or emotional value in 'real' food that synthetic food could never replace?",
-          "What traditional food from today do you think would become impossible to find in 2050?",
-          "Would you trust food that a machine designed specifically for your body?"
-        ],
-        survival: "The menu has three options: lab-grown steak, insect pasta, or mood-adjusting soup. You have to choose one. Which is it — and why?"
-      },
-      {
-        emoji: "⏳",
-        question: "Scientists invent a way to pause time for 10 minutes a day. How do you use it?",
-        twist: "Scientists warn that pausing time too often causes tiny tears in the fabric of reality — invisible, harmless at first, but building up slowly over years.",
-        prompts: [
-          "Is time more valuable when it's scarce, or does having more time make everything feel less urgent?",
-          "Would you use the pause for rest, productivity, or something more dramatic?",
-          "What situation in your life would you most want to pause time during — and why?"
-        ],
-        survival: "You're in the middle of a difficult argument. You hit pause. You have 10 minutes. What do you do with them?"
-      },
-      {
-        emoji: "📸",
-        question: "Your future self sends you one photo with no explanation. What do you hope is in the picture?",
-        twist: "You're not in the photo. But you recognise the location — and someone else is standing in the exact spot where you usually stand.",
-        prompts: [
-          "If you received an ambiguous message from the future, would you try to change what it showed?",
-          "Would a photo from the future make you feel hopeful, anxious, or both?",
-          "What detail in the photo would change everything — if you noticed it too late?"
-        ],
-        survival: "Describe the photo in one sentence. Make it ambiguous enough to be both exciting and slightly terrifying."
-      },
-      {
-        emoji: "🌐",
-        question: "The internet becomes fully immersive, like a world you can physically walk through. What kind of online space would you build for yourself?",
-        twist: "Your online space becomes so comfortable that you spend more time there than in the physical world. One morning you realise you haven't left it in three days.",
-        prompts: [
-          "What would you leave OUT of your digital space on purpose — and why?",
-          "Would your ideal online space be social, private, creative, or practical?",
-          "Could a virtual environment ever feel as real as a physical place?"
-        ],
-        survival: "Design your space in exactly three words. What are they?"
-      },
-      {
-        emoji: "🧪",
-        question: "You can test one future invention today. Which one are you trying first?",
-        twist: "The prototype works perfectly — but it also does one completely unexpected thing that wasn't in the manual. What is it?",
-        prompts: [
-          "What's the difference between an invention that genuinely helps people and one that just makes them lazier?",
-          "Would you choose something practical, medical, creative, or purely fun?",
-          "What problem in the world today would you most want a future invention to solve?"
-        ],
-        survival: "The lab gives you exactly five minutes with the invention before they take it away. What do you test first — and what do you try to prove?"
-      },
-      {
-        emoji: "👶",
-        question: "Your future child asks what life was like before AI assistants. What do you tell them?",
-        twist: "Your child laughs and asks: 'But how did you make decisions without help?' You stop and realise you're not entirely sure how to explain.",
-        prompts: [
-          "Has AI already changed how you think, remember, or make decisions? Can you give an example?",
-          "Is there anything about life before AI that you would want your children to experience?",
-          "What skill do you think is most at risk of disappearing in the next generation — and does that matter?"
-        ],
-        survival: "Give your whole answer in one sentence — simple enough for a child who has never known life without AI."
-      },
-      {
-        emoji: "🎓",
-        question: "School in the future is run entirely by AI teachers. What would make you trust that system?",
-        twist: "The AI teacher knows your personal learning style better than any human ever did — but it has no empathy, no bad days, and no memory of who you used to be.",
-        prompts: [
-          "What can a human teacher do that an AI teacher probably never could?",
-          "Would students behave differently if there were no human in the room?",
-          "What subject would be easiest to teach by AI — and which would be impossible?"
-        ],
-        survival: "The AI teacher just gave you a grade of zero with no explanation. You have two minutes to argue your case. What do you say?"
-      },
-      {
-        emoji: "🧬",
-        question: "A machine can generate your perfect dream life, but you can never return to reality. Do you enter it?",
-        twist: "Everyone who's entered reports it as completely perfect — except that no one who enters ever seems to miss the real world. Not even once.",
-        prompts: [
-          "What gives real life its value — is it the good moments, the difficult ones, or the uncertainty?",
-          "Would a perfect life still feel meaningful if nothing could ever go wrong?",
-          "What would you have to give up — or gain — for the decision to feel easy?"
-        ],
-        survival: "The door is open. The machine is on. It closes in five seconds. Final answer: in or out?"
-      },
-      {
-        emoji: "🧠",
-        question: "You can borrow one skill from your future self for a week. What do you take?",
-        twist: "After borrowing the skill, you discover your future self spent 10 years struggling to develop it. You just skipped all of that. The skill feels different somehow — like borrowed clothes.",
-        prompts: [
-          "Is a skill still meaningful if you didn't earn it through effort and failure?",
-          "After the week is over, would you work harder to earn it properly — or feel like it wasn't worth the effort?",
-          "What skill do you secretly wish you already had right now?"
-        ],
-        survival: "Name the skill. Three seconds. No thinking. Go."
-      },
-      {
-        emoji: "🌍",
-        question: "Earth is getting too crowded, and you've been chosen to design the first city on Mars. What must it include?",
-        twist: "After the city is built and the first thousand people arrive, Earth sends a message: it's too unstable to send anyone else. You're the founding population — and you're on your own.",
-        prompts: [
-          "What aspect of life on Earth is so fundamental that a city on Mars would fail without it?",
-          "Would people on Mars need laws, art, religion, sport — or something none of us have thought of yet?",
-          "What would you most miss about Earth in year one — and what would surprise you about life on Mars?"
-        ],
-        survival: "The city needs a name and a one-line motto that will appear above the entrance. What are they?"
-      }
-    ];
-
-    /* ============================================================
-       STATE — BRIDGE IS THE ONLY SOURCE OF TRUTH
-       ============================================================ */
-    const Bridge = window.AtlasBridge;
-    const REGISTRY_ID = 'arcade:tomorrow-got-weird-proto';
-    let session = null;
-    let state = createDefaultState();
-    let openSupport = null;
-    let completeAdvanceTimer = null;
-
-    function createDefaultState() {
-      const timestamp = Date.now();
-
-      return {
-        status: 'available',
-        completedAt: null,
-        current: 0,
-        currentPosition: 1,
-        currentLabel: null,
-        completed: {},
-        progress: {
-          covered: 0,
-          total: SCENARIOS.length
-        },
-        lastOpenedAt: timestamp,
-        lastTouchedAt: timestamp
-      };
-    }
-
-    function normalizeState(saved) {
-      const next = Object.assign(createDefaultState(), saved || {});
-      next.current = Number.isInteger(next.current) && next.current >= 0 && next.current < SCENARIOS.length ? next.current : 0;
-      next.completed = next.completed && typeof next.completed === 'object' && !Array.isArray(next.completed) ? next.completed : {};
-      delete next.reveals;
-      return next;
-    }
-
-    function readBridgeState() {
-      if (!Bridge || !session) return null;
-      const registry = Bridge.readRegistry();
-      return (((registry.sessionStates || {})[session.id] || {})[REGISTRY_ID]) || null;
-    }
-
-    function countCompleted() {
-      return Object.values(state.completed || {}).filter(Boolean).length;
-    }
-
-    function saveState(extra) {
-      if (!Bridge || !session) return;
-
-      const timestamp = Date.now();
-      const completed = countCompleted();
-      const isComplete = completed === SCENARIOS.length;
-      const hasProgress = completed > 0;
-
-      state = Object.assign({}, state, extra || {}, {
-        status: isComplete
-          ? 'complete'
-          : hasProgress
-            ? 'in-progress'
-            : 'available',
-
-        completedAt: isComplete
-          ? (state.completedAt || timestamp)
-          : null,
-
-        currentPosition: state.current + 1,
-
-        currentLabel: hasProgress
-          ? 'Scenario ' +
-          (state.current + 1) +
-          ' of ' +
-          SCENARIOS.length
-          : null,
-
-        progress: {
-          covered: completed,
-          total: SCENARIOS.length
-        },
-
-        lastTouchedAt: timestamp
-      });
-
-      Bridge.upsertSessionState(
-        session.id,
-        REGISTRY_ID,
-        state
-      );
-    }
-
-    function touchActivity() {
-      if (!Bridge || !session) return;
-      Bridge.touchRecentActivity({
-        sessionId: session.id,
-        registryId: REGISTRY_ID,
-        title: 'Tomorrow Got Weird — PROTO',
-        launchUrl: new URL('./index.html', window.location.href).href
-      });
-    }
-
-    /* ============================================================
-       LAUNCH AND NAVIGATION
-       ============================================================ */
-    function getTimelineProgress(saved) {
-      const completedCount = countCompleted();
-
-      const savedCovered = Number(
-        saved && saved.progress && saved.progress.covered
-      );
-
-      const covered = Number.isFinite(savedCovered)
-        ? Math.max(savedCovered, completedCount)
-        : completedCount;
-
-      return {
-        covered,
-        isComplete:
-          covered >= SCENARIOS.length ||
-          Boolean(saved && (
-            saved.status === 'complete' ||
-            saved.status === 'completed'
-          ))
-      };
-    }
-
-    function updateLaunchButton(covered) {
-      const launchButton = document.getElementById('launch-button');
-      if (!launchButton) return;
-
-      const buttonLabel = 'Enter Tomorrow';
-
-      launchButton.innerHTML =
-        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
-        '<path d="M3 2l9 5-9 5V2z" fill="currentColor"/>' +
-        '</svg>' +
-        buttonLabel;
-    }
-
-    /* ============================================================
-       PROTO ENTRY · LOCAL FOOTAGE FALLBACK + TRANSITION
-       This is a test of crossing feel, not the final arrival scene.
-       ============================================================ */
-    let crossingInProgress = false;
-    // A clearly perceptible, single-step speed change, not a frame-by-frame ramp.
-    const PROTO_IGNITION_MS = 900;
-    const PROTO_PULL_MS = 1200;
-    const PROTO_IGNITION_RATES = [16, 12, 8, 3];
-
-    function configurePrototypePortal() {
+    (function () {
+      'use strict';
+      const Bridge = window.AtlasBridge;
+      const REGISTRY_ID = 'arcade:tomorrow-got-weird-proto';
       const video = document.getElementById('proto-portal-video');
-      if (!video) return;
+      const launch = document.getElementById('launch');
+      const scene = document.getElementById('scene');
+      const enter = document.getElementById('launch-button');
+      const arrival = document.getElementById('arrival-view');
+      const encounter = document.getElementById('encounter-view');
+      const customForm = document.getElementById('custom-upgrade-form');
+      const feedback = document.getElementById('upgrade-feedback');
+      const rates = [16, 12, 8, 3];
+      let crossing = false;
+      let session = null;
+      let phase = 'launch';
 
-      const fallbackUrl = new URL('../tomorrow-got-weird/portal.mp4', window.location.href).href;
-      // Attach the error listener before attempting the optional local asset.
-      // Otherwise a fast 404 could arrive before DOMContentLoaded.
-      video.addEventListener('error', () => {
-        if (video.src === fallbackUrl) return;
-        video.src = fallbackUrl;
+      function configurePortal() {
+        const fallback = new URL('../tomorrow-got-weird/portal.mp4', location.href).href;
+        video.addEventListener('error', function () {
+          if (video.src === fallback) return;
+          video.src = fallback;
+          video.load();
+          video.play().catch(function () {});
+        });
+        video.src = new URL('./portal-istock-test.mp4', location.href).href;
         video.load();
-        video.play().catch(() => {});
-      });
-      video.src = new URL('portal-istock-test.mp4', window.location.href).href;
-      video.load();
-      video.play().catch(() => {});
-    }
+        video.play().catch(function () {});
+      }
 
-    function acceleratePrototypePortal(video) {
-      if (!video) return;
+      function acceleratePortal() {
+        for (const rate of rates) {
+          try { video.playbackRate = rate; return; }
+          catch (error) { /* Unsupported rates must not prevent entry. */ }
+        }
+      }
 
-      // Playback-rate limits vary by browser. A rejected rate must never
-      // interrupt the crossing or leave the Enter Tomorrow button disabled.
-      for (const rate of PROTO_IGNITION_RATES) {
+      function updatePhase(next) {
+        phase = next;
+        const inScene = next !== 'launch';
+        launch.hidden = inScene;
+        scene.hidden = !inScene;
+        arrival.hidden = next !== 'arrival';
+        encounter.hidden = next !== 'encounter';
+        if (inScene) scene.scrollTop = 0;
+        saveState();
+      }
+
+      function saveState() {
+        if (!Bridge || !session) return;
+        const active = phase !== 'launch';
+        Bridge.upsertSessionState(session.id, REGISTRY_ID, {
+          status: active ? 'in-progress' : 'available',
+          completedAt: null,
+          currentPosition: 1,
+          currentLabel: active ? (phase === 'arrival' ? 'Upgrade Clinic · Arrival' : 'Upgrade Clinic · Encounter') : null,
+          progress: { covered: 0, total: 1 },
+          prototypePhase: phase,
+          lastTouchedAt: Date.now()
+        });
+      }
+
+      function touchActivity() {
+        if (!Bridge || !session) return;
+        Bridge.touchRecentActivity({
+          sessionId: session.id,
+          registryId: REGISTRY_ID,
+          title: 'Tomorrow Got Weird — PROTO',
+          launchUrl: new URL('./index.html', location.href).href
+        });
+      }
+
+      async function enterTomorrow() {
+        if (crossing) return;
+        if (!Bridge) return;
+        crossing = true;
+        enter.disabled = true;
         try {
-          video.playbackRate = rate;
-          return;
-        } catch {
-          // Try the next supported speed; normal playback remains a fallback.
-        }
-      }
-    }
-
-    async function crossIntoTomorrow() {
-      if (crossingInProgress) return false;
-
-      const launch = document.getElementById('launch');
-      const button = document.getElementById('launch-button');
-      const video = document.getElementById('proto-portal-video');
-      const reducedMotion = window.matchMedia &&
-        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-      crossingInProgress = true;
-      button.disabled = true;
-
-      if (!reducedMotion) {
-        // Instantly use the fastest supported video speed, then retain
-        // the established pull and flash. No gradual ramp.
-        acceleratePrototypePortal(video);
-        launch.classList.add('is-igniting');
-        await new Promise(resolve => setTimeout(resolve, PROTO_IGNITION_MS));
-        launch.classList.remove('is-igniting');
-      }
-
-      launch.classList.add('is-crossing');
-      if (!reducedMotion) {
-        await new Promise(resolve => setTimeout(resolve, PROTO_PULL_MS));
-      }
-      return true;
-    }
-
-    function revealPrototypeArrival() {
-      const arrival = document.getElementById('proto-arrival');
-      const launch = document.getElementById('launch');
-      const button = document.getElementById('launch-button');
-
-      const isUpgradeClinic = state.current === 7;
-      arrival.querySelector('.proto-arrival-kicker').textContent =
-        'Future signal acquired / ' + String(state.current + 1).padStart(2, '0');
-      arrival.querySelector('h2').innerHTML = isUpgradeClinic
-        ? 'The Upgrade <span>Clinic</span>'
-        : 'Future <span>' + String(state.current + 1).padStart(2, '0') + '</span>';
-
-      launch.style.display = 'none';
-      launch.classList.remove('is-igniting', 'is-crossing');
-      const video = document.getElementById('proto-portal-video');
-      if (video) {
-        try { video.playbackRate = 1; } catch { /* Keep arrival usable. */ }
-      }
-      button.disabled = false;
-      crossingInProgress = false;
-
-      arrival.hidden = false;
-      const reducedMotion = window.matchMedia &&
-        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (reducedMotion) {
-        arrival.hidden = true;
-      } else {
-        setTimeout(() => { arrival.hidden = true; }, 1350);
-      }
-    }
-
-    async function startGame(
-      {
-        skipPublicAccessGate = true
-      } = {}
-    ) {
-      if (!Bridge || !session) return;
-
-      if (
-        !skipPublicAccessGate &&
-        window.ArcadePublicAccess
-          ?.isAnonymousPreview?.(
-            REGISTRY_ID
-          )
-      ) {
-        const access =
-          await ArcadePublicAccess
-            .requestGameAccess(
-              REGISTRY_ID,
-              document.getElementById(
-                'launch-button'
-              )
-            );
-
-        if (
-          !ArcadePublicAccess
-            .accessAllows(access)
-        ) {
-          if (
-            access?.outcome !==
-              'auth-required'
-          ) {
-            showToast(
-              'Create a free Atlas account to play.'
-            );
+          const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+          if (!reduce) {
+            acceleratePortal();
+            launch.classList.add('is-igniting');
+            await new Promise(function (resolve) { setTimeout(resolve, 900); });
+            launch.classList.remove('is-igniting');
+            launch.classList.add('is-crossing');
+            await new Promise(function (resolve) { setTimeout(resolve, 1200); });
           }
-
-          return;
-        }
-      }
-
-      if (!await crossIntoTomorrow()) return;
-
-      session = Bridge.readActiveSession();
-
-      // Seed the first unplayed prototype visit to the Upgrade Clinic.
-      // Later visits preserve the tester's own navigation and progress.
-      if (!state.protoArrivalSeeded) {
-        if (state.current === 0 && countCompleted() === 0) {
-          state.current = 7;
-        }
-        state.protoArrivalSeeded = true;
-      }
-
-      window.AtlasAnalytics?.arcadeGameStart(
-        'tomorrow-got-weird-proto'
-      );
-
-      state.lastOpenedAt = Date.now();
-      saveState();
-      touchActivity();
-      document.getElementById('finish').classList.remove('visible');
-      document.getElementById('game').style.display = 'block';
-      render();
-      revealPrototypeArrival();
-    }
-
-    function go(direction) {
-      const next = state.current + direction;
-      if (next < 0 || next >= SCENARIOS.length) return;
-      state.current = next;
-      openSupport = null;
-      saveState();
-      render();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function jumpTo(index) {
-      const next = Number.parseInt(index, 10);
-      if (!Number.isInteger(next) || next < 0 || next >= SCENARIOS.length) return;
-      state.current = next;
-      openSupport = null;
-      saveState();
-      render();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function randomScenario() {
-      if (SCENARIOS.length < 2) return;
-      const candidates = SCENARIOS.map((_, index) => index).filter(index => index !== state.current);
-      jumpTo(candidates[Math.floor(Math.random() * candidates.length)]);
-    }
-
-    /* ============================================================
-       SURVIVAL EYE
-       ============================================================ */
-    function setupSurvivalEye() {
-      const mark = document.querySelector('.complete-mark');
-      const button = document.getElementById('btn-complete');
-
-      if (!mark || !button) return;
-
-      const reducedMotion = window.matchMedia(
-        '(prefers-reduced-motion: reduce)'
-      );
-
-      let pointerX = 0;
-      let pointerY = 0;
-      let animationFrame = null;
-
-      function centrePupil() {
-        mark.style.setProperty('--pupil-x', '0px');
-        mark.style.setProperty('--pupil-y', '0px');
-      }
-
-      function updatePupil() {
-        animationFrame = null;
-
-        if (
-          reducedMotion.matches ||
-          button.classList.contains('done')
-        ) {
-          centrePupil();
-          return;
-        }
-
-        const rect = mark.getBoundingClientRect();
-        const centreX = rect.left + rect.width / 2;
-        const centreY = rect.top + rect.height / 2;
-
-        const differenceX = pointerX - centreX;
-        const differenceY = pointerY - centreY;
-        const distance = Math.hypot(differenceX, differenceY) || 1;
-
-        const maximumTravel = 2.6;
-        const travel = Math.min(
-          maximumTravel,
-          distance * 0.075
-        );
-
-        const pupilX =
-          (differenceX / distance) * travel;
-
-        const pupilY =
-          (differenceY / distance) * travel;
-
-        mark.style.setProperty(
-          '--pupil-x',
-          pupilX.toFixed(2) + 'px'
-        );
-
-        mark.style.setProperty(
-          '--pupil-y',
-          pupilY.toFixed(2) + 'px'
-        );
-      }
-
-      function queuePupilUpdate(event) {
-        if (
-          event.pointerType &&
-          event.pointerType !== 'mouse'
-        ) {
-          return;
-        }
-
-        pointerX = event.clientX;
-        pointerY = event.clientY;
-
-        if (!animationFrame) {
-          animationFrame =
-            window.requestAnimationFrame(updatePupil);
-        }
-      }
-
-      document.addEventListener(
-        'pointermove',
-        queuePupilUpdate,
-        { passive: true }
-      );
-
-      document.documentElement.addEventListener(
-        'mouseleave',
-        centrePupil
-      );
-
-      window.addEventListener(
-        'blur',
-        centrePupil
-      );
-    }
-
-    /* ============================================================
-       COMPLETION
-       ============================================================ */
-    function showFinish() {
-      if (completeAdvanceTimer) {
-        clearTimeout(completeAdvanceTimer);
-        completeAdvanceTimer = null;
-      }
-
-      document.getElementById('launch').style.display = 'none';
-      document.getElementById('game').style.display = 'none';
-      document.getElementById('finish').classList.add('visible');
-    }
-
-    function playAgain() {
-      state = createDefaultState();
-      openSupport = null;
-
-      saveState();
-      touchActivity();
-      buildScenarioDots();
-
-      document.getElementById('finish').classList.remove('visible');
-      document.getElementById('launch').style.display = 'none';
-      document.getElementById('game').style.display = 'block';
-
-      render();
-    }
-
-    function goToArcade() {
-      saveState();
-      window.location.href = '../index.html';
-    }
-
-    function toggleComplete() {
-      const index = state.current;
-      const isNowComplete = !state.completed[index];
-
-      if (completeAdvanceTimer) {
-        clearTimeout(completeAdvanceTimer);
-        completeAdvanceTimer = null;
-      }
-
-      state.completed[index] = isNowComplete;
-      saveState();
-      render();
-
-      showToast(
-        isNowComplete
-          ? 'Scenario survived.'
-          : 'Scenario reopened.'
-      );
-
-      if (
-        isNowComplete &&
-        countCompleted() === SCENARIOS.length
-      ) {
-        completeAdvanceTimer = setTimeout(() => {
-          completeAdvanceTimer = null;
-          showFinish();
-        }, 1000);
-
-        return;
-      }
-
-      if (isNowComplete && index < SCENARIOS.length - 1) {
-        completeAdvanceTimer = setTimeout(() => {
-          completeAdvanceTimer = null;
-
-          if (
-            state.current === index &&
-            state.completed[index]
-          ) {
-            go(1);
+          session = Bridge.readActiveSession();
+          window.AtlasAnalytics?.arcadeGameStart('tomorrow-got-weird-proto');
+          touchActivity();
+          updatePhase('arrival');
+          if (video) {
+            try { video.playbackRate = 1; } catch (error) {}
           }
-        }, 1000);
-      }
-    }
-
-    /* ============================================================
-       SUPPORT
-       ============================================================ */
-    function toggleSupport(mode) {
-      openSupport = openSupport === mode ? null : mode;
-      renderSupport();
-    }
-
-    function renderSupport() {
-      const panel = document.getElementById('support-panel');
-      const content = document.getElementById('support-content');
-      const buttons = {
-        missions: document.getElementById('btn-missions'),
-        survival: document.getElementById('btn-survival'),
-        weirder: document.getElementById('btn-weirder')
-      };
-
-      Object.entries(buttons).forEach(([mode, button]) => {
-        button.setAttribute('aria-pressed', String(openSupport === mode));
-      });
-
-      if (!openSupport) {
-        panel.hidden = true;
-        content.innerHTML = '';
-        return;
+          video.pause();
+          document.getElementById('approach-button').focus({ preventScroll: true });
+        } catch (error) {
+          console.error('Clinic arrival failed', error);
+          updatePhase('arrival');
+        } finally {
+          launch.classList.remove('is-igniting', 'is-crossing');
+          enter.disabled = false;
+          crossing = false;
+        }
       }
 
-      const scenario = SCENARIOS[state.current];
-      panel.hidden = false;
-      panel.dataset.mode = openSupport;
-      document.getElementById('support-heading').textContent = ({
-        missions: 'Explore this future',
-        survival: 'Your survival challenge',
-        weirder: 'The future just changed'
-      })[openSupport];
-
-      if (openSupport === 'missions') {
-        content.innerHTML =
-          '<ul class="prompt-list">' +
-          scenario.prompts.map(prompt => '<li>' + esc(prompt) + '</li>').join('') +
-          '</ul>';
-        return;
+      function showEncounter() {
+        updatePhase('encounter');
+        document.querySelector('[data-upgrade="Perfect Memory"]').focus({ preventScroll: true });
       }
 
-      if (openSupport === 'survival') {
-        content.innerHTML =
-          '<p class="support-text">' + esc(scenario.survival) + '</p>';
-        return;
-      }
-
-      content.innerHTML =
-        '<p class="support-text">' + esc(scenario.twist) + '</p>';
-    }
-
-    /* ============================================================
-       RENDER
-       ============================================================ */
-    function render() {
-      const scenario = SCENARIOS[state.current];
-      const index = state.current;
-      const total = SCENARIOS.length;
-      const done = Boolean(state.completed[index]);
-
-      document.getElementById('hdr-current').textContent = index + 1;
-      document.getElementById('hdr-total').textContent = total;
-      document.getElementById('scenario-number').textContent = 'Scenario ' + (index + 1);
-      document.getElementById('sc-emoji').textContent = scenario.emoji;
-      document.getElementById('sc-question').textContent = scenario.question;
-
-      const card = document.getElementById('scenario-card');
-      card.classList.remove('transmitting');
-      void card.offsetWidth;
-      card.classList.add('transmitting');
-      card.classList.toggle('completed-card', done);
-
-      const completeButton = document.getElementById('btn-complete');
-      completeButton.classList.toggle('done', done);
-      completeButton.setAttribute('aria-pressed', String(done));
-      document.getElementById('complete-label').textContent = done ? 'Survived' : 'Mark survived';
-
-      document.getElementById('btn-prev').disabled = index === 0;
-      document.getElementById('btn-next').disabled = index === total - 1;
-
-      updateScenarioDots();
-      renderSupport();
-    }
-
-    function esc(value) {
-      return String(value == null ? '' : value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
-
-    /* ============================================================
-   SCENARIO DOT NAVIGATION
-   ============================================================ */
-    function buildScenarioDots() {
-      const wrap = document.getElementById('scenario-dots');
-      if (!wrap) return;
-
-      wrap.innerHTML = '';
-
-      SCENARIOS.forEach((scenario, index) => {
-        const dot = document.createElement('button');
-        dot.type = 'button';
-        dot.className = 'scenario-dot';
-        dot.dataset.index = String(index);
-        dot.setAttribute('aria-label', 'Open scenario ' + (index + 1));
-        dot.title = 'Scenario ' + (index + 1);
-        dot.addEventListener('click', () => jumpTo(index));
-        wrap.appendChild(dot);
-      });
-    }
-
-    function updateScenarioDots() {
-      document.querySelectorAll('.scenario-dot').forEach((dot, index) => {
-        const survived = Boolean(state.completed[index]);
-        const current = index === state.current;
-
-        dot.classList.toggle('survived', survived);
-        dot.classList.toggle('current', current);
-        dot.setAttribute('aria-current', current ? 'step' : 'false');
-        dot.setAttribute(
-          'aria-label',
-          'Open scenario ' + (index + 1) + (survived ? ' — survived' : '')
-        );
-      });
-
-      const currentDot = document.querySelector('.scenario-dot.current');
-      if (currentDot) {
-        currentDot.scrollIntoView({
-          behavior: 'smooth',
-          block: 'nearest',
-          inline: 'center'
+      function selectUpgrade(name, button) {
+        document.querySelectorAll('.upgrade-option').forEach(function (option) {
+          option.setAttribute('aria-pressed', option === button ? 'true' : 'false');
         });
-      }
-    }
-
-    /* ============================================================
-       RESET AND TOAST
-       ============================================================ */
-    function confirmReset() {
-      const modal = document.getElementById('reset-modal');
-      if (modal) modal.classList.add('visible');
-    }
-
-    function closeResetModal() {
-      const modal = document.getElementById('reset-modal');
-      if (modal) modal.classList.remove('visible');
-    }
-
-    function executeReset() {
-      closeResetModal();
-      state = createDefaultState();
-      openSupport = null;
-      saveState();
-      touchActivity();
-      render();
-      showToast('Timeline reset.');
-    }
-
-    let toastTimer = null;
-
-    function showToast(message) {
-      const toast = document.getElementById('toast');
-      toast.textContent = message;
-      toast.classList.add('show');
-      if (toastTimer) clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
-    }
-
-    /* ============================================================
-       INITIALISATION
-       ============================================================ */
-    function init() {
-      if (!Bridge) {
-        document.querySelector('.launch-card').innerHTML =
-          '<p class="launch-kicker">Runtime unavailable</p>' +
-          '<h1 class="launch-title">Can’t <span>Start</span></h1>' +
-          '<p class="launch-copy">The shared Atlas runtime did not load. Check shared/atlas-bridge.js.</p>';
-        return;
+        const custom = name === 'custom';
+        customForm.hidden = !custom;
+        feedback.textContent = custom
+          ? 'What would you propose?'
+          : 'For discussion: ' + name + '.';
+        if (custom) document.getElementById('custom-upgrade').focus();
       }
 
-      configurePrototypePortal();
-
-      window.AtlasAnalytics?.resourceOpen({
-        resourceType: 'game',
-        resourceSource: 'arcade',
-        resourceId: 'tomorrow-got-weird-proto'
-      });
-
-      const mode = Bridge.readAppearanceMode();
-      document.documentElement.dataset.theme = mode;
-
-      if (window.AtlasSessionPanel) {
-        AtlasSessionPanel.mount({
-          root: '#atlas-session-panel-root',
-          initialView: 'manage'
+      function replayPortal() {
+        feedback.textContent = '';
+        customForm.reset();
+        customForm.hidden = true;
+        document.querySelectorAll('.upgrade-option').forEach(function (option) {
+          option.setAttribute('aria-pressed', 'false');
         });
+        updatePhase('launch');
+        if (video) {
+          try { video.playbackRate = 1; } catch (error) {}
+          video.play().catch(function () {});
+        }
+        enter.focus({ preventScroll: true });
       }
 
-      session = Bridge.readActiveSession();
-
-      if (window.ArcadePublicAccess) {
-        void ArcadePublicAccess
-          .subscribeGameResume(
-            REGISTRY_ID,
-            () => {
-              session =
-                Bridge.readActiveSession();
-
-              const saved =
-                readBridgeState();
-
-              const timeline =
-                getTimelineProgress(saved);
-
-              updateLaunchButton(
-                timeline.covered
-              );
-            }
-          );
-      }
-
-      if (window.ArcadeGameChrome) {
-        ArcadeGameChrome.mountLanding({
-          root: '#launch',
-          onBeforeReturn: saveState
+      function init() {
+        configurePortal();
+        if (!Bridge) {
+          enter.disabled = true;
+          enter.textContent = 'Atlas runtime unavailable';
+          return;
+        }
+        window.AtlasAnalytics?.resourceOpen({
+          resourceType: 'game', resourceSource: 'arcade', resourceId: 'tomorrow-got-weird-proto'
+        });
+        document.documentElement.dataset.theme = Bridge.readAppearanceMode();
+        session = Bridge.readActiveSession();
+        if (window.AtlasSessionPanel) {
+          AtlasSessionPanel.mount({ root: '#atlas-session-panel-root', initialView: 'manage' });
+        }
+        if (window.ArcadeGameChrome) {
+          ArcadeGameChrome.mountLanding({ root: '#launch', onBeforeReturn: saveState });
+          ArcadeGameChrome.mountGame({
+            root: '#hdr', returnRoot: '#arcade-game-return-root',
+            actionsRoot: '#arcade-game-actions-root', appearance: true, onBeforeReturn: saveState
+          });
+        }
+        Bridge.upsertItem({
+          registryId: REGISTRY_ID, world: 'arcade', type: 'game',
+          title: 'Tomorrow Got Weird — PROTO',
+          premise: 'Enter New Tokyo, 2126, and negotiate a complimentary human enhancement.',
+          status: 'available', publicAccess: 'full', unitLabel: 'Destinations',
+          total: 1, formatLabel: 'Conversation adventure', mark: '🌀',
+          accent: '#7c3aed', accentLight: '#ede9fe',
+          launchUrl: new URL('./index.html', location.href).href
         });
 
-        ArcadeGameChrome.mountGame({
-          root: '#hdr',
-          returnRoot: '#arcade-game-return-root',
-          actionsRoot: '#arcade-game-actions-root',
-          appearance: true,
-          onBeforeReturn: saveState
+        enter.addEventListener('click', enterTomorrow);
+        document.getElementById('approach-button').addEventListener('click', showEncounter);
+        document.getElementById('back-to-arrival').addEventListener('click', function () {
+          updatePhase('arrival');
+          document.getElementById('approach-button').focus({ preventScroll: true });
         });
+        document.getElementById('restart-portal').addEventListener('click', replayPortal);
+        document.querySelectorAll('.upgrade-option').forEach(function (button) {
+          button.addEventListener('click', function () {
+            selectUpgrade(button.dataset.upgrade, button);
+          });
+        });
+        customForm.addEventListener('submit', function (event) {
+          event.preventDefault();
+          const proposal = document.getElementById('custom-upgrade').value.trim();
+          if (!proposal) return;
+          feedback.textContent = 'For discussion: ' + proposal + '.';
+        });
+        window.addEventListener('atlas:appearance-change', function (event) {
+          document.documentElement.dataset.theme =
+            (event.detail && event.detail.mode) || Bridge.readAppearanceMode();
+        });
+        window.addEventListener('atlas:session-change', function (event) {
+          session = (event.detail && event.detail.session) || Bridge.readActiveSession();
+          saveState();
+        });
+        window.addEventListener('pagehide', saveState);
       }
-
-      Bridge.upsertItem({
-        registryId: REGISTRY_ID,
-        world: 'arcade',
-        type: 'game',
-        title: 'Tomorrow Got Weird — PROTO',
-        premise: 'Step into strange future scenarios and decide what you would do next.',
-        status: 'available',
-        publicAccess: 'full',
-        unitLabel: 'Scenarios',
-        total: SCENARIOS.length,
-        formatLabel: 'Imagination',
-        mark: '🛸',
-        accent: '#7c3aed',
-        accentLight: '#ede9fe',
-        launchUrl: new URL('./index.html', window.location.href).href
-      });
-
-      const saved = readBridgeState();
-      state = normalizeState(saved);
-      buildScenarioDots();
-      setupSurvivalEye();
-
-      const timeline = getTimelineProgress(saved);
-
-      if (timeline.isComplete) {
-        showFinish();
-        return;
-      }
-
-      updateLaunchButton(timeline.covered);
-    }
-
-    window.addEventListener(
-      'atlas:account-change',
-      () => {
-        const saved =
-          readBridgeState();
-
-        const timeline =
-          getTimelineProgress(saved);
-
-        updateLaunchButton(
-          timeline.covered
-        );
-      }
-    );
-
-    window.addEventListener('atlas:appearance-change', event => {
-      if (!Bridge) return;
-
-      const mode =
-        (event.detail && event.detail.mode) ||
-        Bridge.readAppearanceMode();
-
-      document.documentElement.dataset.theme = mode;
-    });
-
-    window.addEventListener('atlas:session-change', event => {
-      if (!Bridge) return;
-
-      session =
-        (event.detail && event.detail.session) ||
-        Bridge.readActiveSession();
-
-      const saved = readBridgeState();
-
-      state = normalizeState(saved);
-      openSupport = null;
-      buildScenarioDots();
-
-      const timeline = getTimelineProgress(saved);
-      const finish = document.getElementById('finish');
-      const launch = document.getElementById('launch');
-      const game = document.getElementById('game');
-
-      if (timeline.isComplete) {
-        showFinish();
-        return;
-      }
-
-      finish.classList.remove('visible');
-
-      if (
-        game &&
-        getComputedStyle(game).display !== 'none'
-      ) {
-        render();
-        return;
-      }
-
-      launch.style.display = 'flex';
-      game.style.display = 'none';
-      updateLaunchButton(timeline.covered);
-    });
-
-    window.addEventListener('pagehide', () => saveState());
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
-      init();
-    }
-
-    /* ============================================================
-       KEYBOARD
-       ============================================================ */
-    document.addEventListener('keydown', event => {
-      const resetModal = document.getElementById('reset-modal');
-
-      if (
-        event.key === 'Escape' &&
-        resetModal &&
-        resetModal.classList.contains('visible')
-      ) {
-        closeResetModal();
-        return;
-      }
-
-      const game = document.getElementById('game');
-      if (!game || getComputedStyle(game).display === 'none') return;
-
-      const interactive = ['INPUT', 'SELECT', 'TEXTAREA', 'BUTTON', 'A'];
-      if (interactive.includes(event.target.tagName)) return;
-
-      if (event.key === 'ArrowRight') {
-        event.preventDefault();
-        go(1);
-      }
-
-      if (event.key === 'ArrowLeft') {
-        event.preventDefault();
-        go(-1);
-      }
-    });
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+      else init();
+    })();
   </script>
-
 </body>
-
 </html>
