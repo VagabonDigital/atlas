@@ -143,7 +143,7 @@
     /* The image leads. Spoken transmissions and gameplay occupy only the lower edge. */
     #scene { z-index:10; overflow-y:auto; overscroll-behavior:contain; background:#b5c9e6 url("./bioluminescent_ai_core_atrium.png") center center / cover no-repeat; }
     #scene::before { content:""; position:fixed; inset:0; z-index:0; pointer-events:none; background:linear-gradient(180deg,rgba(4,15,37,.29),transparent 24%,transparent 53%,rgba(5,12,36,.64)); }
-    #scene[data-transmission="complication"]::before { background:linear-gradient(180deg,rgba(30,9,44,.23),transparent 32%,rgba(27,9,45,.76)); }
+    #scene[data-phase="transmission"][data-transmission="complication"]::before { background:linear-gradient(180deg,rgba(30,9,44,.23),transparent 32%,rgba(27,9,45,.76)); }
     #hdr { position:relative; z-index:8; display:flex; justify-content:space-between; align-items:center; min-height:64px; padding:12px clamp(16px,2.7vw,42px); }
     #hdr .header-left,#hdr .header-right { display:flex; align-items:center; }
     #scene-main { position:relative; z-index:1; width:min(1400px,100%); min-height:calc(100dvh - 64px); margin:0 auto; padding:12px clamp(18px,3vw,48px) clamp(24px,3vw,40px); display:flex; flex-direction:column; gap:22px; }
@@ -263,7 +263,7 @@
               <div id="voice-controls" class="audio-control-row" hidden>
                 <button id="voice-replay" class="audio-control" type="button" aria-label="Replay transmission">↻ Replay</button>
                 <button id="voice-mute" class="audio-control" type="button" aria-pressed="false" aria-label="Mute voice">♪ Sound on</button>
-                <button id="captions-toggle" class="audio-control" type="button" aria-pressed="false" aria-label="Toggle captions">CC</button>
+                <button id="captions-toggle" class="audio-control" type="button" aria-pressed="false" aria-label="Show or hide the full transcript">Text</button>
               </div>
             </div>
             <h3 class="transmission-title" id="transmission-summary"></h3>
