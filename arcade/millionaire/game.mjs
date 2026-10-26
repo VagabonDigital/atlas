@@ -7,8 +7,11 @@ const copy = value => structuredClone(value);
 const RESTORABLE_PHASES = new Set(['question', 'selected', 'locked', 'correct', 'safety', 'incorrect', 'win', 'walk-confirm', 'hypothetical', 'walk-reveal', 'adviser']);
 
 export class Millionaire {
-  constructor(bank, { random = Math.random, seen = [], sessionSeen = [], onEvent = () => {} } = {}) {
+  constructor(bank, { random = Math.random, seen = [], sessionSeen = [], onEvent = () => {}, restoreBank = [] } = {}) {
     this.bank = bank;
+    // Only hydrate an already-displayed question from this compatibility bank.
+    // Progression, replacement and every new run always select from this.bank.
+    this.restoreBank = restoreBank;
     this.random = random;
     this.seen = new Set(seen);
     this.sessionSeen = new Set(sessionSeen);
@@ -37,7 +40,8 @@ export class Millionaire {
     const rung = Number(candidate.rung);
     const questionId = candidate.question?.id;
     if (!candidate.id || !Number.isInteger(rung) || rung < 1 || rung > 10 || !RESTORABLE_PHASES.has(candidate.phase)) return false;
-    const authored = this.bank.find(question => question.id === questionId);
+    const authored = this.bank.find(question => question.id === questionId)
+      || this.restoreBank.find(question => question.id === questionId);
     if (!authored) return false;
     const options = candidate.question?.options;
     if (!Array.isArray(options) || options.length !== 4) return false;

@@ -21,6 +21,7 @@ shared/worker.js
 arcade/forbidden-words/server/
 arcade/forbidden-words/dev/
 arcade/family-feud/dev/
+arcade/millionaire/dev/
 arcade/forbidden-words/README.md
 **/node_modules/
 

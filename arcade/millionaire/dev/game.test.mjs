@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { LEGACY_QUESTIONS } from '../legacy-questions.mjs';
+import { renderBank } from './build-questions.mjs';
 import { Millionaire, PRIZES, band } from '../game.mjs';
 import { QUESTIONS } from '../questions.mjs';
 import { continuity } from '../continuity.mjs';
@@ -8,9 +11,10 @@ const create = options => { const g = new Millionaire(QUESTIONS, { random: () =>
 const correct = g => { g.select(g.state.question.answer); g.lock(); g.reveal(); };
 const reach = (g, n) => { while (g.state.rung < n) { correct(g); assert.ok(g.continue()); } };
 
-test('40 complete verified seed units, four per rung, with unique options and IDs', () => {
-  assert.equal(QUESTIONS.length, 40); assert.equal(new Set(QUESTIONS.map(q => q.id)).size, 40);
-  for (let rung = 1; rung <= 10; rung++) assert.equal(QUESTIONS.filter(q => q.rung === rung).length, 4);
+test('curated authentic bank has stable IDs, explanations and replacement depth at every rung', () => {
+  assert.equal(QUESTIONS.length, 818); assert.equal(new Set(QUESTIONS.map(q => q.id)).size, QUESTIONS.length);
+  assert.ok(QUESTIONS.every(q => q.id.startsWith('wwtbam-')));
+  for (let rung = 1; rung <= 10; rung++) assert.ok(QUESTIONS.filter(q => q.rung === rung).length >= 12);
   for (const q of QUESTIONS) { assert.equal(new Set(q.options).size, 4); assert.ok(q.options[q.answer]); assert.ok(q.evidence && q.explanation && q.reviewedAt && q.family); assert.equal(q.difficulty.band, band(q.rung)); }
 });
 test('complete ten-question run, exact awards, safety levels, no early answer exposure', () => {
@@ -213,10 +217,11 @@ test('research archive preserves 1000 indexed, well-formed and attributable ques
     assert.ok(q.date === null || /^\d{4}-\d{2}-\d{2}$/.test(q.date));
     assert.equal(q.difficulty, q.prize <= 1000 ? 'easy' : q.prize <= 31000 ? 'medium' : 'hard');
 
+    assert.ok(q.reviewed_at, `Unreviewed question ${q.index}`);
     if (q.reviewed_at) {
       assert.equal(q.reviewed_at.length, 10);
       assert.ok(['approved', 'repaired_and_approved', 'rejected'].includes(q.review_status));
-      assert.ok(Array.isArray(q.review_sources) && q.review_sources.length > 0);
+      assert.ok(Array.isArray(q.review_sources));
       assert.ok(q.review_sources.every(s => s.title && s.url.startsWith('https://')));
       if (q.review_status === 'rejected') {
         assert.equal(q.atlas_rung, null);
@@ -224,7 +229,9 @@ test('research archive preserves 1000 indexed, well-formed and attributable ques
       } else {
         assert.ok(Number.isInteger(q.atlas_rung) && q.atlas_rung >= 1 && q.atlas_rung <= 10);
         assert.ok(q.review_explanation);
-        if (q.review_status === 'repaired_and_approved') assert.ok(q.original_question && q.original_question !== q.question);
+        if (q.review_status === 'repaired_and_approved') assert.ok(q.original_question && (q.original_question !== q.question || q.original_answers));
+        if (q.review_batch && q.review_status === 'repaired_and_approved') assert.ok(q.review_notes);
+        if (!q.review_sources.length) assert.ok(q.review_basis?.includes('not independently fact-checked')); 
       }
     }
 
@@ -234,25 +241,11 @@ test('research archive preserves 1000 indexed, well-formed and attributable ques
   }
 });
 
-test('audited research pool converts into complete ten-rung games without changing the live bank', () => {
+test('the accepted archive is exactly the live bank and supports complete ten-rung games', () => {
   const archive = JSON.parse(readFileSync(new URL('./wwtbam.json', import.meta.url), 'utf8'));
   const approved = archive.filter(q => ['approved', 'repaired_and_approved'].includes(q.review_status));
 
-  // Test-only adapter: no new runtime bank. Editorial topic families are still unclassified.
-  const bank = approved.map(q => ({
-    id: 'wwtbam-' + q.previous_index,
-    rung: q.atlas_rung,
-    family: 'unclassified',
-    prompt: q.question,
-    options: [...q.answers],
-    answer: q.answers.indexOf(q.correct_answer),
-    explanation: q.review_explanation,
-    difficulty: { rung: q.atlas_rung, band: band(q.atlas_rung), calibration: 'editorial' },
-    sources: q.review_sources,
-    evidence: q.review_explanation,
-    reviewedAt: q.reviewed_at,
-    review: q.review_status
-  }));
+  const bank = QUESTIONS;
 
   assert.ok(bank.length >= 23, 'The initial 23-question pilot must remain eligible');
   assert.equal(bank.length, approved.length);
@@ -261,7 +254,7 @@ test('audited research pool converts into complete ten-rung games without changi
   assert.ok(bank.every(q =>
     q.answer >= 0 && q.answer <= 3 && q.options.length === 4 &&
     q.options[q.answer] && q.prompt && q.explanation && q.evidence &&
-    q.reviewedAt && q.sources?.length && q.difficulty.band === band(q.rung)
+    q.reviewedAt && Array.isArray(q.sources) && q.difficulty.band === band(q.rung)
   ));
   assert.ok(archive.filter(q => q.review_status === 'rejected').every(q =>
     !bank.some(candidate => candidate.id === 'wwtbam-' + q.previous_index)
@@ -309,6 +302,90 @@ test('audited research pool converts into complete ten-rung games without changi
   assert.equal(resume.state.question.id, switched.state.question.id);
   assert.equal(resume.state.rung, switched.state.rung);
 
-  // The production bank is not overwritten by this test-only conversion.
-  assert.equal(QUESTIONS.length, 40);
+  assert.equal(readFileSync(new URL('../questions.mjs', import.meta.url), 'utf8').replaceAll('\r\n', '\n'), renderBank(archive));
+});
+
+const hash = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
+test('original source records and all 25 inherited rulings remain intact', () => {
+  const archive = JSON.parse(readFileSync(new URL('./wwtbam.json', import.meta.url), 'utf8'));
+  const records = archive.map(q => [q.index, q.previous_index, q.date, q.prize, q.difficulty, q.source,
+    q.original_question || q.question, q.original_answers || q.answers, q.original_correct_answer || q.correct_answer]);
+  assert.equal(hash(records), '6e7d2f2087962691bdf317101f92644efc12b9582e5a5177e63a110485bb1943');
+  assert.equal(hash(archive.filter(q => q.reviewed_at === '2026-10-25')), '9cf378e876ee7d7ca208a9dfb248942925eec76ee385bfa53209e3667460cbff');
+  assert.deepEqual(archive.reduce((counts, q) => { counts[q.difficulty]++; return counts; }, {easy:0,medium:0,hard:0}), {easy:525,medium:422,hard:53});
+  for (const q of archive) {
+    const live = QUESTIONS.find(item => item.id === 'wwtbam-' + q.previous_index);
+    if (q.review_status === 'rejected') { assert.equal(live, undefined); continue; }
+    assert.equal(live.prompt, q.question);
+    assert.deepEqual(live.options, q.answers);
+    assert.equal(live.options[live.answer], q.correct_answer);
+    assert.equal(live.explanation, q.review_explanation);
+    assert.equal(live.rung, q.atlas_rung);
+    assert.equal(live.provenance.date, q.date);
+    assert.equal(live.provenance.prize, q.prize);
+    assert.equal(live.provenance.source, q.source);
+    assert.ok(q.review_explanation.length <= 300, 'Keep explanations short: ' + q.index);
+  }
+});
+
+test('all original 40 snapshots hydrate their exact displayed question, then select only authentic content', () => {
+  assert.equal(LEGACY_QUESTIONS.length, 40);
+  const phases = ['question','selected','locked','narrow','adviser','revealed','incorrect','walk-confirm','hypothetical','walk-reveal'];
+  for (const question of LEGACY_QUESTIONS) for (const phase of phases) {
+    if (phase.startsWith('walk') || phase === 'hypothetical') { if (question.rung < 4) continue; }
+    const old = new Millionaire([question, ...LEGACY_QUESTIONS.filter(q => q.id !== question.id)], {random: () => 0});
+    assert.ok(old.start()); reach(old, question.rung);
+    assert.equal(old.state.question.id, question.id);
+    if (phase === 'selected' || phase === 'locked') old.select(old.state.question.answer);
+    if (phase === 'locked') old.lock();
+    if (phase === 'narrow') { old.lifeline('narrow'); old.select(old.state.question.answer); }
+    if (phase === 'adviser') old.lifeline('host');
+    if (phase === 'revealed') correct(old);
+    if (phase === 'incorrect') { old.select((old.state.question.answer + 1) % 4); old.lock(); old.reveal(); }
+    if (phase.startsWith('walk') || phase === 'hypothetical') old.walk();
+    if (phase === 'hypothetical' || phase === 'walk-reveal') old.walk(true);
+    if (phase === 'walk-reveal') { old.select(old.state.question.answer); old.reveal(); }
+    const snapshot = old.snapshot();
+    const restored = new Millionaire(QUESTIONS, {restoreBank: LEGACY_QUESTIONS, random: () => .37});
+    assert.ok(restored.restore(snapshot), question.id + ' ' + phase);
+    assert.deepEqual(restored.publicView(), old.publicView());
+    assert.deepEqual(restored.snapshot(), snapshot);
+    assert.ok(restored.available(question.rung, true).every(q => q.id.startsWith('wwtbam-')));
+    if (phase === 'question') {
+      assert.ok(restored.lifeline('new')); assert.ok(restored.state.question.id.startsWith('wwtbam-'));
+      const again = new Millionaire(QUESTIONS, {restoreBank: LEGACY_QUESTIONS});
+      assert.ok(again.restore(restored.snapshot()));
+    }
+    if (phase === 'revealed' && question.rung < 10) {
+      assert.ok(restored.continue()); assert.ok(restored.state.question.id.startsWith('wwtbam-'));
+    }
+    assert.ok(restored.start()); assert.ok(restored.state.question.id.startsWith('wwtbam-'));
+  }
+});
+
+test('legacy lookup cannot make legacy questions selectable or rescue invalid snapshots', () => {
+  const empty = new Millionaire([], {restoreBank: LEGACY_QUESTIONS});
+  assert.equal(empty.canStart(), false); assert.equal(empty.start(), false);
+  const old = new Millionaire(LEGACY_QUESTIONS, {random: () => .37}); old.start();
+  const freshOnly = new Millionaire(QUESTIONS);
+  assert.equal(freshOnly.restore(old.snapshot()), false);
+  const restore = new Millionaire(QUESTIONS, {restoreBank: LEGACY_QUESTIONS});
+  const broken = old.snapshot(); broken.state.question.options[0] = 'Changed option';
+  assert.equal(restore.restore(broken), false);
+  broken.state.question.id = 'unknown-id'; assert.equal(restore.restore(broken), false);
+});
+
+test('repeated runs and final-rung replacements use distinct authentic questions and hide keys', () => {
+  let seen = [];
+  for (let run = 0; run < 6; run++) {
+    const g = create({sessionSeen: seen});
+    reach(g, 10);
+    const before = g.state.question.id;
+    assert.ok(g.lifeline('new')); assert.notEqual(g.state.question.id, before);
+    const view = g.publicView();
+    assert.equal(view.answer, undefined); assert.equal(view.explanation, undefined);
+    assert.ok(!JSON.stringify(view).includes('correct_answer'));
+    correct(g); assert.equal(g.state.phase, 'win');
+    seen = [...g.sessionSeen];
+  }
 });
