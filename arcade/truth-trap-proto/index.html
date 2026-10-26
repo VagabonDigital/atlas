@@ -376,31 +376,75 @@
       </button>
     </div>
   </div>
-  <div class="page">
-    <header class="top">
-      <div class="brand">ATLAS <span>ARCADE</span> / EXPERIMENTS</div>
-      <a class="back" href="../">← Return to Arcade</a>
+
+  <section id="access-gate" class="tt-access" role="status" aria-live="polite" hidden>
+    <h2>Truth Trap — PROTO</h2>
+    <p id="access-message">This experiment requires the designated Atlas account.</p>
+    <a href="../">Return to Arcade</a>
+  </section>
+  <div id="owner-workspace" class="tt-game" hidden>
+    <header id="tt-game-header" class="tt-game-header arcade-game-chrome-centered-title">
+      <div class="tt-header-left" id="arcade-game-return-root"></div>
+      <div class="tt-header-centre"><span class="tt-header-logo">TRUTH <span>TRAP</span> <small>PROTO</small></span></div>
+      <div class="tt-header-right" id="arcade-game-actions-root"></div>
     </header>
-    <main class="content">
-      <div id="access-gate" class="panel" role="status" aria-live="polite" hidden>
-        <h2>Truth Trap — PROTO</h2>
-        <p id="access-message">You need to be signed in to the designated Atlas account to open this experiment.</p>
+    <main class="tt-stage">
+      <header class="tt-case-heading">
+        <p class="tt-case-number">Case 01 / The Impossible Files</p>
+        <h1>Nature Refuses to Behave</h1>
+        <p class="tt-case-deckline">Three unbelievable claims. Two are true. Which one is the lie?</p>
+      </header>
+      <section class="tt-exhibits" aria-label="Choose the false claim">
+        <button type="button" class="tt-exhibit" data-choice="A" aria-pressed="false">
+          <span class="tt-exhibit-head"><span class="tt-exhibit-letter" aria-hidden="true">A</span><span class="tt-exhibit-claim">Penguins have no knees.</span></span>
+          <span class="tt-art" aria-hidden="true"><span class="tt-art-image"></span></span>
+          <span class="tt-exhibit-status">Exhibit A</span>
+        </button>
+        <button type="button" class="tt-exhibit" data-choice="B" aria-pressed="false">
+          <span class="tt-exhibit-head"><span class="tt-exhibit-letter" aria-hidden="true">B</span><span class="tt-exhibit-claim">Bananas are berries.</span></span>
+          <span class="tt-art" aria-hidden="true"><span class="tt-art-image"></span></span>
+          <span class="tt-exhibit-status">Exhibit B</span>
+        </button>
+        <button type="button" class="tt-exhibit" data-choice="C" aria-pressed="false">
+          <span class="tt-exhibit-head"><span class="tt-exhibit-letter" aria-hidden="true">C</span><span class="tt-exhibit-claim">Octopuses have three hearts.</span></span>
+          <span class="tt-art" aria-hidden="true"><span class="tt-art-image"></span></span>
+          <span class="tt-exhibit-status">Exhibit C</span>
+        </button>
+      </section>
+      <div class="tt-stage-action">
+        <p id="tt-choice-status" class="tt-choice-status" role="status" aria-live="polite">Choose your suspect</p>
+        <button id="tt-accuse" class="tt-accuse" type="button" disabled>
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2.5 4 6v6c0 5.2 3.2 8.7 8 9.5 4.8-.8 8-4.3 8-9.5V6l-8-3.5Z" stroke="currentColor" stroke-width="1.8"/><path d="m9 12 2.1 2.2 4-4.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Reveal the evidence
+        </button>
       </div>
-      <div id="owner-workspace" hidden>
-        <p class="eyebrow">Atlas Arcade · Experimental / Not released</p>
-        <h1>Truth <span>Trap.</span><br>PROTO</h1>
-        <p class="intro">A fresh investigation. Three illustrated claims, one convincing lie. This workspace is isolated from the live Truth Trap.</p>
-        <section class="panel" aria-labelledby="prototype-heading">
-          <h2 id="prototype-heading">Our first investigation</h2>
-          <p>The prototype workspace is ready. First build: one genuinely playable illustrated case, with a fast, satisfying reveal and no redundant verdict panel.</p>
-          <div class="slots" aria-label="Planned illustrated statement cards">
-            <div class="slot"><strong>A</strong><span>Illustration + claim</span></div>
-            <div class="slot"><strong>B</strong><span>Illustration + claim</span></div>
-            <div class="slot"><strong>C</strong><span>Illustration + claim</span></div>
-          </div>
-          <p class="fine">Design placeholders only. No game mechanics or art have been approved or built yet.</p>
-        </section>
-      </div>
+      <section id="tt-results" class="tt-results" aria-labelledby="tt-result-title" hidden>
+        <p class="tt-results-overline">Investigation complete</p>
+        <h2 id="tt-result-title">Case cracked.</h2>
+        <p id="tt-results-summary" class="tt-results-summary"></p>
+        <div class="tt-fact-grid">
+          <article class="tt-fact is-lie">
+            <strong class="tt-fact-heading">A / The Lie</strong>
+            <p>Penguins have knees! Their upper legs and knee joints are hidden beneath their feathers and body outline.</p>
+            <a href="https://www.bas.ac.uk/wp-content/uploads/2015/05/Public-information-leaflet_PENGUINS_2017.pdf" target="_blank" rel="noopener noreferrer">British Antarctic Survey / Evidence</a>
+          </article>
+          <article class="tt-fact">
+            <strong class="tt-fact-heading">B / True</strong>
+            <p>In botanical terms, bananas really are berries. Scientists classify fruits differently from supermarkets.</p>
+            <a href="https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:584951-1/general-information" target="_blank" rel="noopener noreferrer">Kew Science / Evidence</a>
+          </article>
+          <article class="tt-fact">
+            <strong class="tt-fact-heading">C / True</strong>
+            <p>Octopuses have three hearts: two pump blood through their gills, and a third pumps it around the body.</p>
+            <a href="https://ocean.si.edu/ocean-life/invertebrates/octopuses-squids-and-relatives" target="_blank" rel="noopener noreferrer">Smithsonian Ocean / Evidence</a>
+          </article>
+        </div>
+        <div class="tt-discuss">
+          <p class="tt-results-overline">Keep the conversation alive</p>
+          <p>Which of these would be hardest to convince someone is true — and what evidence would persuade them?</p>
+        </div>
+        <button class="tt-replay" type="button" id="tt-replay">Investigate again ↺</button>
+      </section>
     </main>
   </div>
   <div id="atlas-session-panel-root"></div>
