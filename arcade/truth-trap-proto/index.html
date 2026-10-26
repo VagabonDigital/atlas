@@ -331,7 +331,7 @@
 
     /* The prototyping workspace only opens after owner verification. */
   </style>
-  <link rel="stylesheet" href="./experience.css?v=20261026-7">
+  <link rel="stylesheet" href="./experience.css?v=20261026-8">
 </head>
 <body data-atlas-world="arcade" data-atlas-surface="content">
   <!-- Truth Trap 2.0 cover study: original day/night collage, liberated
@@ -373,19 +373,19 @@
       <section class="tt-exhibits" aria-label="Choose the false claim">
         <button type="button" class="tt-exhibit" data-choice="A" aria-pressed="false">
           <span class="tt-exhibit-shell" aria-hidden="true"></span>
-          <span class="tt-art" aria-hidden="true"><span class="tt-art-image"></span></span>
+          <span class="tt-art" aria-hidden="true"><span class="tt-art-image"></span><span class="tt-art-placeholder" hidden><span class="tt-art-placeholder-mark">A</span><span class="tt-art-placeholder-label">Illustration pending</span></span></span>
           <span class="tt-exhibit-head"><span class="tt-exhibit-letter" aria-hidden="true">A</span><span class="tt-exhibit-claim">Penguins have no knees.</span></span>
           <span class="tt-exhibit-status">Exhibit A</span>
         </button>
         <button type="button" class="tt-exhibit" data-choice="B" aria-pressed="false">
           <span class="tt-exhibit-shell" aria-hidden="true"></span>
-          <span class="tt-art" aria-hidden="true"><span class="tt-art-image"></span></span>
+          <span class="tt-art" aria-hidden="true"><span class="tt-art-image"></span><span class="tt-art-placeholder" hidden><span class="tt-art-placeholder-mark">B</span><span class="tt-art-placeholder-label">Illustration pending</span></span></span>
           <span class="tt-exhibit-head"><span class="tt-exhibit-letter" aria-hidden="true">B</span><span class="tt-exhibit-claim">Bananas are berries.</span></span>
           <span class="tt-exhibit-status">Exhibit B</span>
         </button>
         <button type="button" class="tt-exhibit" data-choice="C" aria-pressed="false">
           <span class="tt-exhibit-shell" aria-hidden="true"></span>
-          <span class="tt-art" aria-hidden="true"><span class="tt-art-image"></span></span>
+          <span class="tt-art" aria-hidden="true"><span class="tt-art-image"></span><span class="tt-art-placeholder" hidden><span class="tt-art-placeholder-mark">C</span><span class="tt-art-placeholder-label">Illustration pending</span></span></span>
           <span class="tt-exhibit-head"><span class="tt-exhibit-letter" aria-hidden="true">C</span><span class="tt-exhibit-claim">Octopuses have three hearts.</span></span>
           <span class="tt-exhibit-status">Exhibit C</span>
         </button>
@@ -402,27 +402,18 @@
         <h2 id="tt-result-title">Case cracked.</h2>
         <p id="tt-results-summary" class="tt-results-summary"></p>
         <div class="tt-fact-grid">
-          <article class="tt-fact is-lie">
-            <strong class="tt-fact-heading">A / The Lie</strong>
-            <p>Penguins have knees! Their upper legs and knee joints are hidden beneath their feathers and body outline.</p>
-            <a href="https://www.bas.ac.uk/wp-content/uploads/2015/05/Public-information-leaflet_PENGUINS_2017.pdf" target="_blank" rel="noopener noreferrer">British Antarctic Survey / Evidence</a>
-          </article>
-          <article class="tt-fact">
-            <strong class="tt-fact-heading">B / True</strong>
-            <p>In botanical terms, bananas really are berries. Scientists classify fruits differently from supermarkets.</p>
-            <a href="https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:584951-1/general-information" target="_blank" rel="noopener noreferrer">Kew Science / Evidence</a>
-          </article>
-          <article class="tt-fact">
-            <strong class="tt-fact-heading">C / True</strong>
-            <p>Octopuses have three hearts: two pump blood through their gills, and a third pumps it around the body.</p>
-            <a href="https://ocean.si.edu/ocean-life/invertebrates/octopuses-squids-and-relatives" target="_blank" rel="noopener noreferrer">Smithsonian Ocean / Evidence</a>
-          </article>
+          <article class="tt-fact"><strong class="tt-fact-heading"></strong><p></p><div class="tt-fact-sources"></div></article>
+          <article class="tt-fact"><strong class="tt-fact-heading"></strong><p></p><div class="tt-fact-sources"></div></article>
+          <article class="tt-fact"><strong class="tt-fact-heading"></strong><p></p><div class="tt-fact-sources"></div></article>
         </div>
         <div class="tt-discuss">
           <p class="tt-results-overline">Keep the conversation alive</p>
           <p>Which of these would be hardest to convince someone is true — and what evidence would persuade them?</p>
         </div>
-        <button class="tt-replay" type="button" id="tt-replay">Investigate again ↺</button>
+        <div class="tt-result-actions">
+          <button class="tt-replay" type="button" id="tt-replay">Investigate again ↺</button>
+          <button class="tt-next-case" type="button" id="tt-next-case">Next case →</button>
+        </div>
       </section>
     </main>
   </div>
@@ -511,30 +502,105 @@
         }, 400);
       }
 
-      // One complete case. This state belongs to Truth Trap PROTO alone.
-      // We deliberately have no fake next case or unearned progress claims.
+      // Case content lives with its game. More cases reuse this exact stage,
+      // choice/reveal behaviour and evidence layout, not a new Arcade engine.
+      // Only source-reviewed cases enter this small playable sequence.
+      const CASES = [
+        {
+          number: '01',
+          heading: 'Nature Refuses to Behave',
+          chapter: 'The Impossible Files',
+          lie: 'A',
+          illustrated: true,
+          statements: {
+            A: 'Penguins have no knees.',
+            B: 'Bananas are berries.',
+            C: 'Octopuses have three hearts.'
+          },
+          evidence: {
+            A: {
+              explanation: 'Penguins have knees! Their upper legs and knee joints are hidden beneath their feathers and body outline.',
+              sources: [{ label: 'British Antarctic Survey / Evidence', url: 'https://www.bas.ac.uk/wp-content/uploads/2015/05/Public-information-leaflet_PENGUINS_2017.pdf' }]
+            },
+            B: {
+              explanation: 'In botanical terms, bananas really are berries. Scientists classify fruits differently from supermarkets.',
+              sources: [{ label: 'Kew Science / Evidence', url: 'https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:584951-1/general-information' }]
+            },
+            C: {
+              explanation: 'Octopuses have three hearts: two pump blood through their gills, and a third pumps it around the body.',
+              sources: [{ label: 'Smithsonian Ocean / Evidence', url: 'https://ocean.si.edu/ocean-life/invertebrates/octopuses-squids-and-relatives' }]
+            }
+          },
+          discussion: 'Which of these would be hardest to convince someone is true — and what evidence would persuade them?',
+          success: 'You accused the penguin claim — correctly. Now uncover the evidence behind all three claims.',
+          failure: choice => 'You accused exhibit ' + choice +
+            ', but penguins really do have knees. Here is what every claim was hiding.'
+        },
+        {
+          number: '02',
+          heading: 'History Is Bad at Timing',
+          chapter: 'The Impossible Files',
+          lie: 'B',
+          illustrated: false,
+          statements: {
+            A: 'Cleopatra lived closer to the Moon landing than to the building of the Great Pyramid.',
+            B: 'Napoleon was unusually short for his time.',
+            C: 'Oxford University is older than the Aztec Empire.'
+          },
+          evidence: {
+            A: {
+              explanation: 'Cleopatra VII died in 30 BCE. The Great Pyramid was built around 2,500 BCE, while the first Moon landing was in 1969. Cleopatra was roughly 2,000 years from the Moon landing, but about 2,500 from the pyramid.',
+              sources: [
+                { label: 'UCL / Cleopatra VII', url: 'https://www.ucl.ac.uk/museums-static/digitalegypt/chronology/cleopatravii.html' },
+                { label: 'Egyptian Ministry / Great Pyramid', url: 'https://egymonuments.gov.eg/monuments/the-great-pyramid/' },
+                { label: 'NASA / Apollo 11', url: 'https://www.nasa.gov/mission/apollo-11/' }
+              ]
+            },
+            B: {
+              explanation: 'Napoleon was about 1.68 m tall — roughly average for a French man of his era. Old French measurements and British caricatures helped create the myth that he was exceptionally short.',
+              sources: [{ label: 'Fondation Napoléon / Evidence', url: 'https://www.napoleon.org/en/history-of-the-two-empires/articles/was-napoleon-small' }]
+            },
+            C: {
+              explanation: 'Teaching existed at Oxford by 1096. The Aztec Empire emerged with the Triple Alliance in 1428 — more than 300 years later. The Mexica people existed earlier, but their empire came later.',
+              sources: [
+                { label: 'Oxford University / History', url: 'https://www.ox.ac.uk/about/the-university/history' },
+                { label: 'National Geographic / Aztec History', url: 'https://education.nationalgeographic.org/resource/aztec-civilization/' }
+              ]
+            }
+          },
+          discussion: 'Which part of history feels much older — or much more recent — than you expected? Why do our mental timelines get so scrambled?',
+          success: 'You spotted the Napoleon myth. His reputation for being tiny has survived far longer than the facts behind it.',
+          failure: choice => 'You accused exhibit ' + choice +
+            ', but Napoleon was not unusually short for his time. The other timelines really do overlap in surprising ways.'
+        }
+      ];
+
       const exhibits = Array.from(document.querySelectorAll('.tt-exhibit'));
+      const factCards = Array.from(document.querySelectorAll('.tt-fact'));
+      const caseNumber = document.querySelector('.tt-case-number');
+      const caseHeading = document.querySelector('.tt-case-heading h1');
       const accuseButton = document.getElementById('tt-accuse');
       const accuseLabel = accuseButton.querySelector('.tt-accuse-label');
       const choiceStatus = document.getElementById('tt-choice-status');
       const results = document.getElementById('tt-results');
       const resultsTitle = document.getElementById('tt-result-title');
       const resultsSummary = document.getElementById('tt-results-summary');
+      const discussion = document.querySelector('.tt-discuss p:last-child');
       const replayButton = document.getElementById('tt-replay');
-      const statements = {
-        A: 'Penguins have no knees.',
-        B: 'Bananas are berries.',
-        C: 'Octopuses have three hearts.'
-      };
-      const lie = 'A';
+      const nextCaseButton = document.getElementById('tt-next-case');
+      const exhibitKeys = ['A', 'B', 'C'];
+      let caseIndex = 0;
       let suspect = null;
       let revealed = false;
 
+      function activeCase() { return CASES[caseIndex]; }
+
       function renderInvestigation() {
+        const record = activeCase();
         for (const exhibit of exhibits) {
           const key = exhibit.dataset.choice;
           const chosen = key === suspect;
-          const falseClaim = key === lie;
+          const falseClaim = key === record.lie;
           exhibit.classList.toggle('is-selected', chosen);
           exhibit.classList.toggle('is-revealed', revealed);
           exhibit.classList.toggle('is-lie', revealed && falseClaim);
@@ -545,7 +611,7 @@
             revealed ? (falseClaim ? 'The lie' : 'True')
                      : chosen ? 'Your suspect' : 'Exhibit ' + key;
           exhibit.setAttribute('aria-label',
-            key + ': ' + statements[key] + ' ' +
+            key + ': ' + record.statements[key] + ' ' +
             (revealed
               ? (falseClaim ? 'This was the lie.' : 'This was true.') +
                 (chosen ? ' Your selection.' : '')
@@ -562,14 +628,56 @@
                     : 'CHOOSE YOUR SUSPECT';
         results.hidden = !revealed;
         if (revealed) {
-          const correct = suspect === lie;
+          const correct = suspect === record.lie;
           resultsTitle.textContent = correct
             ? 'Case cracked. You found the lie.'
-            : 'Plot twist. The lie was A.';
-          resultsSummary.textContent = correct
-            ? 'You accused the penguin claim — correctly. Now uncover the evidence behind all three claims.'
-            : 'You accused exhibit ' + suspect +
-              ', but penguins really do have knees. Here is what every claim was hiding.';
+            : 'Plot twist. The lie was ' + record.lie + '.';
+          resultsSummary.textContent = correct ? record.success : record.failure(suspect);
+        }
+      }
+
+      function loadCase(index, scrollToTop = false) {
+        if (index < 0 || index >= CASES.length) return;
+        caseIndex = index;
+        suspect = null;
+        revealed = false;
+        const record = activeCase();
+        caseNumber.textContent = 'Case ' + record.number + ' / ' + record.chapter;
+        caseHeading.textContent = record.heading;
+        for (const exhibit of exhibits) {
+          const key = exhibit.dataset.choice;
+          exhibit.querySelector('.tt-exhibit-claim').textContent = record.statements[key];
+          exhibit.querySelector('.tt-art').classList.toggle('is-art-pending', !record.illustrated);
+          exhibit.querySelector('.tt-art-placeholder').hidden = record.illustrated;
+        }
+        for (const [index, key] of exhibitKeys.entries()) {
+          const fact = record.evidence[key];
+          const card = factCards[index];
+          card.classList.toggle('is-lie', key === record.lie);
+          card.querySelector('.tt-fact-heading').textContent =
+            key + ' / ' + (key === record.lie ? 'The Lie' : 'True');
+          card.querySelector('p').textContent = fact.explanation;
+          const links = card.querySelector('.tt-fact-sources');
+          links.replaceChildren();
+          for (const source of fact.sources) {
+            const link = document.createElement('a');
+            link.href = source.url;
+            link.textContent = source.label;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            links.append(link);
+          }
+        }
+        discussion.textContent = record.discussion;
+        nextCaseButton.textContent = index + 1 < CASES.length
+          ? 'Next case →'
+          : 'Return to Case 01 ↺';
+        renderInvestigation();
+        if (scrollToTop) {
+          document.querySelector('.tt-case-heading').scrollIntoView({
+            behavior: 'auto', block: 'start'
+          });
+          exhibits[0].focus({ preventScroll: true });
         }
       }
 
@@ -595,15 +703,13 @@
       });
       replayButton.addEventListener('click', () => {
         if (!ownerVerified) return;
-        suspect = null;
-        revealed = false;
-        renderInvestigation();
-        document.querySelector('.tt-case-heading').scrollIntoView({
-          behavior: 'auto', block: 'start'
-        });
-        exhibits[0].focus({ preventScroll: true });
+        loadCase(caseIndex, true);
       });
-      renderInvestigation();
+      nextCaseButton.addEventListener('click', () => {
+        if (!ownerVerified || !revealed) return;
+        loadCase((caseIndex + 1) % CASES.length, true);
+      });
+      loadCase(0);
 
       enterButton.addEventListener('click', enterPrototype);
       window.addEventListener('atlas:appearance-change', applyTheme);
