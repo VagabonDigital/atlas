@@ -11,6 +11,24 @@
 
 ---
 
+## Prototype implementation checkpoint — 26 October 2026
+
+**State: coded on the isolated prototype branch; automated interaction smoke-tested. Not manually validated or playtested with a tutor and learner.**
+
+The prototype no longer contains the inherited 25-card gameplay. It now presents one small, authored episode within the same Upgrade Clinic environment:
+
+1. **Portal → arrival** with a deliberately minimal scenic overlay, no bulky text box or in-scene theme control.
+2. **Encounter → negotiation**: two real participants make their case for a single complimentary enhancement, select one recipient (Traveller 1 or Traveller 2) and one enhancement, including an optional custom proposal.
+3. **Authored complication**: the clinic reveals that the recipient would be reclassified as synthetic and the companion designated as legal guarantor.
+4. **Reconsideration → response**: the pair talks again and deliberately chooses one of three authored reactions (accept, counteroffer, or walk away).
+5. **Consequence → departure**: each response displays a distinct fictional outcome; both can reflect, revisit the response, or return to the portal.
+
+**This is not an AI storyteller or a conversation-aware simulation.** The UI does not listen to the players, interpret speech or evaluate arguments. Only button choices drive the authored transitions. A selectable recipient plus a shared decision is a *working interaction hypothesis*, not a proven two-person game design. The upgrade and synthetic-status complication adapt the original scenario's identity/trust concerns while making a joint decision concrete.
+
+**Next evaluation:** inspect the live screens at realistic laptop and mobile sizes; play the entire sequence in a shared video lesson; watch for whether both people contribute naturally, whether the complication changes the discussion, whether the choice controls feel useful or mechanical, and whether departure creates a desire to explore another future. Do not commission looping environment video or expand to other futures until this provides evidence.
+
+---
+
 ## 1. Why this direction exists
 
 The present Tomorrow Got Weird has excellent material for imaginative conversation, but there is a gap between its promise and its experience:
@@ -215,7 +233,7 @@ When the prototype works, derive a coherent pattern for the remaining futures. I
 
 ## 10. Immediate next step and decision status
 
-**Next:** Define the actual **two-person interaction for the Upgrade Clinic**, then build and inspect one complete episode covering arrival, shared decision, authored complication, response and departure.
+**Next:** Manually inspect the newly implemented prototype episode and run a real two-person playtest. Evaluate the shared-decision mechanic and pacing before changing the structure or adding animated environment assets.
 
 **Decided:**
 - Future-hopping is the experience fantasy.
