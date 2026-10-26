@@ -508,6 +508,97 @@
           workspace.hidden = false;
         }, 400);
       }
+
+      // One complete case. This state belongs to Truth Trap PROTO alone.
+      // We deliberately have no fake next case or unearned progress claims.
+      const exhibits = Array.from(document.querySelectorAll('.tt-exhibit'));
+      const accuseButton = document.getElementById('tt-accuse');
+      const choiceStatus = document.getElementById('tt-choice-status');
+      const results = document.getElementById('tt-results');
+      const resultsTitle = document.getElementById('tt-result-title');
+      const resultsSummary = document.getElementById('tt-results-summary');
+      const replayButton = document.getElementById('tt-replay');
+      const statements = {
+        A: 'Penguins have no knees.',
+        B: 'Bananas are berries.',
+        C: 'Octopuses have three hearts.'
+      };
+      const lie = 'A';
+      let suspect = null;
+      let revealed = false;
+
+      function renderInvestigation() {
+        for (const exhibit of exhibits) {
+          const key = exhibit.dataset.choice;
+          const chosen = key === suspect;
+          const falseClaim = key === lie;
+          exhibit.classList.toggle('is-selected', chosen);
+          exhibit.classList.toggle('is-revealed', revealed);
+          exhibit.classList.toggle('is-lie', revealed && falseClaim);
+          exhibit.classList.toggle('is-truth', revealed && !falseClaim);
+          exhibit.setAttribute('aria-pressed', String(chosen));
+          exhibit.disabled = revealed;
+          exhibit.querySelector('.tt-exhibit-status').textContent =
+            revealed ? (falseClaim ? 'The lie' : 'True')
+                     : chosen ? 'Your suspect' : 'Exhibit ' + key;
+          exhibit.setAttribute('aria-label',
+            key + ': ' + statements[key] + ' ' +
+            (revealed
+              ? (falseClaim ? 'This was the lie.' : 'This was true.') +
+                (chosen ? ' Your selection.' : '')
+              : chosen ? 'Selected as suspected lie.' : 'Select as suspected lie.')
+          );
+        }
+        accuseButton.hidden = revealed;
+        accuseButton.disabled = !suspect || revealed;
+        choiceStatus.textContent = revealed ? 'THE EVIDENCE IS IN'
+          : suspect ? 'EXHIBIT ' + suspect + ' IS YOUR SUSPECT'
+                    : 'CHOOSE YOUR SUSPECT';
+        results.hidden = !revealed;
+        if (revealed) {
+          const correct = suspect === lie;
+          resultsTitle.textContent = correct
+            ? 'Case cracked. You found the lie.'
+            : 'Plot twist. The lie was A.';
+          resultsSummary.textContent = correct
+            ? 'You accused the penguin claim — correctly. Now uncover the evidence behind all three claims.'
+            : 'You accused exhibit ' + suspect +
+              ', but penguins really do have knees. Here is what every claim was hiding.';
+        }
+      }
+
+      for (const exhibit of exhibits) {
+        exhibit.addEventListener('click', () => {
+          if (!ownerVerified || revealed) return;
+          const chosen = exhibit.dataset.choice;
+          suspect = suspect === chosen ? null : chosen;
+          renderInvestigation();
+        });
+      }
+      accuseButton.addEventListener('click', () => {
+        if (!ownerVerified || revealed || !suspect) return;
+        revealed = true;
+        renderInvestigation();
+        const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+        results.scrollIntoView({
+          behavior: reduceMotion ? 'auto' : 'smooth',
+          block: 'start'
+        });
+        resultsTitle.setAttribute('tabindex', '-1');
+        resultsTitle.focus({ preventScroll: true });
+      });
+      replayButton.addEventListener('click', () => {
+        if (!ownerVerified) return;
+        suspect = null;
+        revealed = false;
+        renderInvestigation();
+        document.querySelector('.tt-case-heading').scrollIntoView({
+          behavior: 'auto', block: 'start'
+        });
+        exhibits[0].focus({ preventScroll: true });
+      });
+      renderInvestigation();
+
       enterButton.addEventListener('click', enterPrototype);
       window.addEventListener('atlas:appearance-change', applyTheme);
 
