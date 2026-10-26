@@ -42,3 +42,7 @@ prizes and dates across checkpoints rather than leaving all hard questions last.
 ## Batch 2 checkpoint
 
 219 reviewed: 162 approved, 22 repaired, 35 rejected; zero unresolved playable entries. Focused suite: 15/15 passed. University records support the 2000 repair at 453. NASA's transcript/video notes resolve the earlier rejection at 970: restored to approved, with evidence attached. Batch 1 therefore now has 147 approved and 43 rejected. The 1989 Grammy outcome at 994 was checked against the Recording Academy.
+
+## Batch 3 checkpoint
+
+219 reviewed: 143 approved, 41 repaired, 35 rejected; zero unresolved playable entries. Focused suite: 15/15 passed. Repairs clarify historical officeholders, terminology and misspellings. Rejected 538 because cows as well as snakes are non-native to the named islands; rejected ambiguous calendar/ranking and quotation claims rather than treating source keys as infallible.
