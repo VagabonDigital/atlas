@@ -34,3 +34,7 @@ Difficulty is editorial and will still need learner-outcome calibration.
 The remaining 875 entries are split into four recoverable batches of 219, 219,
 219 and 218 by taking every fourth remaining index. This distributes source
 prizes and dates across checkpoints rather than leaving all hard questions last.
+
+## Batch 1 checkpoint
+
+219 reviewed: 146 approved, 29 repaired, 44 rejected; zero unresolved playable entries. Focused suite: 15/15 passed. Stable vocabulary and cultural references retained; vague surveys, unsafe household tips and obsolete rankings excluded. Specific history/arts questions supply upper-rung candidates; source prize is not used as a rung formula.
