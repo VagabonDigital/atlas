@@ -1,5 +1,6 @@
 import { Millionaire, PRIZES, band, resolved } from './game.mjs';
 import { QUESTIONS } from './questions.mjs';
+import { LEGACY_QUESTIONS } from './legacy-questions.mjs';
 import { continuity } from './continuity.mjs';
 import { createShowDirector } from './show-director.mjs';
 
@@ -86,7 +87,7 @@ function restoreRunAtCover() {
   $('#start').textContent = 'Start Game';
   const savedRun = storage.activeRun(context.id);
   if (!savedRun) return;
-  const candidate = new Millionaire(QUESTIONS, { seen: storage.seen(context.id), sessionSeen: savedRun.sessionSeen || [], onEvent });
+  const candidate = new Millionaire(QUESTIONS, { restoreBank: LEGACY_QUESTIONS, seen: storage.seen(context.id), sessionSeen: savedRun.sessionSeen || [], onEvent });
   if (candidate.restore(savedRun)) {
     game = candidate;
     runEngaged = savedRun.engaged === true || hasRunInteraction(candidate);

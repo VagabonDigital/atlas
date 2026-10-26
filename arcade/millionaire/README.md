@@ -24,11 +24,23 @@ Browser verification covered the entrance and rules; selection, lock and reveal 
 
 ## Content and Atlas boundary
 
-`questions.mjs` contains 40 authored seed questions, four per rung, with answers, explanations, family/difficulty metadata, evidence and source links. Difficulty is editorial; the existing Atlas session state stores exposure, outcomes and Question Care events for later calibration. Current-session exposure prevents immediate repetition inside a run, while tutor-wide and cross-session exposure are soft preferences: previously seen authored questions become eligible again when fresher options are exhausted. Exhaustion never generates unverified questions.
+`questions.mjs` contains 818 curated authentic research questions and is the only source for fresh questions, replacements and replay. `dev/wwtbam.json` owns all 1,000 review decisions: 668 approved, 150 repaired and approved, 182 rejected, none pending. Original source metadata, original wording/options for repairs, and all 25 inherited rulings remain preserved. See `dev/curation.md` for checkpoint results and limitations.
+
+Regenerate after archive edits with `node arcade/millionaire/dev/build-questions.mjs`; use `--check` to detect drift. The static browser projection excludes rejected entries and review working notes. Source links are only references actually consulted; an empty list is deliberate, not a claim of independent external verification.
+
+`legacy-questions.mjs` retains the 40 original seed IDs and contents solely to hydrate an already-displayed saved question. Option order, answer, selection, hidden options and lifelines survive resume. Subsequent progression, replacement and new runs use the authentic bank exclusively.
+
+Rung counts (1–10): **48, 112, 189, 157, 112, 103, 46, 23, 16, 12**. Difficulty is editorial, not calibrated from learner outcomes. Upper rungs remain the smallest pools. The existing Atlas session state stores exposure, outcomes and Question Care events for later calibration. Current-session exposure prevents immediate repetition inside a run, while tutor-wide and cross-session exposure are soft preferences: previously seen questions become eligible again when fresher options are exhausted. Exhaustion never generates unverified questions.
 
 `continuity.mjs` uses the existing AtlasBridge session identity and registry. Reopening an unfinished run shows the cover with **Continue Run**, which enters the hydrated question and lifeline state without starting a new run. Simply seeing Question 1 saves the run but is not learning progress; the Arcade and Atlas Continue cards are eligible after the first selected answer, used lifeline or another meaningful game action. During an active game, the muted **New Run** control requires confirmation before abandoning that run and starting again at Question 1. It clears only the active run snapshot for the current Atlas learner session; previously encountered questions, results, event history and session-best data remain intact. It never alters another learner's game. Existing **Play Again** handles completed runs. The shared session panel owns account/cloud behavior. Signed-in cloud synchronization was not exercised in the local browser review.
 
 The shared chrome change adds opt-outs to `arcade-game-chrome.js` so Millionaire can use the existing floating Back/Session controls without Search or appearance controls. Other callers retain their defaults. The existing `shared/arcade-catalog-data.js` owns the new game metadata, while `arcade/index.html` adds its cover and presents Play / Play again rather than an unsupported Resume action.
+
+## Authentic-bank verification (issue #168)
+
+The focused suite passes 19 tests, covering archive/projection parity, preserved source records and inherited rulings, all 40 legacy questions across applicable saved phases, authentic-only progression/replacement/replay, answer hiding, lifelines, prizes, safety levels, walking away, and six complete repeat runs with final-rung replacement. The projection drift check also passes.
+
+Targeted local browser checks covered fresh authentic selection, Narrow It Down, selected-answer reload and Continue Run, Host’s Take, lock/reveal with explanation, progression and New Question replacement. A long replacement prompt remained readable with all four options visible at the emulated 1280×720 layout. No browser console errors were captured. Signed-in cloud synchronization and learner-outcome difficulty calibration were not exercised.
 
 ## Artwork
 
