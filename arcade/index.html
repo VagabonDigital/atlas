@@ -1731,6 +1731,70 @@
       order: 999,
       launchUrl: './tomorrow-got-weird-proto/index.html'
     });
+    // Isolated Truth Trap 2.0 design workspace. Owner-verified hub entry only.
+    // Unlike TGW's browser opt-in, this checks the authenticated Atlas user
+    // against Supabase before showing a card. The static URL is still public.
+    const TRUTH_TRAP_PROTO_OWNER_EMAIL = 'savvy989@gmail.com';
+    const TRUTH_TRAP_PROTO_GAME = Object.freeze({
+      registryId: 'arcade:truth-trap-proto',
+      publicAccess: 'full',
+      title: 'Truth Trap — PROTO',
+      premise: 'A new illustrated investigation. Three claims, one convincing lie.',
+      unitLabel: 'Experiment',
+      total: 1,
+      artId: 'truth-proto',
+      coverImage: '../assets/hub/truth-trap.webp',
+      accent: '#0891b2',
+      order: 1000,
+      launchUrl: './truth-trap-proto/index.html'
+    });
+    let verifiedTruthProtoUserId = '';
+    let truthProtoIdentityKey = '';
+    let truthProtoCheckVersion = 0;
+
+    function isTruthTrapProtoOwner() {
+      const account = window.AtlasAccount?.getState?.();
+      return Boolean(
+        account?.ready &&
+        account.authenticated &&
+        account.userId &&
+        account.userId === verifiedTruthProtoUserId &&
+        String(account.email || '').trim().toLowerCase() ===
+          TRUTH_TRAP_PROTO_OWNER_EMAIL
+      );
+    }
+
+    async function verifyTruthTrapProtoOwner(force = false) {
+      const account = window.AtlasAccount?.getState?.();
+      const email = String(account?.email || '').trim().toLowerCase();
+      const key = account?.ready && account?.authenticated
+        ? String(account.userId || '') + '|' + email
+        : '';
+      if (!force && key === truthProtoIdentityKey) return;
+      truthProtoIdentityKey = key;
+      verifiedTruthProtoUserId = '';
+      const version = ++truthProtoCheckVersion;
+
+      if (
+        key &&
+        email === TRUTH_TRAP_PROTO_OWNER_EMAIL &&
+        window.AtlasCloud?.getUser
+      ) {
+        try {
+          const user = await window.AtlasCloud.getUser();
+          if (version !== truthProtoCheckVersion) return;
+          if (
+            user?.id === account.userId &&
+            String(user.email || '').trim().toLowerCase() ===
+              TRUTH_TRAP_PROTO_OWNER_EMAIL
+          ) verifiedTruthProtoUserId = user.id;
+        } catch (error) {
+          // Fail closed. An unavailable auth check never reveals the entry.
+        }
+      }
+      if (version === truthProtoCheckVersion) renderHub();
+    }
+
     const TGW_PROTO_OWNER_KEY = 'atlas::arcade::tgwProtoAccount:v1';
 
     function isTgwProtoEnabled() {
@@ -1751,9 +1815,12 @@
     }
 
     function getVisibleArcadeGames() {
-      return isTgwProtoEnabled()
+      const games = isTgwProtoEnabled()
         ? [...GAME_CATALOGUE, TGW_PROTO_GAME]
         : GAME_CATALOGUE;
+      return isTruthTrapProtoOwner()
+        ? [...games, TRUTH_TRAP_PROTO_GAME]
+        : games;
     }
 
     /* ================================================================
@@ -1838,6 +1905,14 @@
        complete or retire the game.
        ================================================================ */
     function getGameDeckState(game, state) {
+      if (game.registryId === 'arcade:truth-trap-proto') {
+        return {
+          mode: 'unstarted',
+          actionLabel: 'Open',
+          positionLabel: 'Design workspace',
+          progressPercent: 0
+        };
+      }
       // Experimental encounter has no scenario sequence or completion counter.
       if (game.registryId === 'arcade:tomorrow-got-weird-proto') {
         return {
@@ -2385,15 +2460,18 @@
     }
 
     window.addEventListener('atlas:session-change', refresh);
-    window.addEventListener(
-      'atlas:account-change',
-      refresh
-    );
+    window.addEventListener('atlas:account-change', () => {
+      void verifyTruthTrapProtoOwner();
+      refresh();
+    });
     window.addEventListener('atlas:appearance-change', e => {
       const mode = (e.detail && e.detail.mode) || Bridge.readAppearanceMode();
       updateAppearanceButtons(mode);
     });
-    window.addEventListener('focus', refresh);
+    window.addEventListener('focus', () => {
+      void verifyTruthTrapProtoOwner(true);
+      refresh();
+    });
     window.addEventListener('pageshow', refresh);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
     window.addEventListener('storage', e => {
@@ -2578,6 +2656,9 @@
 
       renderHub();
       markLocalPresentationReady();
+      // The account stack initializes after the hub's first paint.
+      // Its account-change event re-runs this check when identity is ready.
+      void verifyTruthTrapProtoOwner();
     }
 
     if (document.readyState === 'loading') {
