@@ -6550,7 +6550,7 @@
     "previous_index": 414,
     "date": "2018-06-01",
     "prize": 1000,
-    "question": "A recent Off-Broadway \"remix\", or hip-hop version, of what Shakespeare play featuring the two-faced Iago was advertised with the slogan \"Moor Money, Moor Problems\"?",
+    "question": "Which Shakespeare play featuring Iago inspired an Off-Broadway hip-hop adaptation advertised as \"Moor Money, Moor Problems\"?",
     "answers": [
       "A Midsummer Night's Dream",
       "Romeo & Juliet",
@@ -6560,13 +6560,15 @@
     "correct_answer": "Othello",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "approved",
+    "review_status": "repaired_and_approved",
     "atlas_rung": 4,
     "reviewed_at": "2026-10-26",
     "review_batch": "batch-3",
     "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
     "review_sources": [],
-    "review_explanation": "Othello is the Moor of Venice, and Iago is the play's scheming antagonist."
+    "review_explanation": "Othello is the Moor of Venice, and Iago is the play's scheming antagonist.",
+    "original_question": "A recent Off-Broadway \"remix\", or hip-hop version, of what Shakespeare play featuring the two-faced Iago was advertised with the slogan \"Moor Money, Moor Problems\"?",
+    "review_notes": "Removed stale \"recent\" framing and clarified the question without changing the source answer."
   },
   {
     "index": 280,
@@ -13525,7 +13527,7 @@
     "previous_index": 523,
     "date": "2018-01-26",
     "prize": 4000,
-    "question": "Which of these characters is the only one who typically wears pants?",
+    "question": "Which of these cartoon characters typically wears red shorts?",
     "answers": [
       "Bugs Bunny",
       "Donald Duck",
@@ -13535,13 +13537,15 @@
     "correct_answer": "Mickey Mouse",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "approved",
+    "review_status": "repaired_and_approved",
     "atlas_rung": 2,
     "reviewed_at": "2026-10-26",
     "review_batch": "batch-1",
     "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
     "review_sources": [],
-    "review_explanation": "Mickey Mouse usually wears shorts; the other characters' familiar outfits do not include pants."
+    "review_explanation": "Mickey Mouse is famously drawn wearing red shorts, unlike the other three characters.",
+    "original_question": "Which of these characters is the only one who typically wears pants?",
+    "review_notes": "Clarified pants versus shorts to make the intended single answer fair."
   },
   {
     "index": 578,
