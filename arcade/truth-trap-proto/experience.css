@@ -178,13 +178,18 @@ html:not([data-theme="night"]) .tt-game::after {
   position: absolute;
   z-index: -1;
   pointer-events: none;
-  left: 7%;
-  right: 7%;
-  bottom: 39px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent,rgba(71,209,239,.33) 18%,
-    rgba(103,227,244,.60) 50%,rgba(71,209,239,.33) 82%,transparent);
-  box-shadow: 0 0 19px rgba(17,194,238,.27);
+  left: -3%;
+  bottom: 4px;
+  width: min(57%, 610px);
+  height: 154px;
+  /* Generated illustration experiment: a cropped detective table surface,
+     subdued into the stage rather than used as pre-rendered game UI. */
+  background: url("./evidence-table-study.webp") left bottom / 100% auto no-repeat;
+  opacity: .34;
+  -webkit-mask-image: radial-gradient(ellipse at 35% 90%, #000 16%, transparent 78%);
+  mask-image: radial-gradient(ellipse at 35% 90%, #000 16%, transparent 78%);
+  transform: rotateX(30deg) rotateZ(-2deg);
+  filter: blur(.6px);
 }
 .tt-exhibit {
   --tilt: 0deg;
@@ -560,6 +565,7 @@ html:not([data-theme="night"]) .tt-game::after {
     perspective: 1050px;
   }
   .tt-exhibits::before { bottom: -5px; }
+  .tt-exhibits::after { width: 80%; height: 112px; bottom: 0; opacity: .24; }
   .tt-exhibit,
   .tt-exhibit:nth-child(1),
   .tt-exhibit:nth-child(2),
