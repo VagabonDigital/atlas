@@ -227,18 +227,26 @@ html:not([data-theme="night"]) .tt-game::after {
 .tt-exhibit:nth-child(2) { --tilt: 0deg; --bank: 0deg; --art-position: 49%; }
 .tt-exhibit:nth-child(3) { --tilt: 13deg; --bank: 1.25deg; --art-position: 86%; }
 
-/* This is a real backplate offset into the 3D scene. Its lower edge
-   and side highlights remain visible when the front plate tilts. */
+/* Deliberate extrusion, not a second independently outlined card.
+   A single cyan border defines the front silhouette. The rear is solid
+   material with a tighter offset: the extra outlined rear corners caused
+   little "bumps" at the top-right and bottom-left under perspective.
+   Keep depth, tilt and hover-lift; clean up the material read instead. */
 .tt-exhibit-shell {
   position: absolute;
   inset: 0;
   z-index: -1;
   display: block;
-  border: 2px solid rgba(74,207,224,.46);
-  border-radius: 22px;
-  background:
-    linear-gradient(155deg,rgba(249,216,150,.46) 0%,#174b64 7%,#021825 29%,#020c19 74%,rgba(2,155,189,.50));
-  transform: translate3d(7px,14px,-21px);
+  border: 0;
+  border-radius: 20px;
+  background: linear-gradient(
+    145deg,
+    #15465b 0%,
+    #092c40 50%,
+    #04202d 78%,
+    #0a6d83 100%
+  );
+  transform: translate3d(6px,12px,-14px);
   box-shadow:
     0 14px 0 -5px rgba(0,13,22,.94),
     0 27px 24px -7px rgba(0,1,10,.73),
