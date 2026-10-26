@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<!--
+  Truth Trap — PROTO
+  Separate, temporary design workspace for the illustrated Truth Trap 2.0.
+  The original game at arcade/truth-trap/ remains unchanged.
+  Client-side identity gating is presentation-only; static source is public.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <title>Truth Trap — PROTO | Arcade by Atlas</title>
+  <meta name="description" content="Private Atlas Arcade design prototype.">
+  <link rel="stylesheet" href="../shared/arcade-game-chrome.css?v=20260721">
+  <style>
+    :root { color-scheme: dark; font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100svh; color: #ebf7ff; background:
+      radial-gradient(circle at 85% 3%, rgba(10,193,239,.18), transparent 37rem),
+      radial-gradient(circle at 8% 88%, rgba(167,74,192,.14), transparent 33rem),
+      #08131f; }
+    a { color: #9feeff; text-underline-offset: 4px; }
+    a:focus-visible { outline: 3px solid #90efff; outline-offset: 4px; }
+    [hidden] { display: none !important; }
+    .page { max-width: 1200px; margin: 0 auto; padding: clamp(20px, 4vw, 56px); }
+    .top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+    .brand { font-size: 15px; font-weight: 750; letter-spacing: .02em; }
+    .brand span { color: #77dfff; }
+    .back { font-size: 14px; text-decoration: none; color: #c0e3ef; }
+    .back:hover { color: #fff; }
+    .content { min-height: min(73svh, 700px); display: flex; flex-direction: column; justify-content: center; padding: 52px 0; }
+    .eyebrow { margin: 0 0 16px; font-size: 11px; font-weight: 750; letter-spacing: .23em; text-transform: uppercase; color: #80d9f1; }
+    h1 { margin: 0; font-size: clamp(48px, 9vw, 104px); letter-spacing: -.07em; line-height: .99; }
+    h1 span { color: #8fe8ff; }
+    .intro { max-width: 56ch; margin: 24px 0 32px; color: #c3d3e3; line-height: 1.65; font-size: clamp(16px, 1.8vw, 19px); }
+    .panel { border: 1px solid rgba(165,225,245,.22); border-radius: 22px; padding: clamp(22px, 4vw, 36px); background: rgba(15,31,48,.78); }
+    .panel h2 { font-size: 22px; margin: 0 0 12px; }
+    .panel p { color: #c3d3e3; line-height: 1.6; margin: 0; }
+    .slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 24px; }
+    .slot { display: flex; flex-direction: column; justify-content: center; gap: 9px; min-height: 168px; border: 1px dashed rgba(145,209,236,.36); border-radius: 17px; background: rgba(5,19,35,.48); padding: 24px; }
+    .slot strong { color: #8fe8ff; font-size: 28px; }
+    .slot span { color: #b0c7d8; font-size: 14px; }
+    .fine { margin-top: 20px !important; font-size: 13px; color: #91aabf !important; }
+    @media (max-width: 660px) { .slots { grid-template-columns: 1fr; } .slot { min-height: 100px; } .content { padding: 36px 0; } }
+  </style>
+</head>
+<body data-atlas-world="arcade" data-atlas-surface="content">
+  <div class="page">
+    <header class="top">
+      <div class="brand">ATLAS <span>ARCADE</span> / EXPERIMENTS</div>
+      <a class="back" href="../">← Return to Arcade</a>
+    </header>
+    <main class="content">
+      <div id="access-gate" class="panel" role="status" aria-live="polite">
+        <h2>Truth Trap — PROTO</h2>
+        <p id="access-message">Verifying your Atlas account…</p>
+      </div>
+      <div id="owner-workspace" hidden>
+        <p class="eyebrow">Atlas Arcade · Experimental / Not released</p>
+        <h1>Truth <span>Trap.</span><br>PROTO</h1>
+        <p class="intro">A fresh investigation. Three illustrated claims, one convincing lie. This workspace is isolated from the live Truth Trap.</p>
+        <section class="panel" aria-labelledby="prototype-heading">
+          <h2 id="prototype-heading">Our first investigation</h2>
+          <p>The prototype workspace is ready. First build: one genuinely playable illustrated case, with a fast, satisfying reveal and no redundant verdict panel.</p>
+          <div class="slots" aria-label="Planned illustrated statement cards">
+            <div class="slot"><strong>A</strong><span>Illustration + claim</span></div>
+            <div class="slot"><strong>B</strong><span>Illustration + claim</span></div>
+            <div class="slot"><strong>C</strong><span>Illustration + claim</span></div>
+          </div>
+          <p class="fine">Design placeholders only. No game mechanics or art have been approved or built yet.</p>
+        </section>
+      </div>
+    </main>
+  </div>
+  <script src="../../shared/atlas-cloud.js?v=20260916-access1"></script>
+  <script>
+    (() => {
+      'use strict';
+      const OWNER_EMAIL = 'savvy989@gmail.com';
+      const gate = document.getElementById('access-gate');
+      const status = document.getElementById('access-message');
+      const workspace = document.getElementById('owner-workspace');
+      let sequence = 0;
+
+      async function verifyOwner() {
+        const current = ++sequence;
+        workspace.hidden = true;
+        gate.hidden = false;
+        status.textContent = 'Verifying your Atlas account…';
+        try {
+          // getUser validates the auth token with Supabase rather than trusting
+          // a user/email value copied into localStorage.
+          const user = await window.AtlasCloud.getUser();
+          if (current !== sequence) return;
+          if (user && String(user.email || '').toLowerCase() === OWNER_EMAIL) {
+            gate.hidden = true;
+            workspace.hidden = false;
+          } else {
+            status.textContent = 'This experiment is available only to its designated Atlas account.';
+          }
+        } catch (error) {
+          if (current !== sequence) return;
+          status.textContent = 'Account verification is unavailable. Sign in to Atlas and reload this page.';
+        }
+      }
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) void verifyOwner();
+      });
+      window.addEventListener('storage', event => {
+        if (event.key === 'sb-jnhjfpagectprceswvqn-auth-token') void verifyOwner();
+      });
+      void verifyOwner();
+    })();
+  </script>
+</body>
+</html>
