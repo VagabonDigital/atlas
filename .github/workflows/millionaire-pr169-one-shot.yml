@@ -11,6 +11,7 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
+      issues: write
     steps:
       - name: Checkout PR branch
         uses: actions/checkout@v4
@@ -19,8 +20,22 @@ jobs:
         with:
           node-version: '22'
       - name: Run focused 19 tests
+        id: tests
         run: node --test arcade/millionaire/dev/game.test.mjs
       - name: Verify generated question projection
+        id: projection
+        if: steps.tests.outcome == 'success'
         run: node arcade/millionaire/dev/build-questions.mjs --check
       - name: Verify whitespace integrity
+        id: whitespace
+        if: steps.tests.outcome == 'success'
         run: git diff --check HEAD^ HEAD
+      - name: Post one-shot verification report to PR
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TEST_OUTCOME: ${{ steps.tests.outcome }}
+          PROJECTION_OUTCOME: ${{ steps.projection.outcome }}
+          WHITESPACE_OUTCOME: ${{ steps.whitespace.outcome }}
+        run: |
+          gh issue comment 169 --repo "${GITHUB_REPOSITORY}" --body "One-shot independent GitHub Actions verification at \`${GITHUB_SHA}\`: Node 22 focused 19-test suite **${TEST_OUTCOME}**; question projection check **${PROJECTION_OUTCOME}**; whitespace check **${WHITESPACE_OUTCOME}**. Job: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}. No merge/deploy."
