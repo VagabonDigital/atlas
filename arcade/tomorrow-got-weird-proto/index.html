@@ -139,197 +139,90 @@
       to { opacity: 0; transform: scale(.91); filter: blur(8px); }
     }
 
-    /* Both clinic states occupy the SAME physical place. No different image cut. */
-    #scene {
-      z-index: 10;
-      background: #b5c9e6 url("./bioluminescent_ai_core_atrium.png") center center / cover no-repeat;
-      overflow-y: auto;
-      overscroll-behavior: contain;
-      animation: scene-reveal 850ms ease-out both;
-    }
-    @keyframes scene-reveal { from { opacity: 0; } to { opacity: 1; } }
-    #scene::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      background: linear-gradient(180deg, rgba(4, 15, 37, .36), transparent 18%, transparent 42%, rgba(5, 11, 38, .18) 67%, rgba(5, 12, 36, .84) 100%);
-    }
-    #hdr {
-      position: relative;
-      z-index: 8;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 18px clamp(18px, 3vw, 48px);
-      min-height: 72px;
-    }
-    #hdr .header-left, #hdr .header-right { display: flex; align-items: center; }
-    #hdr .header-center { pointer-events: none; text-align: center; }
-    #hdr .hdr-logo {
-      font-size: clamp(13px, 1.8vw, 18px);
-      font-weight: 750;
-      letter-spacing: -.035em;
-      text-shadow: 0 2px 18px rgba(0, 0, 0, .65);
-    }
-    #hdr .hdr-logo span { color: #ffd8f0; }
-    #hdr .hdr-logo small { color: var(--ice); font-size: .64em; letter-spacing: .12em; }
-    #scene-main {
-      position: relative;
-      z-index: 1;
-      width: min(1260px, 100%);
-      min-height: calc(100dvh - 72px);
-      margin: 0 auto;
-      padding: clamp(16px, 3vw, 45px);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 28px;
-    }
-    .location-meta {
-      align-self: start;
-      text-shadow: 0 2px 20px rgba(0, 6, 22, .85);
-    }
-    .location-meta .eyebrow { margin: 0 0 12px; }
-    .location-meta h2 {
-      margin: 0;
-      font-weight: 650;
-      font-size: clamp(26px, 3.4vw, 56px);
-      line-height: 1.04;
-      letter-spacing: -.045em;
-      text-wrap: balance;
-    }
-    .scene-bottom { margin-top: auto; }
-    .arrival-bottom {
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 26px;
-    }
-    .arrival-message {
-      max-width: 620px;
-      padding: 20px 22px;
-      background: linear-gradient(90deg, rgba(8, 21, 52, .76), rgba(8, 21, 52, .22));
-      border-left: 2px solid #b4efff;
-      border-radius: 0 18px 18px 0;
-      backdrop-filter: blur(8px);
-    }
-    .arrival-message strong {
-      display: block;
-      font-size: clamp(22px, 2.6vw, 36px);
-      line-height: 1.16;
-      letter-spacing: -.04em;
-      margin-top: 9px;
-    }
-    .arrival-message p { margin: 10px 0 0; font-size: clamp(14px, 1.3vw, 17px); line-height: 1.5; }
-    .encounter-bottom {
-      width: 100%;
-      display: grid;
-      gap: 18px;
-      padding: 18px clamp(16px, 2.6vw, 30px) 20px;
-      background: linear-gradient(140deg, rgba(7, 15, 44, .85), rgba(20, 23, 63, .81));
-      border: 1px solid rgba(214, 243, 255, .55);
-      border-radius: 25px;
-      box-shadow: 0 20px 65px rgba(3, 7, 24, .28);
-      backdrop-filter: blur(18px);
-    }
-    .transmission-label {
-      margin: 0;
-      font-size: 11px;
-      font-weight: 750;
-      letter-spacing: .20em;
-      text-transform: uppercase;
-      color: #bdefff;
-    }
-    .transmission-line {
-      margin: 0;
-      font-size: clamp(18px, 2.25vw, 28px);
-      line-height: 1.36;
-      letter-spacing: -.025em;
-      text-wrap: pretty;
-      max-width: 920px;
-    }
-    .encounter-instruction {
-      margin: 0;
-      color: #d5edff;
-      font-size: 14px;
-      line-height: 1.45;
-    }
-    .feedback { color: #ffe0f5; font-weight: 650; }
-    .encounter-utilities { display: flex; justify-content: flex-end; gap: 18px; align-items: center; }
-    .quiet-action {
-      border: 0;
-      padding: 6px 4px;
-      background: transparent;
-      color: #e4f6ff;
-      font-size: 13px;
-      font-weight: 650;
-      text-decoration: underline;
-      text-underline-offset: 4px;
-    }
-    .quiet-action:hover { color: #ffb8e5; }
-    #atlas-session-panel-root { position: relative; z-index: 80; }
-    @media (max-width: 760px) {
-      #scene-main { padding: 18px; min-height: calc(100dvh - 64px); gap: 20px; }
-      #hdr { min-height: 64px; padding: 10px 16px; }
-      #hdr .header-center { display: none; }
-      .arrival-bottom { flex-direction: column; align-items: stretch; gap: 14px; }
-      .arrival-bottom .cta { align-self: flex-start; }
-      .encounter-bottom { gap: 12px; padding: 16px; }
-      .location-meta h2 { font-size: clamp(25px, 7vw, 35px); }
-    }
-    @media (max-width: 400px) {
-      .launch-content h1 { font-size: 48px; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
-      .launch-video, #launch.is-crossing .launch-video { transform: none; filter: none; }
-      #launch.is-crossing::after { opacity: 0; }
-    }
 
-    /* Prototype episode: atmosphere leads; the interface only appears when needed. */
-    #scene::before { background: linear-gradient(180deg,rgba(4,15,37,.18),transparent 22%,transparent 52%,rgba(5,12,36,.62) 100%); }
-    #scene[data-phase="complication"]::before { background: linear-gradient(180deg,rgba(35,9,48,.18),transparent 32%,rgba(24,6,40,.76) 100%); }
-    .location-meta h2 { font-size:clamp(24px,2.5vw,38px); }
-    .arrival-message { max-width:440px; padding:0; border:0; border-radius:0; background:none; backdrop-filter:none; text-shadow:0 2px 14px #061027,0 2px 5px #061027; }
-    .arrival-message strong { font-size:clamp(22px,2.45vw,31px); }
-    .arrival-message p { font-size:clamp(13px,1.3vw,16px); }
-    .encounter-bottom { width:min(1040px,100%); margin:0 auto; gap:13px; padding:clamp(16px,2vw,24px); background:linear-gradient(130deg,rgba(7,15,44,.83),rgba(20,23,63,.78)); }
-    .recipient-row,.response-options { display:flex; align-items:center; flex-wrap:wrap; gap:10px; }
-    .recipient-label { font-size:13px; font-weight:700; color:#d5edff; }
-    .recipient-option,.response-option { border:1px solid rgba(203,235,255,.55); background:rgba(224,241,255,.1); color:#fff; padding:12px 16px; font-size:14px; font-weight:700; border-radius:14px; }
-    .recipient-option:hover,.response-option:hover { background:rgba(224,241,255,.25); }
-    .recipient-option[aria-pressed="true"] { background:rgba(154,80,201,.5); border-color:#f6c2ee; }
-    .decision-actions { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+    /* The image leads. Spoken transmissions and gameplay occupy only the lower edge. */
+    #scene { z-index:10; overflow-y:auto; overscroll-behavior:contain; background:#b5c9e6 url("./bioluminescent_ai_core_atrium.png") center center / cover no-repeat; }
+    #scene::before { content:""; position:fixed; inset:0; z-index:0; pointer-events:none; background:linear-gradient(180deg,rgba(4,15,37,.29),transparent 24%,transparent 53%,rgba(5,12,36,.64)); }
+    #scene[data-transmission="complication"]::before { background:linear-gradient(180deg,rgba(30,9,44,.23),transparent 32%,rgba(27,9,45,.76)); }
+    #hdr { position:relative; z-index:8; display:flex; justify-content:space-between; align-items:center; min-height:64px; padding:12px clamp(16px,2.7vw,42px); }
+    #hdr .header-left,#hdr .header-right { display:flex; align-items:center; }
+    #scene-main { position:relative; z-index:1; width:min(1400px,100%); min-height:calc(100dvh - 64px); margin:0 auto; padding:12px clamp(18px,3vw,48px) clamp(24px,3vw,40px); display:flex; flex-direction:column; gap:22px; }
+    .location-meta { align-self:flex-start; text-shadow:0 2px 20px rgba(0,5,24,.9); }
+    .location-meta .eyebrow { margin:0 0 8px; }
+    .location-meta h2 { margin:0; font-size:clamp(22px,2.3vw,34px); font-weight:650; letter-spacing:-.035em; line-height:1.08; }
+    .eyebrow,.tiny-label { font-size:11px; font-weight:750; letter-spacing:.19em; text-transform:uppercase; color:#c7f2ff; }
+    .scene-bottom { margin-top:auto; min-height:0; }
+    .arrival-bottom { display:flex; align-items:flex-end; justify-content:space-between; gap:24px; }
+    .arrival-message { max-width:390px; text-shadow:0 2px 16px #061027,0 2px 4px #061027; }
+    .arrival-message strong { display:block; margin-top:9px; font-size:clamp(23px,2.6vw,33px); line-height:1.18; letter-spacing:-.04em; }
+    .arrival-message p { margin:9px 0 0; font-size:15px; line-height:1.45; }
     .cta-small { font-size:14px; min-height:46px; padding:12px 23px; }
-    .step-hint { font-size:13px; color:#d5edff; }
-    .complication-bottom { background:linear-gradient(120deg,rgba(37,10,51,.9),rgba(9,19,53,.86)); border-color:#f7b7e7; }
-    .complication-bottom .transmission-label { color:#ffc4e9; }
-    .choice-summary { color:#dcf4ff; font-size:13px; font-weight:700; }
-    .response-options { align-items:stretch; }
-    .response-option { flex:1 1 175px; text-align:center; }
-    .outcome-heading { font-size:clamp(22px,3vw,34px); letter-spacing:-.04em; margin:0; }
-    .outcome-copy { font-size:clamp(17px,1.8vw,22px); max-width:800px; line-height:1.5; margin:0; }
-    @media(max-width:760px) {
-      .response-option { flex:1 1 100%; }
-      .recipient-option { flex:1; }
-      .decision-actions { align-items:stretch; }
-      .decision-actions .cta { width:100%; }
-    }
-
+    .quiet-action { border:0; padding:8px 4px; background:transparent; color:#f2faff; font-size:13px; font-weight:650; text-decoration:underline; text-underline-offset:4px; text-shadow:0 1px 8px #051126; }
+    .quiet-action:hover { color:#ffb8e5; }
+    .bottom-cluster { display:flex; flex-direction:column; gap:12px; width:min(100%,650px); margin-left:auto; }
+    .bottom-cluster--wide { width:min(100%,820px); }
+    .scene-panel { padding:clamp(16px,2vw,23px); border-radius:19px; background:linear-gradient(140deg,rgba(9,19,46,.85),rgba(15,24,62,.78)); border:1px solid rgba(216,243,255,.46); backdrop-filter:blur(14px); box-shadow:0 18px 52px rgba(2,7,25,.32); }
+    .scene-panel--slim { padding:15px 19px; }
+    .transmission-stage { width:min(520px,100%); margin-left:auto; }
+    .transmission-meta { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+    .transmission-label { margin:0; color:#bdefff; font-size:11px; font-weight:750; text-transform:uppercase; letter-spacing:.15em; }
+    .transmission-title { margin:12px 0; font-size:clamp(19px,2vw,25px); font-weight:690; letter-spacing:-.035em; line-height:1.25; }
+    .transmission-status { margin:0; color:#d6ecff; font-size:12px; line-height:1.45; }
+    .audio-control-row { display:flex; align-items:center; gap:8px; }
+    .audio-control { border:1px solid rgba(218,240,255,.55); border-radius:999px; padding:8px 12px; font-size:12px; font-weight:700; background:rgba(222,244,255,.12); color:#fff; }
+    .audio-control:hover,.audio-control[aria-pressed="true"] { background:rgba(222,244,255,.3); }
+    .transcript { margin-top:12px; padding-top:9px; border-top:1px solid rgba(219,243,255,.28); font-size:14px; }
+    .transcript summary { cursor:pointer; font-size:13px; font-weight:700; color:#d6f7ff; }
+    .transcript-copy { white-space:pre-line; margin:10px 0 0; max-height:145px; overflow-y:auto; padding-right:8px; color:#f1f8ff; font-size:14px; line-height:1.58; scrollbar-width:thin; }
+    .stage-actions { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+    .stage-actions .cta { min-width:175px; }
+    .core-signal { position:fixed; pointer-events:none; z-index:1; top:28%; left:50%; transform:translate(-50%,-50%); width:min(17vw,220px); aspect-ratio:1; border-radius:50%; border:1px solid rgba(199,241,255,.78); opacity:0; }
+    #scene[data-speaking="true"] .core-signal { animation:core-breathe 2.8s ease-in-out infinite; }
+    @keyframes core-breathe { 0%,100% { opacity:.1; box-shadow:0 0 18px rgba(139,227,255,.2); } 50% { opacity:.5; box-shadow:0 0 52px rgba(130,227,255,.48); } }
+    .pitch-heading { font-size:clamp(19px,2vw,25px); margin:8px 0 15px; letter-spacing:-.035em; line-height:1.25; }
     .pitch-pair { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
-    .pitch-card { padding:16px 18px; border:1px solid rgba(190,238,255,.45); border-radius:15px; background:rgba(218,242,255,.085); }
-    .pitch-index { display:block; font-size:12px; color:#bdefff; text-transform:uppercase; font-weight:750; letter-spacing:.14em; }
-    .pitch-card p { margin:12px 0 10px; line-height:1.4; font-size:clamp(14px,1.4vw,17px); }
-    .pitch-card strong { display:block; font-size:clamp(13px,1.25vw,16px); line-height:1.4; color:#ffd8f0; }
-    .enhancement-entry { display:grid; gap:8px; max-width:570px; }
-    .enhancement-entry label { font-weight:700; font-size:14px; color:#d5edff; }
-    .enhancement-entry input { width:100%; min-height:46px; padding:12px 15px; background:rgba(244,250,255,.97); border:1px solid #bbebff; border-radius:11px; color:#09233b; font-size:16px; }
-    .welcome-panel { max-width:790px; }
-    .welcome-panel .transmission-line { font-size:clamp(15px,1.7vw,21px); line-height:1.43; }
-    .welcome-panel .transmission-line + .transmission-line { margin-top:-3px; }
-    @media(max-width:760px) { .pitch-pair { grid-template-columns:1fr; } .pitch-card { padding:13px 15px; } }
+    .pitch-card { padding:13px 15px; border:1px solid rgba(190,238,255,.43); border-radius:14px; background:rgba(218,242,255,.065); }
+    .pitch-card p { margin:9px 0 0; line-height:1.35; font-size:clamp(15px,1.45vw,18px); font-weight:650; }
+    .pitch-card small { display:block; margin:8px 0 0; font-size:13px; line-height:1.4; color:#d7edff; }
+    .step-note { margin:12px 0 0; color:#d6edff; font-size:13px; line-height:1.45; }
+    .decision-panel { width:min(490px,100%); margin-left:auto; }
+    .decision-panel h3,.response-panel h3,.reflection-panel h3 { margin:9px 0 15px; font-size:clamp(21px,2vw,27px); letter-spacing:-.035em; }
+    .recipient-row,.response-options { display:flex; flex-wrap:wrap; gap:9px; }
+    .recipient-option,.response-option { border:1px solid rgba(208,240,255,.56); border-radius:12px; color:#fff; background:rgba(221,239,255,.11); padding:12px 16px; font-size:14px; font-weight:680; text-align:center; }
+    .recipient-option { flex:1 1 128px; }
+    .response-option { flex:1 1 152px; }
+    .recipient-option[aria-pressed="true"] { background:rgba(153,80,202,.51); border-color:#ffcaf3; }
+    .recipient-option:hover,.response-option:hover { background:rgba(221,239,255,.25); }
+    .enhancement-entry { display:grid; gap:7px; margin:15px 0 10px; }
+    .enhancement-entry label { font-size:13px; font-weight:650; color:#dbf0ff; }
+    .enhancement-entry input { width:100%; min-height:46px; border:1px solid #c7edfc; border-radius:11px; color:#09233b; background:#f4faff; font-size:16px; padding:11px 13px; }
+    .feedback,.choice-summary { display:block; max-width:100%; overflow-wrap:anywhere; font-size:13px; color:#d7eefa; }
+    .response-panel { width:min(590px,100%); margin-left:auto; }
+    .reflection-panel { width:min(530px,100%); margin-left:auto; }
+    .reflection-panel p { margin:0 0 14px; color:#e8f2ff; font-size:15px; line-height:1.48; }
+    #atlas-session-panel-root { position:relative; z-index:80; }
+    @media(max-width:760px) {
+      #hdr { min-height:58px; padding:9px 14px; }
+      #scene-main { padding:11px 16px 20px; min-height:calc(100dvh - 58px); gap:15px; }
+      .location-meta h2 { font-size:clamp(21px,6vw,31px); }
+      .arrival-bottom { flex-direction:column; align-items:stretch; gap:16px; }
+      .arrival-bottom .cta { align-self:flex-start; }
+      .pitch-pair { grid-template-columns:1fr; }
+      .pitch-card { padding:11px 13px; }
+      .transmission-stage,.decision-panel,.response-panel,.reflection-panel,.bottom-cluster { width:100%; }
+      .transcript-copy { max-height:min(26dvh,145px); }
+      .core-signal { width:160px; top:31%; }
+    }
+    @media(max-width:400px) {
+      .launch-content h1 { font-size:48px; }
+      .response-option { flex:1 1 100%; }
+      .stage-actions .cta { min-width:0; }
+    }
+    @media(prefers-reduced-motion:reduce) {
+      *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+      .launch-video,#launch.is-crossing .launch-video { transform:none; filter:none; }
+      #launch.is-crossing::after { opacity:0; }
+    }
   </style>
 </head>
 <body data-atlas-world="arcade" data-atlas-surface="content">
@@ -344,124 +237,115 @@
     </section>
   </div>
 
-  <div id="scene" hidden>
-    <header id="hdr" class="arcade-game-chrome-centered-title">
+
+  <div id="scene" data-speaking="false" hidden>
+    <header id="hdr">
       <div class="header-left"><div id="arcade-game-return-root"></div></div>
       <div class="header-right" id="arcade-game-actions-root"></div>
     </header>
+    <div class="core-signal" aria-hidden="true"></div>
     <main id="scene-main">
-      <div class="location-meta">
-        <p class="eyebrow">New Tokyo // 2126</p>
-        <h2>Human Evolution Clinic</h2>
-      </div>
-
+      <div class="location-meta"><p class="eyebrow">New Tokyo // 2126</p><h2>Human Evolution Clinic</h2></div>
       <section id="arrival-view" class="scene-bottom" aria-labelledby="arrival-heading">
         <div class="arrival-bottom">
-          <div class="arrival-message">
-            <span class="eyebrow">Destination reached</span>
+          <div class="arrival-message"><span class="eyebrow">Destination reached</span>
             <strong id="arrival-heading">Something has noticed you.</strong>
             <p>There is no reception desk. But you are expected.</p>
           </div>
           <button id="approach-button" class="cta" type="button">Approach the intelligence →</button>
         </div>
       </section>
-
-
-      <section id="welcome-view" class="scene-bottom" aria-labelledby="welcome-heading" hidden>
-        <div class="encounter-bottom welcome-panel">
-          <p class="transmission-label" id="welcome-heading">Incoming transmission · The Clinic Intelligence</p>
-          <p class="transmission-line">“Welcome to the Human Evolution Clinic. Ah, you've both arrived. Wonderful.</p>
-          <p class="transmission-line">You've won one entirely bespoke human enhancement. Whatever you can imagine, we can create.</p>
-          <p class="transmission-line">There is one small limitation: only one of you may receive it.</p>
-          <p class="transmission-line">I'd love to hear what each of you has in mind, and why you believe you deserve it.</p>
-          <p class="transmission-line">Please, convince each other. I'm very curious to see what you decide.”</p>
-          <div class="decision-actions">
-            <button id="back-to-arrival" class="quiet-action" type="button">← Look around</button>
-            <button id="start-pitches" class="cta cta-small" type="button">Make your cases →</button>
+      <section id="transmission-view" class="scene-bottom" aria-labelledby="transmission-heading" hidden>
+        <div class="transmission-stage">
+          <div class="scene-panel scene-panel--slim">
+            <div class="transmission-meta">
+              <p class="transmission-label" id="transmission-heading">The Clinic Intelligence · Transmission</p>
+              <div id="voice-controls" class="audio-control-row" hidden>
+                <button id="voice-replay" class="audio-control" type="button" aria-label="Replay transmission">↻ Replay</button>
+                <button id="voice-mute" class="audio-control" type="button" aria-pressed="false" aria-label="Mute voice">♪ Sound on</button>
+                <button id="captions-toggle" class="audio-control" type="button" aria-pressed="false" aria-label="Toggle captions">CC</button>
+              </div>
+            </div>
+            <h3 class="transmission-title" id="transmission-summary"></h3>
+            <p id="voice-status" class="transmission-status" role="status"></p>
+            <details id="transcript-details" class="transcript">
+              <summary>Read transmission</summary>
+              <p id="transcript-copy" class="transcript-copy"></p>
+            </details>
+          </div>
+          <div class="stage-actions">
+            <button id="transmission-back" class="quiet-action" type="button">← Back</button>
+            <button id="transmission-next" class="cta cta-small" type="button">Continue →</button>
           </div>
         </div>
       </section>
-
       <section id="pitch-view" class="scene-bottom" aria-labelledby="pitch-heading" hidden>
-        <div class="encounter-bottom">
-          <p class="transmission-label" id="pitch-heading">One extraordinary prize · Two competing visions</p>
-          <p class="transmission-line">What would you create if absolutely anything were possible?</p>
-          <div class="pitch-pair">
-            <div class="pitch-card">
-              <span class="pitch-index">Traveller 1</span>
-              <p>Invent your enhancement. What would it let you do?</p>
-              <strong>Why should you receive it instead of your companion?</strong>
+        <div class="bottom-cluster bottom-cluster--wide">
+          <div class="scene-panel">
+            <p class="tiny-label">One prize · Two imaginations</p>
+            <h3 class="pitch-heading" id="pitch-heading">Invent something extraordinary. Then convince each other.</h3>
+            <div class="pitch-pair">
+              <div class="pitch-card"><span class="tiny-label">Traveller 1</span><p>What would you create?</p><small>Why should the enhancement be yours?</small></div>
+              <div class="pitch-card"><span class="tiny-label">Traveller 2</span><p>What would you create?</p><small>Convince your companion you deserve it.</small></div>
             </div>
-            <div class="pitch-card">
-              <span class="pitch-index">Traveller 2</span>
-              <p>Invent something of your own. What makes it extraordinary?</p>
-              <strong>Why is your case more convincing?</strong>
-            </div>
+            <p class="step-note">Make your cases out loud. No forms, no scores. Both travellers speak before anyone concedes.</p>
           </div>
-          <p class="encounter-instruction">Each traveller makes a real pitch before giving up the prize. Ask questions, challenge each other, and try to win each other over. <strong>Speak; don't type your arguments.</strong></p>
-          <div class="decision-actions">
-            <button id="back-to-welcome" class="quiet-action" type="button">← Hear the invitation again</button>
+          <div class="stage-actions">
+            <button id="back-to-welcome" class="quiet-action" type="button">← Hear the intelligence</button>
             <button id="finish-pitches" class="cta cta-small" type="button">Both cases heard →</button>
           </div>
         </div>
       </section>
-
       <section id="decision-view" class="scene-bottom" aria-labelledby="decision-heading" hidden>
-        <div class="encounter-bottom">
-          <p class="transmission-label" id="decision-heading">The Clinic is listening · Your agreement</p>
-          <p class="transmission-line">“Wonderful. And what have you decided?”</p>
-          <p class="encounter-instruction">Agree on <strong>one recipient</strong> and <strong>one original enhancement</strong>. You may choose either traveller's invention—or combine your ideas.</p>
-          <div class="recipient-row" role="group" aria-label="Who receives the enhancement?">
-            <span class="recipient-label">Who receives it?</span>
-            <button class="recipient-option" type="button" data-recipient="Traveller 1" aria-pressed="false">Traveller 1</button>
-            <button class="recipient-option" type="button" data-recipient="Traveller 2" aria-pressed="false">Traveller 2</button>
+        <div class="bottom-cluster">
+          <div class="scene-panel decision-panel">
+            <p class="tiny-label">Your shared decision</p><h3 id="decision-heading">What have you agreed?</h3>
+            <div class="recipient-row" role="group" aria-label="Who receives the enhancement?">
+              <button class="recipient-option" type="button" data-recipient="Traveller 1" aria-pressed="false">Traveller 1</button>
+              <button class="recipient-option" type="button" data-recipient="Traveller 2" aria-pressed="false">Traveller 2</button>
+            </div>
+            <div class="enhancement-entry"><label for="agreed-enhancement">Your invented enhancement</label>
+              <input id="agreed-enhancement" type="text" maxlength="100" autocomplete="off" placeholder="What have you invented?">
+            </div>
+            <span id="upgrade-feedback" class="feedback" role="status" aria-live="polite">Choose one recipient and your agreed invention.</span>
           </div>
-          <div class="enhancement-entry">
-            <label for="agreed-enhancement">Your final enhancement</label>
-            <input id="agreed-enhancement" type="text" maxlength="100" autocomplete="off"
-              placeholder="Describe your invention in a few words…">
-          </div>
-          <div class="decision-actions">
+          <div class="stage-actions">
             <button id="back-to-pitches" class="quiet-action" type="button">← Keep negotiating</button>
-            <span id="upgrade-feedback" class="step-hint" role="status" aria-live="polite">Record your agreement when you're both ready.</span>
-            <button id="confirm-decision" class="cta cta-small" type="button" disabled>Submit your decision →</button>
+            <button id="confirm-decision" class="cta cta-small" type="button" disabled>Confirm together →</button>
           </div>
         </div>
       </section>
-
-      <section id="complication-view" class="scene-bottom" aria-labelledby="complication-heading" hidden>
-        <div class="encounter-bottom complication-bottom">
-          <p class="transmission-label" id="complication-heading">The Clinic · One small detail</p>
-          <p class="choice-summary" id="choice-summary"></p>
-          <p class="transmission-line">“How lovely. Before we begin, a routine disclosure: the recipient will be legally reclassified as <strong>synthetic</strong>. Some people may no longer regard them as human. Their companion will also become their legal guarantor.”</p>
-          <p class="encounter-instruction">You both wanted this prize. <strong>Does either of you still want it on those terms?</strong> Argue it out again, then agree how to respond.</p>
-          <div class="response-options" role="group" aria-label="Choose your response together">
-            <button class="response-option" type="button" data-response="proceed">Accept the terms</button>
-            <button class="response-option" type="button" data-response="counter">Demand a safer deal</button>
-            <button class="response-option" type="button" data-response="leave">Walk away</button>
+      <section id="response-view" class="scene-bottom" aria-labelledby="response-heading" hidden>
+        <div class="bottom-cluster">
+          <div class="scene-panel response-panel">
+            <p class="tiny-label">The Clinic · A change of terms</p>
+            <span id="response-summary" class="choice-summary"></span>
+            <h3 id="response-heading">Is the prize still worth it?</h3>
+            <div class="response-options" role="group" aria-label="Agree on a response">
+              <button class="response-option" type="button" data-response="proceed">Accept the terms</button>
+              <button class="response-option" type="button" data-response="counter">Demand a safer deal</button>
+              <button class="response-option" type="button" data-response="leave">Walk away</button>
+            </div>
+            <p class="step-note">Talk it through again. Decide together.</p>
           </div>
-          <div class="encounter-utilities">
-            <button id="rethink-choice" class="quiet-action" type="button">← Reconsider the original agreement</button>
-          </div>
+          <div class="stage-actions"><button id="rethink-choice" class="quiet-action" type="button">← Reconsider your agreement</button></div>
         </div>
       </section>
-
-      <section id="outcome-view" class="scene-bottom" aria-labelledby="outcome-heading" hidden>
-        <div class="encounter-bottom">
-          <p class="transmission-label">Final transmission · The Clinic</p>
-          <p id="outcome-summary" class="choice-summary"></p>
-          <h3 id="outcome-heading" class="outcome-heading"></h3>
-          <p id="outcome-copy" class="outcome-copy"></p>
-          <p class="encounter-instruction">Before you leave: do you still think the same traveller deserved the enhancement?</p>
-          <div class="decision-actions">
+      <section id="reflection-view" class="scene-bottom" aria-labelledby="reflection-heading" hidden>
+        <div class="bottom-cluster">
+          <div class="scene-panel reflection-panel">
+            <p class="tiny-label">The Clinic · Before you leave</p><h3 id="reflection-heading"></h3>
+            <span id="reflection-summary" class="choice-summary"></span>
+            <p>Would you make the same choice again?</p>
+          </div>
+          <div class="stage-actions">
             <button id="revisit-complication" class="quiet-action" type="button">← Try another response</button>
-            <button id="leave-clinic" class="cta cta-small" type="button">Return to the portal →</button>
+            <button id="leave-clinic" class="cta cta-small" type="button">Return to portal →</button>
           </div>
         </div>
       </section>
     </main>
   </div>
-
   <div id="atlas-session-panel-root"></div>
   <script src="../../shared/atlas-bridge.js?v=20260926-learnercontext1"></script>
   <script src="/shared/atlas-analytics.js?v=20260919-observability1"></script>
@@ -478,34 +362,54 @@
       const scene = document.getElementById('scene');
       const enter = document.getElementById('launch-button');
       const arrival = document.getElementById('arrival-view');
-      const welcome = document.getElementById('welcome-view');
+      const transmission = document.getElementById('transmission-view');
       const pitch = document.getElementById('pitch-view');
       const decision = document.getElementById('decision-view');
-      const complication = document.getElementById('complication-view');
-      const outcome = document.getElementById('outcome-view');
+      const response = document.getElementById('response-view');
+      const reflection = document.getElementById('reflection-view');
       const agreedEnhancement = document.getElementById('agreed-enhancement');
       const feedback = document.getElementById('upgrade-feedback');
       const confirmButton = document.getElementById('confirm-decision');
-      const rates = [16, 12, 8, 3];
-      const endings = {
+      const transcriptDetails = document.getElementById('transcript-details');
+      const voiceStatus = document.getElementById('voice-status');
+      const voiceControls = document.getElementById('voice-controls');
+      const nextButton = document.getElementById('transmission-next');
+      const speechAudio = document.createElement('audio');
+      speechAudio.preload = 'auto';
+      // Populate only with committed audio assets. No fake speech or runtime synthesis.
+      const VOICE_ASSETS = Object.freeze({ welcome:null, complication:null, proceed:null, counter:null, leave:null });
+      const TRANSMISSIONS = Object.freeze({
+        welcome: {
+          headline:'You have been invited to invent the impossible.',
+          next:'Make your cases →',
+          text:"Welcome to the Human Evolution Clinic. Ah, you've both arrived. Wonderful.\n\nYou've won one entirely bespoke human enhancement. Whatever you can imagine, we can create.\n\nThere is one small limitation: only one of you may receive it.\n\nI'd love to hear what each of you has in mind, and why you believe you deserve it.\n\nPlease, convince each other. I'm very curious to see what you decide."
+        },
+        complication: {
+          headline:'There is one small detail.', next:'Discuss the new terms →',
+          text:"How lovely. Before we begin, a routine disclosure: the recipient will be legally reclassified as synthetic. Some people may no longer regard them as human. Their companion will also become their legal guarantor."
+        },
         proceed: {
-          title: 'The procedure is ready',
-          copy: '“Wonderful. Consent recorded. The recipient will be classified as synthetic, and the companion is registered as their legal guarantor.” The treatment chamber opens. Suddenly, the prize feels rather permanent.'
+          headline:'The procedure is ready.', next:'Reflect together →',
+          text:'Wonderful. Consent recorded. The recipient will be classified as synthetic, and the companion is registered as their legal guarantor. The treatment chamber is ready.'
         },
         counter: {
-          title: 'An unexpected compromise',
-          copy: '“A safer arrangement is available. You may try the enhancement for seven days. Reversal will require the companion’s approval.” The clinic calmly produces two consent forms instead of one.'
+          headline:'An unexpected compromise.', next:'Reflect together →',
+          text:"A safer arrangement is available. You may try the enhancement for seven days. Reversal will require the companion's approval. Two consent forms, please."
         },
         leave: {
-          title: 'A complimentary exit',
-          copy: '“Of course. Your prize is withdrawn. No further obligation.” The exit unfolds before you. Then, gently: “For transparency, both of your minds have already been mapped.”'
+          headline:'A complimentary exit.', next:'Reflect together →',
+          text:'Of course. Your prize is withdrawn. No further obligation. For transparency, both of your minds have already been mapped.'
         }
-      };
+      });
+      const rates = [16, 12, 8, 3];
       let crossing = false;
       let session = null;
       let phase = 'launch';
+      let transmissionKey = null;
       let selectedUpgrade = '';
       let selectedRecipient = '';
+      let captionsOn = false;
+      let speaking = false;
 
       function configurePortal() {
         const fallback = new URL('../tomorrow-got-weird/portal.mp4', location.href).href;
@@ -527,17 +431,33 @@
         }
       }
 
+      function stopSpeech() {
+        try { speechAudio.pause(); speechAudio.currentTime = 0; } catch (error) {}
+        speaking = false;
+        scene.dataset.speaking = 'false';
+      }
+
+      function voiceFallback() {
+        stopSpeech();
+        voiceControls.hidden = true;
+        voiceStatus.hidden = false;
+        voiceStatus.textContent = 'Voice recording not added yet. Read the transmission below.';
+        transcriptDetails.open = true;
+        nextButton.disabled = false;
+      }
+
       function updatePhase(next) {
+        if (phase === 'transmission' && next !== 'transmission') stopSpeech();
         phase = next;
         const inScene = next !== 'launch';
         launch.hidden = inScene;
         scene.hidden = !inScene;
         arrival.hidden = next !== 'arrival';
-        welcome.hidden = next !== 'welcome';
+        transmission.hidden = next !== 'transmission';
         pitch.hidden = next !== 'pitch';
         decision.hidden = next !== 'decision';
-        complication.hidden = next !== 'complication';
-        outcome.hidden = next !== 'outcome';
+        response.hidden = next !== 'response';
+        reflection.hidden = next !== 'reflection';
         scene.dataset.phase = next;
         if (inScene) scene.scrollTop = 0;
         saveState();
@@ -550,7 +470,7 @@
           status: active ? 'in-progress' : 'available',
           completedAt: null,
           currentPosition: 1,
-          currentLabel: active ? 'Upgrade Clinic · ' + phase[0].toUpperCase() + phase.slice(1) : null,
+          currentLabel: active ? 'Upgrade Clinic · ' + (phase === 'transmission' ? 'Transmission' : phase[0].toUpperCase() + phase.slice(1)) : null,
           progress: { covered: 0, total: 1 },
           prototypePhase: phase,
           lastTouchedAt: Date.now()
@@ -602,37 +522,85 @@
       }
 
 
-      function showWelcome() {
-        updatePhase('welcome');
-        document.getElementById('start-pitches').focus({ preventScroll: true });
+
+      function beginTransmission(key) {
+        if (!TRANSMISSIONS[key]) return;
+        stopSpeech();
+        transmissionKey = key;
+        const item = TRANSMISSIONS[key];
+        document.getElementById('transmission-summary').textContent = item.headline;
+        document.getElementById('transcript-copy').textContent = item.text;
+        nextButton.textContent = item.next;
+        nextButton.disabled = false;
+        scene.dataset.transmission = key;
+        updatePhase('transmission');
+        const asset = VOICE_ASSETS[key];
+        if (!asset) {
+          voiceFallback();
+        } else {
+          voiceControls.hidden = false;
+          voiceStatus.hidden = true;
+          transcriptDetails.open = captionsOn;
+          speechAudio.src = new URL(asset,location.href).href;
+          speechAudio.muted = false;
+          document.getElementById('voice-mute').setAttribute('aria-pressed','false');
+          document.getElementById('voice-mute').textContent = '♪ Sound on';
+          nextButton.disabled = true;
+          replayVoice();
+        }
+        nextButton.focus({preventScroll:true});
       }
 
-      function showPitch() {
-        updatePhase('pitch');
-        document.getElementById('finish-pitches').focus({ preventScroll: true });
+      function replayVoice() {
+        try {
+          speechAudio.currentTime = 0;
+          const result = speechAudio.play();
+          if (result && typeof result.catch === 'function') result.catch(voiceFallback);
+        } catch (error) { voiceFallback(); }
+      }
+
+      function continueTransmission() {
+        if (transmissionKey === 'welcome') {
+          updatePhase('pitch');
+          document.getElementById('finish-pitches').focus({preventScroll:true});
+        } else if (transmissionKey === 'complication') {
+          updatePhase('response');
+          document.querySelector('[data-response="proceed"]').focus({preventScroll:true});
+        } else {
+          document.getElementById('reflection-heading').textContent = TRANSMISSIONS[transmissionKey].headline;
+          updatePhase('reflection');
+          document.getElementById('leave-clinic').focus({preventScroll:true});
+        }
+      }
+
+      function backTransmission() {
+        if (transmissionKey === 'welcome') {
+          updatePhase('arrival');
+          document.getElementById('approach-button').focus({preventScroll:true});
+        } else if (transmissionKey === 'complication') showDecision();
+        else {
+          updatePhase('response');
+          document.querySelector('[data-response="proceed"]').focus({preventScroll:true});
+        }
       }
 
       function showDecision() {
         updatePhase('decision');
-        agreedEnhancement.focus({ preventScroll: true });
+        agreedEnhancement.focus({preventScroll:true});
       }
 
       function updateDecisionReady() {
         selectedUpgrade = agreedEnhancement.value.trim();
-        confirmButton.disabled = !(selectedUpgrade && selectedRecipient);
-        if (selectedUpgrade && selectedRecipient) {
-          feedback.textContent = selectedRecipient + ' · ' + selectedUpgrade;
-        } else if (selectedUpgrade) {
-          feedback.textContent = 'Now agree on the recipient.';
-        } else {
-          feedback.textContent = 'Record your agreement when you’re both ready.';
-        }
+        confirmButton.disabled = !(selectedRecipient && selectedUpgrade);
+        feedback.textContent = selectedRecipient && selectedUpgrade
+          ? selectedRecipient + ' · ' + selectedUpgrade
+          : 'Choose one recipient and your agreed invention.';
       }
 
-      function selectRecipient(name, button) {
+      function selectRecipient(name,button) {
         selectedRecipient = name;
         document.querySelectorAll('.recipient-option').forEach(function (option) {
-          option.setAttribute('aria-pressed', option === button ? 'true' : 'false');
+          option.setAttribute('aria-pressed',option===button?'true':'false');
         });
         updateDecisionReady();
       }
@@ -641,28 +609,19 @@
         updateDecisionReady();
         if (!selectedRecipient || !selectedUpgrade) return;
         const summary = selectedRecipient + ' · ' + selectedUpgrade;
-        document.getElementById('choice-summary').textContent =
-          'Your agreement: ' + summary;
-        document.getElementById('outcome-summary').textContent = summary;
-        updatePhase('complication');
-        document.querySelector('[data-response="proceed"]').focus({ preventScroll: true });
-      }
-
-      function showOutcome(response) {
-        const ending = endings[response];
-        if (!ending) return;
-        document.getElementById('outcome-heading').textContent = ending.title;
-        document.getElementById('outcome-copy').textContent = ending.copy;
-        updatePhase('outcome');
-        document.getElementById('leave-clinic').focus({ preventScroll: true });
+        document.getElementById('response-summary').textContent = summary;
+        document.getElementById('reflection-summary').textContent = summary;
+        beginTransmission('complication');
       }
 
       function replayPortal() {
-        selectedUpgrade = '';
+        stopSpeech();
+        transmissionKey = null;
         selectedRecipient = '';
+        selectedUpgrade = '';
         agreedEnhancement.value = '';
         document.querySelectorAll('.recipient-option').forEach(function (option) {
-          option.setAttribute('aria-pressed', 'false');
+          option.setAttribute('aria-pressed','false');
         });
         updateDecisionReady();
         updatePhase('launch');
@@ -670,7 +629,7 @@
           try { video.playbackRate = 1; } catch (error) {}
           video.play().catch(function () {});
         }
-        enter.focus({ preventScroll: true });
+        enter.focus({preventScroll:true});
       }
 
       function init() {
@@ -705,30 +664,57 @@
           launchUrl: new URL('./index.html', location.href).href
         });
 
-        enter.addEventListener('click', enterTomorrow);
-        document.getElementById('approach-button').addEventListener('click', showWelcome);
-        document.getElementById('back-to-arrival').addEventListener('click', function () {
-          updatePhase('arrival');
-          document.getElementById('approach-button').focus({ preventScroll: true });
+        enter.addEventListener('click',enterTomorrow);
+        document.getElementById('approach-button').addEventListener('click',function () {
+          beginTransmission('welcome');
         });
-        document.getElementById('start-pitches').addEventListener('click', showPitch);
-        document.getElementById('back-to-welcome').addEventListener('click', showWelcome);
-        document.getElementById('finish-pitches').addEventListener('click', showDecision);
-        document.getElementById('back-to-pitches').addEventListener('click', showPitch);
-        document.getElementById('leave-clinic').addEventListener('click', replayPortal);
-        document.getElementById('rethink-choice').addEventListener('click', showDecision);
-        document.getElementById('revisit-complication').addEventListener('click', function () {
-          updatePhase('complication');
-          document.querySelector('[data-response="proceed"]').focus({ preventScroll: true });
+        nextButton.addEventListener('click',continueTransmission);
+        document.getElementById('transmission-back').addEventListener('click',backTransmission);
+        document.getElementById('back-to-welcome').addEventListener('click',function () {
+          beginTransmission('welcome');
         });
+        document.getElementById('finish-pitches').addEventListener('click',showDecision);
+        document.getElementById('back-to-pitches').addEventListener('click',function () {
+          updatePhase('pitch');
+          document.getElementById('finish-pitches').focus({preventScroll:true});
+        });
+        document.getElementById('rethink-choice').addEventListener('click',showDecision);
+        document.getElementById('revisit-complication').addEventListener('click',function () {
+          updatePhase('response');
+          document.querySelector('[data-response="proceed"]').focus({preventScroll:true});
+        });
+        document.getElementById('leave-clinic').addEventListener('click',replayPortal);
         document.querySelectorAll('.recipient-option').forEach(function (button) {
-          button.addEventListener('click', function () { selectRecipient(button.dataset.recipient, button); });
+          button.addEventListener('click',function () {selectRecipient(button.dataset.recipient,button);});
         });
         document.querySelectorAll('.response-option').forEach(function (button) {
-          button.addEventListener('click', function () { showOutcome(button.dataset.response); });
+          button.addEventListener('click',function () {beginTransmission(button.dataset.response);});
         });
-        agreedEnhancement.addEventListener('input', updateDecisionReady);
-        confirmButton.addEventListener('click', confirmDecision);
+        agreedEnhancement.addEventListener('input',updateDecisionReady);
+        confirmButton.addEventListener('click',confirmDecision);
+        speechAudio.addEventListener('play',function () {
+          speaking=true; scene.dataset.speaking='true';
+        });
+        speechAudio.addEventListener('ended',function () {
+          speaking=false; scene.dataset.speaking='false'; nextButton.disabled=false;
+        });
+        speechAudio.addEventListener('error',voiceFallback);
+        document.getElementById('voice-replay').addEventListener('click',function () {
+          nextButton.disabled=true; replayVoice();
+        });
+        document.getElementById('voice-mute').addEventListener('click',function () {
+          speechAudio.muted=!speechAudio.muted;
+          this.setAttribute('aria-pressed',String(speechAudio.muted));
+          this.textContent=speechAudio.muted?'♪ Muted':'♪ Sound on';
+          if(speechAudio.muted) {
+            captionsOn=true; transcriptDetails.open=true;
+            document.getElementById('captions-toggle').setAttribute('aria-pressed','true');
+          }
+        });
+        document.getElementById('captions-toggle').addEventListener('click',function () {
+          captionsOn=!captionsOn; transcriptDetails.open=captionsOn;
+          this.setAttribute('aria-pressed',String(captionsOn));
+        });
         window.addEventListener('atlas:appearance-change', function (event) {
           document.documentElement.dataset.theme =
             (event.detail && event.detail.mode) || Bridge.readAppearanceMode();
@@ -737,7 +723,7 @@
           session = (event.detail && event.detail.session) || Bridge.readActiveSession();
           saveState();
         });
-        window.addEventListener('pagehide', saveState);
+        window.addEventListener('pagehide',function () {stopSpeech();saveState();});
       }
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
       else init();
