@@ -402,6 +402,7 @@
       const workspace = document.getElementById('owner-workspace');
       let sequence = 0;
       let ownerVerified = false;
+      let verifiedOwnerId = '';
       let phase = 'cover';
       const opening = document.getElementById('opening');
       const enterButton = document.getElementById('btn-start');
@@ -428,6 +429,7 @@
 
       function denyAccess(message) {
         ownerVerified = false;
+        verifiedOwnerId = '';
         enterButton.disabled = true;
         opening.hidden = true;
         workspace.hidden = true;
@@ -435,8 +437,9 @@
         status.textContent = message;
       }
 
-      function grantAccess() {
+      function grantAccess(user) {
         ownerVerified = true;
+        verifiedOwnerId = String(user.id || '');
         gate.hidden = true;
         enterButton.disabled = false;
 
@@ -481,7 +484,7 @@
           const user = await window.AtlasCloud.getUser();
           if (current !== sequence) return;
           if (user && String(user.email || '').trim().toLowerCase() === OWNER_EMAIL) {
-            grantAccess();
+            grantAccess(user);
           } else {
             denyAccess('This experiment is available only to its designated Atlas account.');
           }
@@ -499,6 +502,16 @@
         }
       });
       window.addEventListener('atlas:account-change', () => {
+        const account = window.AtlasAccount?.getState?.();
+        if (!account?.ready) return;
+        // Entitlement and account-chrome refreshes must not interrupt
+        // an active prototype when the authenticated person is unchanged.
+        if (
+          ownerVerified &&
+          account.authenticated &&
+          String(account.userId || '') === verifiedOwnerId &&
+          String(account.email || '').trim().toLowerCase() === OWNER_EMAIL
+        ) return;
         void verifyOwner({ revokeWhileChecking: true });
       });
       void verifyOwner();
