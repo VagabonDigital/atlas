@@ -24,7 +24,7 @@ Browser verification covered the entrance and rules; selection, lock and reveal 
 
 ## Content and Atlas boundary
 
-`questions.mjs` contains 818 curated authentic research questions and is the only source for fresh questions, replacements and replay. `dev/wwtbam.json` owns all 1,000 review decisions: 668 approved, 150 repaired and approved, 182 rejected, none pending. Original source metadata, original wording/options for repairs, and all 25 inherited rulings remain preserved. See `dev/curation.md` for checkpoint results and limitations.
+`questions.mjs` contains 818 curated authentic research questions and is the only source for fresh questions, replacements and replay. `dev/wwtbam.json` owns all 1,000 review decisions: 666 approved, 152 repaired and approved, 182 rejected, none pending. Original source metadata, original wording/options for repairs, and all 25 inherited rulings remain preserved. See `dev/curation.md` for checkpoint results and limitations.
 
 Regenerate after archive edits with `node arcade/millionaire/dev/build-questions.mjs`; use `--check` to detect drift. The static browser projection excludes rejected entries and review working notes. Source links are only references actually consulted; an empty list is deliberate, not a claim of independent external verification.
 
