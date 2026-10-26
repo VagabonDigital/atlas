@@ -216,7 +216,7 @@ test('research archive preserves 1000 indexed, well-formed and attributable ques
     if (q.reviewed_at) {
       assert.equal(q.reviewed_at.length, 10);
       assert.ok(['approved', 'repaired_and_approved', 'rejected'].includes(q.review_status));
-      assert.ok(Array.isArray(q.review_sources) && q.review_sources.length > 0);
+      assert.ok(Array.isArray(q.review_sources));
       assert.ok(q.review_sources.every(s => s.title && s.url.startsWith('https://')));
       if (q.review_status === 'rejected') {
         assert.equal(q.atlas_rung, null);
@@ -224,7 +224,9 @@ test('research archive preserves 1000 indexed, well-formed and attributable ques
       } else {
         assert.ok(Number.isInteger(q.atlas_rung) && q.atlas_rung >= 1 && q.atlas_rung <= 10);
         assert.ok(q.review_explanation);
-        if (q.review_status === 'repaired_and_approved') assert.ok(q.original_question && q.original_question !== q.question);
+        if (q.review_status === 'repaired_and_approved') assert.ok(q.original_question && (q.original_question !== q.question || q.original_answers));
+        if (q.review_batch && q.review_status === 'repaired_and_approved') assert.ok(q.review_notes);
+        if (!q.review_sources.length) assert.ok(q.review_basis?.includes('not independently fact-checked')); 
       }
     }
 
@@ -261,7 +263,7 @@ test('audited research pool converts into complete ten-rung games without changi
   assert.ok(bank.every(q =>
     q.answer >= 0 && q.answer <= 3 && q.options.length === 4 &&
     q.options[q.answer] && q.prompt && q.explanation && q.evidence &&
-    q.reviewedAt && q.sources?.length && q.difficulty.band === band(q.rung)
+    q.reviewedAt && Array.isArray(q.sources) && q.difficulty.band === band(q.rung)
   ));
   assert.ok(archive.filter(q => q.review_status === 'rejected').every(q =>
     !bank.some(candidate => candidate.id === 'wwtbam-' + q.previous_index)

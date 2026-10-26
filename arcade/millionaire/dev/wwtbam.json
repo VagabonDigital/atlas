@@ -72,7 +72,7 @@
     "previous_index": 51,
     "date": "2021-03-07",
     "prize": 100,
-    "question": "Which of these recent movies is based on a fairy tale by the Brothers Grimm?",
+    "question": "Which of these films released in 2019 or 2020 is based on a fairy tale by the Brothers Grimm?",
     "answers": [
       "Gretel & Hansel",
       "Richard Jewell",
@@ -82,7 +82,15 @@
     "correct_answer": "Gretel & Hansel",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "atlas_rung": 2,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Gretel & Hansel retells the Grimm story of Hansel and Gretel.",
+    "original_question": "Which of these recent movies is based on a fairy tale by the Brothers Grimm?",
+    "review_notes": "Limited wording repair: clarify scope, date or terminology without changing the source answer."
   },
   {
     "index": 5,
@@ -244,7 +252,13 @@
     "correct_answer": "Friends",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 2,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Ross, Chandler, Monica, Joey, Rachel and Phoebe are the six central friends in Friends."
   },
   {
     "index": 14,
@@ -577,7 +591,13 @@
     "correct_answer": "snowman",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 4,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "The story describes Michelangelo making a snowman for the Medici family; it is presented as an anecdote, not a surviving work."
   },
   {
     "index": 32,
@@ -790,7 +810,13 @@
     "correct_answer": "founded a start-up worth over $1 billion",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 1,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "A unicorn is a privately held start-up valued at a billion dollars or more."
   },
   {
     "index": 44,
@@ -960,7 +986,13 @@
     "correct_answer": "all-purpose",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 1,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "AP is the abbreviation for all-purpose flour."
   },
   {
     "index": 54,
@@ -1181,7 +1213,13 @@
     "correct_answer": "Keep America Great!",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 2,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Keep America Great was Trump's announced slogan for his 2020 re-election campaign."
   },
   {
     "index": 67,
@@ -1368,7 +1406,13 @@
     "correct_answer": "walk",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_notes": "Safety guidance and the manufacturer's superlative distract from a very thin joke; exclude rather than present unsourced safety advice."
   },
   {
     "index": 78,
@@ -1555,7 +1599,13 @@
     "correct_answer": "lyre",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 2,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "The legend concerns Nero playing a lyre, an ancient stringed instrument, not a modern violin."
   },
   {
     "index": 89,
@@ -1776,7 +1826,13 @@
     "correct_answer": "How to Mime",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 1,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "A mime uses gestures to make imaginary objects seem present."
   },
   {
     "index": 102,
@@ -1936,7 +1992,7 @@
     "previous_index": 702,
     "date": "2016-10-21",
     "prize": 500,
-    "question": "Raising the flag on your mailbox indicates what to your letter carrier?",
+    "question": "On a U.S. curbside mailbox, raising the flag indicates what to your letter carrier?",
     "answers": [
       "the mailbox is in distress",
       "a famous piece of mail has died",
@@ -1946,7 +2002,15 @@
     "correct_answer": "there's outgoing mail inside",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "atlas_rung": 2,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "On a U.S. curbside mailbox, the raised flag signals outgoing mail for collection.",
+    "original_question": "Raising the flag on your mailbox indicates what to your letter carrier?",
+    "review_notes": "Limited wording repair: clarify scope, date or terminology without changing the source answer."
   },
   {
     "index": 112,
@@ -2099,7 +2163,13 @@
     "correct_answer": "the door remains closed",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_notes": "Food-safety timing depends on conditions; exclude this advice-like item rather than turn a quiz into storage guidance."
   },
   {
     "index": 121,
@@ -2405,7 +2475,13 @@
     "correct_answer": "Staples sells staples",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 1,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Staples is an office-supply retailer that sells staples as well as other stationery."
   },
   {
     "index": 139,
@@ -2541,7 +2617,13 @@
     "correct_answer": "chain link fence",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 1,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Olympic fencing uses the foil, épée and sabre; a chain-link fence is a barrier."
   },
   {
     "index": 147,
@@ -2686,7 +2768,13 @@
     "correct_answer": "Schitt's Creek",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 5,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Schitt's Creek received 15 nominations at the 2020 Primetime Emmys; its title supplies the wordplay."
   },
   {
     "index": 155,
@@ -2909,7 +2997,13 @@
     "correct_answer": "The Clean Plate Club",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 1,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "The Clean Plate Club is a playful name for people who finish all the food on their plates."
   },
   {
     "index": 167,
@@ -3156,7 +3250,13 @@
     "correct_answer": "Gatorade",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_notes": "The identity of the first Gatorade-shower coach is disputed; the origin claim adds avoidable uncertainty."
   },
   {
     "index": 181,
@@ -3343,7 +3443,13 @@
     "correct_answer": "concertmaster",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 2,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "The concertmaster is the leading first violinist and helps coordinate the orchestra with the conductor."
   },
   {
     "index": 192,
@@ -3598,7 +3704,13 @@
     "correct_answer": "turkey farms",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_notes": "Pejorative obscure bureaucratic slang offers little useful context and depends on a poorly specified usage."
   },
   {
     "index": 207,
@@ -3673,7 +3785,7 @@
     "previous_index": 248,
     "date": "2019-02-01",
     "prize": 1000,
-    "question": "Due to its extremely violent content, whose TV broadcasts are typically preceded by a \"viewer discretion advised\" warning?",
+    "question": "Which of these organizations broadcasts mixed martial arts bouts?",
     "answers": [
       "Scripps National Spelling Bee",
       "PGA Tour",
@@ -3683,7 +3795,15 @@
     "correct_answer": "UFC",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "atlas_rung": 3,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "UFC stages mixed martial arts bouts, unlike the other listed broadcasts.",
+    "original_question": "Due to its extremely violent content, whose TV broadcasts are typically preceded by a \"viewer discretion advised\" warning?",
+    "review_notes": "Limited wording repair: clarify scope, date or terminology without changing the source answer."
   },
   {
     "index": 212,
@@ -3989,7 +4109,13 @@
     "correct_answer": "I",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 2,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "These are forms of the first-person singular pronoun I in several European languages."
   },
   {
     "index": 230,
@@ -4040,7 +4166,13 @@
     "correct_answer": "fall in love",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 1,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "The lyric says birds and bees do it, then identifies it as falling in love."
   },
   {
     "index": 233,
@@ -4295,7 +4427,13 @@
     "correct_answer": "Anteros",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 3,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "The Shaftesbury Memorial Fountain figure represents Anteros, associated with returned love."
   },
   {
     "index": 248,
@@ -4618,7 +4756,13 @@
     "correct_answer": "Robert E. Lee & Stonewall Jackson",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 6,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "The removed windows honored Confederate generals Robert E. Lee and Stonewall Jackson."
   },
   {
     "index": 267,
@@ -4669,7 +4813,13 @@
     "correct_answer": "swearing",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_notes": "An oversimplified pain-relief claim tied to an unspecified article; exclude rather than imply a guaranteed effect."
   },
   {
     "index": 270,
@@ -5016,7 +5166,7 @@
     "previous_index": 439,
     "date": "2018-05-18",
     "prize": 1000,
-    "question": "While the overall leader of the Tour de France wears a yellow jersey, the winner of the mountain stages wears the \"maillot a pois rouges,\" a white jersey with what?",
+    "question": "While the overall Tour de France leader wears yellow, the leader of the mountains classification wears a white jersey with what?",
     "answers": [
       "green diamonds",
       "red dots",
@@ -5026,7 +5176,15 @@
     "correct_answer": "red dots",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "atlas_rung": 3,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "The mountains classification leader wears the white jersey with red polka dots.",
+    "original_question": "While the overall leader of the Tour de France wears a yellow jersey, the winner of the mountain stages wears the \"maillot a pois rouges,\" a white jersey with what?",
+    "review_notes": "Limited wording repair: clarify scope, date or terminology without changing the source answer."
   },
   {
     "index": 291,
@@ -5060,7 +5218,13 @@
     "correct_answer": "dandruff",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 2,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Head & Shoulders is an anti-dandruff shampoo, which explains the advertising exchange."
   },
   {
     "index": 293,
@@ -5332,7 +5496,13 @@
     "correct_answer": "win",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_notes": "Three options contain the letter I; the quotation alone makes the key unique, so the advertised wordplay is misleading."
   },
   {
     "index": 309,
@@ -5485,7 +5655,13 @@
     "correct_answer": "keys",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 2,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Many standard U.S. police handcuffs share a common key design, allowing officers to unlock them."
   },
   {
     "index": 318,
@@ -5723,7 +5899,13 @@
     "correct_answer": "Crime and Punishment",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 4,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Crime and Punishment is Dostoevsky's Russian novel; the other listed books are not Russian novels."
   },
   {
     "index": 332,
@@ -5910,7 +6092,13 @@
     "correct_answer": "\"Are you not entertained?\"",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 2,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Maximus challenges the spectators with the line 'Are you not entertained?'"
   },
   {
     "index": 343,
@@ -6104,7 +6292,7 @@
     "previous_index": 572,
     "date": "2017-11-10",
     "prize": 1000,
-    "question": "Dragging the overall GPA down, the person who finishes in the bottom of their class at the U.S. Naval Acadamy is aptly nicknamed the what?",
+    "question": "At the U.S. Naval Academy, the person who finishes at the bottom of their class is nicknamed the what?",
     "answers": [
       "boatswain",
       "quartermaster",
@@ -6114,7 +6302,15 @@
     "correct_answer": "anchorman",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "atlas_rung": 6,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Anchorman is the nickname for the graduate at the bottom of the Naval Academy class.",
+    "original_question": "Dragging the overall GPA down, the person who finishes in the bottom of their class at the U.S. Naval Acadamy is aptly nicknamed the what?",
+    "review_notes": "Limited wording repair: clarify scope, date or terminology without changing the source answer."
   },
   {
     "index": 355,
@@ -6335,7 +6531,13 @@
     "correct_answer": "Nicole \"Snookie\" Polizzo Service Area",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_notes": "Changing road-service names and a misspelled celebrity joke make this an unnecessarily fragile local list."
   },
   {
     "index": 368,
@@ -6471,7 +6673,13 @@
     "correct_answer": "pi x pi = pi",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 3,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Pi multiplied by pi is pi squared, which is about 9.87, not pi."
   },
   {
     "index": 376,
@@ -6590,7 +6798,13 @@
     "correct_answer": "bananas",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 3,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Bananas curve upward as they grow, rather than simply hanging straight down."
   },
   {
     "index": 383,
@@ -6879,7 +7093,13 @@
     "correct_answer": "members of Congress",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_notes": "An undated survey ranking is neither reproducible from the prompt nor worthwhile as a historical puzzle."
   },
   {
     "index": 400,
@@ -7039,7 +7259,7 @@
     "previous_index": 718,
     "date": "2016-10-07",
     "prize": 1000,
-    "question": "Violating his Hindu beliefs, Brittanica says that Mohandas Gandhi's \"most shocking\" teenage behavior was what?",
+    "question": "In his autobiography, Mohandas Gandhi described secretly doing what as a teenager, against his family's vegetarian beliefs?",
     "answers": [
       "making prank calls",
       "doing keg stands",
@@ -7049,7 +7269,15 @@
     "correct_answer": "eating meat",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "atlas_rung": 2,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Gandhi described experimenting with eating meat as a teenager despite his family's vegetarian beliefs.",
+    "original_question": "Violating his Hindu beliefs, Brittanica says that Mohandas Gandhi's \"most shocking\" teenage behavior was what?",
+    "review_notes": "Limited wording repair: clarify scope, date or terminology without changing the source answer."
   },
   {
     "index": 410,
@@ -7321,7 +7549,13 @@
     "correct_answer": "André the Giant",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_notes": "An anecdotal military-service story with a doubtful causal explanation; reject rather than perpetuate it without stronger evidence."
   },
   {
     "index": 426,
@@ -7593,7 +7827,13 @@
     "correct_answer": "crude oil",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 4,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "The petroleum fly's larvae develop in crude-oil pools and eat trapped insects."
   },
   {
     "index": 442,
@@ -7753,7 +7993,7 @@
     "previous_index": 820,
     "date": "2016-03-11",
     "prize": 1000,
-    "question": "Though its \"Rock\" is more famous, what tiny British territory has an airport with a busy four-lane road running through its only runway?",
+    "question": "Before a tunnel opened in March 2023, what British territory's airport had a busy road crossing its runway?",
     "answers": [
       "Monaco",
       "Guam",
@@ -7763,7 +8003,20 @@
     "correct_answer": "Gibraltar",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "atlas_rung": 4,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [
+      {
+        "title": "Government of Gibraltar: Kingsway opening",
+        "url": "https://www.gibraltar.gov.gi/press-releases/kingsway-inaugurated-1872023-8737"
+      }
+    ],
+    "review_explanation": "Gibraltar's road crossed its airport runway; regular motor traffic moved to a tunnel in March 2023.",
+    "original_question": "Though its \"Rock\" is more famous, what tiny British territory has an airport with a busy four-lane road running through its only runway?",
+    "review_notes": "Limited wording repair: clarify scope, date or terminology without changing the source answer."
   },
   {
     "index": 452,
@@ -8035,7 +8288,13 @@
     "correct_answer": "Murphy Brown",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 6,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Candice Bergen played television journalist Murphy Brown."
   },
   {
     "index": 468,
@@ -8137,7 +8396,13 @@
     "correct_answer": "hot mess",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 2,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "A hot mess is someone or something in a spectacularly disordered state."
   },
   {
     "index": 474,
@@ -8222,7 +8487,13 @@
     "correct_answer": "Birkenstock",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_notes": "A transient fashion comeback in an undated article provides no durable factual anchor."
   },
   {
     "index": 479,
@@ -8579,7 +8850,13 @@
     "correct_answer": "reigning redheads",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_notes": "An undated magazine label and 'today' framing are too ephemeral to retain."
   },
   {
     "index": 500,
@@ -8749,7 +9026,13 @@
     "correct_answer": "savings bond",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_notes": "The blanket no-paper claim ignores historical exceptions for savings bonds; a dated digital-service quiz adds little value."
   },
   {
     "index": 510,
@@ -8885,7 +9168,13 @@
     "correct_answer": "Michigan",
     "difficulty": "easy",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 5,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Yooper comes from U.P., the abbreviation for Michigan's Upper Peninsula."
   },
   {
     "index": 518,
@@ -9191,7 +9480,13 @@
     "correct_answer": "Bridesmaids",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_notes": "The joke depends on a graphic bowel-emergency scene; poor fit for a shared adult language lesson."
   },
   {
     "index": 536,
@@ -9431,7 +9726,7 @@
     "previous_index": 251,
     "date": "2019-02-01",
     "prize": 4000,
-    "question": "In 2017, what state you don't usually associate with alcohol consumption adopted the strictest drunk driving law in the U.S., lowering the BAC [Chris said \"blood alcohol content\"] limit from 0.08 to 0.05?",
+    "question": "In 2017, which U.S. state adopted a law lowering its drunk-driving blood-alcohol limit from 0.08 to 0.05?",
     "answers": [
       "Virginia",
       "Texas",
@@ -9441,7 +9736,15 @@
     "correct_answer": "Utah",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "atlas_rung": 6,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Utah adopted the lower 0.05 limit in 2017, with the change taking effect later.",
+    "original_question": "In 2017, what state you don't usually associate with alcohol consumption adopted the strictest drunk driving law in the U.S., lowering the BAC [Chris said \"blood alcohol content\"] limit from 0.08 to 0.05?",
+    "review_notes": "Limited wording repair: clarify scope, date or terminology without changing the source answer."
   },
   {
     "index": 549,
@@ -9635,7 +9938,7 @@
     "previous_index": 380,
     "date": "2018-09-21",
     "prize": 4000,
-    "question": "Which pair of words completes this statement: \"A polarised _____ is one where the neutral _____ is wider than the hot one\"?",
+    "question": "In a polarized two-prong U.S. electrical connector, which pair completes: 'The _____ has a neutral _____ wider than the hot one'?",
     "answers": [
       "fruit/seed",
       "hurricane/eye",
@@ -9645,7 +9948,15 @@
     "correct_answer": "plug/prong",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "atlas_rung": 4,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "On a polarized two-prong U.S. plug, the neutral prong is wider.",
+    "original_question": "Which pair of words completes this statement: \"A polarised _____ is one where the neutral _____ is wider than the hot one\"?",
+    "review_notes": "Limited wording repair: clarify scope, date or terminology without changing the source answer."
   },
   {
     "index": 561,
@@ -9849,7 +10160,13 @@
     "correct_answer": "Meghan Trainor",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 5,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Meghan Trainor headlined these tours; That Bass refers to her hit All About That Bass."
   },
   {
     "index": 573,
@@ -10043,7 +10360,7 @@
     "previous_index": 574,
     "date": "2017-11-10",
     "prize": 4000,
-    "question": "Despite being his fierce rival in the late '70s and early '80s, Björn Borg was a guest at what athlete's wedding to singer Patty Smythe in 1997?",
+    "question": "Björn Borg attended which tennis rival's wedding to singer Patty Smyth in 1997?",
     "answers": [
       "Wayne Gretzsky",
       "John McEnroe",
@@ -10053,7 +10370,15 @@
     "correct_answer": "John McEnroe",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "atlas_rung": 5,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "John McEnroe, Borg's tennis rival, married singer Patty Smyth in 1997.",
+    "original_question": "Despite being his fierce rival in the late '70s and early '80s, Björn Borg was a guest at what athlete's wedding to singer Patty Smythe in 1997?",
+    "review_notes": "Limited wording repair: clarify scope, date or terminology without changing the source answer."
   },
   {
     "index": 585,
@@ -10257,7 +10582,13 @@
     "correct_answer": "Scaramouche",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 6,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "The lyric names Scaramouche, a comic character associated with Italian theatre."
   },
   {
     "index": 597,
@@ -10434,7 +10765,7 @@
     "previous_index": 799,
     "date": "2016-04-22",
     "prize": 4000,
-    "question": "Where would you most llikely be given a \"scratch test\"?",
+    "question": "Where would you most likely be given a skin scratch test for allergies?",
     "answers": [
       "a computer repair store",
       "the DMV",
@@ -10444,7 +10775,15 @@
     "correct_answer": "an allergist's office",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "atlas_rung": 3,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Allergists use skin scratch tests to help identify allergic reactions.",
+    "original_question": "Where would you most llikely be given a \"scratch test\"?",
+    "review_notes": "Limited wording repair: clarify scope, date or terminology without changing the source answer."
   },
   {
     "index": 608,
@@ -10631,7 +10970,13 @@
     "correct_answer": "organic",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_notes": "An unspecified shopper survey supplies the premise; the changing regulatory and survey framing is not worth retaining."
   },
   {
     "index": 619,
@@ -10869,7 +11214,13 @@
     "correct_answer": "NBA bubble",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 3,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "The NBA bubble kept the restarted 2019–2020 season in a single controlled location."
   },
   {
     "index": 633,
@@ -11073,7 +11424,7 @@
     "previous_index": 211,
     "date": "2019-03-15",
     "prize": 8000,
-    "question": "The sun goddess Amaterasu Omikami, or \"the great divinity illuminating heaven,\" is the most important deity of what most widely practiced religion in Japan?",
+    "question": "The sun goddess Amaterasu Omikami is a central deity of which Japanese religion?",
     "answers": [
       "Taoism",
       "Confucianism",
@@ -11083,7 +11434,15 @@
     "correct_answer": "Shinto",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "atlas_rung": 6,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Amaterasu is the sun deity in Shinto.",
+    "original_question": "The sun goddess Amaterasu Omikami, or \"the great divinity illuminating heaven,\" is the most important deity of what most widely practiced religion in Japan?",
+    "review_notes": "Limited wording repair: clarify scope, date or terminology without changing the source answer."
   },
   {
     "index": 645,
@@ -11330,7 +11689,13 @@
     "correct_answer": "pelota",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 5,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Pelota means ball; segunda and tercera mean second and third, and plato refers to home plate."
   },
   {
     "index": 659,
@@ -11526,7 +11891,13 @@
     "correct_answer": "Oscar Underwood",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_notes": "The alleged naming inspiration is explicitly speculative and unnecessarily obscure."
   },
   {
     "index": 670,
@@ -11764,7 +12135,13 @@
     "correct_answer": "first cousin",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 6,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Your mother's sister is your aunt; her daughter is your first cousin, who is the mother at the end of the chain."
   },
   {
     "index": 684,
@@ -11951,7 +12328,13 @@
     "correct_answer": "figs",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 5,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Figs were cultivated in antiquity and appear repeatedly in the Old Testament."
   },
   {
     "index": 695,
@@ -12128,7 +12511,7 @@
     "previous_index": 835,
     "date": "2016-03-04",
     "prize": 8000,
-    "question": "Named by Out magazine as the world's most powerful gay man, Tim Cook is famous for being what?",
+    "question": "In 2015, Out magazine named Tim Cook its most powerful gay man. What position did he hold?",
     "answers": [
       "a successful movie producer",
       "the founder of TMZ",
@@ -12138,7 +12521,15 @@
     "correct_answer": "the CEO of Apple",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "atlas_rung": 4,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Tim Cook became Apple's chief executive in 2011.",
+    "original_question": "Named by Out magazine as the world's most powerful gay man, Tim Cook is famous for being what?",
+    "review_notes": "Limited wording repair: clarify scope, date or terminology without changing the source answer."
   },
   {
     "index": 706,
@@ -12342,7 +12733,13 @@
     "correct_answer": "The Country",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 3,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "El país means the country in Spanish."
   },
   {
     "index": 718,
@@ -12410,7 +12807,13 @@
     "correct_answer": "Dazed and Confused",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 5,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Matthew McConaughey's repeated 'alright' is a famous line from Dazed and Confused."
   },
   {
     "index": 722,
@@ -12658,7 +13061,13 @@
     "correct_answer": "Freddie Mercury",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_notes": "The location of private remains is speculative and 'unknown to this day' is a fragile premise."
   },
   {
     "index": 736,
@@ -12845,7 +13254,13 @@
     "correct_answer": "Circe",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 5,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Circe transforms Odysseus' companions into pigs in the Odyssey."
   },
   {
     "index": 747,
@@ -13099,7 +13514,7 @@
     "previous_index": 275,
     "date": "2019-01-18",
     "prize": 16000,
-    "question": "Developed in 1824 by 15-year-old Louis Braille, the Braille syste consists of over 60 characters, each made up of between one and how many raised dots?",
+    "question": "Developed by Louis Braille, the standard Braille cell has characters made up of between one and how many raised dots?",
     "answers": [
       "4",
       "5",
@@ -13109,7 +13524,15 @@
     "correct_answer": "6",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "atlas_rung": 4,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Standard six-dot Braille uses two columns of three dots.",
+    "original_question": "Developed in 1824 by 15-year-old Louis Braille, the Braille syste consists of over 60 characters, each made up of between one and how many raised dots?",
+    "review_notes": "Correct the typo and specify the standard Braille cell without revealing the answer."
   },
   {
     "index": 762,
@@ -13269,7 +13692,7 @@
     "previous_index": 324,
     "date": "2018-11-09",
     "prize": 16000,
-    "question": "Rarely occurring in the continental U.S., but prevalent in Latin America, Puerto Rico and parts of Asia, dengue is transmitted by what?",
+    "question": "Dengue is transmitted to people by which of these?",
     "answers": [
       "mosquitoes",
       "unclean drinking water",
@@ -13279,7 +13702,15 @@
     "correct_answer": "mosquitoes",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "atlas_rung": 4,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Dengue is transmitted by infected mosquitoes.",
+    "original_question": "Rarely occurring in the continental U.S., but prevalent in Latin America, Puerto Rico and parts of Asia, dengue is transmitted by what?",
+    "review_notes": "Limited wording repair: clarify scope, date or terminology without changing the source answer."
   },
   {
     "index": 772,
@@ -13517,7 +13948,13 @@
     "correct_answer": "Maya Angelou",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_notes": "Angelou worked on streetcars, not cable cars; correcting the vehicle changes a material premise of this biographical claim."
   },
   {
     "index": 786,
@@ -13670,7 +14107,13 @@
     "correct_answer": "banana",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_notes": "Serving-size nutrition figures and prescriptive diet framing are a poor lesson question."
   },
   {
     "index": 795,
@@ -13908,7 +14351,13 @@
     "correct_answer": "a thrift shop",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 4,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "An Australian op shop sells secondhand goods, like a U.S. thrift shop."
   },
   {
     "index": 809,
@@ -14061,7 +14510,13 @@
     "correct_answer": "cry when chopping onions",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 6,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Cutting onions releases a volatile irritant that brings tears to the eyes."
   },
   {
     "index": 818,
@@ -14102,7 +14557,7 @@
     "previous_index": 589,
     "date": "2017-09-22",
     "prize": 16000,
-    "question": "Though today his photo's featured on the world's most valuable baseball card, who had the dubious distinction of striking out to end the first World Series in 1903?",
+    "question": "Who struck out to end the first modern World Series in 1903?",
     "answers": [
       "Honus Wagner",
       "Rogers Hornsby",
@@ -14112,7 +14567,20 @@
     "correct_answer": "Honus Wagner",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "atlas_rung": 9,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [
+      {
+        "title": "MLB: final moments of World Series",
+        "url": "https://www.mlb.com/news/final-moments-of-world-series"
+      }
+    ],
+    "review_notes": "Remove the changing baseball-card value claim. The initial doubt about the key was resolved against MLB records.",
+    "original_question": "Though today his photo's featured on the world's most valuable baseball card, who had the dubious distinction of striking out to end the first World Series in 1903?",
+    "review_explanation": "Honus Wagner made the final out of the 1903 World Series."
   },
   {
     "index": 821,
@@ -14316,7 +14784,13 @@
     "correct_answer": "Crayola",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 5,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Crayola's device melted old crayons so children could form new ones."
   },
   {
     "index": 833,
@@ -14673,7 +15147,13 @@
     "correct_answer": "an album by Will Smith",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 4,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Big Willie Style is Will Smith's debut solo album."
   },
   {
     "index": 854,
@@ -14833,7 +15313,7 @@
     "previous_index": 769,
     "date": "2016-05-27",
     "prize": 16000,
-    "question": "With adherents ranging from Richard Nixon to Judi Densch, Quakers are formally known as \"The Religious\" what?",
+    "question": "Quakers are formally known as the Religious what?",
     "answers": [
       "Community of Companions",
       "Society of Friends",
@@ -14843,7 +15323,15 @@
     "correct_answer": "Society of Friends",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "atlas_rung": 5,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Quakers are also known as the Religious Society of Friends.",
+    "original_question": "With adherents ranging from Richard Nixon to Judi Densch, Quakers are formally known as \"The Religious\" what?",
+    "review_notes": "Limited wording repair: clarify scope, date or terminology without changing the source answer."
   },
   {
     "index": 864,
@@ -15030,7 +15518,13 @@
     "correct_answer": "Bobby Jindal",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_notes": "An obsolete age comparison is not worth turning into a dated birthday puzzle."
   },
   {
     "index": 875,
@@ -15285,7 +15779,13 @@
     "correct_answer": "brandy",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 5,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Brandy comes from Dutch brandewijn, meaning burnt wine."
   },
   {
     "index": 890,
@@ -15421,7 +15921,13 @@
     "correct_answer": "Google",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 6,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Google's original ticker was GOOG, its name without the final two letters."
   },
   {
     "index": 898,
@@ -15652,14 +16158,28 @@
     "question": "If a hen lays 265 eggs a year, about how long would it take her to lay one million of them?",
     "answers": [
       "3.77 years",
-      "37.7 years 377 years 3,770 years",
+      "37.7 years",
       "377 years",
       "3,770 years"
     ],
     "correct_answer": "3,770 years",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "atlas_rung": 4,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "One million divided by 265 is about 3,774, so 3,770 years is the closest estimate.",
+    "original_question": "If a hen lays 265 eggs a year, about how long would it take her to lay one million of them?",
+    "original_answers": [
+      "3.77 years",
+      "37.7 years 377 years 3,770 years",
+      "377 years",
+      "3,770 years"
+    ],
+    "review_notes": "Remove accidentally concatenated alternatives from the second option; the intended key is unchanged."
   },
   {
     "index": 912,
@@ -15889,7 +16409,13 @@
     "correct_answer": "The Little Mermaid",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 5,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Ursula in The Little Mermaid was visually inspired in part by Divine."
   },
   {
     "index": 925,
@@ -16119,7 +16645,13 @@
     "correct_answer": "brain",
     "difficulty": "medium",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 4,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "The corpus callosum is a bundle of nerve fibers connecting the brain's cerebral hemispheres."
   },
   {
     "index": 938,
@@ -16306,7 +16838,13 @@
     "correct_answer": "her subjects had no bread",
     "difficulty": "hard",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 3,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "The legend has her responding to a shortage of bread; the attribution itself is a myth."
   },
   {
     "index": 949,
@@ -16323,7 +16861,13 @@
     "correct_answer": "they start with \"San\"",
     "difficulty": "hard",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_notes": "Population rankings change and the prompt supplies neither a census year nor a population definition."
   },
   {
     "index": 950,
@@ -16357,7 +16901,13 @@
     "correct_answer": "Go Fudge Yourself",
     "difficulty": "hard",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_notes": "A never-existed product claim without a date is fragile and difficult to substantiate economically."
   },
   {
     "index": 952,
@@ -16451,7 +17001,13 @@
     "correct_answer": "Robinette",
     "difficulty": "hard",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 4,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Joe Biden's full name is Joseph Robinette Biden Jr."
   },
   {
     "index": 957,
@@ -16475,7 +17031,7 @@
     "previous_index": 36,
     "date": "2021-03-14",
     "prize": 125000,
-    "question": "The spot where Francis Crick and James Watson announced their 1953 discovery, The Eagle pub in Cambridge, England honors the duo today by offering an ale called what?",
+    "question": "In the 2021 show question, Cambridge's Eagle pub commemorated Watson and Crick's discovery with an ale called what?",
     "answers": [
       "Black Hole",
       "Penicillin",
@@ -16485,7 +17041,15 @@
     "correct_answer": "DNA",
     "difficulty": "hard",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "atlas_rung": 8,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "The Eagle's DNA ale commemorates the discovery of DNA's structure.",
+    "original_question": "The spot where Francis Crick and James Watson announced their 1953 discovery, The Eagle pub in Cambridge, England honors the duo today by offering an ale called what?",
+    "review_notes": "Limited wording repair: clarify scope, date or terminology without changing the source answer."
   },
   {
     "index": 959,
@@ -16536,7 +17100,13 @@
     "correct_answer": "Pittsburgh Steelers helmet",
     "difficulty": "hard",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 7,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "The Steelers logo has three colored four-pointed shapes derived from the steel-industry emblem."
   },
   {
     "index": 962,
@@ -16587,7 +17157,13 @@
     "correct_answer": "blue vision",
     "difficulty": "hard",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_notes": "A drug side-effect report is a poor fit for this lesson bank and could be mistaken for medical guidance."
   },
   {
     "index": 965,
@@ -16647,7 +17223,13 @@
     "correct_answer": "by measuring various body parts",
     "difficulty": "hard",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 8,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "The Bertillon system recorded body measurements to help identify people."
   },
   {
     "index": 968,
@@ -16664,7 +17246,13 @@
     "correct_answer": "Beyoncé",
     "difficulty": "hard",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_notes": "An unbounded 'exactly once' baby-name ranking requires ongoing data checks and is not worth preserving."
   },
   {
     "index": 969,
@@ -16722,7 +17310,7 @@
     "previous_index": 49,
     "date": "2021-03-14",
     "prize": 240000,
-    "question": "Named after the Greek goddess of the hunt, what NASA program aims to land the first woman on the moon by 2024?",
+    "question": "In NASA's plans announced before the 2021 broadcast, which program aimed to land the first woman on the Moon by 2024?",
     "answers": [
       "Artemis",
       "Hera",
@@ -16732,7 +17320,20 @@
     "correct_answer": "Artemis",
     "difficulty": "hard",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "atlas_rung": 4,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [
+      {
+        "title": "NASA: September 2020 Artemis plan",
+        "url": "https://www.nasa.gov/blogs/missions/2020/09/21/artemis-plan-to-land-first-woman-next-man-on-moon-in-2024/"
+      }
+    ],
+    "review_explanation": "Artemis is named for the Greek goddess of the hunt; 2024 was the program's earlier target, not an achieved landing date.",
+    "original_question": "Named after the Greek goddess of the hunt, what NASA program aims to land the first woman on the moon by 2024?",
+    "review_notes": "Limited wording repair: clarify scope, date or terminology without changing the source answer."
   },
   {
     "index": 973,
@@ -16766,7 +17367,18 @@
     "correct_answer": "Martha Washington's silverware",
     "difficulty": "hard",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 8,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [
+      {
+        "title": "U.S. Mint: historical timeline",
+        "url": "https://dev-author.usmint.gov/content/usmint/us/en/learn/history/timeline.html"
+      }
+    ],
+    "review_explanation": "The story says Martha Washington's silverware supplied the metal; the prompt correctly presents it as a legend."
   },
   {
     "index": 975,
@@ -16800,7 +17412,13 @@
     "correct_answer": "first team to score 21 runs",
     "difficulty": "hard",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 8,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Early baseball rules used a target of 21 runs before the nine-inning standard was adopted."
   },
   {
     "index": 977,
@@ -16851,7 +17469,13 @@
     "correct_answer": "Ivory chewing gum",
     "difficulty": "hard",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "rejected",
+    "atlas_rung": null,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_notes": "The unspecified branding book and typo conceal the evidence for a negative product-history claim."
   },
   {
     "index": 980,
@@ -16902,7 +17526,18 @@
     "correct_answer": "a shoe",
     "difficulty": "hard",
     "source": "WWTBM/wwtbm English dataset (Hugging Face)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 10,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [
+      {
+        "title": "Warholstars: reproduction of MoMA rejection letter",
+        "url": "https://www.warholstars.org/nowhere/andy_warhol_r23.html"
+      }
+    ],
+    "review_explanation": "The rejected Warhol drawing was titled Shoe."
   },
   {
     "index": 983,
@@ -16935,7 +17570,7 @@
     "previous_index": 1011,
     "date": null,
     "prize": 500000,
-    "question": "Which of the following actors has not portrayed Jesus Christ in the movies?",
+    "question": "Among these actors' major films released before 2000, which actor did not portray Jesus Christ?",
     "answers": [
       "Max von Sydow",
       "Willem Dafoe",
@@ -16945,7 +17580,15 @@
     "correct_answer": "Charlton Heston",
     "difficulty": "hard",
     "source": "Ranker — The 25 Hardest Questions In The History Of 'Who Wants to Be a Millionaire' (user-supplied excerpt)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "atlas_rung": 7,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Heston played Moses in The Ten Commandments; the other three played Jesus in major films.",
+    "original_question": "Which of the following actors has not portrayed Jesus Christ in the movies?",
+    "review_notes": "Limited wording repair: clarify scope, date or terminology without changing the source answer."
   },
   {
     "index": 985,
@@ -17005,7 +17648,13 @@
     "correct_answer": "Legs of a compass",
     "difficulty": "hard",
     "source": "Ranker — The 25 Hardest Questions In The History Of 'Who Wants to Be a Millionaire' (user-supplied excerpt)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 9,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Donne compares the lovers to the two connected legs of a drawing compass."
   },
   {
     "index": 988,
@@ -17039,7 +17688,13 @@
     "correct_answer": "James Callaghan",
     "difficulty": "hard",
     "source": "Ranker — The 25 Hardest Questions In The History Of 'Who Wants to Be a Millionaire' (user-supplied excerpt)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 6,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Labour prime minister James Callaghan was succeeded by Margaret Thatcher in 1979."
   },
   {
     "index": 990,
@@ -17116,7 +17771,13 @@
     "correct_answer": "Soundabout",
     "difficulty": "hard",
     "source": "Ranker — The 25 Hardest Questions In The History Of 'Who Wants to Be a Millionaire' (user-supplied excerpt)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 10,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [],
+    "review_explanation": "Soundabout was the early U.S. marketing name for Sony's personal cassette player."
   },
   {
     "index": 994,
@@ -17176,7 +17837,18 @@
     "correct_answer": "His dentist",
     "difficulty": "hard",
     "source": "Ranker — The 25 Hardest Questions In The History Of 'Who Wants to Be a Millionaire' (user-supplied excerpt)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "approved",
+    "atlas_rung": 7,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [
+      {
+        "title": "Art Institute of Chicago: American Art",
+        "url": "https://www.artic.edu/assets/f85bee6b-d18b-5577-a9e6-f429421b4654"
+      }
+    ],
+    "review_explanation": "Wood's dentist, Dr. Byron McKeeby, posed for the man in American Gothic."
   },
   {
     "index": 997,
@@ -17200,7 +17872,7 @@
     "previous_index": 1008,
     "date": null,
     "prize": 1000000,
-    "question": "Before the American colonies switched to the Gregorian calendar, on what date did their new year start?",
+    "question": "Before the 1752 calendar reform, on what date did the legal year begin in England and its American colonies?",
     "answers": [
       "March 25",
       "July 1",
@@ -17210,7 +17882,20 @@
     "correct_answer": "March 25",
     "difficulty": "hard",
     "source": "Ranker — The 25 Hardest Questions In The History Of 'Who Wants to Be a Millionaire' (user-supplied excerpt)",
-    "review_status": "Source answer key supplied; independent factual and gameplay review pending"
+    "review_status": "repaired_and_approved",
+    "atlas_rung": 9,
+    "reviewed_at": "2026-10-26",
+    "review_batch": "pilot",
+    "review_basis": "Source answer key plus editorial review; not independently fact-checked unless review_sources is populated.",
+    "review_sources": [
+      {
+        "title": "Connecticut State Library: 1752 calendar change",
+        "url": "https://libguides.ctstatelibrary.org/hg/colonialresearch/calendar"
+      }
+    ],
+    "review_notes": "Specify the English legal calendar and reform rather than imply all colonies shared every calendar practice.",
+    "original_question": "Before the American colonies switched to the Gregorian calendar, on what date did their new year start?",
+    "review_explanation": "The legal year began on March 25; the reform moved its start to January 1."
   },
   {
     "index": 999,
