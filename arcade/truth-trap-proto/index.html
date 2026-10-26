@@ -369,22 +369,24 @@
       <header class="tt-case-heading">
         <p class="tt-case-number">Case 01 / The Impossible Files</p>
         <h1>Nature Refuses to Behave</h1>
-        <p class="tt-case-deckline">Three unbelievable claims. Two are true. Which one is the lie?</p>
       </header>
       <section class="tt-exhibits" aria-label="Choose the false claim">
         <button type="button" class="tt-exhibit" data-choice="A" aria-pressed="false">
-          <span class="tt-exhibit-head"><span class="tt-exhibit-letter" aria-hidden="true">A</span><span class="tt-exhibit-claim">Penguins have no knees.</span></span>
+          <span class="tt-exhibit-shell" aria-hidden="true"></span>
           <span class="tt-art" aria-hidden="true"><span class="tt-art-image"></span></span>
+          <span class="tt-exhibit-head"><span class="tt-exhibit-letter" aria-hidden="true">A</span><span class="tt-exhibit-claim">Penguins have no knees.</span></span>
           <span class="tt-exhibit-status">Exhibit A</span>
         </button>
         <button type="button" class="tt-exhibit" data-choice="B" aria-pressed="false">
-          <span class="tt-exhibit-head"><span class="tt-exhibit-letter" aria-hidden="true">B</span><span class="tt-exhibit-claim">Bananas are berries.</span></span>
+          <span class="tt-exhibit-shell" aria-hidden="true"></span>
           <span class="tt-art" aria-hidden="true"><span class="tt-art-image"></span></span>
+          <span class="tt-exhibit-head"><span class="tt-exhibit-letter" aria-hidden="true">B</span><span class="tt-exhibit-claim">Bananas are berries.</span></span>
           <span class="tt-exhibit-status">Exhibit B</span>
         </button>
         <button type="button" class="tt-exhibit" data-choice="C" aria-pressed="false">
-          <span class="tt-exhibit-head"><span class="tt-exhibit-letter" aria-hidden="true">C</span><span class="tt-exhibit-claim">Octopuses have three hearts.</span></span>
+          <span class="tt-exhibit-shell" aria-hidden="true"></span>
           <span class="tt-art" aria-hidden="true"><span class="tt-art-image"></span></span>
+          <span class="tt-exhibit-head"><span class="tt-exhibit-letter" aria-hidden="true">C</span><span class="tt-exhibit-claim">Octopuses have three hearts.</span></span>
           <span class="tt-exhibit-status">Exhibit C</span>
         </button>
       </section>
@@ -392,7 +394,7 @@
         <p id="tt-choice-status" class="tt-choice-status" role="status" aria-live="polite">Choose your suspect</p>
         <button id="tt-accuse" class="tt-accuse" type="button" disabled>
           <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2.5 4 6v6c0 5.2 3.2 8.7 8 9.5 4.8-.8 8-4.3 8-9.5V6l-8-3.5Z" stroke="currentColor" stroke-width="1.8"/><path d="m9 12 2.1 2.2 4-4.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Reveal the evidence
+          <span class="tt-accuse-label">Make your accusation</span>
         </button>
       </div>
       <section id="tt-results" class="tt-results" aria-labelledby="tt-result-title" hidden>
@@ -513,6 +515,7 @@
       // We deliberately have no fake next case or unearned progress claims.
       const exhibits = Array.from(document.querySelectorAll('.tt-exhibit'));
       const accuseButton = document.getElementById('tt-accuse');
+      const accuseLabel = accuseButton.querySelector('.tt-accuse-label');
       const choiceStatus = document.getElementById('tt-choice-status');
       const results = document.getElementById('tt-results');
       const resultsTitle = document.getElementById('tt-result-title');
@@ -551,6 +554,9 @@
         }
         accuseButton.hidden = revealed;
         accuseButton.disabled = !suspect || revealed;
+        accuseLabel.textContent = suspect
+          ? 'Accuse exhibit ' + suspect
+          : 'Make your accusation';
         choiceStatus.textContent = revealed ? 'THE EVIDENCE IS IN'
           : suspect ? 'EXHIBIT ' + suspect + ' IS YOUR SUSPECT'
                     : 'CHOOSE YOUR SUSPECT';
