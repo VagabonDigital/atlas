@@ -269,7 +269,7 @@
             <h3 class="transmission-title" id="transmission-summary"></h3>
             <p id="voice-status" class="transmission-status" role="status"></p>
             <details id="transcript-details" class="transcript">
-              <summary>Read transmission</summary>
+              <summary>Read scene text</summary>
               <p id="transcript-copy" class="transcript-copy"></p>
             </details>
           </div>
@@ -377,7 +377,7 @@
       const speechAudio = document.createElement('audio');
       speechAudio.preload = 'auto';
       // Populate only with committed audio assets. No fake speech or runtime synthesis.
-      const VOICE_ASSETS = Object.freeze({ welcome:null, complication:null, proceed:null, counter:null, leave:null });
+      const VOICE_ASSETS = Object.freeze({ welcome:'./audio/clinic-welcome.mp3', complication:null, proceed:null, counter:null, leave:null });
       const TRANSMISSIONS = Object.freeze({
         welcome: {
           headline:'You have been invited to invent the impossible.',
@@ -437,11 +437,13 @@
         scene.dataset.speaking = 'false';
       }
 
-      function voiceFallback() {
+      function voiceFallback(error) {
         stopSpeech();
         voiceControls.hidden = true;
         voiceStatus.hidden = false;
-        voiceStatus.textContent = 'Voice recording not added yet. Read the transmission below.';
+        voiceStatus.textContent = VOICE_ASSETS[transmissionKey]
+          ? 'Unable to play this recording. Read the scene text below.'
+          : 'Voice recording not added yet. Read the scene text below.';
         transcriptDetails.open = true;
         nextButton.disabled = false;
       }
