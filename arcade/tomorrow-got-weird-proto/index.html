@@ -250,35 +250,6 @@
       text-wrap: pretty;
       max-width: 920px;
     }
-    .upgrade-options {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 10px;
-    }
-    .upgrade-option {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      align-items: flex-start;
-      justify-content: center;
-      min-height: 90px;
-      padding: 14px 16px;
-      border: 1px solid rgba(203, 235, 255, .45);
-      border-radius: 16px;
-      text-align: left;
-      background: rgba(224, 241, 255, .09);
-      color: #f5faff;
-      font-weight: 650;
-      font-size: clamp(13px, 1.25vw, 16px);
-      transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
-    }
-    .upgrade-option .upgrade-symbol { color: #ffb9e4; font-size: 21px; }
-    .upgrade-option:hover { background: rgba(212, 239, 255, .22); transform: translateY(-2px); }
-    .upgrade-option[aria-pressed="true"] {
-      border-color: #f8c8f0;
-      background: rgba(154, 80, 201, .41);
-      box-shadow: inset 0 0 0 1px rgba(255, 217, 247, .5);
-    }
     .encounter-instruction {
       margin: 0;
       color: #d5edff;
@@ -298,32 +269,6 @@
       text-underline-offset: 4px;
     }
     .quiet-action:hover { color: #ffb8e5; }
-    .custom-form {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .custom-form label { font-size: 13px; }
-    .custom-form input {
-      flex: 1;
-      min-width: 165px;
-      max-width: 420px;
-      color: #0b1b32;
-      background: #f0faff;
-      padding: 10px 12px;
-      border: 1px solid #f7d7fa;
-      border-radius: 10px;
-    }
-    .custom-form button {
-      padding: 10px 15px;
-      border: 1px solid #d1f3ff;
-      background: #dffaff;
-      color: #092f4a;
-      font-size: 13px;
-      font-weight: 750;
-      border-radius: 10px;
-    }
     #atlas-session-panel-root { position: relative; z-index: 80; }
     @media (max-width: 760px) {
       #scene-main { padding: 18px; min-height: calc(100dvh - 64px); gap: 20px; }
@@ -331,15 +276,11 @@
       #hdr .header-center { display: none; }
       .arrival-bottom { flex-direction: column; align-items: stretch; gap: 14px; }
       .arrival-bottom .cta { align-self: flex-start; }
-      .upgrade-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .encounter-bottom { gap: 12px; padding: 16px; }
-      .upgrade-option { min-height: 72px; }
       .location-meta h2 { font-size: clamp(25px, 7vw, 35px); }
     }
     @media (max-width: 400px) {
       .launch-content h1 { font-size: 48px; }
-      .upgrade-option { padding: 11px 12px; }
-      .upgrade-option .upgrade-symbol { font-size: 17px; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
@@ -355,7 +296,6 @@
     .arrival-message strong { font-size:clamp(22px,2.45vw,31px); }
     .arrival-message p { font-size:clamp(13px,1.3vw,16px); }
     .encounter-bottom { width:min(1040px,100%); margin:0 auto; gap:13px; padding:clamp(16px,2vw,24px); background:linear-gradient(130deg,rgba(7,15,44,.83),rgba(20,23,63,.78)); }
-    .upgrade-option { min-height:66px; padding:11px 14px; font-size:clamp(13px,1.2vw,15px); }
     .recipient-row,.response-options { display:flex; align-items:center; flex-wrap:wrap; gap:10px; }
     .recipient-label { font-size:13px; font-weight:700; color:#d5edff; }
     .recipient-option,.response-option { border:1px solid rgba(203,235,255,.55); background:rgba(224,241,255,.1); color:#fff; padding:12px 16px; font-size:14px; font-weight:700; border-radius:14px; }
@@ -377,6 +317,19 @@
       .decision-actions { align-items:stretch; }
       .decision-actions .cta { width:100%; }
     }
+
+    .pitch-pair { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    .pitch-card { padding:16px 18px; border:1px solid rgba(190,238,255,.45); border-radius:15px; background:rgba(218,242,255,.085); }
+    .pitch-index { display:block; font-size:12px; color:#bdefff; text-transform:uppercase; font-weight:750; letter-spacing:.14em; }
+    .pitch-card p { margin:12px 0 10px; line-height:1.4; font-size:clamp(14px,1.4vw,17px); }
+    .pitch-card strong { display:block; font-size:clamp(13px,1.25vw,16px); line-height:1.4; color:#ffd8f0; }
+    .enhancement-entry { display:grid; gap:8px; max-width:570px; }
+    .enhancement-entry label { font-weight:700; font-size:14px; color:#d5edff; }
+    .enhancement-entry input { width:100%; min-height:46px; padding:12px 15px; background:rgba(244,250,255,.97); border:1px solid #bbebff; border-radius:11px; color:#09233b; font-size:16px; }
+    .welcome-panel { max-width:790px; }
+    .welcome-panel .transmission-line { font-size:clamp(15px,1.7vw,21px); line-height:1.43; }
+    .welcome-panel .transmission-line + .transmission-line { margin-top:-3px; }
+    @media(max-width:760px) { .pitch-pair { grid-template-columns:1fr; } .pitch-card { padding:13px 15px; } }
   </style>
 </head>
 <body data-atlas-world="arcade" data-atlas-surface="content">
@@ -413,56 +366,93 @@
         </div>
       </section>
 
-      <section id="encounter-view" class="scene-bottom" aria-labelledby="encounter-heading" hidden>
-        <div class="encounter-bottom">
-          <p class="transmission-label" id="encounter-heading">Incoming transmission · The Clinic</p>
-          <p class="transmission-line">“Congratulations on winning your complimentary enhancement. Which of you will be receiving it?”</p>
-          <p class="encounter-instruction">You share one prize. <strong>Each of you makes a case.</strong> Agree on who receives it and what they'll gain.</p>
-          <div class="upgrade-options" aria-label="Available enhancements">
-            <button class="upgrade-option" type="button" data-upgrade="Perfect Memory" aria-pressed="false"><span class="upgrade-symbol" aria-hidden="true">✺</span>Perfect Memory</button>
-            <button class="upgrade-option" type="button" data-upgrade="Universal Fluency" aria-pressed="false"><span class="upgrade-symbol" aria-hidden="true">◎</span>Universal Fluency</button>
-            <button class="upgrade-option" type="button" data-upgrade="No Sleep Required" aria-pressed="false"><span class="upgrade-symbol" aria-hidden="true">☾</span>No Sleep Required</button>
-            <button class="upgrade-option" type="button" data-upgrade="custom" aria-pressed="false"><span class="upgrade-symbol" aria-hidden="true">✧</span>Propose another enhancement</button>
+
+      <section id="welcome-view" class="scene-bottom" aria-labelledby="welcome-heading" hidden>
+        <div class="encounter-bottom welcome-panel">
+          <p class="transmission-label" id="welcome-heading">Incoming transmission · The Clinic Intelligence</p>
+          <p class="transmission-line">“Welcome to the Human Evolution Clinic. Ah, you've both arrived. Wonderful.</p>
+          <p class="transmission-line">You've won one entirely bespoke human enhancement. Whatever you can imagine, we can create.</p>
+          <p class="transmission-line">There is one small limitation: only one of you may receive it.</p>
+          <p class="transmission-line">I'd love to hear what each of you has in mind, and why you believe you deserve it.</p>
+          <p class="transmission-line">Please, convince each other. I'm very curious to see what you decide.”</p>
+          <div class="decision-actions">
+            <button id="back-to-arrival" class="quiet-action" type="button">← Look around</button>
+            <button id="start-pitches" class="cta cta-small" type="button">Make your cases →</button>
           </div>
-          <form class="custom-form" id="custom-upgrade-form" hidden>
-            <label for="custom-upgrade">Your enhancement</label>
-            <input id="custom-upgrade" type="text" maxlength="80" autocomplete="off" placeholder="What would you change?" required>
-            <button type="submit">Propose</button>
-          </form>
-          <div class="recipient-row" role="group" aria-label="Choose the recipient">
+        </div>
+      </section>
+
+      <section id="pitch-view" class="scene-bottom" aria-labelledby="pitch-heading" hidden>
+        <div class="encounter-bottom">
+          <p class="transmission-label" id="pitch-heading">One extraordinary prize · Two competing visions</p>
+          <p class="transmission-line">What would you create if absolutely anything were possible?</p>
+          <div class="pitch-pair">
+            <div class="pitch-card">
+              <span class="pitch-index">Traveller 1</span>
+              <p>Invent your enhancement. What would it let you do?</p>
+              <strong>Why should you receive it instead of your companion?</strong>
+            </div>
+            <div class="pitch-card">
+              <span class="pitch-index">Traveller 2</span>
+              <p>Invent something of your own. What makes it extraordinary?</p>
+              <strong>Why is your case more convincing?</strong>
+            </div>
+          </div>
+          <p class="encounter-instruction">Each traveller makes a real pitch before giving up the prize. Ask questions, challenge each other, and try to win each other over. <strong>Speak; don't type your arguments.</strong></p>
+          <div class="decision-actions">
+            <button id="back-to-welcome" class="quiet-action" type="button">← Hear the invitation again</button>
+            <button id="finish-pitches" class="cta cta-small" type="button">Both cases heard →</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="decision-view" class="scene-bottom" aria-labelledby="decision-heading" hidden>
+        <div class="encounter-bottom">
+          <p class="transmission-label" id="decision-heading">The Clinic is listening · Your agreement</p>
+          <p class="transmission-line">“Wonderful. And what have you decided?”</p>
+          <p class="encounter-instruction">Agree on <strong>one recipient</strong> and <strong>one original enhancement</strong>. You may choose either traveller's invention—or combine your ideas.</p>
+          <div class="recipient-row" role="group" aria-label="Who receives the enhancement?">
             <span class="recipient-label">Who receives it?</span>
             <button class="recipient-option" type="button" data-recipient="Traveller 1" aria-pressed="false">Traveller 1</button>
             <button class="recipient-option" type="button" data-recipient="Traveller 2" aria-pressed="false">Traveller 2</button>
           </div>
+          <div class="enhancement-entry">
+            <label for="agreed-enhancement">Your final enhancement</label>
+            <input id="agreed-enhancement" type="text" maxlength="100" autocomplete="off"
+              placeholder="Describe your invention in a few words…">
+          </div>
           <div class="decision-actions">
-            <button id="back-to-arrival" class="quiet-action" type="button">← Look around</button>
-            <span id="upgrade-feedback" class="step-hint" role="status" aria-live="polite">Talk first. Then register your shared decision.</span>
-            <button id="confirm-decision" class="cta cta-small" type="button" disabled>Confirm together →</button>
+            <button id="back-to-pitches" class="quiet-action" type="button">← Keep negotiating</button>
+            <span id="upgrade-feedback" class="step-hint" role="status" aria-live="polite">Record your agreement when you're both ready.</span>
+            <button id="confirm-decision" class="cta cta-small" type="button" disabled>Submit your decision →</button>
           </div>
         </div>
       </section>
 
       <section id="complication-view" class="scene-bottom" aria-labelledby="complication-heading" hidden>
         <div class="encounter-bottom complication-bottom">
-          <p class="transmission-label" id="complication-heading">Clinic notice · Before we proceed</p>
+          <p class="transmission-label" id="complication-heading">The Clinic · One small detail</p>
           <p class="choice-summary" id="choice-summary"></p>
-          <p class="transmission-line">“One small administrative detail. The enhancement will reclassify its recipient as <strong>synthetic</strong>. Your companion will become their legal guarantor.”</p>
-          <p class="encounter-instruction"><strong>Discuss this together.</strong> Does the upgrade still seem worth it? Do you accept the cost, demand a better deal, or leave?</p>
-          <div class="response-options" role="group" aria-label="Choose a response together">
-            <button class="response-option" type="button" data-response="proceed">Accept the cost</button>
-            <button class="response-option" type="button" data-response="counter">Negotiate another deal</button>
+          <p class="transmission-line">“How lovely. Before we begin, a routine disclosure: the recipient will be legally reclassified as <strong>synthetic</strong>. Some people may no longer regard them as human. Their companion will also become their legal guarantor.”</p>
+          <p class="encounter-instruction">You both wanted this prize. <strong>Does either of you still want it on those terms?</strong> Argue it out again, then agree how to respond.</p>
+          <div class="response-options" role="group" aria-label="Choose your response together">
+            <button class="response-option" type="button" data-response="proceed">Accept the terms</button>
+            <button class="response-option" type="button" data-response="counter">Demand a safer deal</button>
             <button class="response-option" type="button" data-response="leave">Walk away</button>
           </div>
-          <div class="encounter-utilities"><button id="rethink-choice" class="quiet-action" type="button">← Reconsider your first decision</button></div>
+          <div class="encounter-utilities">
+            <button id="rethink-choice" class="quiet-action" type="button">← Reconsider the original agreement</button>
+          </div>
         </div>
       </section>
 
       <section id="outcome-view" class="scene-bottom" aria-labelledby="outcome-heading" hidden>
         <div class="encounter-bottom">
           <p class="transmission-label">Final transmission · The Clinic</p>
+          <p id="outcome-summary" class="choice-summary"></p>
           <h3 id="outcome-heading" class="outcome-heading"></h3>
           <p id="outcome-copy" class="outcome-copy"></p>
-          <p class="encounter-instruction">One last question for both travellers: would you make the same decision again?</p>
+          <p class="encounter-instruction">Before you leave: do you still think the same traveller deserved the enhancement?</p>
           <div class="decision-actions">
             <button id="revisit-complication" class="quiet-action" type="button">← Try another response</button>
             <button id="leave-clinic" class="cta cta-small" type="button">Return to the portal →</button>
@@ -488,25 +478,27 @@
       const scene = document.getElementById('scene');
       const enter = document.getElementById('launch-button');
       const arrival = document.getElementById('arrival-view');
-      const encounter = document.getElementById('encounter-view');
+      const welcome = document.getElementById('welcome-view');
+      const pitch = document.getElementById('pitch-view');
+      const decision = document.getElementById('decision-view');
       const complication = document.getElementById('complication-view');
       const outcome = document.getElementById('outcome-view');
-      const customForm = document.getElementById('custom-upgrade-form');
+      const agreedEnhancement = document.getElementById('agreed-enhancement');
       const feedback = document.getElementById('upgrade-feedback');
       const confirmButton = document.getElementById('confirm-decision');
       const rates = [16, 12, 8, 3];
       const endings = {
         proceed: {
-          title: 'A new kind of citizen',
-          copy: '“Consent recorded. The recipient is now classified as synthetic. The companion is registered as guarantor.” A passage to the treatment rooms opens. It was never going to be just an upgrade.'
+          title: 'The procedure is ready',
+          copy: '“Wonderful. Consent recorded. The recipient will be classified as synthetic, and the companion is registered as their legal guarantor.” The treatment chamber opens. Suddenly, the prize feels rather permanent.'
         },
         counter: {
-          title: 'A more interesting offer',
-          copy: '“Counterproposal received. We can divide one enhancement between two minds. The cost: neither of you will remember this visit.” A second consent form appears.'
+          title: 'An unexpected compromise',
+          copy: '“A safer arrangement is available. You may try the enhancement for seven days. Reversal will require the companion’s approval.” The clinic calmly produces two consent forms instead of one.'
         },
         leave: {
-          title: 'No strings attached?',
-          copy: '“Your complimentary enhancement has expired. Have a pleasant century.” The exit opens. As you turn away, the clinic adds: “For transparency, both of your minds have already been mapped.”'
+          title: 'A complimentary exit',
+          copy: '“Of course. Your prize is withdrawn. No further obligation.” The exit unfolds before you. Then, gently: “For transparency, both of your minds have already been mapped.”'
         }
       };
       let crossing = false;
@@ -541,7 +533,9 @@
         launch.hidden = inScene;
         scene.hidden = !inScene;
         arrival.hidden = next !== 'arrival';
-        encounter.hidden = next !== 'encounter';
+        welcome.hidden = next !== 'welcome';
+        pitch.hidden = next !== 'pitch';
+        decision.hidden = next !== 'decision';
         complication.hidden = next !== 'complication';
         outcome.hidden = next !== 'outcome';
         scene.dataset.phase = next;
@@ -607,28 +601,32 @@
         }
       }
 
-      function showEncounter() {
-        updatePhase('encounter');
-        document.querySelector('[data-upgrade="Perfect Memory"]').focus({ preventScroll: true });
+
+      function showWelcome() {
+        updatePhase('welcome');
+        document.getElementById('start-pitches').focus({ preventScroll: true });
       }
 
+      function showPitch() {
+        updatePhase('pitch');
+        document.getElementById('finish-pitches').focus({ preventScroll: true });
+      }
+
+      function showDecision() {
+        updatePhase('decision');
+        agreedEnhancement.focus({ preventScroll: true });
+      }
 
       function updateDecisionReady() {
+        selectedUpgrade = agreedEnhancement.value.trim();
         confirmButton.disabled = !(selectedUpgrade && selectedRecipient);
-        if (selectedUpgrade && selectedRecipient) feedback.textContent = selectedRecipient + ' · ' + selectedUpgrade;
-        else if (selectedUpgrade) feedback.textContent = 'Who receives ' + selectedUpgrade + '?';
-        else feedback.textContent = 'Talk first. Then register your shared decision.';
-      }
-
-      function selectUpgrade(name, button) {
-        document.querySelectorAll('.upgrade-option').forEach(function (option) {
-          option.setAttribute('aria-pressed', option === button ? 'true' : 'false');
-        });
-        const custom = name === 'custom';
-        customForm.hidden = !custom;
-        selectedUpgrade = custom ? '' : name;
-        updateDecisionReady();
-        if (custom) document.getElementById('custom-upgrade').focus();
+        if (selectedUpgrade && selectedRecipient) {
+          feedback.textContent = selectedRecipient + ' · ' + selectedUpgrade;
+        } else if (selectedUpgrade) {
+          feedback.textContent = 'Now agree on the recipient.';
+        } else {
+          feedback.textContent = 'Record your agreement when you’re both ready.';
+        }
       }
 
       function selectRecipient(name, button) {
@@ -640,9 +638,12 @@
       }
 
       function confirmDecision() {
+        updateDecisionReady();
         if (!selectedRecipient || !selectedUpgrade) return;
+        const summary = selectedRecipient + ' · ' + selectedUpgrade;
         document.getElementById('choice-summary').textContent =
-          'Registered decision: ' + selectedRecipient + ' · ' + selectedUpgrade;
+          'Your agreement: ' + summary;
+        document.getElementById('outcome-summary').textContent = summary;
         updatePhase('complication');
         document.querySelector('[data-response="proceed"]').focus({ preventScroll: true });
       }
@@ -659,9 +660,8 @@
       function replayPortal() {
         selectedUpgrade = '';
         selectedRecipient = '';
-        customForm.reset();
-        customForm.hidden = true;
-        document.querySelectorAll('.upgrade-option, .recipient-option').forEach(function (option) {
+        agreedEnhancement.value = '';
+        document.querySelectorAll('.recipient-option').forEach(function (option) {
           option.setAttribute('aria-pressed', 'false');
         });
         updateDecisionReady();
@@ -706,19 +706,20 @@
         });
 
         enter.addEventListener('click', enterTomorrow);
-        document.getElementById('approach-button').addEventListener('click', showEncounter);
+        document.getElementById('approach-button').addEventListener('click', showWelcome);
         document.getElementById('back-to-arrival').addEventListener('click', function () {
           updatePhase('arrival');
           document.getElementById('approach-button').focus({ preventScroll: true });
         });
+        document.getElementById('start-pitches').addEventListener('click', showPitch);
+        document.getElementById('back-to-welcome').addEventListener('click', showWelcome);
+        document.getElementById('finish-pitches').addEventListener('click', showDecision);
+        document.getElementById('back-to-pitches').addEventListener('click', showPitch);
         document.getElementById('leave-clinic').addEventListener('click', replayPortal);
-        document.getElementById('rethink-choice').addEventListener('click', showEncounter);
+        document.getElementById('rethink-choice').addEventListener('click', showDecision);
         document.getElementById('revisit-complication').addEventListener('click', function () {
           updatePhase('complication');
           document.querySelector('[data-response="proceed"]').focus({ preventScroll: true });
-        });
-        document.querySelectorAll('.upgrade-option').forEach(function (button) {
-          button.addEventListener('click', function () { selectUpgrade(button.dataset.upgrade, button); });
         });
         document.querySelectorAll('.recipient-option').forEach(function (button) {
           button.addEventListener('click', function () { selectRecipient(button.dataset.recipient, button); });
@@ -726,15 +727,8 @@
         document.querySelectorAll('.response-option').forEach(function (button) {
           button.addEventListener('click', function () { showOutcome(button.dataset.response); });
         });
+        agreedEnhancement.addEventListener('input', updateDecisionReady);
         confirmButton.addEventListener('click', confirmDecision);
-        customForm.addEventListener('submit', function (event) {
-          event.preventDefault();
-          const proposal = document.getElementById('custom-upgrade').value.trim();
-          if (!proposal) return;
-          selectedUpgrade = proposal;
-          updateDecisionReady();
-          confirmButton.focus({ preventScroll: true });
-        });
         window.addEventListener('atlas:appearance-change', function (event) {
           document.documentElement.dataset.theme =
             (event.detail && event.detail.mode) || Bridge.readAppearanceMode();

@@ -11,7 +11,47 @@
 
 ---
 
-## Prototype implementation checkpoint — 26 October 2026
+## Prototype iteration — 26 October 2026 · Imagination and persuasion first
+
+**Implemented in the isolated prototype; JavaScript parsed and the complete interaction smoke-tested with a simulated DOM. Not yet manually browser-validated, deployed-confirmed or played by two people.**
+
+**Problem corrected:** the prior prototype offered three ready-made upgrades and only made original invention optional. That made the easiest path a catalogue selection and weakened the original game's imaginative challenge.
+
+**New episode-specific interaction:**
+
+1. **Arrival:** the intelligence is encountered in the same New Tokyo clinic environment.
+2. **Welcome / transmission:** the Clinic invites **both travellers** to imagine an original enhancement and explain why each deserves the clinic's single prize.
+3. **Pitch:** both travellers speak their invention and make a persuasive case. The interface explicitly reminds players that each person pitches before conceding. No speech recognition, separate submission forms, timers or scores.
+4. **Agreement:** after both pitches, players record **one original enhancement** (including a possible combined invention) and **one recipient**. The confirmation is disabled until both fields are complete.
+5. **Complication:** the chosen recipient will be classified as synthetic, potentially changing how others view their humanity, while the companion becomes legal guarantor. The shared agreement is repeated for context, but the scripted complication does **not** adapt semantically to the typed invention.
+6. **Negotiated response:** the pair can accept the terms (classification + guarantee), demand a safer deal (a seven-day trial with companion-controlled reversal), or walk away (prize withdrawn; unsettling disclosure that their minds were mapped).
+7. **Reflection / departure:** players can reconsider the outcome or return to the same portal. There is **no next future implemented yet**.
+
+**Recording-ready first transmission (screen text matches this script):**
+
+> Welcome to the Human Evolution Clinic. Ah, you've both arrived. Wonderful.
+>
+> You've won one entirely bespoke human enhancement. Whatever you can imagine, we can create.
+>
+> There is one small limitation: only one of you may receive it.
+>
+> I'd love to hear what each of you has in mind, and why you believe you deserve it.
+>
+> Please, convince each other. I'm very curious to see what you decide.
+
+**Recording-ready complication:**
+
+> How lovely. Before we begin, a routine disclosure: the recipient will be legally reclassified as synthetic. Some people may no longer regard them as human. Their companion will also become their legal guarantor.
+
+**Audio status:** voice style exploration is underway outside the repository, but **no recorded voice or ambience is integrated**. The interface currently provides readable text. Once a recording is supplied, verify the script, caption parity and screen-share audio reliability before introducing playback.
+
+**Repeatable production model:** build reusable *technical foundations* (a scene, transmissions, accessible reveal/choice controls, navigation and eventual audio playback), **not** a compulsory invention/persuasion mechanic for every destination. This episode's distinctive conversational value comes from free-form invention plus competing claims to one prize. A second future must justify its *own* mechanics and conversation stakes before being produced. No generic episode engine is authorised yet.
+
+**Next:** manually inspect mobile and desktop layout, have tutor and learner actually play the episode with one person operating the shared screen, and evaluate whether both pitches are substantive, the twist changes the negotiation, and the script sounds natural when spoken. Only then decide how to refine pace and attach voiced transmissions.
+
+---
+
+## Earlier prototype implementation checkpoint — 26 October 2026 (superseded)
 
 **State: coded on the isolated prototype branch; automated interaction smoke-tested. Not manually validated or playtested with a tutor and learner.**
 
@@ -233,7 +273,7 @@ When the prototype works, derive a coherent pattern for the remaining futures. I
 
 ## 10. Immediate next step and decision status
 
-**Next:** Manually inspect the newly implemented prototype episode and run a real two-person playtest. Evaluate the shared-decision mechanic and pacing before changing the structure or adding animated environment assets.
+**Next:** Inspect and playtest the revised imagination-and-persuasion episode with two actual players. Test conversational agency and pacing, then integrate the selected clinic voice recordings with captions and reliable controls. Do not add another future or a generic engine until the first episode has playable evidence.
 
 **Decided:**
 - Future-hopping is the experience fantasy.
