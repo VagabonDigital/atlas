@@ -38,3 +38,7 @@ prizes and dates across checkpoints rather than leaving all hard questions last.
 ## Batch 1 checkpoint
 
 219 reviewed: 146 approved, 29 repaired, 44 rejected; zero unresolved playable entries. Focused suite: 15/15 passed. Stable vocabulary and cultural references retained; vague surveys, unsafe household tips and obsolete rankings excluded. Specific history/arts questions supply upper-rung candidates; source prize is not used as a rung formula.
+
+## Batch 2 checkpoint
+
+219 reviewed: 162 approved, 22 repaired, 35 rejected; zero unresolved playable entries. Focused suite: 15/15 passed. University records support the 2000 repair at 453. NASA's transcript/video notes resolve the earlier rejection at 970: restored to approved, with evidence attached. Batch 1 therefore now has 147 approved and 43 rejected. The 1989 Grammy outcome at 994 was checked against the Recording Academy.
