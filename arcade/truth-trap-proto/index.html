@@ -161,7 +161,12 @@
       text-transform: uppercase;
       text-shadow: 0 2px 1px rgba(255,255,255,.56), 0 12px 38px rgba(255,255,255,.84);
     }
-    .opening-title .opening-word { display: block; }
+    /* An earlier generic h1 span rule unintentionally made TRUTH cyan.
+       Give each word its own explicit day/night colour, with TRAP accented. */
+    .opening-title .opening-word {
+      display: block;
+      color: #103a50;
+    }
     .opening-title .opening-accent {
       color: #007f9e;
       text-shadow: 0 2px 2px rgba(255,255,255,.65), 0 0 34px rgba(36,205,246,.24);
@@ -181,6 +186,9 @@
     html[data-theme="night"] .opening-title {
       color: #f7fcff;
       text-shadow: 0 6px 32px rgba(0,0,0,.9), 0 2px 3px rgba(0,0,0,.8);
+    }
+    html[data-theme="night"] .opening-title .opening-word:not(.opening-accent) {
+      color: #f7fcff;
     }
     html[data-theme="night"] .opening-title .opening-accent {
       color: #00deff;
@@ -283,19 +291,24 @@
     #opening .arcade-game-chrome-back,
     #opening .arcade-game-chrome-icon-btn,
     #opening .arcade-game-chrome-session {
-      background: rgba(244, 250, 254, .82);
+      background: linear-gradient(150deg,
+        rgba(255, 255, 255, .70),
+        rgba(215, 237, 248, .49));
       color: #12374b;
-      border: 1px solid rgba(16, 67, 89, .29);
-      box-shadow: 0 6px 22px rgba(9, 37, 54, .15),
-                  inset 0 1px 0 rgba(255, 255, 255, .92);
-      backdrop-filter: blur(18px) saturate(150%);
-      -webkit-backdrop-filter: blur(18px) saturate(150%);
+      border: 1px solid rgba(21, 73, 94, .31);
+      box-shadow: 0 7px 24px rgba(9, 37, 54, .17),
+                  inset 0 1px 0 rgba(255, 255, 255, .96),
+                  inset 0 -1px 0 rgba(15, 81, 106, .09);
+      backdrop-filter: blur(23px) saturate(155%);
+      -webkit-backdrop-filter: blur(23px) saturate(155%);
       font-weight: 650;
     }
     #opening .arcade-game-chrome-back:hover,
     #opening .arcade-game-chrome-icon-btn:hover,
     #opening .arcade-game-chrome-session:hover {
-      background: rgba(255, 255, 255, .95);
+      background: linear-gradient(150deg,
+        rgba(255, 255, 255, .87),
+        rgba(223, 245, 253, .74));
       color: #092b3e;
       border-color: rgba(10, 81, 107, .44);
       box-shadow: 0 8px 26px rgba(9, 37, 54, .20),
