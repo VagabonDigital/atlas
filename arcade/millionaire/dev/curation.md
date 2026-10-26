@@ -46,3 +46,9 @@ prizes and dates across checkpoints rather than leaving all hard questions last.
 ## Batch 3 checkpoint
 
 219 reviewed: 143 approved, 41 repaired, 35 rejected; zero unresolved playable entries. Focused suite: 15/15 passed. Repairs clarify historical officeholders, terminology and misspellings. Rejected 538 because cows as well as snakes are non-native to the named islands; rejected ambiguous calendar/ranking and quotation claims rather than treating source keys as infallible.
+
+## Batch 4 checkpoint and editorial audit
+
+218 reviewed initially: 153 approved, 23 repaired, 42 rejected. Then checked every seventeenth entry within each outcome of each batch (index order), plus malformed-option, date-relative and explanation flags. Corrected option spellings and removed a transcription note; original options and any misspelled source key remain recorded. Reversed the over-strict rejection at 308: the quote asks for a specific word, not every option containing I. Added targeted references for 880, 996 and 999. Focused suite: 15/15 passed.
+
+After audit: all 1,000 reviewed; 668 approved, 150 repaired and approved, 182 rejected, zero pending/unresolved playable items. Rejections for uncertainty remain documented exclusions, not claims that their source keys were disproved. All original 25 rulings remain unchanged. No blanket external verification claim is made.
