@@ -1,0 +1,26 @@
+name: Millionaire PR169 One-Shot Verification
+on:
+  push:
+    branches:
+      - codex/168-millionaire-curation
+    paths:
+      - .github/workflows/millionaire-pr169-one-shot.yml
+jobs:
+  focused-millionaire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run focused 19 tests
+        run: node --test arcade/millionaire/dev/game.test.mjs
+      - name: Verify generated question projection
+        run: node arcade/millionaire/dev/build-questions.mjs --check
+      - name: Verify whitespace integrity
+        run: git diff --check HEAD^ HEAD
