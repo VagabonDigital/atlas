@@ -27,7 +27,7 @@ function updateSoundControl() {
 updateSoundControl();
 
 function playSound(kind) {
-  if (muted) return;
+  // Lighting feedback is independent of audio; the director mutes sound internally.
   showDirector.cue(kind);
 }
 
