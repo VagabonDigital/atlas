@@ -223,8 +223,8 @@ html:not([data-theme="night"]) .tt-game::after {
               box-shadow .3s ease,
               filter .3s ease;
 }
-.tt-exhibit:nth-child(1) { --tilt: -13deg; --bank: -1.25deg; --art-position: 12.5%; }
-.tt-exhibit:nth-child(2) { --tilt: 0deg; --bank: 0deg; --art-position: 49%; }
+.tt-exhibit:nth-child(1) { --tilt: -13deg; --bank: -1.25deg; --art-position: 14.5%; }
+.tt-exhibit:nth-child(2) { --tilt: 0deg; --bank: 0deg; --art-position: 50%; }
 .tt-exhibit:nth-child(3) { --tilt: 13deg; --bank: 1.25deg; --art-position: 86%; }
 
 /* Deliberate extrusion, not a second independently outlined card.
@@ -326,8 +326,11 @@ html:not([data-theme="night"]) .tt-game::after {
   display: block;
   background-image: url("../../assets/hub/truth-trap-proto.webp");
   background-repeat: no-repeat;
-  background-size: 395% auto;
-  background-position: var(--art-position) 74%;
+  /* The promotional sprite includes its own cyan card borders.
+     Overscan to show only the illustration, never its baked-in lower rim
+     above our actual plaque border. Match this on tablet and mobile. */
+  background-size: 480% auto;
+  background-position: var(--art-position) 72%;
   filter: saturate(1.12) contrast(1.09);
   transform: scale(1.018);
   transition: transform .45s cubic-bezier(.2,.8,.2,1);
@@ -558,7 +561,7 @@ html:not([data-theme="night"]) .tt-game::after {
   .tt-exhibit:nth-child(3) { --tilt: 9deg; --bank: .8deg; }
   .tt-exhibit-head { flex-direction: column; align-items: flex-start; gap: 8px; min-height: 138px; }
   .tt-exhibit-claim { font-size: clamp(1.08rem,2.25vw,1.4rem); }
-  .tt-art-image { background-size: 405% auto; }
+  .tt-art-image { background-size: 480% auto; }
 }
 @media (max-width: 680px) {
   .tt-game-header { height: 56px; padding: 0 10px; }
@@ -594,7 +597,7 @@ html:not([data-theme="night"]) .tt-game::after {
   }
   .tt-exhibit-claim { font-size: clamp(1.18rem,4.6vw,1.6rem); }
   .tt-art { aspect-ratio: 1.8 / 1; }
-  .tt-art-image { background-size: 395% auto; }
+  .tt-art-image { background-size: 480% auto; }
   .tt-exhibit:hover:not(:disabled) { transform: rotateX(5deg) translateY(-5px) translateZ(14px); }
   .tt-exhibit.is-selected:not(.is-revealed) { transform: rotateX(5deg) translateY(-8px) translateZ(18px); }
   .tt-exhibit.is-revealed { transform: rotateX(7deg); }
