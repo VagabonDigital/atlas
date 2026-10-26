@@ -1722,9 +1722,9 @@
       registryId: 'arcade:tomorrow-got-weird-proto',
       publicAccess: 'full',
       title: 'Tomorrow Got Weird — PROTO',
-      premise: 'Step into strange future scenarios and decide what you would do next.',
-      unitLabel: 'Scenarios',
-      total: 25,
+      premise: 'Cross into New Tokyo, 2126, and meet the Upgrade Clinic intelligence.',
+      unitLabel: 'Destination',
+      total: 1,
       artId: 'tomorrow-proto',
       coverImage: '../assets/hub/tomorrow-got-weird.webp',
       accent: '#7c3aed',
@@ -1838,6 +1838,15 @@
        complete or retire the game.
        ================================================================ */
     function getGameDeckState(game, state) {
+      // Experimental encounter has no scenario sequence or completion counter.
+      if (game.registryId === 'arcade:tomorrow-got-weird-proto') {
+        return {
+          mode: 'unstarted',
+          actionLabel: 'Enter',
+          positionLabel: 'New Tokyo · 2126',
+          progressPercent: 0
+        };
+      }
       // Millionaire restores active runs, but completed shows start afresh.
       if (game.registryId === 'arcade:millionaire') {
         // A saved run can exist before the player has interacted.
