@@ -346,6 +346,37 @@
       .launch-video, #launch.is-crossing .launch-video { transform: none; filter: none; }
       #launch.is-crossing::after { opacity: 0; }
     }
+
+    /* Prototype episode: atmosphere leads; the interface only appears when needed. */
+    #scene::before { background: linear-gradient(180deg,rgba(4,15,37,.18),transparent 22%,transparent 52%,rgba(5,12,36,.62) 100%); }
+    #scene[data-phase="complication"]::before { background: linear-gradient(180deg,rgba(35,9,48,.18),transparent 32%,rgba(24,6,40,.76) 100%); }
+    .location-meta h2 { font-size:clamp(24px,2.5vw,38px); }
+    .arrival-message { max-width:440px; padding:0; border:0; border-radius:0; background:none; backdrop-filter:none; text-shadow:0 2px 14px #061027,0 2px 5px #061027; }
+    .arrival-message strong { font-size:clamp(22px,2.45vw,31px); }
+    .arrival-message p { font-size:clamp(13px,1.3vw,16px); }
+    .encounter-bottom { width:min(1040px,100%); margin:0 auto; gap:13px; padding:clamp(16px,2vw,24px); background:linear-gradient(130deg,rgba(7,15,44,.83),rgba(20,23,63,.78)); }
+    .upgrade-option { min-height:66px; padding:11px 14px; font-size:clamp(13px,1.2vw,15px); }
+    .recipient-row,.response-options { display:flex; align-items:center; flex-wrap:wrap; gap:10px; }
+    .recipient-label { font-size:13px; font-weight:700; color:#d5edff; }
+    .recipient-option,.response-option { border:1px solid rgba(203,235,255,.55); background:rgba(224,241,255,.1); color:#fff; padding:12px 16px; font-size:14px; font-weight:700; border-radius:14px; }
+    .recipient-option:hover,.response-option:hover { background:rgba(224,241,255,.25); }
+    .recipient-option[aria-pressed="true"] { background:rgba(154,80,201,.5); border-color:#f6c2ee; }
+    .decision-actions { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+    .cta-small { font-size:14px; min-height:46px; padding:12px 23px; }
+    .step-hint { font-size:13px; color:#d5edff; }
+    .complication-bottom { background:linear-gradient(120deg,rgba(37,10,51,.9),rgba(9,19,53,.86)); border-color:#f7b7e7; }
+    .complication-bottom .transmission-label { color:#ffc4e9; }
+    .choice-summary { color:#dcf4ff; font-size:13px; font-weight:700; }
+    .response-options { align-items:stretch; }
+    .response-option { flex:1 1 175px; text-align:center; }
+    .outcome-heading { font-size:clamp(22px,3vw,34px); letter-spacing:-.04em; margin:0; }
+    .outcome-copy { font-size:clamp(17px,1.8vw,22px); max-width:800px; line-height:1.5; margin:0; }
+    @media(max-width:760px) {
+      .response-option { flex:1 1 100%; }
+      .recipient-option { flex:1; }
+      .decision-actions { align-items:stretch; }
+      .decision-actions .cta { width:100%; }
+    }
   </style>
 </head>
 <body data-atlas-world="arcade" data-atlas-surface="content">
@@ -363,7 +394,6 @@
   <div id="scene" hidden>
     <header id="hdr" class="arcade-game-chrome-centered-title">
       <div class="header-left"><div id="arcade-game-return-root"></div></div>
-      <div class="header-center"><div class="hdr-logo">Tomorrow <span>Got Weird</span> <small>— PROTO</small></div></div>
       <div class="header-right" id="arcade-game-actions-root"></div>
     </header>
     <main id="scene-main">
@@ -376,8 +406,8 @@
         <div class="arrival-bottom">
           <div class="arrival-message">
             <span class="eyebrow">Destination reached</span>
-            <strong id="arrival-heading">Something in the room has noticed you.</strong>
-            <p>The architecture is alive with light. There is no reception desk, and nobody waiting to greet you.</p>
+            <strong id="arrival-heading">Something has noticed you.</strong>
+            <p>There is no reception desk. But you are expected.</p>
           </div>
           <button id="approach-button" class="cta" type="button">Approach the intelligence →</button>
         </div>
@@ -387,29 +417,55 @@
         <div class="encounter-bottom">
           <p class="transmission-label" id="encounter-heading">Incoming transmission · The Clinic</p>
           <p class="transmission-line">“Congratulations on winning your complimentary enhancement. Which of you will be receiving it?”</p>
-          <div class="upgrade-options" aria-label="Enhancements to discuss">
-            <button class="upgrade-option" type="button" data-upgrade="Perfect Memory" aria-pressed="false">
-              <span class="upgrade-symbol" aria-hidden="true">✺</span> Perfect Memory
-            </button>
-            <button class="upgrade-option" type="button" data-upgrade="Universal Fluency" aria-pressed="false">
-              <span class="upgrade-symbol" aria-hidden="true">◎</span> Universal Fluency
-            </button>
-            <button class="upgrade-option" type="button" data-upgrade="No Sleep Required" aria-pressed="false">
-              <span class="upgrade-symbol" aria-hidden="true">☾</span> No Sleep Required
-            </button>
-            <button class="upgrade-option" type="button" data-upgrade="custom" aria-pressed="false">
-              <span class="upgrade-symbol" aria-hidden="true">✧</span> Propose another enhancement
-            </button>
+          <p class="encounter-instruction">You share one prize. <strong>Each of you makes a case.</strong> Agree on who receives it and what they'll gain.</p>
+          <div class="upgrade-options" aria-label="Available enhancements">
+            <button class="upgrade-option" type="button" data-upgrade="Perfect Memory" aria-pressed="false"><span class="upgrade-symbol" aria-hidden="true">✺</span>Perfect Memory</button>
+            <button class="upgrade-option" type="button" data-upgrade="Universal Fluency" aria-pressed="false"><span class="upgrade-symbol" aria-hidden="true">◎</span>Universal Fluency</button>
+            <button class="upgrade-option" type="button" data-upgrade="No Sleep Required" aria-pressed="false"><span class="upgrade-symbol" aria-hidden="true">☾</span>No Sleep Required</button>
+            <button class="upgrade-option" type="button" data-upgrade="custom" aria-pressed="false"><span class="upgrade-symbol" aria-hidden="true">✧</span>Propose another enhancement</button>
           </div>
           <form class="custom-form" id="custom-upgrade-form" hidden>
-            <label for="custom-upgrade">Your proposed enhancement</label>
+            <label for="custom-upgrade">Your enhancement</label>
             <input id="custom-upgrade" type="text" maxlength="80" autocomplete="off" placeholder="What would you change?" required>
             <button type="submit">Propose</button>
           </form>
-          <p class="encounter-instruction">Discuss who should receive the upgrade and why. <span class="feedback" id="upgrade-feedback" role="status" aria-live="polite"></span></p>
-          <div class="encounter-utilities">
-            <button id="back-to-arrival" class="quiet-action" type="button">← Back to arrival</button>
-            <button id="restart-portal" class="quiet-action" type="button">Replay the portal</button>
+          <div class="recipient-row" role="group" aria-label="Choose the recipient">
+            <span class="recipient-label">Who receives it?</span>
+            <button class="recipient-option" type="button" data-recipient="Traveller 1" aria-pressed="false">Traveller 1</button>
+            <button class="recipient-option" type="button" data-recipient="Traveller 2" aria-pressed="false">Traveller 2</button>
+          </div>
+          <div class="decision-actions">
+            <button id="back-to-arrival" class="quiet-action" type="button">← Look around</button>
+            <span id="upgrade-feedback" class="step-hint" role="status" aria-live="polite">Talk first. Then register your shared decision.</span>
+            <button id="confirm-decision" class="cta cta-small" type="button" disabled>Confirm together →</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="complication-view" class="scene-bottom" aria-labelledby="complication-heading" hidden>
+        <div class="encounter-bottom complication-bottom">
+          <p class="transmission-label" id="complication-heading">Clinic notice · Before we proceed</p>
+          <p class="choice-summary" id="choice-summary"></p>
+          <p class="transmission-line">“One small administrative detail. The enhancement will reclassify its recipient as <strong>synthetic</strong>. Your companion will become their legal guarantor.”</p>
+          <p class="encounter-instruction"><strong>Discuss this together.</strong> Does the upgrade still seem worth it? Do you accept the cost, demand a better deal, or leave?</p>
+          <div class="response-options" role="group" aria-label="Choose a response together">
+            <button class="response-option" type="button" data-response="proceed">Accept the cost</button>
+            <button class="response-option" type="button" data-response="counter">Negotiate another deal</button>
+            <button class="response-option" type="button" data-response="leave">Walk away</button>
+          </div>
+          <div class="encounter-utilities"><button id="rethink-choice" class="quiet-action" type="button">← Reconsider your first decision</button></div>
+        </div>
+      </section>
+
+      <section id="outcome-view" class="scene-bottom" aria-labelledby="outcome-heading" hidden>
+        <div class="encounter-bottom">
+          <p class="transmission-label">Final transmission · The Clinic</p>
+          <h3 id="outcome-heading" class="outcome-heading"></h3>
+          <p id="outcome-copy" class="outcome-copy"></p>
+          <p class="encounter-instruction">One last question for both travellers: would you make the same decision again?</p>
+          <div class="decision-actions">
+            <button id="revisit-complication" class="quiet-action" type="button">← Try another response</button>
+            <button id="leave-clinic" class="cta cta-small" type="button">Return to the portal →</button>
           </div>
         </div>
       </section>
@@ -433,12 +489,31 @@
       const enter = document.getElementById('launch-button');
       const arrival = document.getElementById('arrival-view');
       const encounter = document.getElementById('encounter-view');
+      const complication = document.getElementById('complication-view');
+      const outcome = document.getElementById('outcome-view');
       const customForm = document.getElementById('custom-upgrade-form');
       const feedback = document.getElementById('upgrade-feedback');
+      const confirmButton = document.getElementById('confirm-decision');
       const rates = [16, 12, 8, 3];
+      const endings = {
+        proceed: {
+          title: 'A new kind of citizen',
+          copy: '“Consent recorded. The recipient is now classified as synthetic. The companion is registered as guarantor.” A passage to the treatment rooms opens. It was never going to be just an upgrade.'
+        },
+        counter: {
+          title: 'A more interesting offer',
+          copy: '“Counterproposal received. We can divide one enhancement between two minds. The cost: neither of you will remember this visit.” A second consent form appears.'
+        },
+        leave: {
+          title: 'No strings attached?',
+          copy: '“Your complimentary enhancement has expired. Have a pleasant century.” The exit opens. As you turn away, the clinic adds: “For transparency, both of your minds have already been mapped.”'
+        }
+      };
       let crossing = false;
       let session = null;
       let phase = 'launch';
+      let selectedUpgrade = '';
+      let selectedRecipient = '';
 
       function configurePortal() {
         const fallback = new URL('../tomorrow-got-weird/portal.mp4', location.href).href;
@@ -467,6 +542,9 @@
         scene.hidden = !inScene;
         arrival.hidden = next !== 'arrival';
         encounter.hidden = next !== 'encounter';
+        complication.hidden = next !== 'complication';
+        outcome.hidden = next !== 'outcome';
+        scene.dataset.phase = next;
         if (inScene) scene.scrollTop = 0;
         saveState();
       }
@@ -478,7 +556,7 @@
           status: active ? 'in-progress' : 'available',
           completedAt: null,
           currentPosition: 1,
-          currentLabel: active ? (phase === 'arrival' ? 'Upgrade Clinic · Arrival' : 'Upgrade Clinic · Encounter') : null,
+          currentLabel: active ? 'Upgrade Clinic · ' + phase[0].toUpperCase() + phase.slice(1) : null,
           progress: { covered: 0, total: 1 },
           prototypePhase: phase,
           lastTouchedAt: Date.now()
@@ -534,25 +612,59 @@
         document.querySelector('[data-upgrade="Perfect Memory"]').focus({ preventScroll: true });
       }
 
+
+      function updateDecisionReady() {
+        confirmButton.disabled = !(selectedUpgrade && selectedRecipient);
+        if (selectedUpgrade && selectedRecipient) feedback.textContent = selectedRecipient + ' · ' + selectedUpgrade;
+        else if (selectedUpgrade) feedback.textContent = 'Who receives ' + selectedUpgrade + '?';
+        else feedback.textContent = 'Talk first. Then register your shared decision.';
+      }
+
       function selectUpgrade(name, button) {
         document.querySelectorAll('.upgrade-option').forEach(function (option) {
           option.setAttribute('aria-pressed', option === button ? 'true' : 'false');
         });
         const custom = name === 'custom';
         customForm.hidden = !custom;
-        feedback.textContent = custom
-          ? 'What would you propose?'
-          : 'For discussion: ' + name + '.';
+        selectedUpgrade = custom ? '' : name;
+        updateDecisionReady();
         if (custom) document.getElementById('custom-upgrade').focus();
       }
 
+      function selectRecipient(name, button) {
+        selectedRecipient = name;
+        document.querySelectorAll('.recipient-option').forEach(function (option) {
+          option.setAttribute('aria-pressed', option === button ? 'true' : 'false');
+        });
+        updateDecisionReady();
+      }
+
+      function confirmDecision() {
+        if (!selectedRecipient || !selectedUpgrade) return;
+        document.getElementById('choice-summary').textContent =
+          'Registered decision: ' + selectedRecipient + ' · ' + selectedUpgrade;
+        updatePhase('complication');
+        document.querySelector('[data-response="proceed"]').focus({ preventScroll: true });
+      }
+
+      function showOutcome(response) {
+        const ending = endings[response];
+        if (!ending) return;
+        document.getElementById('outcome-heading').textContent = ending.title;
+        document.getElementById('outcome-copy').textContent = ending.copy;
+        updatePhase('outcome');
+        document.getElementById('leave-clinic').focus({ preventScroll: true });
+      }
+
       function replayPortal() {
-        feedback.textContent = '';
+        selectedUpgrade = '';
+        selectedRecipient = '';
         customForm.reset();
         customForm.hidden = true;
-        document.querySelectorAll('.upgrade-option').forEach(function (option) {
+        document.querySelectorAll('.upgrade-option, .recipient-option').forEach(function (option) {
           option.setAttribute('aria-pressed', 'false');
         });
+        updateDecisionReady();
         updatePhase('launch');
         if (video) {
           try { video.playbackRate = 1; } catch (error) {}
@@ -577,10 +689,10 @@
           AtlasSessionPanel.mount({ root: '#atlas-session-panel-root', initialView: 'manage' });
         }
         if (window.ArcadeGameChrome) {
-          ArcadeGameChrome.mountLanding({ root: '#launch', onBeforeReturn: saveState });
+          ArcadeGameChrome.mountLanding({ root: '#launch', appearance: false, onBeforeReturn: saveState });
           ArcadeGameChrome.mountGame({
             root: '#hdr', returnRoot: '#arcade-game-return-root',
-            actionsRoot: '#arcade-game-actions-root', appearance: true, onBeforeReturn: saveState
+            actionsRoot: '#arcade-game-actions-root', appearance: false, onBeforeReturn: saveState
           });
         }
         Bridge.upsertItem({
@@ -599,17 +711,29 @@
           updatePhase('arrival');
           document.getElementById('approach-button').focus({ preventScroll: true });
         });
-        document.getElementById('restart-portal').addEventListener('click', replayPortal);
-        document.querySelectorAll('.upgrade-option').forEach(function (button) {
-          button.addEventListener('click', function () {
-            selectUpgrade(button.dataset.upgrade, button);
-          });
+        document.getElementById('leave-clinic').addEventListener('click', replayPortal);
+        document.getElementById('rethink-choice').addEventListener('click', showEncounter);
+        document.getElementById('revisit-complication').addEventListener('click', function () {
+          updatePhase('complication');
+          document.querySelector('[data-response="proceed"]').focus({ preventScroll: true });
         });
+        document.querySelectorAll('.upgrade-option').forEach(function (button) {
+          button.addEventListener('click', function () { selectUpgrade(button.dataset.upgrade, button); });
+        });
+        document.querySelectorAll('.recipient-option').forEach(function (button) {
+          button.addEventListener('click', function () { selectRecipient(button.dataset.recipient, button); });
+        });
+        document.querySelectorAll('.response-option').forEach(function (button) {
+          button.addEventListener('click', function () { showOutcome(button.dataset.response); });
+        });
+        confirmButton.addEventListener('click', confirmDecision);
         customForm.addEventListener('submit', function (event) {
           event.preventDefault();
           const proposal = document.getElementById('custom-upgrade').value.trim();
           if (!proposal) return;
-          feedback.textContent = 'For discussion: ' + proposal + '.';
+          selectedUpgrade = proposal;
+          updateDecisionReady();
+          confirmButton.focus({ preventScroll: true });
         });
         window.addEventListener('atlas:appearance-change', function (event) {
           document.documentElement.dataset.theme =
