@@ -92,6 +92,16 @@ Arcade currently ships the hub plus bespoke public game runtimes. Shared Arcade 
 
 New games should follow the current Arcade product and production direction rather than a retained generalized engine layer.
 
+Temporary game redesigns are owned by their games under `arcade/<game>-proto/`, not a new
+shared Arcade engine. Currently `arcade/tomorrow-got-weird-proto/` and
+`arcade/truth-trap-proto/` are separate experiments, leaving the public originals
+unchanged. The Truth Trap prototype is shown in the Arcade hub only after a
+Supabase-verified owner account check, and its UI independently verifies the same
+account at the direct route. **This is a client-side presentation gate, not
+server-side protection:** the deployed static HTML/source remains fetchable by
+anyone who knows its URL. Truly private prototype assets/content require a
+server-side route or Cloudflare Access before deployment.
+
 Forbidden Words keeps its browser UI, card pool and game rules in `arcade/forbidden-words/`.
 Its `server/` modules run only inside the existing Atlas backend Worker, which dispatches
 `/forbidden-words/*` through the existing account-verification boundary. Supabase owns the
