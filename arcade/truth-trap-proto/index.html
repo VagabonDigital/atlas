@@ -572,6 +572,115 @@
           success: 'You spotted the Napoleon myth. His reputation for being tiny has survived far longer than the facts behind it.',
           failure: choice => 'You accused exhibit ' + choice +
             ', but Napoleon was not unusually short for his time. The other timelines really do overlap in surprising ways.'
+        },
+        {
+          number: '03',
+          heading: 'The Ocean Is Not Okay',
+          chapter: 'The Impossible Files',
+          lie: 'A',
+          illustrated: false,
+          statements: {
+            A: 'Sea stars have no eyes.',
+            B: 'Some jellyfish can return to an earlier stage of life instead of dying.',
+            C: 'The deepest part of the ocean is deeper than Mount Everest is tall.'
+          },
+          evidence: {
+            A: {
+              explanation: 'Some sea stars have eyes at the tips of their arms. In experiments, crown-of-thorns sea stars could distinguish shapes and use vision to orient themselves towards reef structures. Their sight is nothing like ours — but they can see.',
+              sources: [
+                { label: 'Scientific Reports / Sea-star Vision', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5013567/' }
+              ]
+            },
+            B: {
+              explanation: 'When stressed or injured, the tiny jellyfish Turritopsis dohrnii can reverse its life cycle: an adult can transform back into an earlier polyp stage and grow again. It can still be eaten or die from other causes — it is not invincible.',
+              sources: [
+                { label: 'Natural History Museum / Immortal Jellyfish', url: 'https://www.nhm.ac.uk/discover/immortal-jellyfish-secret-to-cheating-death.html' }
+              ]
+            },
+            C: {
+              explanation: 'Challenger Deep in the Mariana Trench is about 10,935 metres below sea level. Mount Everest rises about 8,848 metres above sea level. The ocean depth exceeds Everest\'s height by more than two kilometres.',
+              sources: [
+                { label: 'NOAA / Ocean Depth', url: 'https://oceanservice.noaa.gov/facts/oceandepth.html' },
+                { label: 'NASA / Mount Everest', url: 'https://science.nasa.gov/earth/earth-observatory/close-up-of-mount-everest-149632/' }
+              ]
+            }
+          },
+          discussion: 'Which would you rather investigate in person: an almost ageless jellyfish, a sea star\'s eyes, or the deepest ocean? What would you hope to discover?',
+          success: 'The sea-star claim was the lie — some really can see. And the other two claims are every bit as extraordinary as they sound.',
+          failure: choice => 'You accused exhibit ' + choice +
+            ', but some sea stars really do have eyes. The other two ocean mysteries are genuine.'
+        },
+        {
+          number: '04',
+          heading: 'Your Brain Is Bluffing',
+          chapter: 'The Impossible Files',
+          lie: 'C',
+          illustrated: false,
+          statements: {
+            A: 'Your brain can fill in missing visual information without you noticing.',
+            B: 'Your brain itself cannot feel pain.',
+            C: 'Humans use exactly 10% of their brains.'
+          },
+          evidence: {
+            A: {
+              explanation: 'Each eye has a blind spot where the optic nerve leaves the retina. Your visual system usually makes the scene appear continuous despite that missing input. You can test the effect yourself by closing one eye and using a blind-spot demonstration.',
+              sources: [
+                { label: 'NIH / Perceptual Filling-in', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC3119792/' }
+              ]
+            },
+            B: {
+              explanation: 'Brain tissue itself has no pain receptors, called nociceptors. The brain processes pain signals from the rest of your body, while structures around it — such as membranes and blood vessels — can cause headaches.',
+              sources: [
+                { label: 'BrainFacts / Brain and Pain', url: 'https://www.brainfacts.org/ask-a-neuroscientist/if-the-brain-cant-feel-pain-why-do-i-get-headaches' }
+              ]
+            },
+            C: {
+              explanation: 'There is no dormant 90% waiting to be unlocked. Different brain regions become more or less active during different tasks, but we use our entire brain across everyday life. The 10% idea is a persistent myth, not a neuroscience finding.',
+              sources: [
+                { label: 'MIT / The 10% Brain Myth', url: 'https://mcgovern.mit.edu/2024/01/26/do-we-use-only-10-percent-of-our-brain/' }
+              ]
+            }
+          },
+          discussion: 'Why is the idea that we use only 10% of our brains so appealing? How would your life change if you could genuinely unlock a hidden ability?',
+          success: 'You caught the 10% brain myth. There is no unused 90% — but the real brain is strange enough without it.',
+          failure: choice => 'You accused exhibit ' + choice +
+            ', but the 10% brain claim is the myth. Your brain does much stranger things than that.'
+        },
+        {
+          number: '05',
+          heading: 'The Planet Has Problems',
+          chapter: 'The Impossible Files',
+          lie: 'B',
+          illustrated: false,
+          statements: {
+            A: 'There is a place on Earth where the ground has been burning for decades.',
+            B: 'Diamonds are made when coal is squeezed for long enough.',
+            C: 'Rocks can move across the desert without anyone pushing them.'
+          },
+          evidence: {
+            A: {
+              explanation: 'An underground coal-mine fire has been burning beneath the Centralia area of Pennsylvania since May 1962. Dangerous gases and unstable ground eventually forced most residents to relocate.',
+              sources: [
+                { label: 'Pennsylvania DEP / Centralia Mine Fire', url: 'https://www.pa.gov/agencies/dep/programs-and-services/mining/abandoned-mine-reclamation/aml-program-information/centralia-mine-fire-resources' }
+              ]
+            },
+            B: {
+              explanation: 'Natural diamonds do not form by squeezing coal. Most form much deeper in Earth\'s mantle, from carbon carried in fluids or melts under enormous pressure and heat. Coal is found in the crust, far above the usual diamond-forming conditions.',
+              sources: [
+                { label: 'GIA / How Diamonds Form', url: 'https://www.gia.edu/gems-gemology/winter-2018-how-do-diamonds-form-in-the-deep-earth' }
+              ]
+            },
+            C: {
+              explanation: 'At Death Valley\'s Racetrack Playa, stones really do slide across a dry lakebed and leave long tracks. Researchers watched it happen: shallow water froze into thin floating ice sheets, and light winds pushed the ice against the rocks.',
+              sources: [
+                { label: 'National Park Service / Sailing Stones', url: 'https://www.nps.gov/deva/learn/news/racetrack.htm' }
+              ]
+            }
+          },
+          discussion: 'If you found a rock that had mysteriously moved across the desert, what explanation would you invent first? How could you test your theory?',
+          success: 'You rejected the coal-to-diamond story. The burning ground and travelling rocks, however, are completely real.',
+          failure: choice => 'You accused exhibit ' + choice +
+            ', but the coal-to-diamond story was the lie. Burning ground and moving rocks both exist.'
         }
       ];
 
