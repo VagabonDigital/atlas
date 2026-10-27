@@ -542,6 +542,7 @@
           chapter: 'The Impossible Files',
           lie: 'B',
           illustrated: false,
+          artwork: { A: './case-02-a-cleopatra.webp' },
           statements: {
             A: 'Cleopatra lived closer to the Moon landing than to the building of the Great Pyramid.',
             B: 'Napoleon was unusually short for his time.',
@@ -756,8 +757,14 @@
         for (const exhibit of exhibits) {
           const key = exhibit.dataset.choice;
           exhibit.querySelector('.tt-exhibit-claim').textContent = record.statements[key];
-          exhibit.querySelector('.tt-art').classList.toggle('is-art-pending', !record.illustrated);
-          exhibit.querySelector('.tt-art-placeholder').hidden = record.illustrated;
+          const artwork = record.artwork?.[key] || '';
+          const hasArtwork = record.illustrated || Boolean(artwork);
+          exhibit.querySelector('.tt-art').classList.toggle('is-art-pending', !hasArtwork);
+          exhibit.querySelector('.tt-art-placeholder').hidden = hasArtwork;
+          const image = exhibit.querySelector('.tt-art-image');
+          image.style.backgroundImage = artwork ? 'url("' + artwork + '")' : '';
+          image.style.backgroundSize = artwork ? 'cover' : '';
+          image.style.backgroundPosition = artwork ? 'center' : '';
         }
         for (const [index, key] of exhibitKeys.entries()) {
           const fact = record.evidence[key];
