@@ -11,7 +11,17 @@
 
 ---
 
-## Prototype iteration — 26 October 2026 · Voice-first, scene-led presentation
+## Audio integration checkpoint — 26 October 2026
+
+**First real recording integrated in code (not yet browser validated):** `arcade/tomorrow-got-weird-proto/audio/clinic-welcome.mp3`. The 216,044-byte, approximately 27-second MP3 is the user-approved Google AI Studio take. Its exact Git blob was moved from an accidentally uploaded location under `arcade/tomorrow-got-weird/` without changing the original game's code. The path is game-local and durable; no new audio subsystem is introduced.
+
+The **Approach the intelligence** click now calls the existing audio player with that recording. Playback is user-initiated, the portal remains separate, and the same scene keeps a compact manual text fallback when playback fails. Other transmission audio slots remain empty, so complication and endings still appear in readable text.
+
+**Open quality check:** The user previously shared an editor screenshot containing spoken welcome wording that differs from the prototype's earlier drafted transcript (for example, the recording draft begins with *Congratulations on winning your complimentary enhancement*). We have **not** independently transcribed or heard the uploaded recording in this integration task. The expandable text is therefore labelled *scene text*, not claimed as an exact audio transcript. Before shipping an audio-primary experience more broadly, reconcile the full text to the final recording; then check mute, replay, accessibility, user-gesture playback and actual video-call screen-share audio in a browser.
+
+---
+
+## Earlier prototype iteration — 26 October 2026 · Voice-first, scene-led presentation
 
 **Code state:** isolated TGW PROTO presentation implemented and a simulated-DOM end-to-end interaction test passed. This is **not** evidence of browser deployment, real voice playback, screen-share reliability, or a two-person playtest.
 
@@ -291,7 +301,7 @@ When the prototype works, derive a coherent pattern for the remaining futures. I
 
 ## 10. Immediate next step and decision status
 
-**Next:** Inspect the voice-first scenic interface at desktop and mobile sizes. Supply and integrate the five actual voice recordings; test audio playback, transcript fallback and screen-share hearing, then conduct a real two-person playtest. Do not add a second destination or generic engine until the first episode earns it.
+**Next:** Manually play the integrated Clinic welcome in-browser at laptop and mobile sizes; verify that it really plays after Approaching, check the optional scene text against the recording, and test whether both travellers hear it via shared video-call audio. Decide pacing and scene presentation from that evidence. Other voice recordings and a two-person playtest are still outstanding.
 
 **Decided:**
 - Future-hopping is the experience fantasy.
