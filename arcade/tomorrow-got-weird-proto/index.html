@@ -377,7 +377,7 @@
       const speechAudio = document.createElement('audio');
       speechAudio.preload = 'auto';
       // Populate only with committed audio assets. No fake speech or runtime synthesis.
-      const VOICE_ASSETS = Object.freeze({ welcome:'./audio/clinic-welcome.mp3', complication:null, proceed:null, counter:null, leave:null });
+      const VOICE_ASSETS = Object.freeze({ welcome:'./audio/clinic-welcome.mp3', complication:'./audio/clinic-complication.wav', proceed:null, counter:null, leave:null });
       const TRANSMISSIONS = Object.freeze({
         welcome: {
           headline:'You have been invited to invent the impossible.',
@@ -385,8 +385,8 @@
           text:"Welcome to the Human Evolution Clinic. Ah, you've both arrived. Wonderful.\n\nYou've won one entirely bespoke human enhancement. Whatever you can imagine, we can create.\n\nThere is one small limitation: only one of you may receive it.\n\nI'd love to hear what each of you has in mind, and why you believe you deserve it.\n\nPlease, convince each other. I'm very curious to see what you decide."
         },
         complication: {
-          headline:'There is one small detail.', next:'Discuss the new terms →',
-          text:"How lovely. Before we begin, a routine disclosure: the recipient will be legally reclassified as synthetic. Some people may no longer regard them as human. Their companion will also become their legal guarantor."
+          headline:'One small administrative detail.', next:'Discuss the new terms →',
+          text:"Ah, a wonderful choice. I can certainly arrange that for you.\n\nThere is just one small administrative detail before we begin.\n\nFollowing the procedure, the recipient will no longer be legally recognised as human. They will be classified as synthetic.\n\nTheir companion will become their legal guarantor, and will be held personally responsible for the recipient's actions.\n\nNow...\n\nWould you both still like to proceed?"
         },
         proceed: {
           headline:'The procedure is ready.', next:'Reflect together →',
