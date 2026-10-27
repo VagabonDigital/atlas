@@ -11,7 +11,19 @@
 
 ---
 
-## Audio integration checkpoint — 26 October 2026
+## Audio integration checkpoint — 27 October 2026 · The complication speaks
+
+**Second real asset connected in code:** `arcade/tomorrow-got-weird-proto/audio/clinic-complication.wav` (1,495,724-byte original WAV; Git blob `51d9bbb35c608861ad8c1e87b6ba882cd5c3c4c9`). This is the exact recording uploaded to the original public game's folder and moved into the existing **prototype-owned** `audio/` folder without transcoding or changing the public game's code. WAV is intentionally used for this first playtest; convert to a smaller verified asset later only if measured performance requires it.
+
+The new recording is triggered **only when the travellers select a recipient, enter the agreed invention and click Confirm together**. The existing voice-stage playback controls keep the screen in the same Clinic scene until the recorded disclosure ends. After the audio finishes, the pair can continue into a second discussion and select **Accept the terms**, **Demand a safer deal** or **Walk away**. This interaction records an explicit shared response, not interpreted spoken dialogue. The first welcome recording and both original portal sequences are unchanged.
+
+The displayed optional **scene text** uses the latest user-approved recording script beginning *Ah, a wonderful choice* and ending *Would you both still like to proceed?* but the actual uploaded audio has **not been independently transcribed or auditioned** during code integration. Check accuracy in the live browser before calling it a verbatim transcript.
+
+**Next gate:** test that welcome → both pitches → recipient/invention agreement → spoken complication → second negotiation runs at a natural pace, including what happens if the WAV cannot play or a video-call partner cannot hear tab audio. Three authored consequence transmissions still have **no recorded voice**; do not move to a second destination or invest in animated footage before the first encounter's consequences and two-player experience are credible.
+
+---
+
+## Earlier audio integration checkpoint — 26 October 2026
 
 **First real recording integrated in code (not yet browser validated):** `arcade/tomorrow-got-weird-proto/audio/clinic-welcome.mp3`. The 216,044-byte, approximately 27-second MP3 is the user-approved Google AI Studio take. Its exact Git blob was moved from an accidentally uploaded location under `arcade/tomorrow-got-weird/` without changing the original game's code. The path is game-local and durable; no new audio subsystem is introduced.
 
