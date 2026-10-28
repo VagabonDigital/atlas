@@ -731,7 +731,6 @@
           speechAudio.muted = false;
           document.getElementById('voice-mute').setAttribute('aria-pressed','false');
           document.getElementById('voice-mute').textContent = '♪ Sound on';
-          nextButton.disabled = true;
           replayVoice();
         }
         nextButton.focus({preventScroll:true});
@@ -1018,11 +1017,11 @@
           speaking=true; scene.dataset.speaking='true';
         });
         speechAudio.addEventListener('ended',function () {
-          speaking=false; scene.dataset.speaking='false'; nextButton.disabled=false;
+          speaking=false; scene.dataset.speaking='false';
         });
         speechAudio.addEventListener('error',voiceFallback);
         document.getElementById('voice-replay').addEventListener('click',function () {
-          nextButton.disabled=true; replayVoice();
+          replayVoice();
         });
         document.getElementById('voice-mute').addEventListener('click',function () {
           speechAudio.muted=!speechAudio.muted;
