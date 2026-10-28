@@ -800,6 +800,7 @@
         if (transiting || crossing) return;
         transiting = true;
         stopSpeech();
+        clinicAmbient.pause();
         launch.classList.add('is-transit');
         scene.hidden = true;
         hotel.hidden = true;
