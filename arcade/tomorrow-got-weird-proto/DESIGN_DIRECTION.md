@@ -11,7 +11,25 @@
 
 ---
 
-## Audio integration checkpoint — 27 October 2026 · The complication speaks
+## Two-destination prototype — 28 October 2026 · The Living Hotel
+
+**Scope:** Second destination added **inside the existing** `arcade/tomorrow-got-weird-proto/index.html`, with no new engine, routes, folders, services, audio assets or public-game changes. Uses the existing portal video and existing portal crossing animation for the jump out of the Clinic. The first landing and both prerecorded Clinic transmissions remain untouched.
+
+**Source premise:** An original Tomorrow Got Weird scenario in which future buildings are living organisms, and a guest's hotel room has moved overnight. Adapted into a new, distinct two-player escape encounter instead of another speculative question card.
+
+**Why this scenario:** The Clinic uses competing inventions, persuasion and shared consent. The Living Hotel instead tests **cooperative decoding and physical navigation**. Traveller 1 selects a passage while Traveller 2 chooses a nonverbal approach that the building tolerates; they discuss its signals and swap roles for the second passage. The choices are independently recorded in the shared screen UI, evaluated by a small authored rule set, and wrong combinations produce partial feedback. The travellers reach the roof after two successful passages and jointly choose their response to the hotel's request not to be forgotten; three short authored consequences follow.
+
+**Visual:** Game-local CSS illustration of a breathing, luminous organic hotel; subtle motion and a change in breathing when players upset it. This is **not** a Grok animation, image generation output, recorded cinematic scene or polished production art. It is intentionally a functional proof that the second setting feels different.
+
+**Journey:** Clinic arrival → welcome recording → bilateral pitches → shared enhancement → complication recording → second negotiation → one of three Clinic endings → brief repeat of the portal crossing, *without repeating the title-screen intro* → Hotel arrival → two cooperative passages → roof choice → ending → optional return to start portal. No automatic interpretation of actual speech; the environment reacts only to explicit choices.
+
+**Verification done in code:** Inline JS syntax passed, 67 total markup IDs remained unique, and a simulated browser DOM traversed the complete two-world journey, including both real Clinic voice URLs, the short inter-world portal, both puzzles and role swap, wrong answers/partial success, all three hotel endings, the two-destination progress record, restart and existing Arcade chrome. This does **not** establish live browser rendering, audio sharing, accessible mobile layout, deployed state or actual two-person conversational quality.
+
+**Next proving step:** Manually play the whole journey with two people. Measure whether the Hotel's decisions are interesting rather than merely obvious multiple-choice questions. If the puzzles are too simplistic, improve their actual information structure and reciprocal roles rather than investing in moving backgrounds yet. The Clinic's three unvoiced outcomes and the Welcome audio/text parity remain independent unfinished issues.
+
+---
+
+## Earlier audio integration checkpoint — 27 October 2026 · The complication speaks
 
 **Second real asset connected in code:** `arcade/tomorrow-got-weird-proto/audio/clinic-complication.wav` (1,495,724-byte original WAV; Git blob `51d9bbb35c608861ad8c1e87b6ba882cd5c3c4c9`). This is the exact recording uploaded to the original public game's folder and moved into the existing **prototype-owned** `audio/` folder without transcoding or changing the public game's code. WAV is intentionally used for this first playtest; convert to a smaller verified asset later only if measured performance requires it.
 
