@@ -28,6 +28,7 @@
     ];
 
     const COMPASS_PILOT_ORDER = [
+        'dia-de-muertos',
         'forests-that-glow-at-night',
         'why-certain-songs-give-us-chills',
         'the-zombie-ant-fungus',
@@ -1415,6 +1416,16 @@
             categoryId: 'culture-life',
             order: 60,
             hook: 'Explore how people face what they can’t know — attitudes to death across cultures, superstition and ritual, and the appeal of the unexplained.'
+        },
+        {
+            id: 'dia-de-muertos',
+            coverImage: "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0f/Ofrenda_or_Day_of_the_Dead_Altar_at_Mission_Marquee_Plaza._%28586908b4-40dd-4be5-bc53-ababb89291f1%29.JPG/1280px-Ofrenda_or_Day_of_the_Dead_Altar_at_Mission_Marquee_Plaza._%28586908b4-40dd-4be5-bc53-ababb89291f1%29.JPG",
+            title: 'Día de Muertos: When the Dead Come Home',
+            navTitle: 'Día de Muertos: When the Dead Come Home',
+            categoryId: 'culture-life',
+            order: 65,
+            available: true,
+            hook: 'What if the dead came home for dinner? Explore the marigolds, masked dances, family rituals and remarkable contradictions of Día de Muertos.'
         },
         {
             id: 'odyssey-worth-the-hype',
