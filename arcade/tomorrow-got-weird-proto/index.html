@@ -509,6 +509,42 @@
           text:'Of course. Your prize is withdrawn. No further obligation. For transparency, both of your minds have already been mapped.'
         }
       });
+
+      const hotel = document.getElementById('hotel');
+      const hotelArrival = document.getElementById('hotel-arrival-view');
+      const hotelPuzzle = document.getElementById('hotel-puzzle-view');
+      const hotelChoice = document.getElementById('hotel-choice-view');
+      const hotelEnding = document.getElementById('hotel-ending-view');
+      const hotelRoutes = Array.from(document.querySelectorAll('.hotel-route'));
+      const hotelGestures = Array.from(document.querySelectorAll('.hotel-gesture'));
+      const hotelTry = document.getElementById('hotel-try');
+      const HOTEL_PASSAGES = Object.freeze([
+        {
+          name:'The breathing foyer',beat:'Passage 1 of 2',
+          clue:'The glass lift has gone cold. The ivy corridor is contracting. But a warm stairwell opens like a lung. Each loud noise makes the walls tighten.',
+          routes:['Warm stairwell','Glass lift','Ivy corridor'],
+          gestures:['Order it to open','Speak softly','Run through before it closes'],
+          route:0,gesture:1,
+          success:'The stairwell unfurls beneath your feet. The hotel has listened.'
+        },
+        {
+          name:'The pulse corridor',beat:'Passage 2 of 2',
+          clue:'A blue-lit passage opens each time the floor hears a steady rhythm. The mirrored escalator is stuck, and a green arch leads back downstairs. Sudden movements make the passage recoil.',
+          routes:['Mirrored escalator','Blue-lit passage','Green arch'],
+          gestures:['Tap a steady beat','Sprint toward the light','Shout for help'],
+          route:1,gesture:0,
+          success:'The building echoes your rhythm. Its rooftop opens above you.'
+        }
+      ]);
+      const HOTEL_ENDINGS = Object.freeze({
+        promise:{title:'A light stays on for you.',copy:'The hotel releases the rooftop door like an opening flower. Deep inside its living walls, a small light begins to glow. You have given it a promise it will remember.'},
+        honest:{title:'An honest goodbye.',copy:'The hotel shivers, then opens the exit anyway. Perhaps it has learned that a guest can leave without being an enemy. You catch your shuttle with seconds to spare.'},
+        force:{title:'You make it out.',copy:'The rooftop door yields to your push. Behind you, the building curls inward and its lights fade. You escape, but neither of you feels especially victorious.'}
+      });
+      let hotelStep = 0;
+      let hotelRoute = null;
+      let hotelGesture = null;
+      let transiting = false;
       const rates = [16, 12, 8, 3];
       let crossing = false;
       let session = null;
@@ -559,29 +595,39 @@
       function updatePhase(next) {
         if (phase === 'transmission' && next !== 'transmission') stopSpeech();
         phase = next;
-        const inScene = next !== 'launch';
-        launch.hidden = inScene;
-        scene.hidden = !inScene;
+        const inHotel = next.startsWith('hotel-');
+        const inClinic = next !== 'launch' && !inHotel;
+        launch.hidden = next !== 'launch';
+        scene.hidden = !inClinic;
+        hotel.hidden = !inHotel;
         arrival.hidden = next !== 'arrival';
         transmission.hidden = next !== 'transmission';
         pitch.hidden = next !== 'pitch';
         decision.hidden = next !== 'decision';
         response.hidden = next !== 'response';
         reflection.hidden = next !== 'reflection';
+        hotelArrival.hidden = next !== 'hotel-arrival';
+        hotelPuzzle.hidden = next !== 'hotel-puzzle';
+        hotelChoice.hidden = next !== 'hotel-choice';
+        hotelEnding.hidden = next !== 'hotel-ending';
         scene.dataset.phase = next;
-        if (inScene) scene.scrollTop = 0;
+        if (inClinic) scene.scrollTop = 0;
+        if (inHotel) hotel.scrollTop = 0;
         saveState();
       }
 
       function saveState() {
         if (!Bridge || !session) return;
         const active = phase !== 'launch';
+        const inHotel = phase.startsWith('hotel-');
+        const completed = phase === 'hotel-ending';
         Bridge.upsertSessionState(session.id, REGISTRY_ID, {
-          status: active ? 'in-progress' : 'available',
-          completedAt: null,
-          currentPosition: 1,
-          currentLabel: active ? 'Upgrade Clinic · ' + (phase === 'transmission' ? 'Transmission' : phase[0].toUpperCase() + phase.slice(1)) : null,
-          progress: { covered: 0, total: 1 },
+          status: completed ? 'completed' : active ? 'in-progress' : 'available',
+          completedAt: completed ? Date.now() : null,
+          currentPosition: inHotel ? 2 : 1,
+          currentLabel: inHotel ? 'Living Hotel · ' + (completed ? 'Exit' : 'Escape') :
+            active ? 'Upgrade Clinic · ' + (phase === 'transmission' ? 'Transmission' : phase[0].toUpperCase() + phase.slice(1)) : null,
+          progress: { covered: completed ? 2 : inHotel ? 1 : 0, total: 2 },
           prototypePhase: phase,
           lastTouchedAt: Date.now()
         });
@@ -724,6 +770,113 @@
         beginTransmission('complication');
       }
 
+
+      async function jumpToHotel() {
+        if (transiting || crossing) return;
+        transiting = true;
+        stopSpeech();
+        launch.classList.add('is-transit');
+        scene.hidden = true;
+        hotel.hidden = true;
+        launch.hidden = false;
+        try {
+          try { video.playbackRate = 1; video.currentTime = 0; } catch (error) {}
+          video.play().catch(function () {});
+          const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+          if (!reduce) {
+            // Same familiar portal video and crossing effect, without replaying the introduction.
+            acceleratePortal();
+            launch.classList.add('is-crossing');
+            await new Promise(function (resolve) { setTimeout(resolve, 1200); });
+          }
+          resetHotelChoices();
+          hotelStep = 0;
+          hotel.dataset.mood = 'calm';
+          updatePhase('hotel-arrival');
+          try { video.playbackRate = 1; } catch (error) {}
+          video.pause();
+          document.getElementById('hotel-enter').focus({preventScroll:true});
+        } finally {
+          launch.classList.remove('is-transit','is-crossing');
+          transiting = false;
+        }
+      }
+
+      function resetHotelChoices() {
+        hotelRoute = null; hotelGesture = null;
+        hotelRoutes.forEach(function (button) {button.setAttribute('aria-pressed','false');});
+        hotelGestures.forEach(function (button) {button.setAttribute('aria-pressed','false');});
+        hotelTry.disabled = true;
+      }
+
+      function renderHotelPassage() {
+        const p = HOTEL_PASSAGES[hotelStep];
+        if (!p) return;
+        resetHotelChoices();
+        hotel.dataset.mood = 'calm';
+        document.getElementById('hotel-stage-count').textContent = p.beat;
+        document.getElementById('hotel-puzzle-heading').textContent = p.name;
+        document.getElementById('hotel-clue').textContent = p.clue;
+        document.getElementById('hotel-route-role').textContent =
+          hotelStep === 0 ? 'Traveller 1 · Navigator' : 'Traveller 2 · Navigator';
+        document.getElementById('hotel-gesture-role').textContent =
+          hotelStep === 0 ? 'Traveller 2 · Mediator' : 'Traveller 1 · Mediator';
+        hotelRoutes.forEach(function (button,i){button.textContent=p.routes[i];});
+        hotelGestures.forEach(function (button,i){button.textContent=p.gestures[i];});
+        document.getElementById('hotel-feedback').textContent =
+          'Discuss the signals and agree on a route and a way to approach the hotel.';
+        updatePhase('hotel-puzzle');
+        hotelRoutes[0].focus({preventScroll:true});
+      }
+
+      function pickHotel(kind,index) {
+        const buttons = kind==='route'?hotelRoutes:hotelGestures;
+        if(kind==='route')hotelRoute=index;else hotelGesture=index;
+        buttons.forEach(function (button,i){button.setAttribute('aria-pressed',String(i===index));});
+        hotelTry.disabled = hotelRoute===null || hotelGesture===null;
+      }
+
+      function tryHotelPassage() {
+        if (hotelRoute===null || hotelGesture===null) return;
+        const p = HOTEL_PASSAGES[hotelStep];
+        const routeRight = hotelRoute===p.route,gestureRight=hotelGesture===p.gesture;
+        if(routeRight && gestureRight) {
+          hotelStep++;
+          if (hotelStep>=HOTEL_PASSAGES.length) {
+            hotel.dataset.mood='calm';
+            updatePhase('hotel-choice');
+            document.querySelector('[data-hotel-answer="promise"]').focus({preventScroll:true});
+          } else renderHotelPassage();
+          return;
+        }
+        hotel.dataset.mood='uneasy';
+        document.getElementById('hotel-feedback').textContent =
+          !routeRight && !gestureRight
+            ? 'The hotel recoils. Neither the passage nor your approach feels right. Read its signals again.'
+            : !routeRight
+              ? 'The hotel accepts your approach, but that passage folds back toward the foyer.'
+              : 'You found the right passage, but the hotel flinches at how you approach it.';
+        if(!routeRight) {
+          hotelRoute=null;
+          hotelRoutes.forEach(function (button){button.setAttribute('aria-pressed','false');});
+        }
+        if(!gestureRight) {
+          hotelGesture=null;
+          hotelGestures.forEach(function (button){button.setAttribute('aria-pressed','false');});
+        }
+        hotelTry.disabled=true;
+      }
+
+      function finishHotel(key) {
+        const ending=HOTEL_ENDINGS[key];
+        if (!ending) return;
+        hotel.dataset.mood=key==='force'?'uneasy':'calm';
+        document.getElementById('hotel-ending-heading').textContent=ending.title;
+        document.getElementById('hotel-ending-copy').textContent=ending.copy;
+        updatePhase('hotel-ending');
+        document.getElementById('hotel-restart').focus({preventScroll:true});
+      }
+
       function replayPortal() {
         stopSpeech();
         transmissionKey = null;
@@ -734,6 +887,9 @@
           option.setAttribute('aria-pressed','false');
         });
         updateDecisionReady();
+        resetHotelChoices();
+        hotelStep=0;
+        hotel.dataset.mood='calm';
         updatePhase('launch');
         if (video) {
           try { video.playbackRate = 1; } catch (error) {}
@@ -763,13 +919,17 @@
             root: '#hdr', returnRoot: '#arcade-game-return-root',
             actionsRoot: '#arcade-game-actions-root', appearance: false, onBeforeReturn: saveState
           });
+          ArcadeGameChrome.mountGame({
+            root: '#hotel-hdr', returnRoot: '#hotel-return-root',
+            actionsRoot: '#hotel-actions-root', appearance: false, onBeforeReturn: saveState
+          });
         }
         Bridge.upsertItem({
           registryId: REGISTRY_ID, world: 'arcade', type: 'game',
           title: 'Tomorrow Got Weird — PROTO',
           premise: 'Enter New Tokyo, 2126, and negotiate a complimentary human enhancement.',
           status: 'available', publicAccess: 'full', unitLabel: 'Destinations',
-          total: 1, formatLabel: 'Conversation adventure', mark: '🌀',
+          total: 2, formatLabel: 'Conversation adventure', mark: '🌀',
           accent: '#7c3aed', accentLight: '#ede9fe',
           launchUrl: new URL('./index.html', location.href).href
         });
@@ -793,7 +953,23 @@
           updatePhase('response');
           document.querySelector('[data-response="proceed"]').focus({preventScroll:true});
         });
-        document.getElementById('leave-clinic').addEventListener('click',replayPortal);
+        document.getElementById('leave-clinic').addEventListener('click',jumpToHotel);
+        document.getElementById('hotel-enter').addEventListener('click',renderHotelPassage);
+        hotelRoutes.forEach(function (button){
+          button.addEventListener('click',function(){pickHotel('route',Number(button.dataset.route));});
+        });
+        hotelGestures.forEach(function (button){
+          button.addEventListener('click',function(){pickHotel('gesture',Number(button.dataset.gesture));});
+        });
+        hotelTry.addEventListener('click',tryHotelPassage);
+        document.querySelectorAll('.hotel-answer').forEach(function (button){
+          button.addEventListener('click',function(){finishHotel(button.dataset.hotelAnswer);});
+        });
+        document.getElementById('hotel-reconsider').addEventListener('click',function(){
+          updatePhase('hotel-choice');
+          document.querySelector('[data-hotel-answer="promise"]').focus({preventScroll:true});
+        });
+        document.getElementById('hotel-restart').addEventListener('click',replayPortal);
         document.querySelectorAll('.recipient-option').forEach(function (button) {
           button.addEventListener('click',function () {selectRecipient(button.dataset.recipient,button);});
         });
