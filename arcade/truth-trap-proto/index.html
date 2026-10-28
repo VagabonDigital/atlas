@@ -543,6 +543,7 @@
           lie: 'B',
           illustrated: false,
           artwork: { A: './case-02-a-cleopatra.webp', B: './case-02-b-napoleon-alps.webp' },
+          artworkPosition: { B: 'center top' },
           statements: {
             A: 'Cleopatra lived closer to the Moon landing than to the building of the Great Pyramid.',
             B: 'Napoleon was unusually short for his time.',
@@ -764,7 +765,9 @@
           const image = exhibit.querySelector('.tt-art-image');
           image.style.backgroundImage = artwork ? 'url("' + artwork + '")' : '';
           image.style.backgroundSize = artwork ? 'cover' : '';
-          image.style.backgroundPosition = artwork ? 'center' : '';
+          image.style.backgroundPosition = artwork
+            ? (record.artworkPosition?.[key] || 'center')
+            : '';
         }
         for (const [index, key] of exhibitKeys.entries()) {
           const fact = record.evidence[key];
