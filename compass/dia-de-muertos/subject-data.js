@@ -33,7 +33,7 @@ const subjectCopy = {
       "A trail of marigold petals leads to a doorway. Inside, candles flicker beside photographs, and someone's favourite food has been carefully prepared. The guest died years ago. Yet in many Día de Muertos traditions, families welcome departed loved ones back through offerings, stories, music and sometimes laughter. The customs vary across Mexico, but the invitation is extraordinary: what if remembrance felt like welcoming someone home?"
     ],
     "heading": "A Welcome in Candlelight",
-    "question": "Imagine walking into a home where dinner has been prepared for someone who died long ago. What detail would you notice first—and what might it mean?"
+    "question": "A family prepares dinner for someone who died twenty years ago. Is the meal really for the dead, the living, or both?"
   },
   "discussion": {
     "intro": "A yearly welcome can turn memory into something active: preparing a favourite dish, telling the same family story, laughing at a familiar joke, or visiting a meaningful place. This opens questions about how people keep loved ones present, how traditions change, and where celebration ends and respect begins.",
