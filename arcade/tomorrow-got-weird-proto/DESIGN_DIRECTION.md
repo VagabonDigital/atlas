@@ -11,6 +11,32 @@
 
 ---
 
+## Living Clinic media and ownership — 28 October 2026
+
+**Experiment:** The exact `clinic-intelligence-loop.mp4` supplied by the founder (10,362,128 bytes, Git blob `0559694de4798510c97136092a9105b872a4add2`) is now presented as a *silent, looping, full-bleed* environmental video behind all Human Evolution Clinic phases. Clinic voice remains separate and audible. The still `bioluminescent_ai_core_atrium.png` is retained as the fallback, poster and reduced-motion backdrop. Video loads only when the Clinic becomes visible, pauses outside that scene and on page hide. The motion is part of the environment, **not** an assertion that the intelligence heard either traveller.
+
+**Game-local asset structure (chosen for future expansion by destination):**
+
+```text
+arcade/tomorrow-got-weird-proto/
+  index.html
+  DESIGN_DIRECTION.md
+  assets/
+    portal/
+      portal-istock-test.mp4
+    clinic/
+      bioluminescent_ai_core_atrium.png
+      clinic-intelligence-loop.mp4
+      clinic-welcome.mp3
+      clinic-complication.wav
+```
+
+No new shared media engine or top-level directory. Existing media bytes were moved unchanged (Git blobs retained), and all runtime URLs were updated together. Future destinations such as Living Hotel can add their own `assets/<destination>/` assets only when genuinely required. The original public `arcade/tomorrow-got-weird/` and its assets are untouched. The root README ownership map does not change.
+
+**Verification distinction:** The user reports a suitable loop generated in Grok and uploaded it to GitHub; the upload and binary size are verified. Browser rendering, smoothness of the actual loop seam, mobile performance, shared-call audio and gameplay experience have **not** been independently validated. Do not claim the game feels alive until playing the deployed experience.
+
+---
+
 ## Two-destination prototype — 28 October 2026 · The Living Hotel
 
 **Scope:** Second destination added **inside the existing** `arcade/tomorrow-got-weird-proto/index.html`, with no new engine, routes, folders, services, audio assets or public-game changes. Uses the existing portal video and existing portal crossing animation for the jump out of the Clinic. The first landing and both prerecorded Clinic transmissions remain untouched.

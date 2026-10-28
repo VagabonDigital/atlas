@@ -141,9 +141,10 @@
 
 
     /* The image leads. Spoken transmissions and gameplay occupy only the lower edge. */
-    #scene { z-index:10; overflow-y:auto; overscroll-behavior:contain; background:#b5c9e6 url("./bioluminescent_ai_core_atrium.png") center center / cover no-repeat; }
-    #scene::before { content:""; position:fixed; inset:0; z-index:0; pointer-events:none; background:linear-gradient(180deg,rgba(4,15,37,.29),transparent 24%,transparent 53%,rgba(5,12,36,.64)); }
+    #scene { z-index:10; overflow-y:auto; overscroll-behavior:contain; background:#b5c9e6 url("./assets/clinic/bioluminescent_ai_core_atrium.png") center center / cover no-repeat; }
+    #scene::before { content:""; position:fixed; inset:0; z-index:1; pointer-events:none; background:linear-gradient(180deg,rgba(4,15,37,.29),transparent 24%,transparent 53%,rgba(5,12,36,.64)); }
     #scene[data-phase="transmission"][data-transmission="complication"]::before { background:linear-gradient(180deg,rgba(30,9,44,.23),transparent 32%,rgba(27,9,45,.76)); }
+    .clinic-ambient-video { position:fixed; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; pointer-events:none; }
     #hdr { position:relative; z-index:8; display:flex; justify-content:space-between; align-items:center; min-height:64px; padding:12px clamp(16px,2.7vw,42px); }
     #hdr .header-left,#hdr .header-right { display:flex; align-items:center; }
     #scene-main { position:relative; z-index:1; width:min(1400px,100%); min-height:calc(100dvh - 64px); margin:0 auto; padding:12px clamp(18px,3vw,48px) clamp(24px,3vw,40px); display:flex; flex-direction:column; gap:22px; }
@@ -219,6 +220,7 @@
       .stage-actions .cta { min-width:0; }
     }
     @media(prefers-reduced-motion:reduce) {
+      .clinic-ambient-video { display:none; }
       *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
       .launch-video,#launch.is-crossing .launch-video { transform:none; filter:none; }
       #launch.is-crossing::after { opacity:0; }
@@ -281,6 +283,8 @@
 
 
   <div id="scene" data-speaking="false" hidden>
+    <video id="clinic-ambient-video" class="clinic-ambient-video" muted loop playsinline preload="none"
+      poster="./assets/clinic/bioluminescent_ai_core_atrium.png" aria-hidden="true"></video>
     <header id="hdr">
       <div class="header-left"><div id="arcade-game-return-root"></div></div>
       <div class="header-right" id="arcade-game-actions-root"></div>
@@ -468,6 +472,8 @@
       const video = document.getElementById('proto-portal-video');
       const launch = document.getElementById('launch');
       const scene = document.getElementById('scene');
+      const clinicAmbient = document.getElementById('clinic-ambient-video');
+      let clinicAmbientFailed = false;
       const enter = document.getElementById('launch-button');
       const arrival = document.getElementById('arrival-view');
       const transmission = document.getElementById('transmission-view');
@@ -485,7 +491,7 @@
       const speechAudio = document.createElement('audio');
       speechAudio.preload = 'auto';
       // Populate only with committed audio assets. No fake speech or runtime synthesis.
-      const VOICE_ASSETS = Object.freeze({ welcome:'./audio/clinic-welcome.mp3', complication:'./audio/clinic-complication.wav', proceed:null, counter:null, leave:null });
+      const VOICE_ASSETS = Object.freeze({ welcome:'./assets/clinic/clinic-welcome.mp3', complication:'./assets/clinic/clinic-complication.wav', proceed:null, counter:null, leave:null });
       const TRANSMISSIONS = Object.freeze({
         welcome: {
           headline:'You have been invited to invent the impossible.',
@@ -563,7 +569,7 @@
           video.load();
           video.play().catch(function () {});
         });
-        video.src = new URL('./portal-istock-test.mp4', location.href).href;
+        video.src = new URL('./assets/portal/portal-istock-test.mp4', location.href).href;
         video.load();
         video.play().catch(function () {});
       }
@@ -572,6 +578,24 @@
         for (const rate of rates) {
           try { video.playbackRate = rate; return; }
           catch (error) { /* Unsupported rates must not prevent entry. */ }
+        }
+      }
+
+      // Only stream the decorative Clinic video while its world is visible.
+      // A still image remains if playback fails or reduced motion is requested.
+      function syncClinicAmbient(inClinic) {
+        if (!inClinic) {
+          clinicAmbient.pause();
+          return;
+        }
+        if (clinicAmbientFailed) return;
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        if (!clinicAmbient.getAttribute('src')) {
+          clinicAmbient.src = new URL('./assets/clinic/clinic-intelligence-loop.mp4', location.href).href;
+          clinicAmbient.load();
+        }
+        if (clinicAmbient.paused) {
+          clinicAmbient.play().catch(function () { /* Keep static poster/background. */ });
         }
       }
 
@@ -600,6 +624,7 @@
         launch.hidden = next !== 'launch';
         scene.hidden = !inClinic;
         hotel.hidden = !inHotel;
+        syncClinicAmbient(inClinic);
         arrival.hidden = next !== 'arrival';
         transmission.hidden = next !== 'transmission';
         pitch.hidden = next !== 'pitch';
@@ -775,6 +800,7 @@
         if (transiting || crossing) return;
         transiting = true;
         stopSpeech();
+        clinicAmbient.pause();
         launch.classList.add('is-transit');
         scene.hidden = true;
         hotel.hidden = true;
@@ -900,6 +926,10 @@
       }
 
       function init() {
+        clinicAmbient.addEventListener('error',function () {
+          clinicAmbientFailed = true;
+          clinicAmbient.hidden = true;
+        });
         configurePortal();
         if (!Bridge) {
           enter.disabled = true;
@@ -1010,7 +1040,7 @@
           session = (event.detail && event.detail.session) || Bridge.readActiveSession();
           saveState();
         });
-        window.addEventListener('pagehide',function () {stopSpeech();saveState();});
+        window.addEventListener('pagehide',function () {stopSpeech();clinicAmbient.pause();saveState();});
       }
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
       else init();
