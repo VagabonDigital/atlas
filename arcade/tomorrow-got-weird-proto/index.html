@@ -223,6 +223,47 @@
       .launch-video,#launch.is-crossing .launch-video { transform:none; filter:none; }
       #launch.is-crossing::after { opacity:0; }
     }
+
+    /* The second future is an intentionally game-local scene, not another media engine. */
+    #hotel{position:fixed;inset:0;isolation:isolate;overflow-y:auto;overscroll-behavior:contain;color:#e6fff5;background:radial-gradient(ellipse at 50% 24%,#286657 0%,#0e4149 40%,#061b2a 88%)}
+    #hotel::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgba(2,12,19,.25),transparent 27%,rgba(1,11,17,.9) 100%)}
+    .hotel-world-art{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+    .hotel-moon{position:absolute;top:9%;left:8%;width:130px;aspect-ratio:1;border-radius:50%;background:#d0ffcf;filter:blur(8px);opacity:.16}
+    .hotel-tower{position:absolute;left:50%;top:5%;transform:translateX(-50%);width:min(63vw,480px);height:93vh;border:6px solid rgba(140,255,201,.54);border-radius:47% 47% 27% 27%/32% 32% 17% 17%;background:radial-gradient(ellipse at 50% 32%,rgba(191,255,213,.61),transparent 19%),repeating-linear-gradient(0deg,transparent 0 65px,rgba(130,245,210,.13) 66px 69px),linear-gradient(115deg,#063f4e,#248c76 45%,#062734);box-shadow:0 0 95px rgba(79,250,164,.31),inset 0 0 110px #011c2b;transform-origin:50% 88%;animation:hotel-breathe 7s ease-in-out infinite}
+    .hotel-tower::before,.hotel-tower::after{content:"";position:absolute;top:22%;height:65%;width:27%;border:4px solid rgba(109,255,208,.41);border-radius:52% 48% 40% 20%;filter:drop-shadow(0 0 20px rgba(128,255,195,.42))}
+    .hotel-tower::before{left:7%;transform:rotate(13deg)}.hotel-tower::after{right:7%;transform:rotate(-13deg)}
+    .hotel-heart{position:absolute;left:50%;top:29%;transform:translate(-50%,-50%);width:155px;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#f3ffe8 0%,#a2ffca 21%,rgba(67,233,153,.15) 61%,transparent 75%);animation:hotel-heart 3.5s ease-in-out infinite}
+    .hotel-window{position:absolute;left:20%;top:50%;height:7px;width:13%;border-radius:100px;background:#aaffda;box-shadow:0 0 24px #64fac0,250px 40px 0 rgba(174,255,215,.6),18px 95px 0 rgba(174,255,215,.6),240px 160px 0 rgba(174,255,215,.6),20px 225px 0 rgba(174,255,215,.5)}
+    .hotel-roots{position:absolute;inset:auto -20% -10% -20%;height:28%;border-top:14px solid rgba(63,183,127,.55);border-radius:50%;box-shadow:0 -20px 55px rgba(88,236,162,.14)}
+    #hotel[data-mood="uneasy"] .hotel-tower{animation-duration:2.7s}#hotel[data-mood="uneasy"] .hotel-heart{animation-duration:1s}
+    @keyframes hotel-breathe{0%,100%{scale:.99 1}50%{scale:1.025 1.025}}@keyframes hotel-heart{0%,100%{opacity:.45}50%{opacity:1}}
+    #hotel-hdr{position:relative;z-index:8;display:flex;justify-content:space-between;align-items:center;min-height:64px;padding:12px clamp(16px,2.7vw,42px)}
+    #hotel-main{position:relative;z-index:2;display:flex;flex-direction:column;min-height:calc(100dvh - 64px);gap:18px;width:min(1380px,100%);margin:auto;padding:14px clamp(18px,3vw,48px) clamp(24px,3vw,40px)}
+    .hotel-location{text-shadow:0 3px 22px #00191e}.hotel-location p,.hotel-small{display:block;margin:0 0 10px;color:#abffe2;font-size:11px;letter-spacing:.17em;text-transform:uppercase;font-weight:800}
+    .hotel-location h2{font-size:clamp(27px,2.7vw,39px);margin:0;font-weight:720;letter-spacing:-.045em}
+    .hotel-stage{margin-top:auto;display:flex;justify-content:flex-end}
+    .hotel-panel{width:min(720px,100%);padding:clamp(18px,2.35vw,30px);border-radius:22px;border:1px solid rgba(157,255,219,.52);background:linear-gradient(130deg,rgba(2,31,40,.91),rgba(8,47,53,.86));box-shadow:0 18px 65px rgba(0,8,17,.43);backdrop-filter:blur(16px)}
+    .hotel-panel h3{margin:0 0 12px;font-size:clamp(22px,2.45vw,33px);line-height:1.18;letter-spacing:-.045em}
+    .hotel-panel p{margin:0 0 17px;font-size:clamp(14px,1.4vw,17px);line-height:1.5;color:#e0f9f4}
+    .hotel-panel .cta{background:#d7ffea;color:#06382f;border-color:#c0ffe2}.hotel-panel .cta:hover{box-shadow:0 10px 44px rgba(54,248,172,.35)}
+    .hotel-puzzle-panel{width:min(830px,100%)}
+    .hotel-puzzle-top{display:flex;justify-content:space-between;gap:12px;align-items:center}.hotel-puzzle-top .hotel-small{margin:0}
+    .hotel-clue{margin:10px 0 18px!important}
+    .hotel-roles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+    .hotel-role{min-width:0;border:1px solid rgba(162,255,226,.28);border-radius:15px;padding:13px 14px 14px;background:rgba(193,255,230,.06)}
+    .hotel-role legend{font-size:12px;font-weight:800;letter-spacing:.05em;color:#c4fff0;padding:0 5px}
+    .hotel-selects{display:grid;gap:8px;margin-top:8px}
+    .hotel-route,.hotel-gesture,.hotel-answer{width:100%;border:1px solid rgba(177,245,215,.4);border-radius:11px;background:rgba(196,255,228,.08);color:#f1fff9;font-size:14px;line-height:1.2;font-weight:680;padding:12px;text-align:left}
+    .hotel-route:hover,.hotel-gesture:hover,.hotel-answer:hover{background:rgba(158,253,208,.19)}
+    .hotel-route[aria-pressed="true"],.hotel-gesture[aria-pressed="true"]{background:rgba(90,232,171,.33);border-color:#c2ffe3;box-shadow:inset 0 0 0 1px rgba(220,255,239,.4)}
+    .hotel-puzzle-footer{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;margin-top:16px}
+    .hotel-feedback{flex:1 1 220px;min-height:23px;margin:0!important;font-size:13px!important;color:#c0fff0!important}
+    .hotel-answer-row{display:grid;gap:10px}.hotel-answer{text-align:center;font-size:15px;padding:15px}
+    .hotel-answer:focus-visible,.hotel-route:focus-visible,.hotel-gesture:focus-visible{outline:3px solid #aaffde;outline-offset:3px}
+    #launch.is-transit .launch-content{display:none}#launch .transit-label{display:none}
+    #launch.is-transit .transit-label{display:block;position:relative;z-index:4;padding:18px 24px;color:#e8fbff;font-size:clamp(16px,2vw,24px);font-weight:700;letter-spacing:.19em;text-transform:uppercase;text-align:center;text-shadow:0 2px 22px #061226}
+    @media(max-width:650px){#hotel-hdr{min-height:58px;padding:9px 14px}#hotel-main{min-height:calc(100dvh - 58px);padding:12px 16px 20px}.hotel-roles{grid-template-columns:1fr}.hotel-panel{padding:16px}.hotel-puzzle-footer .cta{width:100%}.hotel-location h2{font-size:25px}}
+    @media(prefers-reduced-motion:reduce){.hotel-tower,.hotel-heart{animation:none!important}}
   </style>
 </head>
 <body data-atlas-world="arcade" data-atlas-surface="content">
@@ -235,6 +276,7 @@
       <p>One portal. No idea what's waiting on the other side.</p>
       <button id="launch-button" class="cta" type="button">Enter Tomorrow</button>
     </section>
+    <p class="transit-label" aria-live="polite">Another tomorrow awaits</p>
   </div>
 
 
@@ -340,7 +382,73 @@
           </div>
           <div class="stage-actions">
             <button id="revisit-complication" class="quiet-action" type="button">← Try another response</button>
-            <button id="leave-clinic" class="cta cta-small" type="button">Return to portal →</button>
+            <button id="leave-clinic" class="cta cta-small" type="button" >Travel to the next future →</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="hotel" data-mood="calm" hidden>
+    <div class="hotel-world-art" aria-hidden="true">
+      <div class="hotel-moon"></div><div class="hotel-tower"><div class="hotel-heart"></div><div class="hotel-window"></div></div><div class="hotel-roots"></div>
+    </div>
+    <header id="hotel-hdr"><div id="hotel-return-root"></div><div id="hotel-actions-root"></div></header>
+    <main id="hotel-main">
+      <div class="hotel-location"><p>Living City // 2187</p><h2>The Living Hotel</h2></div>
+      <section id="hotel-arrival-view" class="hotel-stage" aria-labelledby="hotel-arrival-heading">
+        <div class="hotel-panel">
+          <span class="hotel-small">Destination 02 · Arrival</span>
+          <h3 id="hotel-arrival-heading">Your room has moved. The hotel is still breathing.</h3>
+          <p>In this city, every building is alive. Yours has folded its corridors, and the last sky-shuttle leaves soon. The hotel is trying to communicate, but it doesn't speak your language.</p>
+          <button id="hotel-enter" class="cta cta-small" type="button">Find a way out →</button>
+        </div>
+      </section>
+      <section id="hotel-puzzle-view" class="hotel-stage" aria-labelledby="hotel-puzzle-heading" hidden>
+        <div class="hotel-panel hotel-puzzle-panel">
+          <div class="hotel-puzzle-top"><span id="hotel-stage-count" class="hotel-small">Passage 1 of 2</span><span class="hotel-small">Cooperate to escape</span></div>
+          <h3 id="hotel-puzzle-heading">The hotel is rearranging itself.</h3><p class="hotel-clue" id="hotel-clue"></p>
+          <div class="hotel-roles">
+            <fieldset class="hotel-role"><legend id="hotel-route-role">Traveller 1 · Navigator</legend>
+              <div class="hotel-selects" role="group" aria-label="Select a route">
+                <button class="hotel-route" type="button" data-route="0" aria-pressed="false"></button>
+                <button class="hotel-route" type="button" data-route="1" aria-pressed="false"></button>
+                <button class="hotel-route" type="button" data-route="2" aria-pressed="false"></button>
+              </div>
+            </fieldset>
+            <fieldset class="hotel-role"><legend id="hotel-gesture-role">Traveller 2 · Mediator</legend>
+              <div class="hotel-selects" role="group" aria-label="Select how to approach the building">
+                <button class="hotel-gesture" type="button" data-gesture="0" aria-pressed="false"></button>
+                <button class="hotel-gesture" type="button" data-gesture="1" aria-pressed="false"></button>
+                <button class="hotel-gesture" type="button" data-gesture="2" aria-pressed="false"></button>
+              </div>
+            </fieldset>
+          </div>
+          <div class="hotel-puzzle-footer"><p id="hotel-feedback" class="hotel-feedback" role="status" aria-live="polite">Talk it through and choose together.</p>
+            <button id="hotel-try" class="cta cta-small" type="button" disabled>Try this approach →</button>
+          </div>
+        </div>
+      </section>
+      <section id="hotel-choice-view" class="hotel-stage" aria-labelledby="hotel-choice-heading" hidden>
+        <div class="hotel-panel">
+          <span class="hotel-small">The rooftop · One last question</span>
+          <h3 id="hotel-choice-heading">The hotel asks you not to forget it.</h3>
+          <p>You've found the exit. The living walls loosen, then draw close again. A message appears in the glass: “Will you come back?” What do you tell a building that's afraid of being left alone?</p>
+          <div class="hotel-answer-row" role="group" aria-label="Agree how to respond to the living hotel">
+            <button class="hotel-answer" type="button" data-hotel-answer="promise">Promise you'll return</button>
+            <button class="hotel-answer" type="button" data-hotel-answer="honest">Admit you don't know</button>
+            <button class="hotel-answer" type="button" data-hotel-answer="force">Leave without answering</button>
+          </div>
+        </div>
+      </section>
+      <section id="hotel-ending-view" class="hotel-stage" aria-labelledby="hotel-ending-heading" hidden>
+        <div class="hotel-panel">
+          <span class="hotel-small">Destination 02 · Outcome</span>
+          <h3 id="hotel-ending-heading"></h3><p id="hotel-ending-copy"></p>
+          <p>Would you stay at this hotel again? Would your companion?</p>
+          <div class="stage-actions">
+            <button id="hotel-reconsider" class="quiet-action" type="button">← Change your answer</button>
+            <button id="hotel-restart" class="cta cta-small" type="button">Return to the portal →</button>
           </div>
         </div>
       </section>
