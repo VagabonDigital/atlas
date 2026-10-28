@@ -28,7 +28,6 @@
     ];
 
     const COMPASS_PILOT_ORDER = [
-        'halloween-why-on-earth',
         'forests-that-glow-at-night',
         'why-certain-songs-give-us-chills',
         'the-zombie-ant-fungus',
@@ -1416,16 +1415,6 @@
             categoryId: 'culture-life',
             order: 60,
             hook: 'Explore how people face what they can’t know — attitudes to death across cultures, superstition and ritual, and the appeal of the unexplained.'
-        },
-        {
-            id: 'halloween-why-on-earth',
-            coverImage: "https://images2.alphacoders.com/547/thumb-1920-547710.jpg",
-            title: 'Halloween: Why on Earth Do We Do That?',
-            navTitle: 'Halloween: Why on Earth Do We Do That?',
-            categoryId: 'culture-life',
-            order: 65,
-            available: true,
-            hook: 'A playful look at the surprisingly strange traditions behind Halloween, from carved turnips and Scottish guising to costumes, celebration and harmless mischief.'
         },
         {
             id: 'odyssey-worth-the-hype',
