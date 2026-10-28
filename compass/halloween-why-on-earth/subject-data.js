@@ -315,7 +315,7 @@ const discussionSets = [
     }
 ];
 
-const culturalLensCards = [
+const clCards = [
     {
         "id": "cultural-lens-card-5182f41f-b6a5-4187-b5fe-c763e31dc5aa",
         "title": "Halloween Without the Doorbells",

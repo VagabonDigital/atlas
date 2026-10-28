@@ -304,6 +304,40 @@ function testDirectResourceIntegrity() {
                 /atlas-original-entry\.js/,
                 'Atlas Original must use the shared entry runtime.'
             );
+
+            const subjectDataPath =
+                'compass/' +
+                subject.id +
+                '/subject-data.js';
+
+            assert.ok(
+                exists(subjectDataPath),
+                'Missing Atlas Original subject data: ' +
+                    subjectDataPath
+            );
+
+            const subjectData =
+                vm.runInNewContext(
+                    read(subjectDataPath) +
+                        ';({ MODULE, subjectCopy, discussionSets, clCards })',
+                    {},
+                    { filename: subjectDataPath, timeout: 2000 }
+                );
+
+            assert.equal(
+                subjectData.MODULE.id,
+                subject.id,
+                'Atlas Original module ID must match its public route.'
+            );
+
+            assert.ok(
+                subjectData.subjectCopy &&
+                Array.isArray(subjectData.discussionSets) &&
+                subjectData.discussionSets.length > 0 &&
+                Array.isArray(subjectData.clCards) &&
+                subjectData.clCards.length > 0,
+                'Atlas Original must expose all shared engine content globals.'
+            );
         }
     );
 
