@@ -584,6 +584,11 @@
       // Only stream the decorative Clinic video while its world is visible.
       // A still image remains if playback fails or reduced motion is requested.
       function syncClinicAmbient(inClinic) {
+        // Grok exports can carry their own soundtrack. Keep the environmental
+        // footage silent, independently of the Clinic's separate voice audio.
+        clinicAmbient.defaultMuted = true;
+        clinicAmbient.muted = true;
+        clinicAmbient.volume = 0;
         if (!inClinic) {
           clinicAmbient.pause();
           return;
