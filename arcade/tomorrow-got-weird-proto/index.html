@@ -594,7 +594,9 @@
           clinicAmbient.src = new URL('./assets/clinic/clinic-intelligence-loop.mp4', location.href).href;
           clinicAmbient.load();
         }
-        clinicAmbient.play().catch(function () { /* Keep static poster/background. */ });
+        if (clinicAmbient.paused) {
+          clinicAmbient.play().catch(function () { /* Keep static poster/background. */ });
+        }
       }
 
       function stopSpeech() {
