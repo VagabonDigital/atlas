@@ -331,7 +331,7 @@
 
     /* The prototyping workspace only opens after owner verification. */
   </style>
-  <link rel="stylesheet" href="./experience.css?v=20261026-8">
+  <link rel="stylesheet" href="./experience.css?v=20261101-audio1">
 </head>
 <body data-atlas-world="arcade" data-atlas-surface="content">
   <!-- Truth Trap 2.0 cover study: original day/night collage, liberated
@@ -363,7 +363,16 @@
     <header id="tt-game-header" class="tt-game-header arcade-game-chrome-centered-title">
       <div class="tt-header-left" id="arcade-game-return-root"></div>
       <div class="tt-header-centre"><span class="tt-header-logo">TRUTH <span>TRAP</span> <small>PROTO</small></span></div>
-      <div class="tt-header-right" id="arcade-game-actions-root"></div>
+      <div class="tt-header-right">
+        <div id="arcade-game-actions-root"></div>
+        <button id="tt-audio-toggle" class="tt-audio-toggle" type="button" aria-label="Mute ambience" aria-pressed="true" title="Mute ambience">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 9v6h4l5 4V5L8 9H4Z"/>
+            <path class="tt-sound-wave" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/>
+            <path class="tt-sound-cross" d="m17 9 5 6m0-6-5 6"/>
+          </svg>
+        </button>
+      </div>
     </header>
     <main class="tt-stage">
       <header class="tt-case-heading">
@@ -435,7 +444,89 @@
       let phase = 'cover';
       const opening = document.getElementById('opening');
       const enterButton = document.getElementById('btn-start');
+      const audioButton = document.getElementById('tt-audio-toggle');
       const Bridge = window.AtlasBridge;
+      const AudioEngine = window.AudioContext || window.webkitAudioContext;
+      const AUDIO_MUTE_KEY = 'atlas.truth-trap-proto.audio-muted';
+      let audioMuted = false;
+      try { audioMuted = window.localStorage.getItem(AUDIO_MUTE_KEY) === '1'; } catch (_) {}
+      let audioStarted = false;
+      let ambience = null;
+
+      // Game-local, deliberately quiet ambient bed. The ENTER THE TRAP
+      // gesture unlocks Web Audio; browsers block audible page-load autoplay.
+      function createAmbience() {
+        if (!AudioEngine || ambience) return;
+        try {
+          const context = new AudioEngine();
+          const volume = context.createGain();
+          volume.gain.value = 0;
+          volume.connect(context.destination);
+          const filter = context.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.value = 440;
+          filter.Q.value = 0.45;
+          filter.connect(volume);
+          // A minor, sustained and unhurried: no sharp transients.
+          for (const [frequency, type, level] of [
+            [110, 'sine', 0.14],
+            [164.81, 'triangle', 0.035],
+            [220, 'sine', 0.052],
+            [261.63, 'sine', 0.025]
+          ]) {
+            const oscillator = context.createOscillator();
+            const voice = context.createGain();
+            oscillator.type = type;
+            oscillator.frequency.value = frequency;
+            voice.gain.value = level;
+            oscillator.connect(voice);
+            voice.connect(filter);
+            oscillator.start();
+          }
+          const drift = context.createOscillator();
+          const depth = context.createGain();
+          drift.frequency.value = 0.11;
+          depth.gain.value = 75;
+          drift.connect(depth);
+          depth.connect(filter.frequency);
+          drift.start();
+          ambience = { context, volume };
+        } catch (error) {
+          console.warn('Truth Trap ambience unavailable:', error);
+          audioButton.hidden = true;
+        }
+      }
+
+      function syncAmbience() {
+        audioButton.classList.toggle('is-muted', audioMuted);
+        audioButton.setAttribute('aria-label', audioMuted ? 'Enable ambience' : 'Mute ambience');
+        audioButton.setAttribute('title', audioMuted ? 'Enable ambience' : 'Mute ambience');
+        audioButton.setAttribute('aria-pressed', String(!audioMuted));
+        if (!ambience) return;
+        const enabled = audioStarted && ownerVerified && !audioMuted && !document.hidden;
+        const now = ambience.context.currentTime;
+        ambience.volume.gain.cancelScheduledValues(now);
+        ambience.volume.gain.setTargetAtTime(enabled ? 0.32 : 0, now, enabled ? 0.65 : 0.09);
+      }
+
+      function unlockAmbience() {
+        if (audioMuted || !AudioEngine) return;
+        createAmbience();
+        if (!ambience) return;
+        // Called synchronously from a real click to satisfy autoplay rules.
+        void ambience.context.resume().catch(error => {
+          console.warn('Truth Trap audio could not start:', error);
+        });
+      }
+
+      audioButton.hidden = !AudioEngine;
+      syncAmbience();
+      audioButton.addEventListener('click', () => {
+        audioMuted = !audioMuted;
+        try { window.localStorage.setItem(AUDIO_MUTE_KEY, audioMuted ? '1' : '0'); } catch (_) {}
+        if (!audioMuted) unlockAmbience();
+        syncAmbience();
+      });
 
       function applyTheme() {
         document.documentElement.dataset.theme =
@@ -472,6 +563,7 @@
         workspace.hidden = true;
         gate.hidden = false;
         status.textContent = message;
+        syncAmbience();
       }
 
       function grantAccess(user) {
@@ -488,10 +580,14 @@
           workspace.hidden = false;
           opening.hidden = true;
         }
+        syncAmbience();
       }
 
       function enterPrototype() {
         if (!ownerVerified) return;
+        audioStarted = true;
+        unlockAmbience();
+        syncAmbience();
         opening.classList.add('fade-out');
         window.setTimeout(() => {
           if (!ownerVerified) return;
@@ -842,6 +938,7 @@
           ownerVerified = false;
           enterButton.disabled = true;
           workspace.hidden = true;
+          syncAmbience();
         }
 
         try {
@@ -860,6 +957,7 @@
         }
       }
       document.addEventListener('visibilitychange', () => {
+        syncAmbience();
         if (!document.hidden) void verifyOwner();
       });
       window.addEventListener('storage', event => {

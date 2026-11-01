@@ -93,6 +93,26 @@ html:not([data-theme="night"]) .tt-game::after {
 }
 .tt-game-header > .tt-header-centre { justify-content: center; }
 .tt-game-header > .tt-header-right { justify-content: flex-end; }
+.tt-header-right { gap: 8px; }
+.tt-audio-toggle {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 35px;
+  height: 35px;
+  padding: 0;
+  border: 1px solid rgba(119,219,237,.29);
+  border-radius: 50%;
+  background: rgba(18,85,104,.35);
+  color: #c9f4fa;
+  cursor: pointer;
+}
+.tt-audio-toggle:hover { background: rgba(30,121,143,.62); color: #fff; }
+.tt-audio-toggle:focus-visible { outline: 2px solid #8cefff; outline-offset: 3px; }
+.tt-audio-toggle .tt-sound-cross { display: none; }
+.tt-audio-toggle.is-muted .tt-sound-wave { display: none; }
+.tt-audio-toggle.is-muted .tt-sound-cross { display: block; }
+.tt-audio-toggle[hidden] { display: none; }
 .tt-header-logo {
   color: #f4fbff;
   font-weight: 900;
