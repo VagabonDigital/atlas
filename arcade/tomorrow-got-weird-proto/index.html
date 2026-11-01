@@ -292,15 +292,6 @@
     <div class="core-signal" aria-hidden="true"></div>
     <main id="scene-main">
       <div class="location-meta"><p class="eyebrow">New Tokyo // 2126</p><h2>Human Evolution Clinic</h2></div>
-      <section id="arrival-view" class="scene-bottom" aria-labelledby="arrival-heading">
-        <div class="arrival-bottom">
-          <div class="arrival-message"><span class="eyebrow">Destination reached</span>
-            <strong id="arrival-heading">Something has noticed you.</strong>
-            <p>There is no reception desk. But you are expected.</p>
-          </div>
-          <button id="approach-button" class="cta" type="button">Approach the intelligence →</button>
-        </div>
-      </section>
       <section id="transmission-view" class="scene-bottom" aria-labelledby="transmission-heading" hidden>
         <div class="transmission-stage">
           <div class="scene-panel scene-panel--slim">
@@ -475,7 +466,6 @@
       const clinicAmbient = document.getElementById('clinic-ambient-video');
       let clinicAmbientFailed = false;
       const enter = document.getElementById('launch-button');
-      const arrival = document.getElementById('arrival-view');
       const transmission = document.getElementById('transmission-view');
       const pitch = document.getElementById('pitch-view');
       const decision = document.getElementById('decision-view');
@@ -630,7 +620,6 @@
         scene.hidden = !inClinic;
         hotel.hidden = !inHotel;
         syncClinicAmbient(inClinic);
-        arrival.hidden = next !== 'arrival';
         transmission.hidden = next !== 'transmission';
         pitch.hidden = next !== 'pitch';
         decision.hidden = next !== 'decision';
@@ -678,6 +667,20 @@
         if (!Bridge) return;
         crossing = true;
         enter.disabled = true;
+        // Start recorded speech directly from the Enter Tomorrow gesture.
+        // It greets players as they travel through the portal, without a
+        // second approach button or a browser-blocked delayed autoplay.
+        const welcomeAsset = VOICE_ASSETS.welcome;
+        if (welcomeAsset) {
+          speechAudio.src = new URL(welcomeAsset, location.href).href;
+          speechAudio.muted = false;
+          try {
+            const started = speechAudio.play();
+            if (started && typeof started.catch === 'function') {
+              started.catch(function () { /* Retry once the scene appears. */ });
+            }
+          } catch (error) { /* Retry once the scene appears. */ }
+        }
         try {
           const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
           if (!reduce) {
@@ -691,15 +694,14 @@
           session = Bridge.readActiveSession();
           window.AtlasAnalytics?.arcadeGameStart('tomorrow-got-weird-proto');
           touchActivity();
-          updatePhase('arrival');
           if (video) {
             try { video.playbackRate = 1; } catch (error) {}
           }
           video.pause();
-          document.getElementById('approach-button').focus({ preventScroll: true });
+          beginTransmission('welcome', true);
         } catch (error) {
           console.error('Clinic arrival failed', error);
-          updatePhase('arrival');
+          beginTransmission('welcome', true);
         } finally {
           launch.classList.remove('is-igniting', 'is-crossing');
           enter.disabled = false;
@@ -709,9 +711,13 @@
 
 
 
-      function beginTransmission(key) {
+      function beginTransmission(key, keepPlaying = false) {
         if (!TRANSMISSIONS[key]) return;
-        stopSpeech();
+        const asset = VOICE_ASSETS[key];
+        const assetUrl = asset ? new URL(asset, location.href).href : '';
+        const playingWelcome = keepPlaying && key === 'welcome' &&
+          speechAudio.src === assetUrl && !speechAudio.paused;
+        if (!playingWelcome) stopSpeech();
         transmissionKey = key;
         const item = TRANSMISSIONS[key];
         document.getElementById('transmission-summary').textContent = item.headline;
@@ -720,18 +726,17 @@
         nextButton.disabled = false;
         scene.dataset.transmission = key;
         updatePhase('transmission');
-        const asset = VOICE_ASSETS[key];
         if (!asset) {
           voiceFallback();
         } else {
           voiceControls.hidden = false;
           voiceStatus.hidden = true;
           transcriptDetails.open = captionsOn;
-          speechAudio.src = new URL(asset,location.href).href;
+          if (!playingWelcome) speechAudio.src = assetUrl;
           speechAudio.muted = false;
           document.getElementById('voice-mute').setAttribute('aria-pressed','false');
           document.getElementById('voice-mute').textContent = '♪ Sound on';
-          replayVoice();
+          if (!playingWelcome) replayVoice();
         }
         nextButton.focus({preventScroll:true});
       }
@@ -760,8 +765,7 @@
 
       function backTransmission() {
         if (transmissionKey === 'welcome') {
-          updatePhase('arrival');
-          document.getElementById('approach-button').focus({preventScroll:true});
+          replayPortal();
         } else if (transmissionKey === 'complication') showDecision();
         else {
           updatePhase('response');
@@ -970,9 +974,6 @@
         });
 
         enter.addEventListener('click',enterTomorrow);
-        document.getElementById('approach-button').addEventListener('click',function () {
-          beginTransmission('welcome');
-        });
         nextButton.addEventListener('click',continueTransmission);
         document.getElementById('transmission-back').addEventListener('click',backTransmission);
         document.getElementById('back-to-welcome').addEventListener('click',function () {
