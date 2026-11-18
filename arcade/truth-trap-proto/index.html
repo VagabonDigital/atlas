@@ -507,7 +507,22 @@
 
       // Case content lives with its game. More cases reuse this exact stage,
       // choice/reveal behaviour and evidence layout, not a new Arcade engine.
-      // Only source-reviewed cases enter this small playable sequence.
+      // Cases 01–05 are source-reviewed. The remaining migrated cases are
+      // playable review drafts until their evidence and illustrations are approved.
+      function draftCase(number, heading, lie, exhibits, discussion) {
+        const statements = {};
+        const evidence = {};
+        for (const [key, claim, explanation] of exhibits) {
+          statements[key] = claim;
+          evidence[key] = { explanation, sources: [] };
+        }
+        return {
+          number, heading, chapter: 'The Impossible Files', lie,
+          illustrated: false, draft: true, statements, evidence, discussion,
+          success: 'You identified the lie in exhibit ' + lie + '. Compare your reasoning with the explanations below.',
+          failure: choice => 'You accused exhibit ' + choice + ', but exhibit ' + lie + ' was the lie. Explore the explanations below.'
+        };
+      }
       const CASES = [
         {
           number: '01',
@@ -690,7 +705,82 @@
           success: 'You rejected the coal-to-diamond story. The burning ground and travelling rocks, however, are completely real.',
           failure: choice => 'You accused exhibit ' + choice +
             ', but the coal-to-diamond story was the lie. Burning ground and moving rocks both exist.'
-        }
+        },
+        draftCase('06', 'Venus Makes No Sense', 'A', [
+          ['A', 'The Moon is slowly getting closer to Earth.', 'The Moon is actually receding from Earth by about 3.8 centimetres each year as tidal interactions transfer angular momentum.'],
+          ['B', 'Venus is hot enough to melt lead.', 'The surface of Venus is roughly 465°C, above the melting point of lead. Its dense atmosphere traps heat.'],
+          ['C', 'Venus takes longer to rotate once than to orbit the Sun.', 'Venus takes about 243 Earth days to rotate once relative to the stars, but only about 225 days to orbit the Sun.']
+        ], 'If you lived on a planet where one rotation lasted longer than a year, how might you organise everyday life?'),
+        draftCase('07', 'Your Body Has Secrets', 'B', [
+          ['A', 'Cells lining your stomach are replaced within days.', 'Many surface cells in the stomach lining are renewed rapidly, helping maintain the barrier against digestive acid.'],
+          ['B', 'Your fingerprint patterns naturally change into different patterns as you age.', 'The basic fingerprint ridge pattern persists throughout life, although injuries, skin conditions and ageing may change its appearance.'],
+          ['C', 'You are usually slightly taller in the morning.', 'Spinal discs tend to lose fluid under pressure during the day and recover fluid while you lie down, making your height vary slightly.']
+        ], 'Which of these makes your own body seem most surprising? What else would you like to understand about it?'),
+        draftCase('08', 'Reality Needs Better Writing', 'C', [
+          ['A', 'Bananas are naturally a little radioactive.', 'Bananas contain potassium, including a small proportion of naturally radioactive potassium-40. The radiation from an ordinary banana is negligible.'],
+          ['B', 'Sloths can hold their breath underwater for surprisingly long periods.', 'Sloths can slow their heart rate and metabolism, helping them conserve oxygen while submerged.'],
+          ['C', 'Lightning never strikes the same place twice.', 'Lightning can repeatedly strike the same location. Tall buildings and exposed structures are particularly likely to be struck multiple times.']
+        ], 'Which claim would you find hardest to explain convincingly to a sceptical friend?'),
+        draftCase('09', 'Nature Is Hiding Things', 'C', [
+          ['A', 'Individual hairs on a polar bear are colourless.', 'Polar bear fur appears white because the effectively colourless hairs scatter visible light.'],
+          ['B', 'Shark ancestors existed before the earliest trees.', 'The evolutionary lineage of sharks dates back hundreds of millions of years, before the earliest known trees.'],
+          ['C', 'A chameleon can change into any colour to match its surroundings.', 'Chameleons have a limited range of colour changes. Colour also plays an important role in communication and temperature regulation; they cannot imitate arbitrary backgrounds.']
+        ], 'If you could acquire one of these animals’ genuine adaptations, which would you choose and why?'),
+        draftCase('10', 'Earth Plays Dirty', 'B', [
+          ['A', 'Antarctica is the largest desert on Earth.', 'The definition of a desert is based on low precipitation rather than heat. Antarctica is an enormous cold desert.'],
+          ['B', 'Every volcano lies on a tectonic plate boundary.', 'Some volcanoes form above hotspots within tectonic plates. The Hawaiian Islands are a familiar example.'],
+          ['C', 'Far more of Earth’s fresh water is stored in ice than in rivers and lakes.', 'Glaciers and ice caps contain the majority of Earth’s fresh water. Rivers and freshwater lakes contain a much smaller fraction.']
+        ], 'How does discovering the scientific meaning of a familiar word change the way you see the world?'),
+        draftCase('11', 'Humans Are Improvised', 'A', [
+          ['A', 'The human heart is located entirely on the left side of the chest.', 'The heart sits near the centre of the chest behind the sternum, extending more to the left than to the right.'],
+          ['B', 'Babies have more separate bones than adults.', 'Some bones are separate in infancy and fuse as children grow, so the number of separate bones decreases.'],
+          ['C', 'Your bones are constantly being broken down and rebuilt.', 'Bone is living tissue. Cells called osteoclasts remove old bone, while osteoblasts form new bone.']
+        ], 'If you were designing the human body from scratch, what would you change first?'),
+        draftCase('12', 'The Universe Is Showing Off', 'B', [
+          ['A', 'Alcohol molecules have been detected in clouds in space.', 'Astronomers have identified ethanol and other alcohol molecules in interstellar clouds through their characteristic spectral signatures.'],
+          ['B', 'The Sun would look distinctly yellow from space.', 'Outside Earth’s atmosphere, sunlight appears essentially white to human eyes. Atmospheric scattering contributes to the familiar yellow or orange appearance.'],
+          ['C', 'Some neutron stars spin hundreds of times per second.', 'Rapidly rotating neutron stars called millisecond pulsars can spin hundreds of times each second.']
+        ], 'Which cosmic fact changes your mental picture of the universe most, and why?'),
+        draftCase('13', 'Animals Did Not Read the Rules', 'C', [
+          ['A', 'Some elephants have recognised themselves in mirrors.', 'In mirror self-recognition experiments, some elephants investigated marks on their own bodies that were visible only in a mirror.'],
+          ['B', 'Some birds can sleep with one half of their brains awake.', 'Certain birds exhibit unihemispheric sleep, in which one hemisphere remains more alert while the other rests.'],
+          ['C', 'Goldfish forget everything after a few seconds.', 'Goldfish can learn associations and retain information far longer than a few seconds.']
+        ], 'What evidence would persuade you that an animal is genuinely self-aware?'),
+        draftCase('14', 'The Past Was Unhinged', 'A', [
+          ['A', 'You can clearly see the Great Wall of China from the Moon with the naked eye.', 'The Great Wall is much too narrow to distinguish from lunar distance without optical aid.'],
+          ['B', 'Some woolly mammoths were still alive after the Great Pyramid was built.', 'An isolated woolly mammoth population survived on Wrangel Island thousands of years after mainland populations disappeared, until after the pyramid’s construction.'],
+          ['C', 'Tomatoes were once promoted as medicine.', 'In nineteenth-century America, enterprising sellers promoted tomato-based preparations as remedies for ailments.']
+        ], 'Which ordinary modern product would seem most bizarre to someone living two centuries ago?'),
+        draftCase('15', 'Science Sounds Made Up', 'A', [
+          ['A', 'Sound travels faster in air than in water.', 'Sound generally travels much faster in liquid water than in air under ordinary conditions.'],
+          ['B', 'A metal can be liquid at ordinary room temperature.', 'Mercury is a metal that melts at approximately −39°C, so it is liquid at normal indoor temperatures.'],
+          ['C', 'Under some conditions, initially warmer water can freeze sooner than colder water.', 'The Mpemba effect refers to observations of initially warmer samples freezing sooner under particular experimental conditions. It is not a universal rule.']
+        ], 'Which scientific claim sounds most counterintuitive? What experiment could you design to investigate it?'),
+        draftCase('16', 'Plants Are Not Innocent', 'C', [
+          ['A', 'Fungi can connect the roots of different plants underground.', 'Mycorrhizal fungi can form networks connecting plant roots. Researchers continue to investigate the ecological significance of these connections.'],
+          ['B', 'A Venus flytrap responds to repeated touches before closing.', 'The trap usually requires repeated stimulation of its sensitive trigger hairs within a short period before it snaps shut.'],
+          ['C', 'Every species of bamboo flowers each spring.', 'Bamboo species have different flowering patterns. Some flower at intervals of many decades rather than annually.']
+        ], 'What would change about how we value plants if we understood more of their responses to the environment?'),
+        draftCase('17', 'Cold Changes the Rules', 'B', [
+          ['A', 'Bare metal surfaces can bond together in a vacuum.', 'Under suitable conditions, clean metal surfaces pressed into contact may bond through cold welding, an issue spacecraft engineers consider.'],
+          ['B', 'Ordinary window glass is a liquid that slowly flows downwards.', 'Ordinary glass is an amorphous solid. Uneven thickness in old windows is primarily a result of historical manufacturing methods, not centuries of flowing.'],
+          ['C', 'Liquid water can remain unfrozen below 0°C.', 'Water can be supercooled below its normal freezing point if ice crystals do not form. A disturbance can trigger rapid crystallisation.']
+        ], 'Which of these effects would you most like to demonstrate in a laboratory?'),
+        draftCase('18', 'Ancient Earth Was Chaos', 'A', [
+          ['A', 'Modern humans lived at the same time as Tyrannosaurus rex.', 'Tyrannosaurus rex disappeared about 66 million years ago, long before modern humans appeared.'],
+          ['B', 'Some non-avian dinosaurs had feathers.', 'Fossils preserve feathers or feather-like structures on several groups of non-avian dinosaurs.'],
+          ['C', 'Dragonfly-like insects once had wingspans exceeding half a metre.', 'Fossils of ancient dragonfly relatives such as Meganeura show exceptionally large wingspans.']
+        ], 'If you could safely observe one extinct creature in its natural habitat, which would you choose?'),
+        draftCase('19', 'Your Senses Edit Reality', 'A', [
+          ['A', 'Human memory works like an exact video recording of events.', 'Memory is reconstructive. Recalling an experience involves rebuilding it, and details can change or be influenced by later information.'],
+          ['B', 'Your expectations can influence how you perceive sound.', 'Perception depends partly on context, attention and expectations rather than only on the physical sound signal.'],
+          ['C', 'A smell can influence your emotions before you consciously identify it.', 'Smell is closely connected with brain systems involved in emotion and memory, and a response can occur before you identify the odour.']
+        ], 'If perception and memory are not perfect recordings, how can two honest people remember the same event differently?'),
+        draftCase('20', 'Animals Are Doing Too Much', 'B', [
+          ['A', 'Crows can recognise individual human faces.', 'Experiments have shown that crows can learn to recognise particular human faces and remember threatening individuals.'],
+          ['B', 'Owls can turn their heads through a full 360 degrees.', 'Owls can rotate their heads remarkably far, up to roughly 270 degrees, but not a complete circle.'],
+          ['C', 'Some snakes can detect infrared radiation from warm prey.', 'Pit vipers and some other snakes have specialised heat-sensitive organs that help them locate warm prey.']
+        ], 'If animals can learn to recognise individual people, how might their experience of humans differ from what we imagine?')
       ];
 
       const exhibits = Array.from(document.querySelectorAll('.tt-exhibit'));
@@ -770,7 +860,7 @@
         suspect = null;
         revealed = false;
         const record = activeCase();
-        caseNumber.textContent = 'Case ' + record.number + ' / ' + record.chapter;
+        caseNumber.textContent = 'Case ' + record.number + ' / ' + record.chapter + (record.draft ? ' / Review draft' : '');
         caseHeading.textContent = record.heading;
         for (const exhibit of exhibits) {
           const key = exhibit.dataset.choice;
@@ -795,6 +885,7 @@
           card.querySelector('p').textContent = fact.explanation;
           const links = card.querySelector('.tt-fact-sources');
           links.replaceChildren();
+          links.textContent = record.draft ? 'Source review pending' : '';
           for (const source of fact.sources) {
             const link = document.createElement('a');
             link.href = source.url;
