@@ -509,7 +509,7 @@
       // choice/reveal behaviour and evidence layout, not a new Arcade engine.
       // Cases 01–05 are source-reviewed. The remaining migrated cases are
       // playable review drafts until their evidence and illustrations are approved.
-      function draftCase(number, heading, lie, exhibits, discussion) {
+      function draftCase(number, heading, lie, exhibits, discussion, artwork = {}) {
         const statements = {};
         const evidence = {};
         for (const [key, claim, explanation] of exhibits) {
@@ -518,7 +518,7 @@
         }
         return {
           number, heading, chapter: 'The Impossible Files', lie,
-          illustrated: false, draft: true, statements, evidence, discussion,
+          illustrated: false, draft: true, artwork, statements, evidence, discussion,
           success: 'You identified the lie in exhibit ' + lie + '. Compare your reasoning with the explanations below.',
           failure: choice => 'You accused exhibit ' + choice + ', but exhibit ' + lie + ' was the lie. Explore the explanations below.'
         };
@@ -710,7 +710,7 @@
           ['A', 'The Moon is slowly getting closer to Earth.', 'The Moon is actually receding from Earth by about 3.8 centimetres each year as tidal interactions transfer angular momentum.'],
           ['B', 'Venus is hot enough to melt lead.', 'The surface of Venus is roughly 465°C, above the melting point of lead. Its dense atmosphere traps heat.'],
           ['C', 'Venus takes longer to rotate once than to orbit the Sun.', 'Venus takes about 243 Earth days to rotate once relative to the stars, but only about 225 days to orbit the Sun.']
-        ], 'If you lived on a planet where one rotation lasted longer than a year, how might you organise everyday life?'),
+        ], 'If you lived on a planet where one rotation lasted longer than a year, how might you organise everyday life?', { A: './case-06-a-earth-from-moon.webp' }),
         draftCase('07', 'Your Body Has Secrets', 'B', [
           ['A', 'Cells lining your stomach are replaced within days.', 'Many surface cells in the stomach lining are renewed rapidly, helping maintain the barrier against digestive acid.'],
           ['B', 'Your fingerprint patterns naturally change into different patterns as you age.', 'The basic fingerprint ridge pattern persists throughout life, although injuries, skin conditions and ageing may change its appearance.'],
