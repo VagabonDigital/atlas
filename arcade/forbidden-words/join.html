@@ -28,6 +28,10 @@
       </section>
     </main>
     <div id="notice" role="status" aria-live="polite"></div>
+    <aside id="connection-recovery" role="status" aria-live="polite" hidden>
+      <span>Connection interrupted. Game controls are temporarily unavailable.</span>
+      <button type="button" data-action="reconnect">Reconnect</button>
+    </aside>
     <dialog id="rules" aria-labelledby="rules-title">
       <button class="atlas-modal-close rules-close" data-action="close-rules" aria-label="Close rules">
         ×
