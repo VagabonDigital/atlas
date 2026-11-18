@@ -475,7 +475,8 @@ function updateTutorHeader(s) {
     roundRoot.dataset.round = String(s.round || 1);
   }
   if (utilitiesRoot && utilitiesRoot.innerHTML !== headerUtilities()) {
-    const focusedAction = utilitiesRoot.contains(document.activeElement)
+    const focusedAction = utilitiesRoot.contains(document.activeElement) &&
+      document.activeElement.matches(":focus-visible")
       ? document.activeElement.dataset.action : null;
     utilitiesRoot.innerHTML = headerUtilities();
     if (focusedAction) utilitiesRoot.querySelector(`[data-action="${focusedAction}"]`)?.focus({ preventScroll: true });
@@ -487,7 +488,8 @@ function updateTutorHeader(s) {
       : null;
     const currentAction = pauseRoot.querySelector("[data-action]")?.dataset.action || null;
     if (currentAction !== nextAction) {
-      const focused = pauseRoot.contains(document.activeElement);
+      const focused = pauseRoot.contains(document.activeElement) &&
+        document.activeElement.matches(":focus-visible");
       pauseRoot.innerHTML = headerPause(s);
       if (focused) pauseRoot.querySelector("button")?.focus({ preventScroll: true });
     }
@@ -616,7 +618,10 @@ function render() {
     updateControls();
     return;
   }
-  const focused = document.activeElement?.dataset?.action;
+  // Touching a control must not focus a newly-rendered replacement on mobile.
+  // Preserve focus only for keyboard users navigating with focus-visible.
+  const focused = document.activeElement?.matches?.(":focus-visible")
+    ? document.activeElement.dataset?.action : null;
   const reviewOpen = document.querySelector(".review")?.open;
   const previousConnectionOptions = document.querySelector(".connection-options");
   const optionsWereOpen = previousConnectionOptions?.open;
@@ -689,6 +694,8 @@ function render() {
 }
 function updateControls() {
   document.body.classList.toggle("disconnected", failed);
+  const recovery = document.querySelector("#connection-recovery");
+  if (recovery) recovery.hidden = !failed || !state || state.phase === "finished";
   for (const el of document.querySelectorAll(
     '[data-action="correct"],[data-action="skip"],[data-action="oops"]',
   )) {
@@ -873,6 +880,19 @@ async function act(action) {
       input?.removeAttribute("tabindex");
       input?.select();
       notify("Copy unavailable automatically. Select the link and press Ctrl+C (or Command+C).", { duration: 7000 });
+    }
+    return;
+  }
+  // A visible recovery action is essential on mobile: a stalled socket
+  // otherwise leaves all of the game's buttons disabled without an escape.
+  if (action === "reconnect") {
+    if (liveMode) {
+      if (!liveClient) return boot();
+      liveClient.suspend();
+      liveClient.resume();
+    } else {
+      clearTimeout(pollTimer);
+      return poll();
     }
     return;
   }
