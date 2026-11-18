@@ -3318,3 +3318,33 @@ body.disconnected #notice {
     text-align: center;
   }
 }
+
+
+/* A two-minute game should never require scrolling to press Correct or Skip.
+   Keep these actions reachable above the phone's system gesture area. */
+@media (max-width: 480px) {
+  .board.is-describer {
+    padding-bottom: 174px;
+  }
+  .board.is-describer .resolutions {
+    position: fixed;
+    z-index: 3;
+    inset-inline: 0;
+    bottom: 0;
+    width: min(100%, 480px);
+    max-width: none;
+    margin: 0 auto;
+    padding: 10px 16px max(12px, env(safe-area-inset-bottom));
+    border-top: 1px solid #c9daec;
+    border-radius: 18px 18px 0 0;
+    background: #e8f3fbea;
+    box-shadow: 0 -8px 28px #1a477a20;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  html[data-theme="night"] .board.is-describer .resolutions {
+    border-top-color: #42607c;
+    background: #13253ceF;
+    box-shadow: 0 -8px 28px #0006;
+  }
+}
