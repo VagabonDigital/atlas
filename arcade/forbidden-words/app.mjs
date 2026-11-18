@@ -576,7 +576,7 @@ function board(s) {
     ? `${learner ? "Your tutor" : "Your learner"} is away from the game. The clock has stopped, and your progress is safe.`
     : connectionPaused ? "Both players are connected. The clock is safe and ready to resume."
       : "The clock is stopped. Pick up when you’re ready.";
-  return `${learnerHeader(s)}<section class="board"><aside class="deck-area">${deck}<p>${s.remaining} cards in the deck</p></aside>
+  return `${learnerHeader(s)}<section class="board ${describer ? "is-describer" : "is-guesser"}"><aside class="deck-area">${deck}<p>${s.remaining} cards in the deck</p></aside>
     <div class="card-area"><div class="active-card ${s.card?.nonce !== lastNonce ? "dealing" : ""} ${describer ? "face-up" : "face-down"}">${cardFace(s)}</div>
     <div class="role-caption"><p class="eyebrow"><span>TURN ${s.turn} OF 2</span> · ${describer ? "YOU’RE DESCRIBING" : "YOUR PARTNER IS DESCRIBING"}</p><p>${describer ? "Find another way to say it." : "Guess the word out loud."}</p></div></div>
     <aside class="dashboard panel"><div class="timer" role="timer" aria-label="Turn time remaining"><svg viewBox="0 0 220 220" aria-hidden="true"><circle class="timer-track" cx="110" cy="110" r="96"/><circle class="timer-progress" cx="110" cy="110" r="96"/></svg><div><span class="timer-symbol">◴</span><strong id="clock">02:00</strong><span id="timer-label">TIME TO TALK</span></div></div>
