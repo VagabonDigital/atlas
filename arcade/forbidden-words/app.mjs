@@ -220,6 +220,8 @@ function selectTutorRoom(next) {
   failed = false;
   retryDelay = 650;
   state = null;
+  document.querySelector("#connection-recovery")?.setAttribute("hidden", "");
+  document.body.classList.remove("disconnected");
   lastKey = "";
   lastNonce = null;
   lastPhase = null;
@@ -1000,6 +1002,8 @@ function showEntryError(error) {
         ? "This invitation can no longer be used. Ask your tutor to reset the invitation and send a new link."
         : error.message;
   state = null;
+  document.querySelector("#connection-recovery")?.setAttribute("hidden", "");
+  document.body.classList.remove("disconnected");
   lastKey = "";
   lastNonce = null;
   pending = null;
