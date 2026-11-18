@@ -480,6 +480,8 @@
         gate.hidden = true;
         enterButton.disabled = false;
 
+        // A valid case deep link enters only after the owner is verified.
+        if (phase === 'cover' && directCaseIndex >= 0) phase = 'workspace';
         // Revalidating on tab focus must not abandon an open investigation.
         if (phase === 'cover') {
           workspace.hidden = true;
@@ -499,6 +501,7 @@
           opening.hidden = true;
           opening.classList.remove('fade-out');
           workspace.hidden = false;
+          syncCaseUrl();
         }, 400);
       }
 
@@ -702,11 +705,21 @@
       const replayButton = document.getElementById('tt-replay');
       const nextCaseButton = document.getElementById('tt-next-case');
       const exhibitKeys = ['A', 'B', 'C'];
+      const requestedCase = new URLSearchParams(window.location.search).get('case');
+      const directCaseIndex = requestedCase && /^\d+$/.test(requestedCase)
+        ? CASES.findIndex(record => Number(record.number) === Number(requestedCase))
+        : -1;
       let caseIndex = 0;
       let suspect = null;
       let revealed = false;
 
       function activeCase() { return CASES[caseIndex]; }
+
+      function syncCaseUrl() {
+        const url = new URL(window.location.href);
+        url.searchParams.set('case', String(Number(activeCase().number)));
+        window.history.replaceState(window.history.state, '', url);
+      }
 
       function renderInvestigation() {
         const record = activeCase();
@@ -829,8 +842,9 @@
       nextCaseButton.addEventListener('click', () => {
         if (!ownerVerified || !revealed) return;
         loadCase((caseIndex + 1) % CASES.length, true);
+        syncCaseUrl();
       });
-      loadCase(0);
+      loadCase(directCaseIndex >= 0 ? directCaseIndex : 0);
 
       enterButton.addEventListener('click', enterPrototype);
       window.addEventListener('atlas:appearance-change', applyTheme);
