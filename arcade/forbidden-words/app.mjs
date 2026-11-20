@@ -220,6 +220,8 @@ function selectTutorRoom(next) {
   failed = false;
   retryDelay = 650;
   state = null;
+  document.querySelector("#connection-recovery")?.setAttribute("hidden", "");
+  document.body.classList.remove("disconnected");
   lastKey = "";
   lastNonce = null;
   lastPhase = null;
@@ -475,7 +477,8 @@ function updateTutorHeader(s) {
     roundRoot.dataset.round = String(s.round || 1);
   }
   if (utilitiesRoot && utilitiesRoot.innerHTML !== headerUtilities()) {
-    const focusedAction = utilitiesRoot.contains(document.activeElement)
+    const focusedAction = utilitiesRoot.contains(document.activeElement) &&
+      document.activeElement.matches(":focus-visible")
       ? document.activeElement.dataset.action : null;
     utilitiesRoot.innerHTML = headerUtilities();
     if (focusedAction) utilitiesRoot.querySelector(`[data-action="${focusedAction}"]`)?.focus({ preventScroll: true });
@@ -487,7 +490,8 @@ function updateTutorHeader(s) {
       : null;
     const currentAction = pauseRoot.querySelector("[data-action]")?.dataset.action || null;
     if (currentAction !== nextAction) {
-      const focused = pauseRoot.contains(document.activeElement);
+      const focused = pauseRoot.contains(document.activeElement) &&
+        document.activeElement.matches(":focus-visible");
       pauseRoot.innerHTML = headerPause(s);
       if (focused) pauseRoot.querySelector("button")?.focus({ preventScroll: true });
     }
@@ -572,7 +576,7 @@ function board(s) {
     ? `${learner ? "Your tutor" : "Your learner"} is away from the game. The clock has stopped, and your progress is safe.`
     : connectionPaused ? "Both players are connected. The clock is safe and ready to resume."
       : "The clock is stopped. Pick up when you’re ready.";
-  return `${learnerHeader(s)}<section class="board"><aside class="deck-area">${deck}<p>${s.remaining} cards in the deck</p></aside>
+  return `${learnerHeader(s)}<section class="board ${describer ? "is-describer" : "is-guesser"}"><aside class="deck-area">${deck}<p>${s.remaining} cards in the deck</p></aside>
     <div class="card-area"><div class="active-card ${s.card?.nonce !== lastNonce ? "dealing" : ""} ${describer ? "face-up" : "face-down"}">${cardFace(s)}</div>
     <div class="role-caption"><p class="eyebrow"><span>TURN ${s.turn} OF 2</span> · ${describer ? "YOU’RE DESCRIBING" : "YOUR PARTNER IS DESCRIBING"}</p><p>${describer ? "Find another way to say it." : "Guess the word out loud."}</p></div></div>
     <aside class="dashboard panel"><div class="timer" role="timer" aria-label="Turn time remaining"><svg viewBox="0 0 220 220" aria-hidden="true"><circle class="timer-track" cx="110" cy="110" r="96"/><circle class="timer-progress" cx="110" cy="110" r="96"/></svg><div><span class="timer-symbol">◴</span><strong id="clock">02:00</strong><span id="timer-label">TIME TO TALK</span></div></div>
@@ -616,7 +620,10 @@ function render() {
     updateControls();
     return;
   }
-  const focused = document.activeElement?.dataset?.action;
+  // Touching a control must not focus a newly-rendered replacement on mobile.
+  // Preserve focus only for keyboard users navigating with focus-visible.
+  const focused = document.activeElement?.matches?.(":focus-visible")
+    ? document.activeElement.dataset?.action : null;
   const reviewOpen = document.querySelector(".review")?.open;
   const previousConnectionOptions = document.querySelector(".connection-options");
   const optionsWereOpen = previousConnectionOptions?.open;
@@ -689,11 +696,14 @@ function render() {
 }
 function updateControls() {
   document.body.classList.toggle("disconnected", failed);
+  const recovery = document.querySelector("#connection-recovery");
+  if (recovery) recovery.hidden = !failed || !state || state.phase === "finished";
   for (const el of document.querySelectorAll(
     '[data-action="correct"],[data-action="skip"],[data-action="oops"]',
   )) {
     el.disabled =
       busy ||
+      !!pending ||
       failed ||
       state?.phase !== "active" ||
       !!state?.paused ||
@@ -705,10 +715,10 @@ function updateControls() {
     '[data-action="start"],[data-action="replay"],[data-action="ready"],[data-action="late-correct"],[data-action="finish"],[data-action="replace-learner"],[data-action="resume"]',
   )) {
     if (["finish", "replace-learner", "resume"].includes(el.dataset.action))
-      el.disabled = busy || failed ||
+      el.disabled = busy || !!pending || failed ||
         (el.dataset.action === "resume" &&
           (!state?.connected?.tutor || !state?.connected?.learner));
-    else if (busy) el.disabled = true;
+    else if (busy || pending) el.disabled = true;
   }
   const partnerDisconnected =
     state &&
@@ -876,6 +886,19 @@ async function act(action) {
     }
     return;
   }
+  // A visible recovery action is essential on mobile: a stalled socket
+  // otherwise leaves all of the game's buttons disabled without an escape.
+  if (action === "reconnect") {
+    if (liveMode) {
+      if (!liveClient) return boot();
+      liveClient.suspend();
+      liveClient.resume();
+    } else {
+      clearTimeout(pollTimer);
+      return poll();
+    }
+    return;
+  }
   if (action === "sign-in")
     return window.ArcadePublicAccess.requestGameAccess(
       "arcade:forbidden-words",
@@ -903,13 +926,15 @@ async function act(action) {
     if (pending) return sendPending();
     return boot();
   }
+  // Never overwrite a command whose acknowledgement may have been lost.
+  if (pending) return;
   if (action === "replace-learner") {
     if (!(await confirmLearnerReplacement())) return;
-    if (busy) return;
+    if (busy || pending) return;
   }
   if (action === "finish") {
     if (learner || !(await confirmEndGame())) return;
-    if (busy) return;
+    if (busy || pending) return;
   }
   pending = {
     action,
@@ -934,6 +959,7 @@ async function sendPending() {
     );
     if (pendingEpoch !== roomEpoch) return;
     pending = null;
+    if (liveMode && liveClient?.connected) failed = false;
     if (operation.action === "replace-learner") replacementInvite = state?.invite || null;
     notify(
       operation.action === "replace-learner"
@@ -980,6 +1006,8 @@ function showEntryError(error) {
         ? "This invitation can no longer be used. Ask your tutor to reset the invitation and send a new link."
         : error.message;
   state = null;
+  document.querySelector("#connection-recovery")?.setAttribute("hidden", "");
+  document.body.classList.remove("disconnected");
   lastKey = "";
   lastNonce = null;
   pending = null;
@@ -1032,7 +1060,8 @@ function receiveLiveState(frame, epoch, selectedSession) {
   }
   offset = next.serverNow - Date.now();
   lastSync = Date.now();
-  failed = false;
+  // A state push is not an acknowledgement of the pending action.
+  failed = !!pending && !busy;
   if (!state || next.revision >= state.revision) {
     state = next;
     render();
@@ -1062,9 +1091,14 @@ async function startLiveRoom(epoch) {
       if (epoch !== roomEpoch || selectedSession !== session) return;
       lastSync = Date.now();
       if (typeof serverNow === "number") offset = serverNow - Date.now();
-      // A healthy reply must clear a stale warning after a background tab
-      // wakes up; otherwise controls can remain disabled indefinitely.
-      if (failed && liveClient?.connected) {
+      // A heartbeat proves the socket works, not that the last command
+      // succeeded. Retry the same stable ID before unlocking controls.
+      if (pending && !busy && liveClient?.connected) {
+        void sendPending();
+        return;
+      }
+      // A healthy reply clears stale warnings only when no action is uncertain.
+      if (failed && !pending && liveClient?.connected) {
         failed = false;
         notify("");
         if (state) updateControls();

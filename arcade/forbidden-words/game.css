@@ -3232,3 +3232,119 @@ html[data-theme="night"] #landing-chrome {
 }
 
 .arcade-game-chrome-game-menu .sound-button .utility-label { grid-column: 1 / -1; }
+
+
+/* Mobile recovery: paused games must never strand their actions outside the
+   viewport, even on short screens or with the browser toolbar visible. */
+@media (max-width: 760px) {
+  .pause-overlay {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: max(16px, env(safe-area-inset-top)) 16px
+      max(16px, env(safe-area-inset-bottom));
+  }
+  .pause-overlay > .panel {
+    width: 100%;
+    margin: auto;
+  }
+  .switch-actions {
+    flex-wrap: wrap;
+  }
+  #app button,
+  #connection-recovery button {
+    touch-action: manipulation;
+  }
+}
+@media (max-width: 480px) {
+  .pause-overlay .panel {
+    padding: 24px 18px;
+  }
+  .pause-invitation {
+    margin-top: 16px;
+  }
+}
+
+#connection-recovery[hidden] {
+  display: none !important;
+}
+#connection-recovery {
+  position: fixed;
+  z-index: 150;
+  left: 50%;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: max-content;
+  max-width: calc(100vw - 24px);
+  padding: 13px 15px;
+  border: 1px solid #7e9ebc;
+  border-radius: 15px;
+  background: #153751;
+  color: #fff;
+  box-shadow: 0 10px 35px #0b24445c;
+  font-size: 13px;
+  line-height: 1.35;
+}
+#connection-recovery button {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: #fff;
+  color: #153751;
+  font: 700 13px/1.2 "DM Sans", Arial, sans-serif;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+#connection-recovery button:focus-visible {
+  outline: 3px solid #8bcaff;
+  outline-offset: 3px;
+}
+body.disconnected #notice {
+  display: none;
+}
+@media (max-width: 380px) {
+  #connection-recovery {
+    width: calc(100vw - 24px);
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+
+/* A two-minute game should never require scrolling to press Correct or Skip.
+   Keep these actions reachable above the phone's system gesture area. */
+@media (max-width: 480px) {
+  .board.is-describer {
+    padding-bottom: 174px;
+  }
+  .board.is-describer .resolutions {
+    position: fixed;
+    z-index: 3;
+    inset-inline: 0;
+    bottom: 0;
+    width: min(100%, 480px);
+    max-width: none;
+    margin: 0 auto;
+    padding: 10px 16px max(12px, env(safe-area-inset-bottom));
+    border-top: 1px solid #c9daec;
+    border-radius: 18px 18px 0 0;
+    background: #e8f3fbea;
+    box-shadow: 0 -8px 28px #1a477a20;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  html[data-theme="night"] .board.is-describer .resolutions {
+    border-top-color: #42607c;
+    background: #13253ceF;
+    box-shadow: 0 -8px 28px #0006;
+  }
+}
