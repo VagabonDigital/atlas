@@ -703,6 +703,7 @@ function updateControls() {
   )) {
     el.disabled =
       busy ||
+      !!pending ||
       failed ||
       state?.phase !== "active" ||
       !!state?.paused ||
@@ -714,10 +715,10 @@ function updateControls() {
     '[data-action="start"],[data-action="replay"],[data-action="ready"],[data-action="late-correct"],[data-action="finish"],[data-action="replace-learner"],[data-action="resume"]',
   )) {
     if (["finish", "replace-learner", "resume"].includes(el.dataset.action))
-      el.disabled = busy || failed ||
+      el.disabled = busy || !!pending || failed ||
         (el.dataset.action === "resume" &&
           (!state?.connected?.tutor || !state?.connected?.learner));
-    else if (busy) el.disabled = true;
+    else if (busy || pending) el.disabled = true;
   }
   const partnerDisconnected =
     state &&
@@ -925,13 +926,15 @@ async function act(action) {
     if (pending) return sendPending();
     return boot();
   }
+  // Never overwrite a command whose acknowledgement may have been lost.
+  if (pending) return;
   if (action === "replace-learner") {
     if (!(await confirmLearnerReplacement())) return;
-    if (busy) return;
+    if (busy || pending) return;
   }
   if (action === "finish") {
     if (learner || !(await confirmEndGame())) return;
-    if (busy) return;
+    if (busy || pending) return;
   }
   pending = {
     action,
@@ -956,6 +959,7 @@ async function sendPending() {
     );
     if (pendingEpoch !== roomEpoch) return;
     pending = null;
+    if (liveMode && liveClient?.connected) failed = false;
     if (operation.action === "replace-learner") replacementInvite = state?.invite || null;
     notify(
       operation.action === "replace-learner"
@@ -1056,7 +1060,8 @@ function receiveLiveState(frame, epoch, selectedSession) {
   }
   offset = next.serverNow - Date.now();
   lastSync = Date.now();
-  failed = false;
+  // A state push is not an acknowledgement of the pending action.
+  failed = !!pending && !busy;
   if (!state || next.revision >= state.revision) {
     state = next;
     render();
@@ -1086,9 +1091,14 @@ async function startLiveRoom(epoch) {
       if (epoch !== roomEpoch || selectedSession !== session) return;
       lastSync = Date.now();
       if (typeof serverNow === "number") offset = serverNow - Date.now();
-      // A healthy reply must clear a stale warning after a background tab
-      // wakes up; otherwise controls can remain disabled indefinitely.
-      if (failed && liveClient?.connected) {
+      // A heartbeat proves the socket works, not that the last command
+      // succeeded. Retry the same stable ID before unlocking controls.
+      if (pending && !busy && liveClient?.connected) {
+        void sendPending();
+        return;
+      }
+      // A healthy reply clears stale warnings only when no action is uncertain.
+      if (failed && !pending && liveClient?.connected) {
         failed = false;
         notify("");
         if (state) updateControls();
