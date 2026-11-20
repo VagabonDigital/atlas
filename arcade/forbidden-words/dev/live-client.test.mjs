@@ -318,3 +318,68 @@ try {
   globalThis.setInterval = realInterval;
   Date.now = realNow;
 }
+
+// A lost acknowledgement is not resolved by a state push or heartbeat.
+// Exercise the actual app functions to ensure a subsequent tap cannot
+// replace the original command ID before the server confirms it.
+{
+  const app = fs.readFileSync(new URL("../app.mjs", import.meta.url), "utf8");
+  const section = (start, end) => app.slice(app.indexOf(start), app.indexOf(end));
+  const functions = [
+    section("function updateControls()", "let lastCount;"),
+    section("async function act(action)", "function schedulePoll()"),
+    section("function receiveLiveState(", "async function boot()"),
+  ].join("\n");
+  await vm.runInNewContext(`(async () => {
+    let state = { phase: "active", connected: { tutor: true, learner: true },
+      deadline: Date.now() + 60000, card: { nonce: "card-1" },
+      round: 1, turn: 1, revision: 1 };
+    let pending = null, busy = false, failed = false, liveMode = true,
+      learner = true, roomEpoch = 0, session = "room", offset = 0,
+      lastSync = 0, lastKey = "", liveClient, LOCAL = false, API = "fake",
+      credential = "credential", invite = "invite", gameLearnerId = "learner";
+    const button = { disabled: false }, recovery = { hidden: true }, notice = { textContent: "" };
+    const document = {
+      body: { classList: { toggle() {} } },
+      querySelector: s => s === "#connection-recovery" ? recovery : notice,
+      querySelectorAll: s => s.includes('data-action="correct"') ? [button] : [],
+    };
+    let ids = [], reject = true, seq = 0;
+    const uuid = () => String(++seq);
+    function unlockSound() {}
+    function notify(msg) { notice.textContent = msg; }
+    function schedulePoll() {}
+    function render() { updateControls(); }
+    function applyGameTheme() {}
+    function stopLive() {}
+    function tutorTheme() { return "light"; }
+    function syncAtlasContinuity() {}
+    class RoomChanged extends Error {}
+    async function request(action, extra, id) {
+      ids.push([action, extra.card, id]);
+      if (reject) { reject = false; throw Error("ack lost"); }
+    }
+    class ForbiddenWordsLiveClient {
+      constructor(options) { this.options = options; this.connected = true; }
+      connect() {}
+    }
+    ${functions}
+    await startLiveRoom(0);
+    await act("correct");
+    assert.equal(button.disabled, true);
+    assert.equal(recovery.hidden, false);
+    liveClient.options.onState({ state: { ...state, card: { nonce: "card-2" },
+      revision: 2, serverNow: Date.now() } });
+    assert.equal(button.disabled, true, "State pushes cannot resolve a lost acknowledgement");
+    liveClient.options.onHeartbeat(Date.now());
+    assert.equal(button.disabled, true, "Controls must remain locked during retry");
+    await act("skip");
+    await Promise.resolve();
+    assert.equal(JSON.stringify(ids), JSON.stringify([
+      ["correct", "card-1", "1"], ["correct", "card-1", "1"],
+    ]), "Retry must keep the action, card and command ID");
+    assert.equal(pending, null);
+    assert.equal(button.disabled, false);
+  })()`, { assert });
+  console.log("Forbidden Words lost acknowledgement: pending action survives state updates and retries on heartbeat.");
+}
