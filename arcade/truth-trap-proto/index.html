@@ -961,7 +961,7 @@
           card.querySelector('p').textContent = fact.explanation;
           const links = card.querySelector('.tt-fact-sources');
           links.replaceChildren();
-          links.textContent = fact.sources.length ? '' : 'Source review pending';
+          // Missing external citations are an internal review task, not player-facing copy.
           for (const source of fact.sources) {
             const link = document.createElement('a');
             link.href = source.url;

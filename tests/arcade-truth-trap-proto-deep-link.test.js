@@ -83,6 +83,12 @@ async function boot(query, isOwner = true) {
     assert.match(number, new RegExp('^Case ' + String(i).padStart(2, '0') + ' /'));
     assert.equal(number.includes('Review draft'), false);
     const original = canonicalCases[i - 1];
+    for (const card of game.factCards) {
+      const links = card.querySelector('.tt-fact-sources');
+      assert.notEqual(links.textContent, 'Source review pending',
+        'Internal source-review placeholders must never appear to players.');
+    }
+
     const heading = game.document.querySelector('.tt-case-heading h1').textContent;
     assert.equal(heading, original.title, 'The original case order and titles must remain unchanged.');
     assert.ok(!headings.has(heading), 'Case headings must be unique.');
@@ -125,6 +131,15 @@ async function boot(query, isOwner = true) {
   const unmatched = await boot('?case=15');
   assert.equal(unmatched.exhibits[0].querySelector('.tt-art-placeholder').hidden, false,
     'Unillustrated original claims must not inherit unrelated artwork.');
+
+  const citedCase = await boot('?case=2');
+  assert.ok(citedCase.factCards[1].querySelector('.tt-fact-sources').textContent === '',
+    'Cited exhibits should not contain source-review placeholder text.');
+  const noCitationCase = await boot('?case=1');
+  for (const card of noCitationCase.factCards) {
+    assert.equal(card.querySelector('.tt-fact-sources').textContent, '',
+      'Uncited exhibits should have an empty source area.');
+  }
 
   const nonOwner = await boot('?case=4', false);
   assert.equal(nonOwner.workspace.hidden, true);
