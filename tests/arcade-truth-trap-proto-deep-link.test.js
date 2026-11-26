@@ -10,6 +10,15 @@ const sessionPanelIndex = html.indexOf('shared/atlas-session-panel.css');
 assert.ok(modalThemeIndex >= 0 && sessionPanelIndex > modalThemeIndex,
   'Truth Trap must load the shared modal theme before the Students panel styles (mobile and desktop).');
 const script = Array.from(html.matchAll(/<script>([\s\S]*?)<\/script>/g)).at(-1)[1];
+const gameChromeConfig = html.match(/ArcadeGameChrome\.mountGame\(\{([\s\S]*?)\}\);/);
+assert.ok(gameChromeConfig, 'Prototype must mount the shared in-game chrome.');
+assert.match(gameChromeConfig[1], /appearance: true/,
+  'Day/night control remains available inside the game.');
+assert.doesNotMatch(gameChromeConfig[1], /session:\s*true/,
+  'Session changes belong on the cover, not the in-game header.');
+assert.match(html, /ArcadeGameChrome\.mountLanding\(\{ root: '#opening' \}\)/,
+  'The cover must retain the shared Students control.');
+
 
 const canonicalHtml = fs.readFileSync('arcade/truth-trap/index.html', 'utf8');
 const canonicalStart = canonicalHtml.indexOf('const CASES = [');
