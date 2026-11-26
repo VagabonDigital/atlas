@@ -7,6 +7,17 @@ const vm = require('node:vm');
 const html = fs.readFileSync('arcade/truth-trap-proto/index.html', 'utf8');
 const script = Array.from(html.matchAll(/<script>([\s\S]*?)<\/script>/g)).at(-1)[1];
 
+const canonicalHtml = fs.readFileSync('arcade/truth-trap/index.html', 'utf8');
+const canonicalStart = canonicalHtml.indexOf('const CASES = [');
+const canonicalEnd = canonicalHtml.indexOf('];', canonicalStart) + 2;
+assert.ok(canonicalStart >= 0 && canonicalEnd > canonicalStart, 'Original case bank must exist.');
+const canonicalCases = vm.runInNewContext('(' + canonicalHtml.slice(
+  canonicalStart + 'const CASES = '.length, canonicalEnd
+) + ')');
+assert.equal(canonicalCases.length, 20, 'The original bank contains exactly 20 cases.');
+assert.equal(canonicalCases.filter(record => record.wildcard).length, 1, 'The original has one all-true wildcard.');
+
+
 function node() {
   const children = new Map();
   const events = new Map();
@@ -56,7 +67,7 @@ async function boot(query, isOwner = true) {
   const direct = await boot('?case=4&keep=yes#test');
   assert.equal(direct.workspace.hidden, false);
   assert.equal(direct.cover.hidden, true);
-  assert.equal(direct.document.querySelector('.tt-case-heading h1').textContent, 'Your Brain Is Bluffing');
+  assert.equal(direct.document.querySelector('.tt-case-heading h1').textContent, 'Reality Needs Better Writing');
   direct.exhibits[0].click();
   direct.document.getElementById('tt-accuse').click();
   direct.document.getElementById('tt-next-case').click();
@@ -70,24 +81,50 @@ async function boot(query, isOwner = true) {
     assert.equal(game.workspace.hidden, false);
     const number = game.document.querySelector('.tt-case-number').textContent;
     assert.match(number, new RegExp('^Case ' + String(i).padStart(2, '0') + ' /'));
-    assert.equal(number.includes('Review draft'), i > 5);
+    assert.equal(number.includes('Review draft'), false);
+    const original = canonicalCases[i - 1];
     const heading = game.document.querySelector('.tt-case-heading h1').textContent;
-    assert.ok(heading && !headings.has(heading), 'Case headings must be non-empty and unique.');
+    assert.equal(heading, original.title, 'The original case order and titles must remain unchanged.');
+    assert.ok(!headings.has(heading), 'Case headings must be unique.');
     headings.add(heading);
-    for (const exhibit of game.exhibits) assert.ok(exhibit.querySelector('.tt-exhibit-claim').textContent);
-    const lies = game.factCards.filter(card => card.querySelector('.tt-fact-heading').textContent.endsWith('The Lie'));
-    assert.equal(lies.length, 1, 'Every case must have exactly one lie.');
-    for (const card of game.factCards) {
-      assert.ok(card.querySelector('p').textContent);
-      assert.equal(card.querySelector('.tt-fact-sources').textContent, i > 5 ? 'Source review pending' : '');
+    assert.equal(game.document.querySelector('.tt-discuss p:last-child').textContent, original.discussion,
+      'Original discussion text must be preserved.');
+    for (const [index, letter] of ['A', 'B', 'C'].entries()) {
+      assert.equal(game.exhibits[index].querySelector('.tt-exhibit-claim').textContent, original[letter].text,
+        'Original claims must be preserved exactly, in their original A/B/C positions.');
+      const expectedInfo = original[letter].info
+        .replace(/^<strong>[^<]*<\/strong>\s*/, '')
+        .replace(/<[^>]+>/g, '');
+      assert.equal(game.factCards[index].querySelector('p').textContent, expectedInfo,
+        'Original factual explanations must be preserved apart from markup and redundant verdict labels.');
+      const expectedVerdict = original.wildcard || letter !== original.lie ? 'True' : 'The Lie';
+      assert.equal(game.factCards[index].querySelector('.tt-fact-heading').textContent,
+        letter + ' / ' + expectedVerdict, 'Original lie positions and wildcard semantics must be preserved.');
     }
-    const lie = lies[0].querySelector('.tt-fact-heading').textContent[0];
-    game.exhibits.find(exhibit => exhibit.dataset.choice === lie).click();
+    const lies = game.factCards.filter(card => card.querySelector('.tt-fact-heading').textContent.endsWith('The Lie'));
+    assert.equal(lies.length, original.wildcard ? 0 : 1,
+      'Only the original wildcard may have zero lies.');
+    const pick = original.wildcard ? 'A' : original.lie;
+    game.exhibits.find(exhibit => exhibit.dataset.choice === pick).click();
     game.document.getElementById('tt-accuse').click();
-    assert.equal(game.document.getElementById('tt-result-title').textContent, 'Case cracked. You found the lie.');
+    assert.equal(game.document.getElementById('tt-result-title').textContent,
+      original.wildcard ? 'Plot twist. All three were true.' : 'Case cracked. You found the lie.');
     game.document.getElementById('tt-next-case').click();
     assert.equal(game.window.location.searchParams.get('case'), String(i === 20 ? 1 : i + 1));
   }
+
+  const venus = await boot('?case=1');
+  assert.match(venus.exhibits[0].querySelector('.tt-art-image').style.backgroundImage, /case-06-a-earth-from-moon\.webp/,
+    'Venus artwork must follow its original case.');
+  const humans = await boot('?case=9');
+  assert.match(humans.exhibits[2].querySelector('.tt-art-image').style.backgroundImage, /case-11-c-bone\.webp/,
+    'The bone illustration belongs with the original human-body case.');
+  const natureWildcard = await boot('?case=7');
+  assert.equal(natureWildcard.exhibits[2].querySelector('.tt-art-placeholder').hidden, true,
+    'The original octopus illustration must follow its all-true claim.');
+  const unmatched = await boot('?case=15');
+  assert.equal(unmatched.exhibits[0].querySelector('.tt-art-placeholder').hidden, false,
+    'Unillustrated original claims must not inherit unrelated artwork.');
 
   const nonOwner = await boot('?case=4', false);
   assert.equal(nonOwner.workspace.hidden, true);
@@ -102,5 +139,5 @@ async function boot(query, isOwner = true) {
     assert.equal(normal.workspace.hidden, false);
     assert.equal(normal.window.location.searchParams.get('case'), '1');
   }
-  console.log('Truth Trap prototype: all 20 case links, single-lie reveals, review state, navigation and owner gate verified.');
+  console.log('Truth Trap prototype: canonical 20-case order, exact wording, evidence, discussions, original lie positions and wildcard, navigation, artwork and owner gate verified.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

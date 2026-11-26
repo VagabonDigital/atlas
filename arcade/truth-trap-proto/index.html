@@ -505,283 +505,353 @@
         }, 400);
       }
 
-      // Case content lives with its game. More cases reuse this exact stage,
-      // choice/reveal behaviour and evidence layout, not a new Arcade engine.
-      // Cases 01–05 are source-reviewed. The remaining migrated cases are
-      // playable review drafts until their evidence and illustrations are approved.
-      function draftCase(number, heading, lie, exhibits, discussion, artwork = {}) {
+      // The original Truth Trap bank is the canonical source for order, claims,
+      // answers, wildcard semantics, evidence and discussion. Never silently
+      // reauthor it during a presentation redesign. The source-contract test
+      // compares this verbatim bank with arcade/truth-trap/index.html.
+      const ORIGINAL_CASES = [
+      {
+        title: 'Venus Makes No Sense',
+        A: { text: 'The Moon is slowly getting closer to Earth.', info: '<strong>False — The Lie.</strong> The Moon is actually drifting <em>away</em> from Earth at about 3.8 cm per year, pushed by tidal forces.' },
+        B: { text: 'There is a planet so hot it can melt metal.', info: '<strong>True.</strong> Venus reaches average surface temperatures of around 465 °C — easily hot enough to melt lead, tin, and zinc.' },
+        C: { text: 'A day on Venus is longer than a year on Venus.', info: '<strong>True.</strong> Venus rotates so slowly that one full rotation takes 243 Earth days, but it orbits the Sun in just 225 Earth days.' },
+        lie: 'A', wildcard: false,
+        discussion: 'If you lived on Venus, one single "day" would outlast an entire orbit around the Sun. How would that change the way you think about time and daily life?'
+      },
+      {
+        title: 'History Is Bad at Timing',
+        A: { text: 'Cleopatra lived closer in time to the Moon landing than to the building of the pyramids.', info: '<strong>True.</strong> The Great Pyramid was built around 2560 BC. Cleopatra died in 30 BC — about 2,530 years after the pyramids. The Moon landing was 1969 AD — only about 2,000 years after Cleopatra.' },
+        B: { text: 'Napoleon was unusually short for his time.', info: '<strong>False — The Lie.</strong> Napoleon stood around 5 ft 7 in (170 cm), which was average to slightly above average for a French man of his era. The myth came partly from British propaganda.' },
+        C: { text: 'Oxford University is older than the Aztec Empire.', info: '<strong>True.</strong> Teaching began at Oxford around 1096–1167 AD. The Aztec Empire was not founded until around 1428 AD — making Oxford more than 250 years older.' },
+        lie: 'B', wildcard: false,
+        discussion: 'What other historical "facts" do you believe that might actually be myths or exaggerations? How do false stories about famous people spread?'
+      },
+      {
+        title: 'Your Body Has Secrets',
+        A: { text: 'Your stomach lining replaces itself very quickly.', info: '<strong>True.</strong> The stomach lining regenerates approximately every 3–5 days — essential because the stomach produces acids strong enough to dissolve metal.' },
+        B: { text: 'Your fingerprints slowly change as you get older.', info: '<strong>False — The Lie.</strong> Fingerprints form before birth and stay stable throughout your life. They do not drift or change with age.' },
+        C: { text: 'You are usually a little taller in the morning.', info: '<strong>True.</strong> Gravity compresses the cartilage between spinal discs during the day. While you sleep horizontally, it rehydrates. Most people are 1–2 cm taller in the morning.' },
+        lie: 'B', wildcard: false,
+        discussion: 'Which of these facts about your own body do you find most surprising or unsettling? Is there anything about the human body that still genuinely shocks you?'
+      },
+      {
+        title: 'Reality Needs Better Writing',
+        A: { text: 'Bananas are naturally a little radioactive.', info: '<strong>True.</strong> Bananas contain potassium-40, a naturally radioactive isotope. The amount is vanishingly small and harmless.' },
+        B: { text: 'Sloths can hold their breath longer than dolphins.', info: '<strong>True.</strong> Sloths can dramatically slow their metabolism and heart rate, holding their breath for up to 40 minutes. Dolphins typically manage 8–15 minutes.' },
+        C: { text: 'Lightning never strikes the same place twice.', info: '<strong>False — The Lie.</strong> Lightning absolutely can and does strike the same place multiple times. The Empire State Building is struck around 20–25 times per year.' },
+        lie: 'C', wildcard: false,
+        discussion: 'Which of the true statements here would you most struggle to convince your friends is real? How would you go about proving it?'
+      },
+      {
+        title: 'The Ocean Is Not Okay',
+        A: { text: 'Sea stars have no eyes.', info: '<strong>False — The Lie.</strong> Sea stars have a simple light-sensitive eye at the tip of each arm. They use light to navigate and locate coral reef habitats.' },
+        B: { text: 'Some jellyfish can return to an earlier stage of life instead of dying.', info: '<strong>True.</strong> The <em>Turritopsis dohrnii</em> can reverse its ageing process under stress, reverting from adult back to an immature polyp — potentially indefinitely.' },
+        C: { text: 'The deepest part of the ocean is deeper than Mount Everest is tall.', info: '<strong>True.</strong> The Mariana Trench reaches approximately 11 km. Mount Everest stands 8.85 km tall. Drop Everest in and over 2 km of water would cover it.' },
+        lie: 'A', wildcard: false,
+        discussion: 'Would you rather explore the deepest ocean or the deepest reaches of space? What do you think we would find in either place?'
+      },
+      {
+        title: 'Your Brain Is Bluffing',
+        A: { text: 'Your brain can sometimes fill in missing visual information without you noticing.', info: '<strong>True.</strong> You have a blind spot in each eye where the optic nerve connects, yet you never see a hole in your vision — your brain invents what should be there.' },
+        B: { text: 'Your brain itself cannot feel pain.', info: '<strong>True.</strong> The brain has no nociceptors. This is why some brain surgeries can be performed on awake patients. Headaches are caused by pain in surrounding membranes and blood vessels.' },
+        C: { text: 'Humans use exactly 10% of their brains.', info: '<strong>False — The Lie.</strong> Brain scans show that virtually all areas of the brain are active at various points throughout the day. No significant dormant portion has ever been found.' },
+        lie: 'C', wildcard: false,
+        discussion: 'Does knowing your brain invents parts of what you see make you trust your own memories and perceptions less? Can you ever fully trust your senses?'
+      },
+      {
+        title: 'Nature Is Hiding Things',
+        A: { text: 'Polar bears have transparent fur.', info: '<strong>True — Wildcard.</strong> Polar bear fur appears white but each hair shaft is colourless and transparent. The white appearance comes from scattering and reflection of visible light.' },
+        B: { text: 'Sharks existed before trees.', info: '<strong>True — Wildcard.</strong> Sharks have been in Earth\'s oceans for approximately 450 million years. The oldest tree fossils date to around 385 million years ago.' },
+        C: { text: 'Octopuses have three hearts and blue blood.', info: '<strong>True — Wildcard.</strong> Octopuses have three hearts. Their blood is blue because it contains haemocyanin, a copper-based molecule, instead of iron-based haemoglobin.' },
+        lie: null, wildcard: true,
+        discussion: 'All three facts are completely true. Which one was the hardest for you to accept? What does it tell us about how strange the natural world really is?'
+      },
+      {
+        title: 'Earth Plays Dirty',
+        A: { text: 'Antarctica is the largest desert on Earth.', info: '<strong>True.</strong> A desert is defined by its precipitation, not its temperature. Antarctica receives less than 200 mm per year, making it the world\'s largest cold desert at about 14.2 million km².' },
+        B: { text: 'Every volcano is part of a tectonic plate boundary.', info: '<strong>False — The Lie.</strong> "Hotspot" volcanoes — like those forming the Hawaiian Islands — sit in the middle of tectonic plates, thousands of kilometres from any plate boundary.' },
+        C: { text: 'More fresh water is trapped in ice than flows in all rivers and lakes combined.', info: '<strong>True.</strong> About 68.7% of Earth\'s total fresh water is locked in glaciers and ice caps. Rivers and lakes together hold less than 1% of all fresh water on Earth.' },
+        lie: 'B', wildcard: false,
+        discussion: 'How does it change your understanding of a word when you discover its scientific definition is completely different from its everyday meaning?'
+      },
+      {
+        title: 'Humans Are Improvised',
+        A: { text: 'Your heart is on the left side of your chest.', info: '<strong>False — The Lie.</strong> The heart sits in the centre of the chest, slightly angled with its lower tip pointing left. The organ itself is mostly in the middle, behind the sternum.' },
+        B: { text: 'Babies have more bones than adults.', info: '<strong>True.</strong> Babies are born with approximately 270–300 bones, compared to the 206 in adult skeletons. Many smaller bones gradually fuse together over childhood.' },
+        C: { text: 'Your bones are constantly being broken down and rebuilt.', info: '<strong>True.</strong> Osteoclasts continuously break down old bone tissue while osteoblasts build new bone. Your entire skeleton is almost completely replaced approximately every 10 years.' },
+        lie: 'A', wildcard: false,
+        discussion: 'Which of these body facts would surprise your friends most? How would you go about explaining it to someone who didn\'t believe you?'
+      },
+      {
+        title: 'The Universe Is Showing Off',
+        A: { text: 'There are clouds in space made partly of alcohol.', info: '<strong>True.</strong> Vast molecular clouds in interstellar space contain organic compounds including ethyl alcohol. The Sagittarius B2 cloud alone contains an enormous quantity of ethanol.' },
+        B: { text: 'The Sun is yellow in space.', info: '<strong>False — The Lie.</strong> The Sun is actually white in space. It looks yellow or orange from Earth because our atmosphere scatters shorter blue wavelengths — the same process that makes the sky blue.' },
+        C: { text: 'Neutron stars can spin hundreds of times every second.', info: '<strong>True.</strong> The fastest known pulsar rotates 716 times per second. These objects pack roughly the mass of the Sun into a sphere only about 20 km across.' },
+        lie: 'B', wildcard: false,
+        discussion: 'Does knowing the Sun is actually white change how you picture it? What other things in the universe might look completely different from how we imagine them?'
+      },
+      {
+        title: 'Animals Did Not Read the Rules',
+        A: { text: 'Elephants can recognise themselves in mirrors.', info: '<strong>True.</strong> Elephants pass the mirror self-recognition test. They investigate markings on their own bodies that they can only see in the mirror, demonstrating self-awareness.' },
+        B: { text: 'Some birds can sleep while half their brain stays awake.', info: '<strong>True.</strong> Many birds use unihemispheric slow-wave sleep — one hemisphere sleeps while the other stays alert. Swifts can sleep while flying continuously for months.' },
+        C: { text: 'Goldfish have a memory of only a few seconds.', info: '<strong>False — The Lie.</strong> Goldfish have a memory span of at least several months. They can be trained to navigate mazes and associate specific places with food rewards.' },
+        lie: 'C', wildcard: false,
+        discussion: 'If animals are smarter and more self-aware than we traditionally assumed, does that change how we should treat them? Where should we draw the line?'
+      },
+      {
+        title: 'The Past Was Unhinged',
+        A: { text: 'The Great Wall of China can be seen clearly from the Moon.', info: '<strong>False — The Lie.</strong> The Wall is only about 5–9 metres wide — far too narrow to see from the Moon with the naked eye. The myth has been officially debunked.' },
+        B: { text: 'Woolly mammoths were still alive when the Great Pyramid already existed.', info: '<strong>True.</strong> A small isolated population survived on Wrangel Island until about 1650 BC — over 900 years after the pyramids were completed around 2560 BC.' },
+        C: { text: 'Ketchup was once sold as medicine.', info: '<strong>True.</strong> In the early 1800s, tomatoes were believed to have medicinal properties. Tomato ketchup was sold in pill form as a patent medicine from the 1830s onward.' },
+        lie: 'A', wildcard: false,
+        discussion: 'What other things from "ancient history" might have overlapped with events we think of as modern? Can you think of other surprising timeline coincidences?'
+      },
+      {
+        title: 'Science Sounds Made Up',
+        A: { text: 'Sound travels faster in air than in water.', info: '<strong>False — The Lie.</strong> Sound travels much faster in water (around 1,480 m/s) than in air (around 343 m/s). In solid steel, it travels at around 5,000 m/s.' },
+        B: { text: 'Metal can become liquid at room temperature.', info: '<strong>True.</strong> Mercury is a metal that is liquid at room temperature — it melts at −39 °C. Gallium melts at just 29.8 °C, meaning it liquifies in your hand.' },
+        C: { text: 'Hot water can freeze faster than cold water in some situations.', info: '<strong>True.</strong> This is called the Mpemba effect. The precise mechanism is still debated by physicists, but the effect has been reliably observed and documented.' },
+        lie: 'A', wildcard: false,
+        discussion: 'What piece of everyday "common sense" science do you now feel less certain about? Can you think of another fact that sounds like it must be wrong?'
+      },
+      {
+        title: 'Plants Are Not Innocent',
+        A: { text: 'Trees can share nutrients through underground fungal networks.', info: '<strong>True.</strong> Mycorrhizal fungi connect the roots of many trees, forming a vast underground network. Through this, established trees can transfer carbon, water, and nutrients to younger trees.' },
+        B: { text: 'Some plants can count.', info: '<strong>True.</strong> The Venus flytrap counts stimulations. The trap will not snap shut until at least two hairs are triggered within approximately 20 seconds — preventing wasted energy snapping at raindrops.' },
+        C: { text: 'Bamboo flowers every spring.', info: '<strong>False — The Lie.</strong> Bamboo flowers very rarely — different species have cycles of 15–120 years. When a species flowers, virtually all plants of that species worldwide flower simultaneously, then die.' },
+        lie: 'C', wildcard: false,
+        discussion: 'Does the idea of trees communicating and sharing resources through fungi underground change how you think about a forest? Is a forest more like a community than separate trees?'
+      },
+      {
+        title: 'Nature Refuses to Behave',
+        A: { text: 'Some frogs can freeze solid and then survive.', info: '<strong>True.</strong> Wood frogs can survive being almost completely frozen solid in winter — up to 70% of their body water turns to ice. In spring, they thaw and hop away unharmed.' },
+        B: { text: 'Penguins have no knees.', info: '<strong>False — The Lie.</strong> Penguins have perfectly normal knees — a femur, kneecap, tibia, and fibula — but they are hidden inside the body, tucked under feathers and fat.' },
+        C: { text: 'Octopuses can taste with their arms.', info: '<strong>True.</strong> The suckers on an octopus\'s arms contain chemoreceptors, allowing them to simultaneously taste and smell whatever they touch.' },
+        lie: 'B', wildcard: false,
+        discussion: 'If you could safely have one unusual animal ability — freezing and surviving, tasting with your hands, or something else entirely — what would you choose and why?'
+      },
+      {
+        title: 'Cold Changes the Rules',
+        A: { text: 'Some metals can stick together permanently just by touching in space.', info: '<strong>True.</strong> In the vacuum of space, metals can undergo "cold welding" — bonding permanently simply by being pressed into contact. This is a real engineering challenge in spacecraft design.' },
+        B: { text: 'Glass is not a true solid.', info: '<strong>True.</strong> Glass is classified as an amorphous solid — it lacks the regular crystalline structure of a true solid. The non-crystalline nature of glass is real and scientifically established.' },
+        C: { text: 'Ice always sinks in water.', info: '<strong>False — The Lie.</strong> Ice floats. Water is one of the very few substances less dense in solid form than in liquid form. This is why lakes freeze from the surface downwards.' },
+        lie: 'C', wildcard: false,
+        discussion: 'Can you think of another example from everyday life where something that seems obvious turns out to be wrong when you examine it carefully?'
+      },
+      {
+        title: 'Ancient Earth Was Chaos',
+        A: { text: 'Humans lived at the same time as Tyrannosaurus rex.', info: '<strong>False — The Lie.</strong> T. rex went extinct approximately 66 million years ago. Modern humans appeared around 300,000 years ago. The gap is about 65.7 million years.' },
+        B: { text: 'Some dinosaurs had feathers.', info: '<strong>True.</strong> Fossil evidence clearly shows that many theropod dinosaurs had feathers or feather-like structures. Modern birds are classified as a surviving lineage of theropod dinosaurs.' },
+        C: { text: 'Giant dragonflies once existed with wingspans wider than a seagull\'s.', info: '<strong>True.</strong> Meganeura, from the Carboniferous period around 300 million years ago, had wingspans of up to 65–70 cm — comparable to a small seagull.' },
+        lie: 'A', wildcard: false,
+        discussion: 'If you could safely observe any extinct creature in its natural habitat, which would you choose? What do you think would be most surprising about seeing it in real life?'
+      },
+      {
+        title: 'The Planet Has Problems',
+        A: { text: 'There is a place on Earth where the ground has been burning for decades.', info: '<strong>True.</strong> The Centralia underground coal mine fire in Pennsylvania has been burning continuously since 1962 — over 60 years. The town was largely abandoned.' },
+        B: { text: 'Diamonds are made when coal is squeezed for long enough.', info: '<strong>False — The Lie.</strong> Diamonds form from pure carbon under extreme heat and pressure about 150–200 km deep in the mantle — far deeper than coal ever reaches. Most natural diamonds predate coal entirely.' },
+        C: { text: 'Rocks can move across the desert without anyone pushing them.', info: '<strong>True.</strong> The "sailing stones" of Death Valley genuinely do this. Scientists confirmed in 2014 that thin sheets of ice form overnight and allow wind to slowly push the rocks.' },
+        lie: 'B', wildcard: false,
+        discussion: 'If you discovered a rock that had mysteriously moved 200 metres by itself, what would you think? Would you trust the scientific explanation or form your own theory first?'
+      },
+      {
+        title: 'Your Senses Edit Reality',
+        A: { text: 'Your eyes always send perfect information to your brain.', info: '<strong>False — The Lie.</strong> Your visual system is full of gaps and inventions. Each eye has a blind spot, peripheral vision is far less detailed than you perceive, and your brain processes predictions rather than raw data.' },
+        B: { text: 'A sound can seem louder just because you expect it to be.', info: '<strong>True.</strong> Expectations dramatically affect sensory perception. Studies show people consistently rate the same sound as louder when told to expect something loud.' },
+        C: { text: 'You can smell something before you are fully aware that you are smelling it.', info: '<strong>True.</strong> The olfactory system has a more direct pathway to the limbic system than any other sense. You can have an emotional reaction to a smell before conscious recognition reaches awareness.' },
+        lie: 'A', wildcard: false,
+        discussion: 'If your senses are constantly editing and predicting reality rather than faithfully recording it, what does that mean for how much you can trust your own experience?'
+      },
+      {
+        title: 'Animals Are Doing Too Much',
+        A: { text: 'Crows can recognise individual human faces.', info: '<strong>True.</strong> Research has demonstrated that crows can distinguish individual human faces, remember them long-term, and communicate this information to other crows.' },
+        B: { text: 'Owls can rotate their heads all the way around.', info: '<strong>False — The Lie.</strong> Owls can rotate their heads approximately 270 degrees — impressive, but not a full 360. They have 14 neck vertebrae and special blood vessel adaptations.' },
+        C: { text: 'Some snakes can sense heat.', info: '<strong>True.</strong> Pit vipers, pythons, and boas have specialised pit organs that detect infrared radiation, giving them the ability to "see" the heat signature of warm-blooded prey in complete darkness.' },
+        lie: 'B', wildcard: false,
+        discussion: 'Crows have been observed teaching their young to recognise and avoid specific humans they perceive as threats. What does it mean if animals can hold grudges and pass them on?'
+      }
+    ];;
+
+      // Existing art follows its subject when the canonical cases move back
+      // into their original order. Never attach an unrelated illustration.
+      const ARTWORK_BY_TITLE = {
+        "Venus Makes No Sense": {
+                "A": "./case-06-a-earth-from-moon.webp",
+                "B": "./case-06-b-venus-lander.webp",
+                "C": "./case-06-c-hourglass.webp"
+        },
+        "History Is Bad at Timing": {
+                "A": "./case-02-a-cleopatra.webp",
+                "B": "./case-02-b-napoleon-alps.webp",
+                "C": "./case-02-c-oxford.webp"
+        },
+        "Your Body Has Secrets": {
+                "A": "./case-07-a-stomach.webp",
+                "B": "./case-07-b-fingerprint.webp",
+                "C": "./case-07-c-morning.webp"
+        },
+        "Reality Needs Better Writing": {
+                "A": "./case-08-a-banana-v4.webp",
+                "B": "./case-08-b-sloth.webp",
+                "C": "./case-08-c-lightning.webp"
+        },
+        "The Ocean Is Not Okay": {
+                "A": "./case-03-a-sea-star.webp",
+                "B": "./case-03-b-jellyfish.webp",
+                "C": "./case-03-c-everest-trench.webp"
+        },
+        "Your Brain Is Bluffing": {
+                "A": "./case-04-a-blind-spot.webp",
+                "B": "./case-04-b-synapse.webp",
+                "C": "./case-04-c-frozen-city.webp"
+        },
+        "Nature Is Hiding Things": {
+                "A": "./case-09-a-polar-bear-v2.webp",
+                "B": "./case-09-b-ancient-shark-v6.webp"
+        },
+        "Earth Plays Dirty": {
+                "A": "./case-10-a-antarctica.webp",
+                "B": "./case-10-b-volcano.webp",
+                "C": "./case-10-c-glacier.webp"
+        },
+        "Humans Are Improvised": {
+                "A": "./case-11-a-heart.webp",
+                "B": "./case-11-b-hands.webp",
+                "C": "./case-11-c-bone.webp"
+        },
+        "The Planet Has Problems": {
+                "A": "./case-05-a-darvaza.webp",
+                "B": "./case-05-b-coal.webp",
+                "C": "./case-05-c-sailing-stones.webp"
+        }
+};
+      // The original demo used crops of the Atlas promotional illustration.
+      const SPRITE_ARTWORK_BY_TITLE = {
+        "Nature Is Hiding Things": {
+                "C": "86% 72%"
+        },
+        "Nature Refuses to Behave": {
+                "B": "14.5% 72%"
+        }
+};
+      const REVIEWED_SOURCES_BY_TITLE = {
+        "History Is Bad at Timing": {
+                "B": [
+                        {
+                                "label": "Fondation Napoléon / Evidence",
+                                "url": "https://www.napoleon.org/en/history-of-the-two-empires/articles/was-napoleon-small"
+                        }
+                ],
+                "C": [
+                        {
+                                "label": "Oxford University / History",
+                                "url": "https://www.ox.ac.uk/about/the-university/history"
+                        },
+                        {
+                                "label": "National Geographic / Aztec History",
+                                "url": "https://education.nationalgeographic.org/resource/aztec-civilization/"
+                        }
+                ]
+        },
+        "The Ocean Is Not Okay": {
+                "A": [
+                        {
+                                "label": "Scientific Reports / Sea-star Vision",
+                                "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5013567/"
+                        }
+                ],
+                "B": [
+                        {
+                                "label": "Natural History Museum / Immortal Jellyfish",
+                                "url": "https://www.nhm.ac.uk/discover/immortal-jellyfish-secret-to-cheating-death.html"
+                        }
+                ],
+                "C": [
+                        {
+                                "label": "NOAA / Ocean Depth",
+                                "url": "https://oceanservice.noaa.gov/facts/oceandepth.html"
+                        },
+                        {
+                                "label": "NASA / Mount Everest",
+                                "url": "https://science.nasa.gov/earth/earth-observatory/close-up-of-mount-everest-149632/"
+                        }
+                ]
+        },
+        "Your Brain Is Bluffing": {
+                "B": [
+                        {
+                                "label": "BrainFacts / Brain and Pain",
+                                "url": "https://www.brainfacts.org/ask-a-neuroscientist/if-the-brain-cant-feel-pain-why-do-i-get-headaches"
+                        }
+                ]
+        },
+        "Nature Refuses to Behave": {
+                "B": [
+                        {
+                                "label": "British Antarctic Survey / Evidence",
+                                "url": "https://www.bas.ac.uk/wp-content/uploads/2015/05/Public-information-leaflet_PENGUINS_2017.pdf"
+                        }
+                ]
+        },
+        "The Planet Has Problems": {
+                "A": [
+                        {
+                                "label": "Geophysical Research Letters / Darvaza Gas Crater",
+                                "url": "https://doi.org/10.1029/2025GL120321"
+                        },
+                        {
+                                "label": "Turkmenistan Oil and Gas / Emission Reductions",
+                                "url": "https://oilgas.gov.tm/en/posts/news/14198/turkmenistans-achievements-in-reducing-methane-emissions-were-"
+                        }
+                ],
+                "B": [
+                        {
+                                "label": "GIA / How Diamonds Form",
+                                "url": "https://www.gia.edu/gems-gemology/winter-2018-how-do-diamonds-form-in-the-deep-earth"
+                        }
+                ],
+                "C": [
+                        {
+                                "label": "National Park Service / Sailing Stones",
+                                "url": "https://www.nps.gov/deva/learn/news/racetrack.htm"
+                        }
+                ]
+        }
+};
+
+      const CASES = ORIGINAL_CASES.map((original, index) => {
         const statements = {};
         const evidence = {};
-        for (const [key, claim, explanation] of exhibits) {
-          statements[key] = claim;
-          evidence[key] = { explanation, sources: [] };
+        for (const key of ['A', 'B', 'C']) {
+          statements[key] = original[key].text;
+          // Only remove presentation markup and the separately displayed
+          // True/Lie prefix; the source explanation remains unchanged.
+          const explanation = original[key].info
+            .replace(/^<strong>[^<]*<\/strong>\s*/, '')
+            .replace(/<[^>]+>/g, '');
+          evidence[key] = {
+            explanation,
+            sources: REVIEWED_SOURCES_BY_TITLE[original.title]?.[key] || []
+          };
         }
+        const wildcard = original.wildcard === true;
         return {
-          number, heading, chapter: 'The Impossible Files', lie,
-          illustrated: false, draft: true, artwork, statements, evidence, discussion,
-          success: 'You identified the lie in exhibit ' + lie + '. Compare your reasoning with the explanations below.',
-          failure: choice => 'You accused exhibit ' + choice + ', but exhibit ' + lie + ' was the lie. Explore the explanations below.'
+          number: String(index + 1).padStart(2, '0'),
+          heading: original.title,
+          chapter: 'The Impossible Files',
+          lie: original.lie,
+          wildcard,
+          illustrated: false,
+          artwork: ARTWORK_BY_TITLE[original.title] || {},
+          artworkPosition: original.title === 'History Is Bad at Timing' ? { B: 'center top' } : {},
+          spriteArtwork: SPRITE_ARTWORK_BY_TITLE[original.title] || {},
+          statements,
+          evidence,
+          discussion: original.discussion,
+          success: 'You identified the lie in exhibit ' + original.lie + '. Explore the evidence below.',
+          failure: choice => 'You accused exhibit ' + choice + ', but exhibit ' + original.lie + ' was the lie. Explore the evidence below.'
         };
-      }
-      const CASES = [
-        {
-          number: '01',
-          heading: 'Nature Refuses to Behave',
-          chapter: 'The Impossible Files',
-          lie: 'A',
-          illustrated: true,
-          statements: {
-            A: 'Penguins have no knees.',
-            B: 'Bananas are berries.',
-            C: 'Octopuses have three hearts.'
-          },
-          evidence: {
-            A: {
-              explanation: 'Penguins have knees! Their upper legs and knee joints are hidden beneath their feathers and body outline.',
-              sources: [{ label: 'British Antarctic Survey / Evidence', url: 'https://www.bas.ac.uk/wp-content/uploads/2015/05/Public-information-leaflet_PENGUINS_2017.pdf' }]
-            },
-            B: {
-              explanation: 'In botanical terms, bananas really are berries. Scientists classify fruits differently from supermarkets.',
-              sources: [{ label: 'Kew Science / Evidence', url: 'https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:584951-1/general-information' }]
-            },
-            C: {
-              explanation: 'Octopuses have three hearts: two pump blood through their gills, and a third pumps it around the body.',
-              sources: [{ label: 'Smithsonian Ocean / Evidence', url: 'https://ocean.si.edu/ocean-life/invertebrates/octopuses-squids-and-relatives' }]
-            }
-          },
-          discussion: 'Which of these would be hardest to convince someone is true — and what evidence would persuade them?',
-          success: 'You accused the penguin claim — correctly. Now uncover the evidence behind all three claims.',
-          failure: choice => 'You accused exhibit ' + choice +
-            ', but penguins really do have knees. Here is what every claim was hiding.'
-        },
-        {
-          number: '02',
-          heading: 'History Is Bad at Timing',
-          chapter: 'The Impossible Files',
-          lie: 'B',
-          illustrated: false,
-          artwork: { A: './case-02-a-cleopatra.webp', B: './case-02-b-napoleon-alps.webp', C: './case-02-c-oxford.webp' },
-          artworkPosition: { B: 'center top' },
-          statements: {
-            A: 'Cleopatra lived closer to the Moon landing than to the building of the Great Pyramid.',
-            B: 'Napoleon was unusually short for his time.',
-            C: 'Oxford University is older than the Aztec Empire.'
-          },
-          evidence: {
-            A: {
-              explanation: 'Cleopatra VII died in 30 BCE. The Great Pyramid was built around 2,500 BCE, while the first Moon landing was in 1969. Cleopatra was roughly 2,000 years from the Moon landing, but about 2,500 from the pyramid.',
-              sources: [
-                { label: 'UCL / Cleopatra VII', url: 'https://www.ucl.ac.uk/museums-static/digitalegypt/chronology/cleopatravii.html' },
-                { label: 'Egyptian Ministry / Great Pyramid', url: 'https://egymonuments.gov.eg/monuments/the-great-pyramid/' },
-                { label: 'NASA / Apollo 11', url: 'https://www.nasa.gov/mission/apollo-11/' }
-              ]
-            },
-            B: {
-              explanation: 'Napoleon was about 1.68 m tall — roughly average for a French man of his era. Old French measurements and British caricatures helped create the myth that he was exceptionally short.',
-              sources: [{ label: 'Fondation Napoléon / Evidence', url: 'https://www.napoleon.org/en/history-of-the-two-empires/articles/was-napoleon-small' }]
-            },
-            C: {
-              explanation: 'Teaching existed at Oxford by 1096. The Aztec Empire emerged with the Triple Alliance in 1428 — more than 300 years later. The Mexica people existed earlier, but their empire came later.',
-              sources: [
-                { label: 'Oxford University / History', url: 'https://www.ox.ac.uk/about/the-university/history' },
-                { label: 'National Geographic / Aztec History', url: 'https://education.nationalgeographic.org/resource/aztec-civilization/' }
-              ]
-            }
-          },
-          discussion: 'Which part of history feels much older — or much more recent — than you expected? Why do our mental timelines get so scrambled?',
-          success: 'You spotted the Napoleon myth. His reputation for being tiny has survived far longer than the facts behind it.',
-          failure: choice => 'You accused exhibit ' + choice +
-            ', but Napoleon was not unusually short for his time. The other timelines really do overlap in surprising ways.'
-        },
-        {
-          number: '03',
-          heading: 'The Ocean Is Not Okay',
-          chapter: 'The Impossible Files',
-          lie: 'A',
-          illustrated: false,
-          artwork: { A: './case-03-a-sea-star.webp', B: './case-03-b-jellyfish.webp', C: './case-03-c-everest-trench.webp' },
-          statements: {
-            A: 'Sea stars have no eyes.',
-            B: 'Some jellyfish can return to an earlier stage of life instead of dying.',
-            C: 'The deepest part of the ocean is deeper than Mount Everest is tall.'
-          },
-          evidence: {
-            A: {
-              explanation: 'Some sea stars have eyes at the tips of their arms. In experiments, crown-of-thorns sea stars could distinguish shapes and use vision to orient themselves towards reef structures. Their sight is nothing like ours — but they can see.',
-              sources: [
-                { label: 'Scientific Reports / Sea-star Vision', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5013567/' }
-              ]
-            },
-            B: {
-              explanation: 'When stressed or injured, the tiny jellyfish Turritopsis dohrnii can reverse its life cycle: an adult can transform back into an earlier polyp stage and grow again. It can still be eaten or die from other causes — it is not invincible.',
-              sources: [
-                { label: 'Natural History Museum / Immortal Jellyfish', url: 'https://www.nhm.ac.uk/discover/immortal-jellyfish-secret-to-cheating-death.html' }
-              ]
-            },
-            C: {
-              explanation: 'Challenger Deep in the Mariana Trench is about 10,935 metres below sea level. Mount Everest rises about 8,848 metres above sea level. The ocean depth exceeds Everest\'s height by more than two kilometres.',
-              sources: [
-                { label: 'NOAA / Ocean Depth', url: 'https://oceanservice.noaa.gov/facts/oceandepth.html' },
-                { label: 'NASA / Mount Everest', url: 'https://science.nasa.gov/earth/earth-observatory/close-up-of-mount-everest-149632/' }
-              ]
-            }
-          },
-          discussion: 'Which would you rather investigate in person: an almost ageless jellyfish, a sea star\'s eyes, or the deepest ocean? What would you hope to discover?',
-          success: 'The sea-star claim was the lie — some really can see. And the other two claims are every bit as extraordinary as they sound.',
-          failure: choice => 'You accused exhibit ' + choice +
-            ', but some sea stars really do have eyes. The other two ocean mysteries are genuine.'
-        },
-        {
-          number: '04',
-          heading: 'Your Brain Is Bluffing',
-          chapter: 'The Impossible Files',
-          lie: 'C',
-          illustrated: false,
-          artwork: { A: './case-04-a-blind-spot.webp', B: './case-04-b-synapse.webp', C: './case-04-c-frozen-city.webp' },
-          statements: {
-            A: 'Each of your eyes has a blind spot — and your brain usually hides it from you.',
-            B: 'Your brain itself cannot feel pain.',
-            C: 'Humans use only 10% of their brains.'
-          },
-          evidence: {
-            A: {
-              explanation: 'Each eye has a blind spot where the optic nerve leaves the retina. Your visual system usually makes the scene appear continuous despite that missing input. You can test the effect yourself by closing one eye and using a blind-spot demonstration.',
-              sources: [
-                { label: 'NIH / Perceptual Filling-in', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC3119792/' }
-              ]
-            },
-            B: {
-              explanation: 'Brain tissue itself has no pain receptors, called nociceptors. The brain processes pain signals from the rest of your body, while structures around it — such as membranes and blood vessels — can cause headaches.',
-              sources: [
-                { label: 'BrainFacts / Brain and Pain', url: 'https://www.brainfacts.org/ask-a-neuroscientist/if-the-brain-cant-feel-pain-why-do-i-get-headaches' }
-              ]
-            },
-            C: {
-              explanation: 'There is no dormant 90% waiting to be unlocked. Different brain regions become more or less active during different tasks, but we use our entire brain across everyday life. The 10% idea is a persistent myth, not a neuroscience finding.',
-              sources: [
-                { label: 'MIT / The 10% Brain Myth', url: 'https://mcgovern.mit.edu/2024/01/26/do-we-use-only-10-percent-of-our-brain/' }
-              ]
-            }
-          },
-          discussion: 'Why is the idea that we use only 10% of our brains so appealing? How would your life change if you could genuinely unlock a hidden ability?',
-          success: 'You caught the 10% brain myth. There is no unused 90% — but the real brain is strange enough without it.',
-          failure: choice => 'You accused exhibit ' + choice +
-            ', but the 10% brain claim is the myth. Your brain does much stranger things than that.'
-        },
-        {
-          number: '05',
-          heading: 'The Planet Has Problems',
-          chapter: 'The Impossible Files',
-          lie: 'B',
-          illustrated: false,
-          artwork: { A: './case-05-a-darvaza.webp', B: './case-05-b-coal.webp', C: './case-05-c-sailing-stones.webp' },
-          statements: {
-            A: 'There is a place on Earth where the ground has been burning for decades.',
-            B: 'Diamonds are made when coal is squeezed for long enough.',
-            C: 'Rocks can move across the desert without anyone pushing them.'
-          },
-          evidence: {
-            A: {
-              explanation: 'The Darvaza gas crater in Turkmenistan\'s Karakum Desert has burned for decades, fuelled by escaping natural gas. A 2026 study of satellite images dates the start of the fire to late 1987 or early 1988. The flames have weakened in recent years as efforts continue to reduce gas emissions.',
-              sources: [
-                { label: 'Geophysical Research Letters / Darvaza Gas Crater', url: 'https://doi.org/10.1029/2025GL120321' },
-                { label: 'Turkmenistan Oil and Gas / Emission Reductions', url: 'https://oilgas.gov.tm/en/posts/news/14198/turkmenistans-achievements-in-reducing-methane-emissions-were-' }
-              ]
-            },
-            B: {
-              explanation: 'Natural diamonds do not form by squeezing coal. Most form much deeper in Earth\'s mantle, from carbon carried in fluids or melts under enormous pressure and heat. Coal is found in the crust, far above the usual diamond-forming conditions.',
-              sources: [
-                { label: 'GIA / How Diamonds Form', url: 'https://www.gia.edu/gems-gemology/winter-2018-how-do-diamonds-form-in-the-deep-earth' }
-              ]
-            },
-            C: {
-              explanation: 'At Death Valley\'s Racetrack Playa, stones really do slide across a dry lakebed and leave long tracks. Researchers watched it happen: shallow water froze into thin floating ice sheets, and light winds pushed the ice against the rocks.',
-              sources: [
-                { label: 'National Park Service / Sailing Stones', url: 'https://www.nps.gov/deva/learn/news/racetrack.htm' }
-              ]
-            }
-          },
-          discussion: 'If you found a rock that had mysteriously moved across the desert, what explanation would you invent first? How could you test your theory?',
-          success: 'You rejected the coal-to-diamond story. The burning ground and travelling rocks, however, are completely real.',
-          failure: choice => 'You accused exhibit ' + choice +
-            ', but the coal-to-diamond story was the lie. Burning ground and moving rocks both exist.'
-        },
-        draftCase('06', 'Venus Makes No Sense', 'A', [
-          ['A', 'The Moon is slowly getting closer to Earth.', 'The Moon is actually receding from Earth by about 3.8 centimetres each year as tidal interactions transfer angular momentum.'],
-          ['B', 'Venus is hot enough to melt lead.', 'The surface of Venus is roughly 465°C, above the melting point of lead. Its dense atmosphere traps heat.'],
-          ['C', 'Venus takes longer to rotate once than to orbit the Sun.', 'Venus takes about 243 Earth days to rotate once relative to the stars, but only about 225 days to orbit the Sun.']
-        ], 'If you lived on a planet where one rotation lasted longer than a year, how might you organise everyday life?', { A: './case-06-a-earth-from-moon.webp', B: './case-06-b-venus-lander.webp', C: './case-06-c-hourglass.webp' }),
-        draftCase('07', 'Your Body Has Secrets', 'B', [
-          ['A', 'Cells lining your stomach are replaced within days.', 'Many surface cells in the stomach lining are renewed rapidly, helping maintain the barrier against digestive acid.'],
-          ['B', 'Your fingerprint patterns naturally change into different patterns as you age.', 'The basic fingerprint ridge pattern persists throughout life, although injuries, skin conditions and ageing may change its appearance.'],
-          ['C', 'You are usually slightly taller in the morning.', 'Spinal discs tend to lose fluid under pressure during the day and recover fluid while you lie down, making your height vary slightly.']
-        ], 'Which of these makes your own body seem most surprising? What else would you like to understand about it?', { A: './case-07-a-stomach.webp', B: './case-07-b-fingerprint.webp', C: './case-07-c-morning.webp' }),
-        draftCase('08', 'Reality Needs Better Writing', 'C', [
-          ['A', 'Bananas are naturally a little radioactive.', 'Bananas contain potassium, including a small proportion of naturally radioactive potassium-40. The radiation from an ordinary banana is negligible.'],
-          ['B', 'Sloths can hold their breath underwater for surprisingly long periods.', 'Sloths can slow their heart rate and metabolism, helping them conserve oxygen while submerged.'],
-          ['C', 'Lightning never strikes the same place twice.', 'Lightning can repeatedly strike the same location. Tall buildings and exposed structures are particularly likely to be struck multiple times.']
-        ], 'Which claim would you find hardest to explain convincingly to a sceptical friend?', { A: './case-08-a-banana-v4.webp', B: './case-08-b-sloth.webp', C: './case-08-c-lightning.webp' }),
-        draftCase('09', 'Nature Is Hiding Things', 'C', [
-          ['A', 'Individual hairs on a polar bear are colourless.', 'Polar bear fur appears white because the effectively colourless hairs scatter visible light.'],
-          ['B', 'Shark ancestors existed before the earliest trees.', 'The evolutionary lineage of sharks dates back hundreds of millions of years, before the earliest known trees.'],
-          ['C', 'A chameleon can change into any colour to match its surroundings.', 'Chameleons have a limited range of colour changes. Colour also plays an important role in communication and temperature regulation; they cannot imitate arbitrary backgrounds.']
-        ], 'If you could acquire one of these animals’ genuine adaptations, which would you choose and why?', { A: './case-09-a-polar-bear-v2.webp', B: './case-09-b-ancient-shark-v6.webp', C: './case-09-c-chameleon-v2.webp' }),
-        draftCase('10', 'Earth Plays Dirty', 'B', [
-          ['A', 'Antarctica is the largest desert on Earth.', 'The definition of a desert is based on low precipitation rather than heat. Antarctica is an enormous cold desert.'],
-          ['B', 'Every volcano lies on a tectonic plate boundary.', 'Some volcanoes form above hotspots within tectonic plates. The Hawaiian Islands are a familiar example.'],
-          ['C', 'Far more of Earth’s fresh water is stored in ice than in rivers and lakes.', 'Glaciers and ice caps contain the majority of Earth’s fresh water. Rivers and freshwater lakes contain a much smaller fraction.']
-        ], 'How does discovering the scientific meaning of a familiar word change the way you see the world?', { A: './case-10-a-antarctica.webp', B: './case-10-b-volcano.webp', C: './case-10-c-glacier.webp' }),
-        draftCase('11', 'Humans Are Improvised', 'A', [
-          ['A', 'The human heart is located entirely on the left side of the chest.', 'The heart sits near the centre of the chest behind the sternum, extending more to the left than to the right.'],
-          ['B', 'Babies have more bones than adults.', 'Some bones are separate in infancy and fuse as children grow, so the number of separate bones decreases.'],
-          ['C', 'Your bones are constantly being broken down and rebuilt.', 'Bone is living tissue. Cells called osteoclasts remove old bone, while osteoblasts form new bone.']
-        ], 'If you were designing the human body from scratch, what would you change first?', { A: './case-11-a-heart.webp', B: './case-11-b-hands.webp', C: './case-11-c-bone.webp' }),
-        draftCase('12', 'The Universe Is Showing Off', 'B', [
-          ['A', 'Alcohol molecules have been detected in clouds in space.', 'Astronomers have identified ethanol and other alcohol molecules in interstellar clouds through their characteristic spectral signatures.'],
-          ['B', 'The Sun would look distinctly yellow from space.', 'Outside Earth’s atmosphere, sunlight appears essentially white to human eyes. Atmospheric scattering contributes to the familiar yellow or orange appearance.'],
-          ['C', 'Some neutron stars spin hundreds of times per second.', 'Rapidly rotating neutron stars called millisecond pulsars can spin hundreds of times each second.']
-        ], 'Which cosmic fact changes your mental picture of the universe most, and why?'),
-        draftCase('13', 'Animals Did Not Read the Rules', 'C', [
-          ['A', 'Some elephants have recognised themselves in mirrors.', 'In mirror self-recognition experiments, some elephants investigated marks on their own bodies that were visible only in a mirror.'],
-          ['B', 'Some birds can sleep with one half of their brains awake.', 'Certain birds exhibit unihemispheric sleep, in which one hemisphere remains more alert while the other rests.'],
-          ['C', 'Goldfish forget everything after a few seconds.', 'Goldfish can learn associations and retain information far longer than a few seconds.']
-        ], 'What evidence would persuade you that an animal is genuinely self-aware?'),
-        draftCase('14', 'The Past Was Unhinged', 'A', [
-          ['A', 'You can clearly see the Great Wall of China from the Moon with the naked eye.', 'The Great Wall is much too narrow to distinguish from lunar distance without optical aid.'],
-          ['B', 'Some woolly mammoths were still alive after the Great Pyramid was built.', 'An isolated woolly mammoth population survived on Wrangel Island thousands of years after mainland populations disappeared, until after the pyramid’s construction.'],
-          ['C', 'Tomatoes were once promoted as medicine.', 'In nineteenth-century America, enterprising sellers promoted tomato-based preparations as remedies for ailments.']
-        ], 'Which ordinary modern product would seem most bizarre to someone living two centuries ago?'),
-        draftCase('15', 'Science Sounds Made Up', 'A', [
-          ['A', 'Sound travels faster in air than in water.', 'Sound generally travels much faster in liquid water than in air under ordinary conditions.'],
-          ['B', 'A metal can be liquid at ordinary room temperature.', 'Mercury is a metal that melts at approximately −39°C, so it is liquid at normal indoor temperatures.'],
-          ['C', 'Under some conditions, initially warmer water can freeze sooner than colder water.', 'The Mpemba effect refers to observations of initially warmer samples freezing sooner under particular experimental conditions. It is not a universal rule.']
-        ], 'Which scientific claim sounds most counterintuitive? What experiment could you design to investigate it?'),
-        draftCase('16', 'Plants Are Not Innocent', 'C', [
-          ['A', 'Fungi can connect the roots of different plants underground.', 'Mycorrhizal fungi can form networks connecting plant roots. Researchers continue to investigate the ecological significance of these connections.'],
-          ['B', 'A Venus flytrap responds to repeated touches before closing.', 'The trap usually requires repeated stimulation of its sensitive trigger hairs within a short period before it snaps shut.'],
-          ['C', 'Every species of bamboo flowers each spring.', 'Bamboo species have different flowering patterns. Some flower at intervals of many decades rather than annually.']
-        ], 'What would change about how we value plants if we understood more of their responses to the environment?'),
-        draftCase('17', 'Cold Changes the Rules', 'B', [
-          ['A', 'Bare metal surfaces can bond together in a vacuum.', 'Under suitable conditions, clean metal surfaces pressed into contact may bond through cold welding, an issue spacecraft engineers consider.'],
-          ['B', 'Ordinary window glass is a liquid that slowly flows downwards.', 'Ordinary glass is an amorphous solid. Uneven thickness in old windows is primarily a result of historical manufacturing methods, not centuries of flowing.'],
-          ['C', 'Liquid water can remain unfrozen below 0°C.', 'Water can be supercooled below its normal freezing point if ice crystals do not form. A disturbance can trigger rapid crystallisation.']
-        ], 'Which of these effects would you most like to demonstrate in a laboratory?'),
-        draftCase('18', 'Ancient Earth Was Chaos', 'A', [
-          ['A', 'Modern humans lived at the same time as Tyrannosaurus rex.', 'Tyrannosaurus rex disappeared about 66 million years ago, long before modern humans appeared.'],
-          ['B', 'Some non-avian dinosaurs had feathers.', 'Fossils preserve feathers or feather-like structures on several groups of non-avian dinosaurs.'],
-          ['C', 'Dragonfly-like insects once had wingspans exceeding half a metre.', 'Fossils of ancient dragonfly relatives such as Meganeura show exceptionally large wingspans.']
-        ], 'If you could safely observe one extinct creature in its natural habitat, which would you choose?'),
-        draftCase('19', 'Your Senses Edit Reality', 'A', [
-          ['A', 'Human memory works like an exact video recording of events.', 'Memory is reconstructive. Recalling an experience involves rebuilding it, and details can change or be influenced by later information.'],
-          ['B', 'Your expectations can influence how you perceive sound.', 'Perception depends partly on context, attention and expectations rather than only on the physical sound signal.'],
-          ['C', 'A smell can influence your emotions before you consciously identify it.', 'Smell is closely connected with brain systems involved in emotion and memory, and a response can occur before you identify the odour.']
-        ], 'If perception and memory are not perfect recordings, how can two honest people remember the same event differently?'),
-        draftCase('20', 'Animals Are Doing Too Much', 'B', [
-          ['A', 'Crows can recognise individual human faces.', 'Experiments have shown that crows can learn to recognise particular human faces and remember threatening individuals.'],
-          ['B', 'Owls can turn their heads through a full 360 degrees.', 'Owls can rotate their heads remarkably far, up to roughly 270 degrees, but not a complete circle.'],
-          ['C', 'Some snakes can detect infrared radiation from warm prey.', 'Pit vipers and some other snakes have specialised heat-sensitive organs that help them locate warm prey.']
-        ], 'If animals can learn to recognise individual people, how might their experience of humans differ from what we imagine?')
-      ];
+      });
 
       const exhibits = Array.from(document.querySelectorAll('.tt-exhibit'));
       const factCards = Array.from(document.querySelectorAll('.tt-fact'));
@@ -818,7 +888,7 @@
         for (const exhibit of exhibits) {
           const key = exhibit.dataset.choice;
           const chosen = key === suspect;
-          const falseClaim = key === record.lie;
+          const falseClaim = !record.wildcard && key === record.lie;
           exhibit.classList.toggle('is-selected', chosen);
           exhibit.classList.toggle('is-revealed', revealed);
           exhibit.classList.toggle('is-lie', revealed && falseClaim);
@@ -826,12 +896,13 @@
           exhibit.setAttribute('aria-pressed', String(chosen));
           exhibit.disabled = revealed;
           exhibit.querySelector('.tt-exhibit-status').textContent =
-            revealed ? (falseClaim ? 'The lie' : 'True')
+            revealed ? (record.wildcard ? 'True · Wildcard' : falseClaim ? 'The lie' : 'True')
                      : chosen ? 'Your suspect' : 'Exhibit ' + key;
           exhibit.setAttribute('aria-label',
             key + ': ' + record.statements[key] + ' ' +
             (revealed
-              ? (falseClaim ? 'This was the lie.' : 'This was true.') +
+              ? (record.wildcard ? 'Wildcard: all three statements were true.' :
+                 falseClaim ? 'This was the lie.' : 'This was true.') +
                 (chosen ? ' Your selection.' : '')
               : chosen ? 'Selected as suspected lie.' : 'Select as suspected lie.')
           );
@@ -847,10 +918,13 @@
         results.hidden = !revealed;
         if (revealed) {
           const correct = suspect === record.lie;
-          resultsTitle.textContent = correct
-            ? 'Case cracked. You found the lie.'
+          resultsTitle.textContent = record.wildcard
+            ? 'Plot twist. All three were true.'
+            : correct ? 'Case cracked. You found the lie.'
             : 'Plot twist. The lie was ' + record.lie + '.';
-          resultsSummary.textContent = correct ? record.success : record.failure(suspect);
+          resultsSummary.textContent = record.wildcard
+            ? 'Wildcard — no lie this time. You accused exhibit ' + suspect + ', but every statement was true.'
+            : correct ? record.success : record.failure(suspect);
         }
       }
 
@@ -866,7 +940,8 @@
           const key = exhibit.dataset.choice;
           exhibit.querySelector('.tt-exhibit-claim').textContent = record.statements[key];
           const artwork = record.artwork?.[key] || '';
-          const hasArtwork = record.illustrated || Boolean(artwork);
+          const spritePosition = record.spriteArtwork?.[key] || '';
+          const hasArtwork = Boolean(artwork || spritePosition);
           exhibit.querySelector('.tt-art').classList.toggle('is-art-pending', !hasArtwork);
           exhibit.querySelector('.tt-art-placeholder').hidden = hasArtwork;
           const image = exhibit.querySelector('.tt-art-image');
@@ -874,18 +949,19 @@
           image.style.backgroundSize = artwork ? 'cover' : '';
           image.style.backgroundPosition = artwork
             ? (record.artworkPosition?.[key] || 'center')
-            : '';
+            : spritePosition;
         }
         for (const [index, key] of exhibitKeys.entries()) {
           const fact = record.evidence[key];
           const card = factCards[index];
-          card.classList.toggle('is-lie', key === record.lie);
+          const falseClaim = !record.wildcard && key === record.lie;
+          card.classList.toggle('is-lie', falseClaim);
           card.querySelector('.tt-fact-heading').textContent =
-            key + ' / ' + (key === record.lie ? 'The Lie' : 'True');
+            key + ' / ' + (falseClaim ? 'The Lie' : 'True');
           card.querySelector('p').textContent = fact.explanation;
           const links = card.querySelector('.tt-fact-sources');
           links.replaceChildren();
-          links.textContent = record.draft ? 'Source review pending' : '';
+          links.textContent = fact.sources.length ? '' : 'Source review pending';
           for (const source of fact.sources) {
             const link = document.createElement('a');
             link.href = source.url;
