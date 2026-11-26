@@ -5,6 +5,9 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 
 const html = fs.readFileSync('arcade/truth-trap-proto/index.html', 'utf8');
+const experienceCss = fs.readFileSync('arcade/truth-trap-proto/experience.css', 'utf8');
+assert.ok(!/\.tt-game-header\s*>\s*\.tt-header-centre\s*\{\s*display:\s*none/.test(experienceCss),
+  'Mobile must retain the game title in the header.');
 const modalThemeIndex = html.indexOf('shared/atlas-modal-theme.css');
 const sessionPanelIndex = html.indexOf('shared/atlas-session-panel.css');
 assert.ok(modalThemeIndex >= 0 && sessionPanelIndex > modalThemeIndex,
@@ -81,10 +84,14 @@ async function boot(query, isOwner = true) {
   assert.equal(direct.workspace.hidden, false);
   assert.equal(direct.cover.hidden, true);
   assert.equal(direct.document.querySelector('.tt-case-heading h1').textContent, 'Reality Needs Better Writing');
+  assert.equal(direct.document.getElementById('tt-header-position').textContent, 'Case 4 of 20');
+  assert.equal(direct.document.getElementById('tt-header-position').dataset.short, '4 / 20');
   direct.exhibits[0].click();
   direct.document.getElementById('tt-accuse').click();
   direct.document.getElementById('tt-next-case').click();
   assert.equal(direct.window.location.searchParams.get('case'), '5');
+  assert.equal(direct.document.getElementById('tt-header-position').textContent, 'Case 5 of 20');
+  assert.equal(direct.document.getElementById('tt-header-position').dataset.short, '5 / 20');
   assert.equal(direct.window.location.searchParams.get('keep'), 'yes');
   assert.equal(direct.window.location.hash, '#test');
 
@@ -92,6 +99,7 @@ async function boot(query, isOwner = true) {
   for (let i = 1; i <= 20; i++) {
     const game = await boot('?case=' + i);
     assert.equal(game.workspace.hidden, false);
+    assert.equal(game.document.getElementById('tt-header-position').dataset.short, i + ' / 20');
     const number = game.document.querySelector('.tt-case-number').textContent;
     assert.match(number, new RegExp('^Case ' + String(i).padStart(2, '0') + ' /'));
     assert.equal(number.includes('Review draft'), false);
