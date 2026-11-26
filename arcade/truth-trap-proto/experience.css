@@ -668,7 +668,8 @@ html:not([data-theme="night"]) .tt-game::after {
   .tt-exhibit:hover:not(:disabled) { transform: rotateX(5deg) translateY(-5px) translateZ(14px); }
   .tt-exhibit.is-selected:not(.is-revealed) { transform: rotateX(5deg) translateY(-8px) translateZ(18px); }
   .tt-exhibit.is-revealed { transform: rotateX(7deg); }
-  .tt-stage-action { margin-top: 0; }
+  /* Keep the accusation prompt clear of the final card's 3D shadow. */
+  .tt-stage-action { margin-top: 22px; }
   .tt-results { margin-top: 47px; padding: 22px; }
   .tt-fact-grid { grid-template-columns: 1fr; }
 }
