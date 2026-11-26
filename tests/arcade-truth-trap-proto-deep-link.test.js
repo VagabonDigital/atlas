@@ -5,6 +5,10 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 
 const html = fs.readFileSync('arcade/truth-trap-proto/index.html', 'utf8');
+const modalThemeIndex = html.indexOf('shared/atlas-modal-theme.css');
+const sessionPanelIndex = html.indexOf('shared/atlas-session-panel.css');
+assert.ok(modalThemeIndex >= 0 && sessionPanelIndex > modalThemeIndex,
+  'Truth Trap must load the shared modal theme before the Students panel styles (mobile and desktop).');
 const script = Array.from(html.matchAll(/<script>([\s\S]*?)<\/script>/g)).at(-1)[1];
 
 const canonicalHtml = fs.readFileSync('arcade/truth-trap/index.html', 'utf8');
