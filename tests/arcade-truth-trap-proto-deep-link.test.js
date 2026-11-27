@@ -170,8 +170,10 @@ async function boot(query, isOwner = true) {
     'The dedicated penguin illustration replaces the promotional crop.');
   assert.equal(unmatched.exhibits[1].querySelector('.tt-art-placeholder').hidden, true,
     'The illustrated penguin exhibit must not show a placeholder.');
-  assert.equal(unmatched.exhibits[2].querySelector('.tt-art-placeholder').hidden, false,
-    'Unillustrated original claims must not inherit unrelated artwork.');
+  assert.match(unmatched.exhibits[2].querySelector('.tt-art-image').style.backgroundImage, /case-15-c-octopus\.webp/,
+    'The octopus illustration belongs with the original arm-tasting claim.');
+  assert.equal(unmatched.exhibits[2].querySelector('.tt-art-placeholder').hidden, true,
+    'The illustrated octopus exhibit must not show a placeholder.');
 
   const citedCase = await boot('?case=2');
   assert.ok(citedCase.factCards[1].querySelector('.tt-fact-sources').textContent === '',
