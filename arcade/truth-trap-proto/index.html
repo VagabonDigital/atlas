@@ -43,225 +43,76 @@
     button { font: inherit; }
     [hidden] { display: none !important; }
 
-    /* TRUTH TRAP 2.0 — COVER EXPERIMENT
-       The original artwork and moving day/night spotlight are preserved.
-       No opaque intro card: typography lives directly inside the scene.
-       This styling belongs only to the prototype. */
+    /* Temporary static illustration: the real Arcade controls and entry remain HTML. */
     #opening {
-      position: fixed;
-      inset: 0;
-      z-index: 500;
-      display: grid;
-      place-items: center;
-      overflow: hidden;
-      isolation: isolate;
-      padding: max(78px, env(safe-area-inset-top)) 20px max(28px, env(safe-area-inset-bottom));
-      background: #e8ebf0;
-      font-family: "DM Sans", system-ui, sans-serif;
-      line-height: 1.5;
-      transition: opacity .4s ease;
+      position: fixed; inset: 0; z-index: 500; isolation: isolate;
+      display: flex; align-items: center; justify-content: center;
+      overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
+      padding: max(76px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+      background: #061b2a; font-family: "DM Sans", system-ui, sans-serif;
+      transition: opacity .35s ease;
     }
-
-    /* Exact original cover artwork — a blurred day wash and an
-       animated, masked full-resolution spotlight in both modes. */
     #opening::before {
-      content: "";
-      position: absolute;
-      inset: -20px;
-      z-index: -2;
-      background: url("../truth-trap/truth-trap-cover.png") center / cover no-repeat;
-      filter: blur(12px);
-      opacity: .35;
+      content: ""; position: fixed; inset: -24px; z-index: -1;
+      background: linear-gradient(rgba(2,15,27,.55),rgba(2,15,27,.77)),
+                  url("./truth-trap-temp-cover.webp") center / cover no-repeat;
+      filter: blur(25px); pointer-events: none;
     }
-    #opening::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: -1;
-      background: url("../truth-trap/truth-trap-cover.png") center / cover no-repeat;
-      opacity: .9;
-      -webkit-mask-image: radial-gradient(circle, black 15%, transparent 55%);
-      mask-image: radial-gradient(circle, black 15%, transparent 55%);
-      -webkit-mask-size: 70vmax 70vmax;
-      mask-size: 70vmax 70vmax;
-      -webkit-mask-repeat: no-repeat;
-      mask-repeat: no-repeat;
-      animation: spotlight-weave 25s ease-in-out infinite;
-      transition: transform .55s ease, filter .55s ease, -webkit-mask-size .55s ease, mask-size .55s ease;
+    #opening .opening-content {
+      position: relative; z-index: 1; width: min(100%, 1500px);
+      display: flex; flex-direction: column; align-items: center;
+      gap: clamp(14px,2vh,22px); margin: auto; padding: 0;
     }
-    html[data-theme="night"] #opening { background: #060b11; }
-    html[data-theme="night"] #opening::before { display: none; }
-
-    /* An unbounded pool of contrast protects text without bringing the
-       rectangular card back. The surreal scenery remains visible around it. */
-    .opening-content {
-      position: relative;
-      z-index: 1;
-      width: min(100%, 920px);
-      margin: -1vh auto 0;
-      padding: clamp(26px, 5vh, 46px) clamp(8px, 3vw, 30px);
-      text-align: center;
-      animation: opening-rise .65s cubic-bezier(.16,1,.3,1) backwards;
-      transition: opacity .36s ease, transform .45s ease, filter .45s ease;
+    #opening .opening-poster {
+      display: block; width: 100%; height: auto;
+      max-height: calc(100svh - 195px); object-fit: contain;
+      border-radius: 10px; box-shadow: 0 20px 65px rgba(0,0,0,.42);
     }
-    .opening-content::before {
-      content: "";
-      position: absolute;
-      z-index: -1;
-      inset: -20% -15%;
-      background: radial-gradient(ellipse at 50% 50%, rgba(239,247,251,.94) 0%, rgba(239,247,251,.72) 24%, rgba(239,247,251,.33) 44%, transparent 70%);
-      pointer-events: none;
-    }
-    html[data-theme="night"] .opening-content::before {
-      background: radial-gradient(ellipse at 50% 50%, rgba(2,10,20,.91) 0%, rgba(2,10,20,.74) 28%, rgba(2,10,20,.38) 48%, transparent 72%);
-    }
-    .opening-eyebrow {
-      margin: 0 0 clamp(15px, 3vh, 24px);
-      color: #075d78;
-      font-size: clamp(.69rem, 1.3vw, .8rem);
-      font-weight: 800;
-      letter-spacing: .23em;
-      line-height: 1.5;
-      text-transform: uppercase;
-    }
-    .opening-title {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 0;
-      color: #082436;
-      font-family: "DM Sans", system-ui, sans-serif;
-      font-size: clamp(4.25rem, 12vw, 9.5rem);
-      font-weight: 900;
-      letter-spacing: -.075em;
-      line-height: .85;
-      text-transform: uppercase;
-      text-shadow: 0 2px 1px rgba(255,255,255,.56), 0 12px 38px rgba(255,255,255,.84);
-    }
-    /* An earlier generic h1 span rule unintentionally made TRUTH cyan.
-       Give each word its own explicit day/night colour, with TRAP accented. */
-    /* Locked cover palette: navy TRUTH + teal TRAP in daylight;
-       white TRUTH + electric cyan TRAP at night. */
-    .opening-title .opening-word {
-      display: block;
-      color: #103a50;
-    }
-    .opening-title .opening-accent {
-      color: #007f9e;
-      text-shadow: 0 2px 2px rgba(255,255,255,.65), 0 0 34px rgba(36,205,246,.24);
-    }
-    .opening-subtitle {
-      max-width: 48ch;
-      margin: clamp(22px, 4.3vh, 35px) auto clamp(28px, 5vh, 42px);
-      color: #173d50;
-      font-size: clamp(1rem, 2vw, 1.4rem);
-      font-weight: 750;
-      letter-spacing: .015em;
-      line-height: 1.4;
-      text-wrap: balance;
-      text-shadow: 0 1px 8px rgba(245,251,254,.75);
-    }
-    html[data-theme="night"] .opening-eyebrow { color: #81def4; }
-    html[data-theme="night"] .opening-title {
-      color: #f7fcff;
-      text-shadow: 0 6px 32px rgba(0,0,0,.9), 0 2px 3px rgba(0,0,0,.8);
-    }
-    html[data-theme="night"] .opening-title .opening-word:not(.opening-accent) {
-      color: #f7fcff;
-    }
-    html[data-theme="night"] .opening-title .opening-accent {
-      color: #00deff;
-      text-shadow: 0 0 33px rgba(0,222,255,.43), 0 5px 25px rgba(0,0,0,.9);
-    }
-    html[data-theme="night"] .opening-subtitle {
-      color: #e1f3fd;
-      text-shadow: 0 2px 14px rgba(0,0,0,.95);
-    }
-
-    /* One primary action, with the same meaning in both themes. */
     #opening .btn-start {
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      gap: 13px;
-      min-height: 56px;
-      padding: 15px 30px;
-      border: 1px solid #047b99;
-      border-radius: 999px;
-      background: linear-gradient(140deg, #087f9d, #005e7a);
-      color: #ffffff;
-      font: 800 clamp(.9rem,1.7vw,1rem) "DM Sans",system-ui,sans-serif;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      cursor: pointer;
-      box-shadow: 0 12px 33px rgba(0,91,119,.24), inset 0 1px 0 rgba(255,255,255,.28);
-      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+      display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+      min-height: 52px; padding: 12px 30px; border: 1px solid #90f6ff;
+      border-radius: 999px; background: linear-gradient(145deg,#48dff1,#16b6d8);
+      color: #042331; font: 800 .95rem "DM Sans",system-ui,sans-serif;
+      letter-spacing: .07em; text-transform: uppercase; cursor: pointer;
+      box-shadow: 0 10px 27px rgba(0,0,0,.4),0 0 24px rgba(28,211,239,.30);
+      transition: background .18s ease,transform .18s ease,box-shadow .18s ease;
     }
     #opening .btn-start svg { flex: none; }
     #opening .btn-start:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 17px 42px rgba(0,108,141,.37), inset 0 1px 0 rgba(255,255,255,.28);
+      background: #a5f5ff; transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(0,0,0,.44),0 0 29px rgba(28,211,239,.50);
     }
-    #opening .btn-start:focus-visible { outline: 3px solid #00cbe9; outline-offset: 5px; }
-    html[data-theme="night"] #opening .btn-start {
-      color: #032432;
-      border-color: #87f1ff;
-      background: #69e7fa;
-      box-shadow: 0 0 35px rgba(0,222,255,.27), 0 13px 32px rgba(0,0,0,.46);
-    }
-    html[data-theme="night"] #opening .btn-start:hover {
-      background: #a7f7ff;
-      box-shadow: 0 0 43px rgba(0,222,255,.45), 0 16px 34px rgba(0,0,0,.56);
-    }
-
-    /* A small photographic focus move, not TGW's portal transition. */
+    #opening .btn-start:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+    #opening .btn-start:disabled { opacity: .85; cursor: progress; }
     #opening.fade-out { opacity: 0; pointer-events: none; }
-    #opening.fade-out .opening-content {
-      opacity: 0;
-      transform: scale(.94);
-      filter: blur(7px);
-    }
-    #opening.fade-out::after {
-      animation: none;
-      transform: scale(1.12);
-      filter: brightness(1.13);
-      -webkit-mask-size: 110vmax 110vmax;
-      mask-size: 110vmax 110vmax;
-      -webkit-mask-position: center;
-      mask-position: center;
-    }
-
-    @keyframes spotlight-weave {
-      0%   { -webkit-mask-position: calc(10vw - 35vmax) calc(10vh - 35vmax); mask-position: calc(10vw - 35vmax) calc(10vh - 35vmax); }
-      20%  { -webkit-mask-position: calc(90vw - 35vmax) calc(20vh - 35vmax); mask-position: calc(90vw - 35vmax) calc(20vh - 35vmax); }
-      40%  { -webkit-mask-position: calc(85vw - 35vmax) calc(90vh - 35vmax); mask-position: calc(85vw - 35vmax) calc(90vh - 35vmax); }
-      60%  { -webkit-mask-position: calc(10vw - 35vmax) calc(85vh - 35vmax); mask-position: calc(10vw - 35vmax) calc(85vh - 35vmax); }
-      80%  { -webkit-mask-position: calc(50vw - 35vmax) calc(45vh - 35vmax); mask-position: calc(50vw - 35vmax) calc(45vh - 35vmax); }
-      100% { -webkit-mask-position: calc(10vw - 35vmax) calc(10vh - 35vmax); mask-position: calc(10vw - 35vmax) calc(10vh - 35vmax); }
-    }
-    @keyframes opening-rise {
-      from { opacity: 0; transform: translateY(18px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
     @media (max-width: 600px) {
-      #opening { padding: max(76px, env(safe-area-inset-top)) 12px max(20px, env(safe-area-inset-bottom)); }
-      .opening-content { padding: 26px 6px; margin-top: 0; }
-      .opening-content::before { inset: -12% -6%; }
-      .opening-title { font-size: clamp(4.1rem, 19vw, 6.8rem); letter-spacing: -.078em; }
-      .opening-subtitle { max-width: 26ch; margin: 24px auto 31px; font-size: 1.03rem; }
-      #opening .btn-start { width: min(100%, 282px); min-height: 55px; }
+      #opening { padding: max(82px,env(safe-area-inset-top)) 12px max(24px,env(safe-area-inset-bottom)); }
+      #opening .opening-poster { border-radius: 6px; max-height: none; }
+      #opening .btn-start { width: min(100%,285px); }
     }
-    @media (max-height: 630px) and (min-width: 601px) {
-      .opening-content { padding-top: 15px; padding-bottom: 15px; }
-      .opening-title { font-size: clamp(3.5rem, 10vh, 7rem); }
-      .opening-subtitle { margin: 15px auto 20px; }
+    @media (prefers-reduced-motion: reduce) { #opening,#opening .btn-start { transition: none; } }
+
+    /* Match the case counter's visibility. Scope to this prototype only. */
+    #tt-game-header .arcade-game-chrome-game-return {
+      color: #c4d7e6; background: rgba(58,124,152,.12);
+      border: 1px solid rgba(133,215,238,.21); font-weight: 700;
     }
-    @media (prefers-reduced-motion: reduce) {
-      #opening::after { animation: none; transition: none; }
-      .opening-content { animation: none; transition: none; }
-      #opening { transition: none; }
-      #opening .btn-start { transition: none; }
-      #opening.fade-out::after { transform: none; filter: none; }
+    #tt-game-header .arcade-game-chrome-game-return:hover,
+    #tt-game-header .arcade-game-chrome-game-return:focus-visible {
+      color: #fff; background: rgba(55,149,183,.27);
+      border-color: rgba(151,234,250,.70); box-shadow: 0 0 0 1px rgba(136,229,247,.1);
+    }
+    html[data-theme="night"] #tt-game-header .arcade-game-chrome-game-return {
+      color: #d5e8f5; background: rgba(66,138,170,.16);
+      border-color: rgba(133,215,238,.26);
+    }
+    html[data-theme="night"] #tt-game-header .arcade-game-chrome-game-return:hover,
+    html[data-theme="night"] #tt-game-header .arcade-game-chrome-game-return:focus-visible {
+      color: #fff; background: rgba(62,160,194,.33);
+      border-color: rgba(158,241,255,.78); box-shadow: 0 0 0 1px rgba(136,229,247,.12);
+    }
+    #tt-game-header .arcade-game-chrome-game-return:focus-visible {
+      outline: 2px solid #9defff; outline-offset: 2px;
     }
 
     /* Prototype-only landing chrome: frosted surfaces with deliberately
@@ -335,16 +186,13 @@
   <link rel="stylesheet" href="./experience.css?v=20261125-header-position">
 </head>
 <body data-atlas-world="arcade" data-atlas-surface="content">
-  <!-- Truth Trap 2.0 cover study: original day/night collage, liberated
-       from the intro panel. Original public game remains unchanged. -->
+  <!-- Existing promotional collage, temporarily used until the final Case 15 cover is ready. -->
   <div id="opening" role="main" aria-label="Truth Trap introduction">
     <div class="opening-content">
-      <p class="opening-eyebrow">ATLAS ARCADE · PROTOTYPE</p>
-      <h1 class="opening-title">
-        <span class="opening-word">TRUTH</span>
-        <span class="opening-word opening-accent">TRAP</span>
-      </h1>
-      <p class="opening-subtitle">Two truths. One brilliant lie.</p>
+      <img class="opening-poster" src="./truth-trap-temp-cover.webp"
+           width="1672" height="941"
+           alt="Truth Trap illustrated teaser with a penguin, bananas and an octopus."
+           fetchpriority="high" decoding="async">
       <button class="btn-start" id="btn-start" type="button" disabled>
         <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <circle cx="10.8" cy="10.8" r="6.9" stroke="currentColor" stroke-width="2"/>

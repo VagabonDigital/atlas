@@ -8,6 +8,16 @@ const html = fs.readFileSync('arcade/truth-trap-proto/index.html', 'utf8');
 const experienceCss = fs.readFileSync('arcade/truth-trap-proto/experience.css', 'utf8');
 assert.ok(!/\.tt-game-header\s*>\s*\.tt-header-centre\s*\{\s*display:\s*none/.test(experienceCss),
   'Mobile must retain the game title in the header.');
+assert.match(html, /<img class="opening-poster" src="\.\/truth-trap-temp-cover\.webp"/,
+  'The approved temporary poster is used on the cover.');
+assert.match(html, /id="btn-start"/, 'The cover retains its real Enter action.');
+for (const selector of [
+  '#tt-game-header .arcade-game-chrome-game-return',
+  '#tt-game-header .arcade-game-chrome-game-return:hover',
+  'html[data-theme="night"] #tt-game-header .arcade-game-chrome-game-return:hover'
+]) {
+  assert.ok(html.includes(selector), 'The back button has normal and hover contrast, including night mode.');
+}
 const modalThemeIndex = html.indexOf('shared/atlas-modal-theme.css');
 const sessionPanelIndex = html.indexOf('shared/atlas-session-panel.css');
 assert.ok(modalThemeIndex >= 0 && sessionPanelIndex > modalThemeIndex,
