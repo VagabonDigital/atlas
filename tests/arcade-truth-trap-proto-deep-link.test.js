@@ -166,6 +166,10 @@ async function boot(query, isOwner = true) {
     'The frozen frog illustration belongs with the original nature case.');
   assert.equal(unmatched.exhibits[0].querySelector('.tt-art-placeholder').hidden, true,
     'The illustrated frozen frog exhibit must not show a placeholder.');
+  assert.match(unmatched.exhibits[1].querySelector('.tt-art-image').style.backgroundImage, /case-15-b-emperor-penguin\.webp/,
+    'The dedicated penguin illustration replaces the promotional crop.');
+  assert.equal(unmatched.exhibits[1].querySelector('.tt-art-placeholder').hidden, true,
+    'The illustrated penguin exhibit must not show a placeholder.');
   assert.equal(unmatched.exhibits[2].querySelector('.tt-art-placeholder').hidden, false,
     'Unillustrated original claims must not inherit unrelated artwork.');
 
