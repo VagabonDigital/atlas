@@ -8,6 +8,18 @@ const html = fs.readFileSync('arcade/truth-trap-proto/index.html', 'utf8');
 const experienceCss = fs.readFileSync('arcade/truth-trap-proto/experience.css', 'utf8');
 assert.ok(!/\.tt-game-header\s*>\s*\.tt-header-centre\s*\{\s*display:\s*none/.test(experienceCss),
   'Mobile must retain the game title in the header.');
+// The prototype keeps a dark game header in both themes. Its shared return
+// control must inherit readable dark-header colours even in light mode.
+const headerCss = experienceCss.match(/\.tt-game-header\s*\{([^}]+)\}/)?.[1] || '';
+for (const token of [
+  '--game-chrome-control-muted',
+  '--game-chrome-control-strong',
+  '--game-chrome-return-hover-surface'
+]) {
+  assert.ok(headerCss.includes(token + ':'), 'Dark game header must set ' + token);
+}
+assert.match(html, /\.\.\/shared\/arcade-game-chrome\.css/,
+  'Return button must continue using the shared Arcade control styling.');
 const modalThemeIndex = html.indexOf('shared/atlas-modal-theme.css');
 const sessionPanelIndex = html.indexOf('shared/atlas-session-panel.css');
 assert.ok(modalThemeIndex >= 0 && sessionPanelIndex > modalThemeIndex,
