@@ -79,16 +79,18 @@ html:not([data-theme="night"]) .tt-game::after {
   height: 58px;
   padding: 0 clamp(12px,3vw,32px);
   background: rgba(5,23,38,.87);
-  /* This header stays dark in both themes. Use the shared Arcade button's
-     existing dark-surface tokens rather than restyling the button itself. */
+  border-bottom: 1px solid rgba(88,205,230,.23);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+/* The gameplay header stays dark in both appearance modes. Keep the shared
+   return control's geometry and interaction, but adapt its colours locally. */
+#arcade-game-return-root .arcade-game-chrome-game-return {
   --game-chrome-control-muted: #c4d7e6;
   --game-chrome-control-strong: #e3effb;
   --game-chrome-control-border: rgba(255,255,255,.1);
   --game-chrome-return-hover-surface: rgba(255,255,255,.06);
   --game-chrome-control-focus: #00c8f0;
-  border-bottom: 1px solid rgba(88,205,230,.23);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
 }
 .tt-game-header > .tt-header-left,
 .tt-game-header > .tt-header-centre,
