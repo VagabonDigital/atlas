@@ -340,7 +340,7 @@ html:not([data-theme="night"]) .tt-game::after {
   position: absolute;
   inset: -3px;
   display: block;
-  background-image: url("../../assets/hub/truth-trap-proto.webp");
+  background-image: url("./legacy-exhibit-sprite.webp");
   background-repeat: no-repeat;
   /* The promotional sprite includes its own cyan card borders.
      Overscan to show only the illustration, never its baked-in lower rim
