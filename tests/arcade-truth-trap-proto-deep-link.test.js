@@ -8,19 +8,16 @@ const html = fs.readFileSync('arcade/truth-trap-proto/index.html', 'utf8');
 const experienceCss = fs.readFileSync('arcade/truth-trap-proto/experience.css', 'utf8');
 assert.ok(!/\.tt-game-header\s*>\s*\.tt-header-centre\s*\{\s*display:\s*none/.test(experienceCss),
   'Mobile must retain the game title in the header.');
-// Both gameplay appearances use the shared return control. Its local
-// colours must match the actual header surface, rather than the root theme.
-const nightReturnCss = experienceCss.match(/\n#arcade-game-return-root \.arcade-game-chrome-game-return\s*\{([^}]+)\}/)?.[1] || '';
-const dayReturnCss = experienceCss.match(/html:not\(\[data-theme="night"\]\) #arcade-game-return-root \.arcade-game-chrome-game-return\s*\{([^}]+)\}/)?.[1] || '';
+// The prototype keeps a dark game header in both themes. Its shared return
+// control must set readable dark-header colours even in light mode.
+const headerCss = experienceCss.match(/\n#arcade-game-return-root \.arcade-game-chrome-game-return\s*\{([^}]+)\}/)?.[1] || '';
 for (const token of [
   '--game-chrome-control-muted',
   '--game-chrome-control-strong',
   '--game-chrome-return-hover-surface'
 ]) {
-  assert.ok(nightReturnCss.includes(token + ':'), 'Night return control must set ' + token);
-  assert.ok(dayReturnCss.includes(token + ':'), 'Day return control must set ' + token);
+  assert.ok(headerCss.includes(token + ':'), 'Dark game header must set ' + token);
 }
-assert.notEqual(dayReturnCss, nightReturnCss, 'Return colours must adapt to the header surface.');
 assert.match(html, /\.\.\/shared\/arcade-game-chrome\.css/,
   'Return button must continue using the shared Arcade control styling.');
 const modalThemeIndex = html.indexOf('shared/atlas-modal-theme.css');

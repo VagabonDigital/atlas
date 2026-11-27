@@ -58,11 +58,12 @@ html[data-theme="night"]::-webkit-scrollbar-thumb:hover { background: rgba(82,21
   inset: 0;
   z-index: -1;
   background:
-    radial-gradient(ellipse at 50% 34%, rgba(35,153,184,.17), transparent 58%),
-    radial-gradient(ellipse at 50% 0%, rgba(5,41,62,.48), rgba(3,15,26,.84) 77%),
-    linear-gradient(180deg, rgba(4,24,41,.69), rgba(2,13,24,.96));
+    radial-gradient(ellipse at 50% 13%, rgba(10,101,135,.27), transparent 60%),
+    linear-gradient(180deg, rgba(4,24,41,.81), rgba(3,17,30,.95) 72%, rgba(2,13,24,.98));
   pointer-events: none;
 }
+html:not([data-theme="night"]) .tt-game { background: #184258; }
+html:not([data-theme="night"]) .tt-game::before { opacity: .32; }
 .tt-game-header {
   position: sticky;
   top: 0;
@@ -77,14 +78,38 @@ html[data-theme="night"]::-webkit-scrollbar-thumb:hover { background: rgba(82,21
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
-/* Night gameplay is the baseline. Keep the shared return control's
-   geometry and interaction, with colours suited to the dark header. */
+/* The gameplay header stays dark in both appearance modes. Keep the shared
+   return control's geometry and interaction, but adapt its colours locally. */
 #arcade-game-return-root .arcade-game-chrome-game-return {
   --game-chrome-control-muted: #c4d7e6;
   --game-chrome-control-strong: #e3effb;
   --game-chrome-control-border: rgba(255,255,255,.1);
   --game-chrome-return-hover-surface: rgba(255,255,255,.06);
   --game-chrome-control-focus: #00c8f0;
+}
+/* Daylight keeps the cinematic cards, but lifts the header and ambient
+   illumination. The appearance button stays a quiet shared utility. */
+html:not([data-theme="night"]) .tt-game-header {
+  background: rgba(22,62,80,.94);
+  border-bottom-color: rgba(117,213,231,.30);
+}
+html:not([data-theme="night"]) .tt-game::after {
+  background:
+    radial-gradient(ellipse at 50% 10%, rgba(142,230,246,.29), transparent 65%),
+    linear-gradient(180deg, rgba(12,57,78,.73), rgba(7,32,48,.93) 74%, rgba(4,19,31,.98));
+}
+#arcade-game-actions-root .arcade-game-chrome-game-icon-btn {
+  --game-chrome-control-surface: rgba(255,255,255,.045);
+  --game-chrome-control-muted: #9db9ca;
+  --game-chrome-control-strong: #e3effb;
+  --game-chrome-control-border: rgba(255,255,255,.10);
+  --game-chrome-control-border-hover: rgba(255,255,255,.20);
+  --game-chrome-control-shadow: none;
+  --game-chrome-control-shadow-hover: none;
+  --game-chrome-control-focus: #00c8f0;
+}
+#arcade-game-actions-root .arcade-game-chrome-game-icon-btn:hover {
+  background: rgba(255,255,255,.08);
 }
 .tt-game-header > .tt-header-left,
 .tt-game-header > .tt-header-centre,
@@ -629,170 +654,6 @@ html[data-theme="night"]::-webkit-scrollbar-thumb:hover { background: rgba(82,21
 }
 .tt-next-case:hover { background: linear-gradient(145deg,#23b5d6,#087997); transform: translateY(-2px); }
 .tt-next-case:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
-
-
-/* Daylight investigation — carry the cover's magnifying-glass identity
-   into a luminous evidence table. Keep the same objects and game states. */
-html:not([data-theme="night"]) .tt-game {
-  background: #e0edf0;
-  color: #14394b;
-  color-scheme: light;
-}
-html:not([data-theme="night"]) .tt-game::before {
-  opacity: .32;
-  filter: saturate(.78);
-}
-html:not([data-theme="night"]) .tt-game::after {
-  background:
-    radial-gradient(ellipse at 50% 19%, rgba(250,253,249,.97) 0%, rgba(239,249,250,.86) 29%, transparent 73%),
-    linear-gradient(180deg, rgba(221,239,242,.48), rgba(224,239,241,.81) 75%, rgba(215,233,237,.97));
-}
-html:not([data-theme="night"]) .tt-game-header {
-  background: rgba(235,246,248,.88);
-  border-bottom-color: rgba(27,100,120,.18);
-}
-html:not([data-theme="night"]) #arcade-game-return-root .arcade-game-chrome-game-return {
-  --game-chrome-control-muted: #486775;
-  --game-chrome-control-strong: #153d50;
-  --game-chrome-control-border: rgba(22,91,110,.16);
-  --game-chrome-return-hover-surface: rgba(22,91,110,.07);
-  --game-chrome-control-focus: #087f98;
-}
-html:not([data-theme="night"]) .tt-header-logo { color: #14394b; }
-html:not([data-theme="night"]) .tt-header-logo span { color: #087b92; }
-html:not([data-theme="night"]) .tt-header-logo small,
-html:not([data-theme="night"]) .tt-header-position { color: #496b7b; }
-/* Both appearance controls are utilities: shared size, icon and behaviour,
-   with a quiet surface matching the actual header behind them. */
-html:not([data-theme="night"]) #arcade-game-actions-root .arcade-game-chrome-game-icon-btn {
-  --game-chrome-control-surface: rgba(29,101,122,.045);
-  --game-chrome-control-muted: #486775;
-  --game-chrome-control-strong: #153d50;
-  --game-chrome-control-border: rgba(22,91,110,.15);
-  --game-chrome-control-border-hover: rgba(22,91,110,.32);
-  --game-chrome-control-shadow: none;
-  --game-chrome-control-shadow-hover: none;
-}
-html:not([data-theme="night"]) #arcade-game-actions-root .arcade-game-chrome-game-icon-btn:hover {
-  background: rgba(29,101,122,.10);
-}
-html:not([data-theme="night"]) .tt-case-number { color: #086d83; }
-html:not([data-theme="night"]) .tt-case-heading h1 {
-  color: #11394e;
-  text-shadow: 0 2px 2px rgba(255,255,255,.8), 0 8px 28px rgba(255,255,255,.65);
-}
-html:not([data-theme="night"]) .tt-case-deckline { color: #365d6f; }
-html:not([data-theme="night"]) .tt-exhibits::before {
-  background: radial-gradient(ellipse at center, rgba(29,106,127,.20), rgba(38,121,140,.09) 35%, transparent 75%);
-}
-html:not([data-theme="night"]) .tt-exhibits::after { opacity: .18; }
-
-/* Porcelain and brushed teal in daylight; the evidence artwork stays
-   saturated and unaltered. Geometry, movement and hit targets stay shared. */
-html:not([data-theme="night"]) .tt-exhibit {
-  border-color: #258fa7;
-  background: linear-gradient(145deg,#f4fcfd,#d5e9ed 62%,#b5d5dd);
-  color: #12394c;
-  box-shadow:
-    0 31px 0 -16px #7eacb9,
-    6px 36px 0 -17px #4e94a6,
-    0 52px 46px -12px rgba(23,67,83,.30),
-    0 0 0 4px rgba(31,100,118,.15),
-    0 0 25px rgba(255,255,255,.48);
-}
-html:not([data-theme="night"]) .tt-exhibit-shell {
-  background: linear-gradient(145deg,#d7edf1,#99c6d0 50%,#5c9eae 78%,#3b8295);
-  box-shadow: 0 14px 0 -5px rgba(68,123,140,.65), 0 27px 24px -7px rgba(30,73,87,.26);
-}
-html:not([data-theme="night"]) .tt-exhibit-shell::after {
-  background: radial-gradient(ellipse,rgba(27,109,135,.22),transparent 67%);
-}
-html:not([data-theme="night"]) .tt-exhibit::before {
-  border-color: rgba(255,255,255,.67);
-  box-shadow: inset 2px 2px 0 rgba(255,255,255,.77), inset -3px -3px 0 rgba(43,104,121,.20);
-}
-html:not([data-theme="night"]) .tt-exhibit:hover:not(:disabled) {
-  border-color: #086e86;
-  box-shadow: 0 33px 0 -14px #78a7b4, 7px 39px 0 -15px #4690a3,
-    0 61px 58px -7px rgba(23,67,83,.36), 0 0 0 4px rgba(9,119,146,.16), 0 0 28px rgba(255,255,255,.7);
-}
-html:not([data-theme="night"]) .tt-exhibit:focus-visible { outline-color: #086e86; }
-html:not([data-theme="night"]) .tt-exhibit-head {
-  border-top-color: rgba(29,105,124,.29);
-  background: linear-gradient(180deg,#f5fbfc,#deedf0);
-  box-shadow: inset 0 2px 0 rgba(255,255,255,.9), inset 0 -3px 5px rgba(57,118,134,.13);
-}
-html:not([data-theme="night"]) .tt-exhibit-claim { color: #12394c; text-shadow: none; }
-html:not([data-theme="night"]) .tt-exhibit-letter {
-  border-color: #2590a7;
-  background: radial-gradient(circle at 25% 15%,#e8f9fa,#badfe5);
-  color: #08677f;
-  box-shadow: 0 2px 8px rgba(35,115,133,.12), inset 0 1px 4px rgba(255,255,255,.8);
-}
-html:not([data-theme="night"]) .tt-art.is-art-pending .tt-art-image {
-  background-image: radial-gradient(circle at 31% 28%,#f4fbfc,transparent 55%), linear-gradient(145deg,#d9edf0,#93c2cd);
-}
-html:not([data-theme="night"]) .tt-art-placeholder-mark { color: #6399aa; }
-html:not([data-theme="night"]) .tt-art-placeholder-label { color: #315e70; }
-html:not([data-theme="night"]) .tt-exhibit.is-selected:not(.is-revealed) {
-  border-color: #ab761b;
-  box-shadow: 0 24px 0 -13px #a77b39, 0 31px 42px rgba(77,64,32,.25),
-    0 0 0 4px rgba(211,151,37,.23), 0 0 27px rgba(255,205,107,.38);
-}
-html:not([data-theme="night"]) .tt-exhibit.is-selected:not(.is-revealed) .tt-exhibit-letter {
-  border-color: #ad791d;
-  background: radial-gradient(circle at 25% 15%,#fff7e1,#efd8a4);
-  color: #80510c;
-  box-shadow: 0 2px 9px rgba(161,109,17,.19);
-}
-html:not([data-theme="night"]) .tt-exhibit.is-revealed.is-truth { border-color: #16836e; }
-html:not([data-theme="night"]) .tt-exhibit.is-revealed.is-lie {
-  border-color: #b44c40;
-  box-shadow: 0 24px 0 -13px #a76966, 0 33px 38px rgba(70,35,41,.23),
-    0 0 0 4px rgba(184,76,66,.17);
-}
-html:not([data-theme="night"]) .tt-choice-status { color: #295d70; }
-html:not([data-theme="night"]) .tt-accuse {
-  border-color: #08758c;
-  background: linear-gradient(150deg,#087f9a,#075a72);
-  box-shadow: 0 0 0 4px rgba(255,255,255,.48), 0 12px 26px rgba(29,88,104,.22);
-}
-html:not([data-theme="night"]) .tt-accuse:hover:not(:disabled) {
-  box-shadow: 0 0 0 4px rgba(255,255,255,.65), 0 16px 33px rgba(29,88,104,.30);
-}
-html:not([data-theme="night"]) .tt-accuse:disabled {
-  opacity: 1;
-  border-color: #9dbdc6;
-  background: #cbdfe4;
-  color: #4b6974;
-  box-shadow: none;
-}
-
-/* The resolution belongs to the same daylight investigation, including
-   verdicts, sources and discussion. */
-html:not([data-theme="night"]) .tt-results {
-  border-color: #a4cbd4;
-  background: linear-gradient(160deg,#f9fdfd,#e7f2f4);
-  box-shadow: 0 24px 60px rgba(30,85,102,.15), inset 0 1px 0 #fff;
-}
-html:not([data-theme="night"]) .tt-results-overline,
-html:not([data-theme="night"]) .tt-fact-heading { color: #096d83; }
-html:not([data-theme="night"]) .tt-results h2 { color: #153c4f; }
-html:not([data-theme="night"]) .tt-results-summary,
-html:not([data-theme="night"]) .tt-fact p,
-html:not([data-theme="night"]) .tt-discuss p:last-child { color: #264b5c; }
-html:not([data-theme="night"]) .tt-fact { border-color: #bdd8df; background: rgba(255,255,255,.65); }
-html:not([data-theme="night"]) .tt-fact.is-lie { border-color: #d7a29a; background: #fbecea; }
-html:not([data-theme="night"]) .tt-fact.is-lie .tt-fact-heading { color: #a23d34; }
-html:not([data-theme="night"]) .tt-fact a { color: #08677f; }
-html:not([data-theme="night"]) .tt-fact a:hover { color: #153c4f; }
-html:not([data-theme="night"]) .tt-discuss { border-color: #b0d4dc; background: #dceef1; }
-html:not([data-theme="night"]) .tt-replay { border-color: #8ab6c2; background: #f2fafb; color: #18596f; }
-html:not([data-theme="night"]) .tt-replay:hover { background: #cfe7eb; }
-html:not([data-theme="night"]) .tt-next-case { border-color: #08758c; background: linear-gradient(145deg,#087e98,#075a72); box-shadow: 0 8px 20px rgba(20,82,100,.19); }
-html:not([data-theme="night"]) .tt-next-case:hover { background: linear-gradient(145deg,#08758c,#064b60); }
-html:not([data-theme="night"]) .tt-next-case:focus-visible { outline-color: #086e86; }
-
 
 
 @media (max-width: 990px) {
