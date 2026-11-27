@@ -162,7 +162,11 @@ async function boot(query, isOwner = true) {
   assert.equal(natureWildcard.exhibits[2].querySelector('.tt-art-placeholder').hidden, true,
     'The original octopus illustration must follow its all-true claim.');
   const unmatched = await boot('?case=15');
-  assert.equal(unmatched.exhibits[0].querySelector('.tt-art-placeholder').hidden, false,
+  assert.match(unmatched.exhibits[0].querySelector('.tt-art-image').style.backgroundImage, /case-15-a-frozen-frog\.webp/,
+    'The frozen frog illustration belongs with the original nature case.');
+  assert.equal(unmatched.exhibits[0].querySelector('.tt-art-placeholder').hidden, true,
+    'The illustrated frozen frog exhibit must not show a placeholder.');
+  assert.equal(unmatched.exhibits[2].querySelector('.tt-art-placeholder').hidden, false,
     'Unillustrated original claims must not inherit unrelated artwork.');
 
   const citedCase = await boot('?case=2');
