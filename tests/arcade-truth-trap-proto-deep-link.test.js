@@ -161,6 +161,11 @@ async function boot(query, isOwner = true) {
   const natureWildcard = await boot('?case=7');
   assert.equal(natureWildcard.exhibits[2].querySelector('.tt-art-placeholder').hidden, true,
     'The original octopus illustration must follow its all-true claim.');
+  const animals = await boot('?case=11');
+  assert.match(animals.exhibits[1].querySelector('.tt-art-image').style.backgroundImage, /case-11-b-tawny-owl\.webp/,
+    'The owl illustration belongs with the original bird-sleep claim.');
+  assert.equal(animals.exhibits[1].querySelector('.tt-art-placeholder').hidden, true,
+    'The illustrated owl exhibit must not show a placeholder.');
   const unmatched = await boot('?case=15');
   assert.match(unmatched.exhibits[0].querySelector('.tt-art-image').style.backgroundImage, /case-15-a-frozen-frog\.webp/,
     'The frozen frog illustration belongs with the original nature case.');
