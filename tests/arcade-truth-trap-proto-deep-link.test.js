@@ -175,6 +175,14 @@ async function boot(query, isOwner = true) {
     'The Great Wall illustration belongs with the original Moon visibility claim.');
   assert.equal(past.exhibits[0].querySelector('.tt-art-placeholder').hidden, true,
     'The illustrated Great Wall exhibit must not show a placeholder.');
+  assert.match(past.exhibits[1].querySelector('.tt-art-image').style.backgroundImage, /case-12-b-woolly-mammoth\.webp/,
+    'The mammoth illustration belongs with the original timeline claim.');
+  assert.equal(past.exhibits[1].querySelector('.tt-art-placeholder').hidden, true,
+    'The illustrated mammoth exhibit must not show a placeholder.');
+  assert.match(past.exhibits[2].querySelector('.tt-art-image').style.backgroundImage, /case-12-c-tomato-tonic\.webp/,
+    'The merchant illustration belongs with the original ketchup medicine claim.');
+  assert.equal(past.exhibits[2].querySelector('.tt-art-placeholder').hidden, true,
+    'The illustrated merchant exhibit must not show a placeholder.');
   const unmatched = await boot('?case=15');
   assert.match(unmatched.exhibits[0].querySelector('.tt-art-image').style.backgroundImage, /case-15-a-frozen-frog\.webp/,
     'The frozen frog illustration belongs with the original nature case.');
